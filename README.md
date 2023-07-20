@@ -1,2 +1,2 @@
 # nvm-desktop
-A version management desktop client for the Nodejs.
+A desktop client for manage the version of Nodejs.

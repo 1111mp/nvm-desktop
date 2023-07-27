@@ -1,6 +1,7 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/1111mp/nvm-desktop/main/assets/icon.png">
+  <img src="https://github.com/1111mp/nvm-desktop/assets/31227919/67132758-8aa9-4b05-b987-18fdd5980936"/>
 </div>
+
 
 # nvm-desktop
 

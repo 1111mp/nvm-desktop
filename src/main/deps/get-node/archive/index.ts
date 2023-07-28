@@ -4,6 +4,8 @@ import { downloadGz } from './gz';
 import { downloadRaw } from './raw';
 import { shouldUseZip, downloadZip } from './zip';
 
+import type { Options } from './types';
+
 // Retrieve the Node binary from the Node website and persist it.
 // The URL depends on the current OS and CPU architecture.
 export const downloadRuntime = ({
@@ -12,7 +14,7 @@ export const downloadRuntime = ({
   arch,
   fetchOpts,
   onProgress,
-}) => {
+}: Options) => {
   if (platform === 'win32') {
     return downloadWindowsNode({
       version,
@@ -44,16 +46,17 @@ export const downloadWindowsNode = async ({
   tmpFile,
   arch,
   fetchOpts,
-}) => {
+  onProgress,
+}: Options) => {
   // if (await shouldUse7z(version)) {
   //   return download7z({ version, tmpFile, arch, fetchOpts });
   // }
 
   if (shouldUseZip(version)) {
-    return downloadZip({ version, tmpFile, arch, fetchOpts });
+    return downloadZip({ version, tmpFile, arch, fetchOpts, onProgress });
   }
 
-  return downloadRaw({ version, tmpFile, arch, fetchOpts });
+  return downloadRaw({ version, tmpFile, arch, fetchOpts, onProgress });
 };
 
 // The Unix Node binary comes in a .tar.gz or .tar.xz archive.
@@ -63,7 +66,7 @@ export const downloadUnixNode = async ({
   arch,
   fetchOpts,
   onProgress,
-}) => {
+}: Options) => {
   // if (await shouldUseXz(version)) {
   //   return downloadXz({ version, tmpFile, arch, fetchOpts });
   // }

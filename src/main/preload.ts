@@ -24,6 +24,13 @@ const electronHandler = {
   platform: process.platform,
   arch: process.arch,
 
+  windowClose: () => {
+    ipcRenderer.send('window:close');
+  },
+  windowMinimize: () => {
+    ipcRenderer.send('window:minimize');
+  },
+
   getAllNodeVersions: async (arg?: { id?: string; fetch?: boolean }) =>
     ipcRenderer.invoke('all-node-versions', arg),
 

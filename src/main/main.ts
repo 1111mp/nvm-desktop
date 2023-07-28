@@ -8,7 +8,8 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import path from 'path';
+import path from 'node:path';
+import { platform } from 'node:process';
 import { app, BrowserWindow, shell, ipcMain, nativeTheme } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
@@ -21,7 +22,11 @@ import {
 } from './deps/all-node-versions';
 import getNode from './deps/get-node';
 import { APPDIR, INSTALL_DIR } from './constants';
-import { checkShellFile } from './utils/nvmdShell';
+import {
+  checkEnv,
+  setNvmdForWindows,
+  setNvmdVersionForWindows,
+} from './utils/nvmdShell';
 
 class AppUpdater {
   constructor() {
@@ -66,7 +71,7 @@ nativeTheme.on('updated', () => {
     );
 });
 
-console.log(app.getName())
+console.log(app.getPath('home'));
 
 const createWindow = async () => {
   if (isDebug) {
@@ -84,7 +89,7 @@ const createWindow = async () => {
   mainWindow = new BrowserWindow({
     show: false,
     frame: false,
-    title: "NVM-Desktop",
+    title: 'NVM-Desktop',
     width: 1024,
     maxWidth: 1024,
     minWidth: 1024,
@@ -99,7 +104,7 @@ const createWindow = async () => {
       x: 12,
       y: 12,
     },
-    backgroundColor: nativeTheme.shouldUseDarkColors ? "#000000": "#ffffff",
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#000000' : '#ffffff',
     webPreferences: {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
@@ -155,7 +160,9 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(async () => {
-    await checkShellFile();
+    try {
+      // await checkEnv();
+    } catch (err) {}
 
     createWindow();
     app.on('activate', () => {
@@ -165,6 +172,16 @@ app
     });
   })
   .catch(console.log);
+
+if (platform === 'win32') {
+  ipcMain.on('window:close', (_event) => {
+    mainWindow && mainWindow.close();
+  });
+
+  ipcMain.on('window:minimize', (_event) => {
+    mainWindow && mainWindow.minimize();
+  });
+}
 
 const controllers = new Map<string, AbortController>();
 
@@ -219,6 +236,7 @@ ipcMain.handle(
       const result = await getNode(version, {
         signal: abortController.signal,
         onProgress: (data) => {
+          console.log(data);
           mainWindow?.webContents.send('get-node:progress', id, data);
         },
       });
@@ -237,6 +255,7 @@ ipcMain.handle(
     const path = `${INSTALL_DIR}/${version}`;
     await remove(path);
     current && (await remove(`${APPDIR}/default`));
+    if (platform === 'win32') await setNvmdForWindows();
     return;
   },
 );
@@ -250,6 +269,9 @@ ipcMain.handle('current-version', async () => {
 });
 
 ipcMain.handle('use-version', async (_event, version: string) => {
+  // windows
+  if (platform === 'win32') await setNvmdVersionForWindows(version);
+
   const file = `${APPDIR}/default`;
   await writeFile(file, version);
   return;

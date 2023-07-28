@@ -42,6 +42,14 @@ export default function App() {
   );
 
   useEffect(() => {
+    applyTheme(
+      storageTheme === Themes.System
+        ? (window.Context.getSystemTheme() as Themes)
+        : storageTheme,
+    );
+  }, []);
+
+  useEffect(() => {
     window.Context.onRegistThemeCallback((systemTheme) => {
       // Themes.Light or Themes.Dark
       applyTheme(systemTheme as Themes);

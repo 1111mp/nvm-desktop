@@ -1,19 +1,6 @@
 import { platform } from 'node:process';
 
-/**
- * CPU architecture
- */
-export type Arch =
-  | 'arm'
-  | 'arm64'
-  | 'ia32'
-  | 'mips'
-  | 'mipsel'
-  | 'ppc'
-  | 'ppc64'
-  | 's390'
-  | 's390x'
-  | 'x64';
+import type { Arch } from './archive/types';
 
 const PLATFORMS: { [kek: string]: string } = {
   arm: 'armv7l',
@@ -41,12 +28,12 @@ export const validateArch = (arch: Arch) => {
 
 // Retrieve the CPU architecture as used in binary filenames.
 // Can be changed with the `arch` option.
-export const getArch = (arch: Arch): string => {
+export const getArch = (arch: Arch): Arch => {
   /* c8 ignore start */
   if (platform === 'aix') {
     return 'ppc64';
   }
   /* c8 ignore stop */
 
-  return PLATFORMS[arch];
+  return PLATFORMS[arch] as Arch;
 };

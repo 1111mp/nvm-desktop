@@ -3,6 +3,15 @@ import { env } from 'node:process';
 import { text } from 'node:stream/consumers';
 
 import fetchNodeWebsite from '../fetch-node-website';
+import type { Request } from 'got-cjs';
+import type { Options } from './archive/types';
+
+interface CheckOptions {
+  version: string;
+  filepath: string;
+  response: Request;
+  fetchOpts: Options['fetchOpts'];
+}
 
 // Verify Node.js binary checksum.
 // Checksums are available for every Node.js release.
@@ -12,7 +21,7 @@ export const checkChecksum = async ({
   filepath,
   response,
   fetchOpts,
-}) => {
+}: CheckOptions) => {
   try {
     const [expectedChecksum, actualChecksum] = await Promise.all([
       getExpectedChecksum(version, filepath, fetchOpts),
@@ -36,16 +45,23 @@ export const checkChecksum = async ({
 //   3ca24...23380  node-v6.12.3-aix-ppc64.tar.gz
 //   4e731...4278f  node-v6.12.3-darwin-x64.tar.gz
 //   etc.
-const getExpectedChecksum = async (version, filepath, fetchOpts) => {
+const getExpectedChecksum = async (
+  version: string,
+  filepath: string,
+  fetchOpts: CheckOptions['fetchOpts'],
+) => {
   const checksumLines = await getChecksumLines(version, fetchOpts);
   const [expectedChecksum] = checksumLines
     .split('\n')
     .map(parseChecksumLine)
-    .find(([, expectedFilepath]) => expectedFilepath === filepath);
+    .find(([, expectedFilepath]) => expectedFilepath === filepath) as string[];
   return expectedChecksum;
 };
 
-const getChecksumLines = async (version, fetchOpts) => {
+const getChecksumLines = async (
+  version: string,
+  fetchOpts: CheckOptions['fetchOpts'],
+) => {
   // We set this environment variable during tests. Otherwise there are no ways
   // to test checksums since they are always supposed to match unlike there is
   // a network error
@@ -64,13 +80,13 @@ const getChecksumLines = async (version, fetchOpts) => {
   return checksumLines;
 };
 
-const parseChecksumLine = (checksumLine) =>
+const parseChecksumLine = (checksumLine: string) =>
   checksumLine.trim().split(CHECKSUM_LINE_DELIMITER);
 
 const CHECKSUM_LINE_DELIMITER = /\s+/u;
 
 // Calculate actual checksum for this Node.js binary
-const getActualChecksum = async (response) => {
+const getActualChecksum = async (response: Request) => {
   const hashStream = response.pipe(createHash('sha256', { encoding: 'hex' }));
   const actualChecksum = await text(hashStream);
   return actualChecksum;

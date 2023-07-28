@@ -7,6 +7,7 @@ import { tmpName } from 'tmp-promise';
 
 import { getArch } from './arch';
 import { downloadRuntime } from './archive';
+import type { Options } from './archive/types';
 
 // Download the Node.js binary for a specific `version`.
 // If the file already exists, do nothing. This allows caching.
@@ -16,7 +17,7 @@ export const download = async ({
   arch,
   fetchOpts,
   onProgress,
-}) => {
+}: Omit<Options, 'tmpFile'> & { output: string }) => {
   const archA = getArch(arch);
   const nodePath = join(output, version);
 
@@ -53,7 +54,7 @@ const downloadFile = async ({
   arch,
   fetchOpts,
   onProgress,
-}) => {
+}: Omit<Options, 'tmpFile'> & { nodePath: string }) => {
   const tmpFile = await tmpName({ prefix: `get-node-${version}-${arch}` });
 
   try {
@@ -70,7 +71,7 @@ const tmpDownload = async ({
   arch,
   fetchOpts,
   onProgress,
-}) => {
+}: Options) => {
   const checksumError = await safeDownload({
     version,
     tmpFile,
@@ -93,7 +94,7 @@ const safeDownload = async ({
   arch,
   fetchOpts,
   onProgress,
-}) => {
+}: Options) => {
   try {
     return await downloadRuntime({
       version,
@@ -109,7 +110,12 @@ const safeDownload = async ({
   }
 };
 
-const getDownloadError = ({ message, version, arch, fetchOpts }) => {
+const getDownloadError = ({
+  message,
+  version,
+  arch,
+  fetchOpts,
+}: Omit<Options, 'tmpFile' | 'onProgress'> & { message: string }) => {
   console.log(fetchOpts);
   if (message.includes('getaddrinfo')) {
     return `Could not connect to ${fetchOpts.mirror}`;

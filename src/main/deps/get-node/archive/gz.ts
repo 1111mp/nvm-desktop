@@ -7,6 +7,7 @@ import { throttle } from 'lodash';
 import { fetchNodeUrl, promiseOrFetchError } from '../fetch';
 
 import { untar } from './tar';
+import type { Options } from './types';
 
 // Downloads .tar.gz archive and extract it
 export const downloadGz = async ({
@@ -15,7 +16,7 @@ export const downloadGz = async ({
   tmpFile,
   fetchOpts,
   onProgress,
-}) => {
+}: Options) => {
   const name = `node-v${version}-${platform}-${arch}`;
   const { response, checksumError } = await fetchNodeUrl(
     version,

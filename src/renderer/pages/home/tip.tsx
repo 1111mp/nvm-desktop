@@ -29,6 +29,7 @@ export const Tip = forwardRef<Ref, Props>(({}, ref) => {
     <Drawer
       open={open}
       title="Tip"
+      width={478}
       closable={false}
       destroyOnClose
       onClose={() => {
@@ -64,24 +65,50 @@ export const Tip = forwardRef<Ref, Props>(({}, ref) => {
           },
           {
             title: 'Setting',
-            description: (
-              <>
-                <Paragraph>
-                  <Text>
-                    Now add these lines to your ~/.bashrc, ~/.profile, or
-                    ~/.zshrc file to have it automatically sourced upon login:
-                    (you may have to add to more than one of the above files)
-                  </Text>
-                </Paragraph>
-                <Paragraph>
-                  <Text copyable type="secondary">
-                    {
-                      'export NVMD_DIR="$HOME/.nvmd" \n[ -s "$NVMD_DIR/nvmd.sh" ] && . "$NVMD_DIR/nvmd.sh" # This loads nvmd'
-                    }
-                  </Text>
-                </Paragraph>
-              </>
-            ),
+            description:
+              window.Context.platform === 'win32' ? (
+                <>
+                  <Paragraph>
+                    <Text>
+                      Now you have an additional{' '}
+                      <Text type="secondary">NVMD</Text> environment variable in
+                      your system Its default value is{' '}
+                      <Text type="secondary">empty</Text>. And it has been added
+                      to the environment variable{' '}
+                      <Text type="secondary">PATH</Text>.
+                    </Text>
+                  </Paragraph>
+                  <Paragraph>
+                    Set by : <Text type="secondary">setx -m NVMD empty</Text>
+                  </Paragraph>
+                  <Paragraph>Then you should have Node installed.</Paragraph>
+                  <Paragraph>
+                    After the node version is applied, the value of the
+                    environment variable <Text type="secondary">NVMD</Text> is
+                    set to the installation path of the node version.
+                  </Paragraph>
+                  <Paragraph>
+                    Set by : <Text type="secondary">setx -m NVMD nodePath</Text>
+                  </Paragraph>
+                </>
+              ) : (
+                <>
+                  <Paragraph>
+                    <Text>
+                      Now add these lines to your ~/.bashrc, ~/.profile, or
+                      ~/.zshrc file to have it automatically sourced upon login:
+                      (you may have to add to more than one of the above files)
+                    </Text>
+                  </Paragraph>
+                  <Paragraph>
+                    <Text copyable type="secondary">
+                      {
+                        'export NVMD_DIR="$HOME/.nvmd" \n[ -s "$NVMD_DIR/nvmd.sh" ] && . "$NVMD_DIR/nvmd.sh" # This loads nvmd'
+                      }
+                    </Text>
+                  </Paragraph>
+                </>
+              ),
           },
           {
             title: 'Finally',

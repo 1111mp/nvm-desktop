@@ -5,7 +5,7 @@ import isPlainObj from 'is-plain-obj';
 import { validateArch } from './arch';
 import { getDefaultOutput, validateOutput } from './output';
 
-import type { Arch } from './arch';
+import type { Arch } from './archive/types';
 
 export interface NodeBinary {
   /**

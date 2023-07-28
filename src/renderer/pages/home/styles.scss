@@ -18,11 +18,18 @@
   }
 
   @include dark-theme() {
-    background-color: #000000;
+    background-color: #141414;
   }
 
   &-header {
     position: relative;
+
+    &-bar {
+      position: absolute;
+      top: 8px;
+      left: 12px;
+      -webkit-app-region: no-drag;
+    }
   }
 
   &-menu {

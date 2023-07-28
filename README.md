@@ -11,7 +11,7 @@ A desktop client for manage the version of Nodejs.
 ![image](https://github.com/1111mp/nvm-desktop/assets/31227919/da71bd37-b3bc-4e64-9c3c-ab977a5eab56)
 
 ### On Windows
-After installing and starting the application, an environment variable named `NVMD` will be added to the operating system. Its default value is `empty`. And it has been added to the environment variable `PATH`.
+After installing and starting the application, an environment variable named `NVMD` will be added to your computer system, default value is `empty`. And it has been added to the environment variable `PATH`.
 
 Set by: `setx -m NVMD empty`.
 

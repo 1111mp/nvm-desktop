@@ -1,7 +1,5 @@
 @mixin light-theme() {
-  .light-theme & {
-    @content;
-  }
+  @content;
 }
 
 @mixin dark-theme() {
@@ -16,7 +14,11 @@
   overflow: hidden;
 
   @include light-theme {
-    background: #ffffff;
+    background-color: #ffffff;
+  }
+
+  @include dark-theme() {
+    background-color: #000000;
   }
 
   &-header {

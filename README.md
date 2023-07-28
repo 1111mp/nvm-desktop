@@ -24,6 +24,7 @@ If you are experiencing "App is damaged and cannot be opened" on macOS Ventura, 
 1. Open the Apple menu > System Settings.
 2. Select Privacy & Security > Developer Tools.
 3. Click the ( + ) button and navigate to the folder where the damaged app resides.
+   ![WeChat68ceaf51af50a705d1cf9536d07cd2d3](https://github.com/1111mp/nvm-desktop/assets/31227919/612caeda-0ef8-4454-a742-4bb37220b975)
 4. Select the app and click Open.
 
 If you are encountering "Application is damaged and cannot be opened" on Big Sur/Monterey/Catalina when opening an app, try these steps:
@@ -31,6 +32,7 @@ If you are encountering "Application is damaged and cannot be opened" on Big Sur
 2. Select Security & Privacy.
 3. Tap the yellow lock and enter your password to unlock the preference pane.
 4. Click "Open Anyway."
+   ![image](https://github.com/1111mp/nvm-desktop/assets/31227919/41ee3a65-bf34-437d-beea-03900704147b)
 
 #### Temporarily disable Gatekeeper
 

@@ -7,7 +7,7 @@
 
 A desktop client for manage the version of Nodejs.
 
-![image](https://github.com/1111mp/nvm-desktop/assets/31227919/7d649303-ffcd-42f7-99f9-5e025918f6a1)
+![WechatIMG14](https://github.com/1111mp/nvm-desktop/assets/31227919/05982ab2-d566-4ba9-8219-90b32fdad474)
 ![image](https://github.com/1111mp/nvm-desktop/assets/31227919/da71bd37-b3bc-4e64-9c3c-ab977a5eab56)
 
 ### On Windows

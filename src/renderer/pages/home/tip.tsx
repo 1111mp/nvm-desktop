@@ -29,7 +29,7 @@ export const Tip = forwardRef<Ref, Props>(({}, ref) => {
     <Drawer
       open={open}
       title="Tip"
-      width={478}
+      width={window.Context.platform === 'win32' ? 478 : undefined}
       closable={false}
       destroyOnClose
       onClose={() => {

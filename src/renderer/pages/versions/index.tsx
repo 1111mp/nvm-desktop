@@ -51,6 +51,8 @@ export const Versions: React.FC = () => {
   const [allVersions, allInstalledVersions, currentVersion] =
     useLoaderData() as VersionsResult;
 
+  const { version: latest } = allVersions[0];
+
   const [current, setCurrent] = useState<string>(() => currentVersion);
   const [versions, setVersions] = useState<Nvmd.Versions>(() => allVersions);
   const [installedVersions, setInstalledVersions] = useState<string[]>(
@@ -63,6 +65,7 @@ export const Versions: React.FC = () => {
 
   const searchInput = useRef<InputRef>(null);
   const modal = useRef<InfoRef>(null);
+  const latestVersion = useRef<string>(latest);
 
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -175,13 +178,13 @@ export const Versions: React.FC = () => {
         title: 'Version',
         dataIndex: 'version',
         ...getColumnSearchProps('version'),
-        render: (text: string, { lts }, index: number) => {
+        render: (text: string, { lts, version }, index: number) => {
           return (
             <Space>
               <span style={{ fontWeight: 500 }}>{text}</span>
               {lts ? (
                 <span style={{ color: '#b9b9b9' }}>({lts})</span>
-              ) : index === 0 ? (
+              ) : latestVersion.current === version ? (
                 <span style={{ color: '#b9b9b9' }}>(latest)</span>
               ) : null}
             </Space>

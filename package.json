@@ -29,7 +29,7 @@
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never",
     "package:debug": "ts-node ./.erb/scripts/clean.js dist && cross-env DEBUG_PROD=true npm run build && electron-builder build --publish never",
-    "publish": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish always",
+    "publish": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish always -mwl",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
     "start:main": "cross-env NODE_ENV=development electronmon -r ts-node/register/transpile-only .",

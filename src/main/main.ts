@@ -161,7 +161,7 @@ app
   .whenReady()
   .then(async () => {
     try {
-      // await checkEnv();
+      await checkEnv();
     } catch (err) {}
 
     createWindow();

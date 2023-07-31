@@ -236,7 +236,6 @@ ipcMain.handle(
       const result = await getNode(version, {
         signal: abortController.signal,
         onProgress: (data) => {
-          console.log(data);
           mainWindow?.webContents.send('get-node:progress', id, data);
         },
       });

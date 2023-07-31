@@ -16,7 +16,6 @@ ipcRenderer.on(
 );
 
 ipcRenderer.on('native-theme:changed', (_event, theme: string) => {
-  console.log('theme', theme);
   onThemeChanged && onThemeChanged(theme);
 });
 
@@ -32,7 +31,7 @@ const electronHandler = {
   },
 
   getAllNodeVersions: async (arg?: { id?: string; fetch?: boolean }) =>
-    ipcRenderer.invoke('all-node-versions', arg),
+    ipcRenderer.invoke('all-node-versions', arg) as Promise<Nvmd.Versions>,
 
   getInstalledNodeVersions: async (
     refresh: boolean = false,

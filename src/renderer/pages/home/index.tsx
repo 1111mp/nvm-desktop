@@ -1,6 +1,6 @@
 import './styles.scss';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, lazy, Suspense } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Button, Layout, Menu, Space, Tour, Typography } from 'antd';
 import {
@@ -10,13 +10,13 @@ import {
   CloseOutlined,
   MinusOutlined,
 } from '@ant-design/icons';
-import { Tip } from './tip';
-import { Setting } from './setting';
 
 import type { TourProps } from 'antd';
 import type { Ref as TipRef } from './tip';
 import type { Ref as SettingRef } from './tip';
 
+const Tip = lazy(() => import('./tip'));
+const Setting = lazy(() => import('./setting'));
 const { Content } = Layout;
 const { Paragraph, Text } = Typography;
 
@@ -145,10 +145,10 @@ const Home: React.FC = () => {
               selectedKeys={[pathname]}
               items={[
                 { label: <Link to="/all">Versions</Link>, key: '/all' },
-                // {
-                //   label: <Link to="/installed">Installed</Link>,
-                //   key: '/installed',
-                // },
+                {
+                  label: <Link to="/installed">Installed</Link>,
+                  key: '/installed',
+                },
               ]}
             />
             {platform === 'win32' ? (
@@ -208,8 +208,10 @@ const Home: React.FC = () => {
         }}
         steps={steps}
       />
-      <Tip ref={tipDrawer} />
-      <Setting ref={settingDrawer} />
+      <Suspense>
+        <Tip ref={tipDrawer} />
+        <Setting ref={settingDrawer} />
+      </Suspense>
     </>
   );
 };

@@ -9,7 +9,7 @@ type Props = {};
 
 const { Paragraph, Text, Link } = Typography;
 
-export const Tip = forwardRef<Ref, Props>(({}, ref) => {
+const Tip = forwardRef<Ref, Props>(({}, ref) => {
   const [open, setOpen] = useState<boolean>(false);
   const [current, setCurrent] = useState<number>(0);
 
@@ -141,3 +141,5 @@ export const Tip = forwardRef<Ref, Props>(({}, ref) => {
     </Drawer>
   );
 });
+
+export default Tip;

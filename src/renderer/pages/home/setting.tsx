@@ -1,5 +1,13 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
-import { Drawer, Descriptions, Radio } from 'antd';
+import {
+  Drawer,
+  Descriptions,
+  Input,
+  Radio,
+  Select,
+  Button,
+  Space,
+} from 'antd';
 import { Themes, applyTheme } from 'renderer/util';
 import { useAppContext } from 'renderer/appContext';
 
@@ -9,7 +17,7 @@ export type Ref = {
 
 type Props = {};
 
-export const Setting = forwardRef<Ref, Props>(({}, ref) => {
+const Setting = forwardRef<Ref, Props>(({}, ref) => {
   const { theme: ctxTheme, onThemeChanged } = useAppContext();
 
   const [open, setOpen] = useState<boolean>(false);
@@ -29,21 +37,35 @@ export const Setting = forwardRef<Ref, Props>(({}, ref) => {
       title="Setting"
       closable={false}
       destroyOnClose
+      footer={
+        <Space>
+          <Button
+            onClick={() => {
+              setOpen(false);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button type="primary">Submit</Button>
+        </Space>
+      }
+      footerStyle={{ textAlign: 'right' }}
       onClose={() => {
         setOpen(false);
       }}
     >
       <Descriptions layout="vertical" column={1}>
-        {/* <Descriptions.Item label="Language">
+        <Descriptions.Item label="Language">
           <Select
             size="small"
+            defaultValue="en"
             options={[
               { label: '简体中文', value: 'zh-CN' },
               { label: 'English', value: 'en' },
             ]}
             style={{ width: 160 }}
           />
-        </Descriptions.Item> */}
+        </Descriptions.Item>
         <Descriptions.Item label="Themes">
           <Radio.Group
             value={theme}
@@ -65,7 +87,12 @@ export const Setting = forwardRef<Ref, Props>(({}, ref) => {
             }}
           />
         </Descriptions.Item>
+        <Descriptions.Item label="Mirror Url">
+          <Input defaultValue="https://nodejs.org/dist" />
+        </Descriptions.Item>
       </Descriptions>
     </Drawer>
   );
 });
+
+export default Setting;

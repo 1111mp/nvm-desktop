@@ -1,0 +1,194 @@
+{
+  "About": {
+    "message": "About",
+    "description": "The text of the About"
+  },
+  "Setting": {
+    "message": "Setting",
+    "description": "The text of the Setting"
+  },
+  "Tip": {
+    "message": "Tip",
+    "description": "The text of the Tip"
+  },
+  "OK": {
+    "message": "OK",
+    "description": "The text of the OK"
+  },
+  "Cancel": {
+    "message": "Cancel",
+    "description": "The text of the OK"
+  },
+  "Language": {
+    "message": "Language",
+    "description": "The text of the Language"
+  },
+  "System-Default": {
+    "message": "System Default",
+    "description": "The text of the System Default"
+  },
+  "Light": {
+    "message": "Light",
+    "description": "The text of the Light"
+  },
+  "Dark": {
+    "message": "Dark",
+    "description": "The text of the Dark"
+  },
+  "Themes": {
+    "message": "Themes",
+    "description": "The text of the Themes"
+  },
+  "Mirror-Url": {
+    "message": "Mirror Url",
+    "description": "The text of the Mirror Url"
+  },
+  "For-example": {
+    "message": "For example",
+    "description": "The text of the For example"
+  },
+  "Local-Refresh": {
+    "message": "Local Refresh",
+    "description": "The text of the Local Refresh"
+  },
+  "Remote-Refresh": {
+    "message": "Remote Refresh",
+    "description": "The text of the Remote Refresh"
+  },
+  "Refresh": {
+    "message": "Refresh",
+    "description": "The text of the Refresh"
+  },
+  "Search": {
+    "message": "Search",
+    "description": "The text of the Search"
+  },
+  "Reset": {
+    "message": "Reset",
+    "description": "The text of the Reset"
+  },
+  "Install": {
+    "message": "Install",
+    "description": "The text of the Install"
+  },
+  "Installed": {
+    "message": "Installed",
+    "description": "The text of the Installed"
+  },
+  "Not-Installed": {
+    "message": "Not Installed",
+    "description": "The text of the Not Installed"
+  },
+  "Supported": {
+    "message": "Supported",
+    "description": "The text of the Supported"
+  },
+  "Not-Supported": {
+    "message": "Not Supported",
+    "description": "The text of the Not Supported"
+  },
+  "Current": {
+    "message": "Current",
+    "description": "The text of the Current"
+  },
+  "Version": {
+    "message": "Version",
+    "description": "The text of the Version"
+  },
+  "Release-Date": {
+    "message": "Release Date",
+    "description": "The text of the Release Date"
+  },
+  "Status": {
+    "message": "Status",
+    "description": "The text of the Status"
+  },
+  "Operation": {
+    "message": "Operation",
+    "description": "The text of the Operation"
+  },
+  "More": {
+    "message": "More",
+    "description": "The text of the More"
+  },
+  "Apply": {
+    "message": "Apply",
+    "description": "The text of the Apply"
+  },
+  "Uninstall": {
+    "message": "Uninstall",
+    "description": "The text of the Uninstall"
+  },
+  "latest": {
+    "message": "latest",
+    "description": "The text of the latest"
+  },
+  "Installed-Versions": {
+    "message": "Installed Versions",
+    "description": "The text of the Installed Versions"
+  },
+  "All-Node-Versions": {
+    "message": "All Node Versions",
+    "description": "The text of the All Node Versions"
+  },
+  "Versions": {
+    "message": "Versions",
+    "description": "The text of the Versions"
+  },
+  "Finally": {
+    "message": "Finally",
+    "description": "The text of the Finally"
+  },
+  "Welcome": {
+    "message": "Welcome",
+    "description": "The text of the Welcome"
+  },
+  "Welcome-to": {
+    "message": "Welcome to the",
+    "description": "The text of the Welcome-to"
+  },
+  "App-Desc": {
+    "message": "A desktop client for manage the version of Nodejs.",
+    "description": "The text of the Welcome-to"
+  },
+  "Tip-First": {
+    "message": "First you should have Node installed.",
+    "description": "The text of the Tip-First"
+  },
+  "Tip-Content": {
+    "message": "Now add these lines to your ~/.bashrc, ~/.profile, or ~/.zshrc file to have it automatically sourced upon login: (you may have to add to more than one of the above files)",
+    "description": "The text of the Tip-Content"
+  },
+  "Restar-Terminal": {
+    "message": "You might need to restart your terminal instance.",
+    "description": "The text of the Tip-First"
+  },
+  "Tip-Finally": {
+    "message": "For more information about this issue and possible workarounds, please",
+    "description": "The text of the Tip-First"
+  },
+  "Refer": {
+    "message": "refer here.",
+    "description": "The text of the Refer"
+  },
+  "Bles": {
+    "message": "Have a nice day!",
+    "description": "The text of the Refer"
+  },
+  "Set-by": {
+    "message": "Set by",
+    "description": "The text of the Set-by"
+  },
+  "Had-Install": {
+    "message": "Then you should have Node installed.",
+    "description": "The text of the Had-Install"
+  },
+  "Node-Apply": {
+    "message": "After the node version is applied, the value of the environment variable",
+    "description": "The text of the Node-Apply"
+  },
+  "Had-set": {
+    "message": "is set to the installation path of the node version.",
+    "description": "The text of the Had-set"
+  }
+}

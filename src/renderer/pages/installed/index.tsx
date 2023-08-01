@@ -9,6 +9,7 @@ import {
   CloseCircleFilled,
   DownCircleFilled,
 } from '@ant-design/icons';
+import { useI18n, useAppContext } from 'renderer/appContext';
 
 import dayjs from 'dayjs';
 import { useColumnSearchProps } from 'renderer/hooks';
@@ -54,10 +55,13 @@ export const Component: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const getColumnSearchProps = useColumnSearchProps();
 
+  const { locale } = useAppContext();
+  const i18n = useI18n();
+
   const columns: ColumnsType<Nvmd.Version> = useMemo(
     () => [
       {
-        title: 'Version',
+        title: i18n('Version'),
         dataIndex: 'version',
         ...getColumnSearchProps('version'),
         render: (text: string, { lts, version }, index: number) => {
@@ -67,7 +71,7 @@ export const Component: React.FC = () => {
               {lts ? (
                 <span style={{ color: '#b9b9b9' }}>({lts})</span>
               ) : latestVersion.current === version ? (
-                <span style={{ color: '#b9b9b9' }}>(latest)</span>
+                <span style={{ color: '#b9b9b9' }}>({i18n('latest')})</span>
               ) : null}
             </Space>
           );
@@ -75,30 +79,45 @@ export const Component: React.FC = () => {
         sorter: (a, b) => compareVersion(a.version, b.version),
       },
       {
-        title: 'V8 Version',
+        title: `V8 ${i18n('Version')}`,
         dataIndex: 'v8',
         className: 'module-versions-label__gray',
         ...getColumnSearchProps('v8'),
       },
       {
-        title: 'NPM Version',
+        title: `NPM ${i18n('Version')}`,
         dataIndex: 'npm',
         className: 'module-versions-label__gray',
         ...getColumnSearchProps('npm'),
       },
       {
-        title: 'Release Date',
+        title: i18n('Release-Date'),
         dataIndex: 'date',
         className: 'module-versions-label__gray',
         render: (text: string) => dayjs(text).format('ll'),
       },
       {
-        title: 'Status',
+        title: i18n('Status'),
+        filters: [
+          {
+            text: i18n('Current'),
+            value: 'Current',
+          },
+        ],
+        onFilter: (value, { version }) => {
+          switch (value) {
+            case 'Current': {
+              return version.includes(current);
+            }
+            default:
+              return false;
+          }
+        },
         render: (_text: string, record) => {
           if (current && record.version.includes(current))
             return (
               <Tag bordered={false} color="orange">
-                Current
+                {i18n('Current')}
               </Tag>
             );
 
@@ -109,19 +128,19 @@ export const Component: React.FC = () => {
           )
             return (
               <Tag bordered={false} color="purple">
-                Installed
+                {i18n('Installed')}
               </Tag>
             );
 
           return (
             <Tag bordered={false} color="cyan">
-              Not installed
+              {i18n('Not-Installed')}
             </Tag>
           );
         },
       },
       {
-        title: 'Operation',
+        title: i18n('Operation'),
         width: 120,
         render: (_text, record) => {
           return (
@@ -135,20 +154,20 @@ export const Component: React.FC = () => {
                           danger: true,
                           key: 'uninstall',
                           icon: <CloseCircleFilled />,
-                          label: 'Uninstall',
+                          label: i18n('Uninstall'),
                         },
                       ]
                     : [
                         {
                           key: 'apply',
                           icon: <CheckCircleFilled />,
-                          label: 'Apply',
+                          label: i18n('Apply'),
                         },
                         {
                           danger: true,
                           key: 'uninstall',
                           icon: <CloseCircleFilled />,
-                          label: 'Uninstall',
+                          label: i18n('Uninstall'),
                         },
                       ],
                 onClick: async ({ key }) => {
@@ -196,14 +215,14 @@ export const Component: React.FC = () => {
                 icon={<DownCircleFilled />}
                 style={{ color: '#5273e0', borderColor: '#5273e0' }}
               >
-                More
+                {i18n('More')}
               </Button>
             </Dropdown>
           );
         },
       },
     ],
-    [current, installedVersions],
+    [locale, current, installedVersions],
   );
 
   const onRefresh = async () => {
@@ -230,7 +249,7 @@ export const Component: React.FC = () => {
       <div className="module-installed">
         <div className="module-installed-header">
           <Typography.Title level={4} style={{ margin: 0 }}>
-            Installed Versions
+            {i18n("Installed-Versions")}
           </Typography.Title>
           <Button
             size="small"
@@ -239,7 +258,7 @@ export const Component: React.FC = () => {
             loading={loading}
             onClick={onRefresh}
           >
-            Refresh
+            {i18n('Refresh')}
           </Button>
         </div>
         <Table

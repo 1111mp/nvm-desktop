@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Input, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
+import { useI18n } from './appContext';
 
 import type { InputRef } from 'antd';
 import type { ColumnType } from 'antd/es/table';
@@ -16,6 +17,8 @@ export function useColumnSearchProps(): GetColumnSearchProps {
   const [searchedColumn, setSearchedColumn] = useState<string>('');
 
   const searchInput = useRef<InputRef>(null);
+
+  const i18n = useI18n();
 
   const handleSearch = (
     selectedKeys: string[],
@@ -43,7 +46,7 @@ export function useColumnSearchProps(): GetColumnSearchProps {
         <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
           <Input
             ref={searchInput}
-            placeholder={`Search ${dataIndex}`}
+            placeholder={`${i18n('Search')} ${dataIndex}`}
             value={selectedKeys[0]}
             onChange={(e) =>
               setSelectedKeys(e.target.value ? [e.target.value] : [])
@@ -63,14 +66,14 @@ export function useColumnSearchProps(): GetColumnSearchProps {
               size="small"
               style={{ width: 90 }}
             >
-              Search
+              {i18n('Search')}
             </Button>
             <Button
               onClick={() => clearFilters && handleReset(clearFilters)}
               size="small"
               style={{ width: 90 }}
             >
-              Reset
+              {i18n('Reset')}
             </Button>
           </Space>
         </div>

@@ -19,9 +19,17 @@ ipcRenderer.on('native-theme:changed', (_event, theme: string) => {
   onThemeChanged && onThemeChanged(theme);
 });
 
+// const { locale, message } = ipcRenderer.sendSync('locale-data') as {
+//   locale: string;
+//   message: I18n.Message;
+// };
+
 const electronHandler = {
   platform: process.platform,
   arch: process.arch,
+
+  // locale,
+  // localeMessages: message,
 
   windowClose: () => {
     ipcRenderer.send('window:close');
@@ -29,6 +37,14 @@ const electronHandler = {
   windowMinimize: () => {
     ipcRenderer.send('window:minimize');
   },
+
+  getSettingData: () =>
+    ipcRenderer.sendSync('setting-data-get') as Nvmd.Setting & {
+      localeMessages: I18n.Message;
+    },
+  updateSettingData: (setting: Nvmd.Setting) =>
+    ipcRenderer.invoke('setting-data-set', setting) as Promise<void>,
+  getLocaleData: () => ipcRenderer.sendSync('locale-data') as I18n.Message,
 
   getAllNodeVersions: async (arg?: { id?: string; fetch?: boolean }) =>
     ipcRenderer.invoke('all-node-versions', arg) as Promise<Nvmd.Versions>,

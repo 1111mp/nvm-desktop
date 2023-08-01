@@ -10,6 +10,7 @@ import {
   CloseOutlined,
   MinusOutlined,
 } from '@ant-design/icons';
+import { useI18n, useAppContext } from 'renderer/appContext';
 
 import type { TourProps } from 'antd';
 import type { Ref as TipRef } from './tip';
@@ -27,6 +28,8 @@ const Home: React.FC = () => {
   const { pathname } = useLocation();
 
   const tip = useRef(null);
+  const { locale } = useAppContext();
+  const i18n = useI18n();
 
   const tipDrawer = useRef<TipRef>(null);
   const settingDrawer = useRef<SettingRef>(null);
@@ -35,62 +38,68 @@ const Home: React.FC = () => {
 
   const steps: TourProps['steps'] = [
     {
-      title: 'Welcome',
+      title: i18n('Welcome'),
       description: (
         <>
           <Paragraph>
             <Text>
-              Welcome to the nvm-desktop.{' '}
+              {i18n('Welcome-to')} nvm-desktop.{' '}
               <SmileTwoTone style={{ fontSize: 16 }} />
             </Text>
           </Paragraph>
           <Paragraph>
-            <Text type="secondary">
-              A desktop client for manage the version of Nodejs.
-            </Text>
+            <Text type="secondary">{i18n('App-Desc')}</Text>
           </Paragraph>
         </>
       ),
       target: null,
     },
     {
-      title: 'Tip',
+      title: i18n('Tip'),
       description: (
         <>
           {platform === 'win32' ? (
             <>
               <Paragraph>
-                <Text>
-                  Now you have an additional <Text type="secondary">NVMD</Text>{' '}
-                  environment variable in your system Its default value is{' '}
-                  <Text type="secondary">empty</Text>. And it has been added to
-                  the environment variable <Text type="secondary">PATH</Text>.
-                </Text>
+                {locale === 'zh-CN' ? (
+                  <Text>
+                    现在，您的系统中已经被添加了一个系统变量：
+                    <Text type="secondary">NVMD</Text>，它的默认值是{' '}
+                    <Text type="secondary">empty</Text>，并且它已经被添加到系统变量{' '}
+                    <Text type="secondary">PATH</Text>中。
+                  </Text>
+                ) : (
+                  <Text>
+                    Now you have an additional{' '}
+                    <Text type="secondary">NVMD</Text> environment variable in
+                    your system Its default value is{' '}
+                    <Text type="secondary">empty</Text>. And it has been added
+                    to the environment variable{' '}
+                    <Text type="secondary">PATH</Text>.
+                  </Text>
+                )}
               </Paragraph>
               <Paragraph>
-                Set by : <Text type="secondary">setx -m NVMD empty</Text>
+                {i18n('Set-by')} :{' '}
+                <Text type="secondary">setx -m NVMD empty</Text>
               </Paragraph>
-              <Paragraph>Then you should have Node installed.</Paragraph>
+              <Paragraph>{i18n('Had-Install')}</Paragraph>
               <Paragraph>
-                After the node version is applied, the value of the environment
-                variable <Text type="secondary">NVMD</Text> is set to the
-                installation path of the node version.
+                {i18n('Node-Apply')} <Text type="secondary">NVMD</Text>{' '}
+                {i18n('Had-set')}
               </Paragraph>
               <Paragraph>
-                Set by : <Text type="secondary">setx -m NVMD nodePath</Text>
+                {i18n('Set-by')} :{' '}
+                <Text type="secondary">setx -m NVMD nodePath</Text>
               </Paragraph>
             </>
           ) : (
             <>
               <Paragraph>
-                <Text>First you should have Node installed.</Text>
+                <Text>{i18n('Tip-First')}</Text>
               </Paragraph>
               <Paragraph>
-                <Text>
-                  Now add these lines to your ~/.bashrc, ~/.profile, or ~/.zshrc
-                  file to have it automatically sourced upon login: (you may
-                  have to add to more than one of the above files)
-                </Text>
+                <Text>{i18n('Tip-Content')}</Text>
               </Paragraph>
               <Paragraph>
                 <Text copyable type="secondary">
@@ -102,7 +111,7 @@ const Home: React.FC = () => {
             </>
           )}
           <Paragraph>
-            <Text>You might need to restart your terminal instance.</Text>
+            <Text>{i18n('Restar-Terminal')}</Text>
           </Paragraph>
         </>
       ),
@@ -110,23 +119,20 @@ const Home: React.FC = () => {
       target: () => tip.current,
     },
     {
-      title: 'Finally',
+      title: i18n('Finally'),
       description: (
         <>
           <Paragraph>
-            <Text type="secondary">
-              For more information about this issue and possible workarounds,
-              please
-            </Text>
+            <Text type="secondary">{i18n('Tip-Finally')}</Text>
             <Typography.Link
               href="https://github.com/1111mp/nvm-desktop/issues"
               target="_blank"
             >
-              &nbsp; refer here.
+              &nbsp; {i18n('Refer')}
             </Typography.Link>
           </Paragraph>
           <Paragraph>
-            <Text>Have a nice day!</Text>
+            <Text>{i18n('Bles')}</Text>
           </Paragraph>
         </>
       ),
@@ -144,9 +150,12 @@ const Home: React.FC = () => {
               className="module-home-menu"
               selectedKeys={[pathname]}
               items={[
-                { label: <Link to="/all">Versions</Link>, key: '/all' },
                 {
-                  label: <Link to="/installed">Installed</Link>,
+                  label: <Link to="/all">{i18n('Versions')}</Link>,
+                  key: '/all',
+                },
+                {
+                  label: <Link to="/installed">{i18n('Installed')}</Link>,
                   key: '/installed',
                 },
               ]}
@@ -175,7 +184,7 @@ const Home: React.FC = () => {
               <Button
                 ref={tip}
                 type="text"
-                title="tip"
+                title={i18n('Tip')}
                 size="small"
                 className="module-home-btn"
                 icon={<InfoCircleOutlined />}
@@ -186,7 +195,7 @@ const Home: React.FC = () => {
               <Button
                 type="text"
                 size="small"
-                title="setting"
+                title={i18n('Setting')}
                 className="module-home-btn"
                 icon={<SettingOutlined />}
                 onClick={() => {

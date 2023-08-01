@@ -230,7 +230,8 @@
       "output": "release/build"
     },
     "extraResources": [
-      "./assets/**"
+      "./assets/**",
+      "./_locales/**"
     ],
     "publish": {
       "provider": "github",

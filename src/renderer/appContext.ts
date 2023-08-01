@@ -1,10 +1,22 @@
 import { createContext, useContext } from 'react';
-import { Themes } from './util';
+import { Themes } from 'types';
 
 type AppContextType = {
+  locale: string;
   theme: Themes;
-  onThemeChanged: (theme: Themes) => void;
+  mirror: string;
+  getMessage: I18nFn;
+  onUpdateSetting: (setting: Nvmd.Setting) => Promise<void>;
 };
+
+type ReplacementValuesType = {
+  [key: string]: string | number;
+};
+
+export type I18nFn = (
+  key: string,
+  substitutions?: Array<string | number> | ReplacementValuesType,
+) => string;
 
 export const AppContext = createContext<AppContextType | null>(null);
 
@@ -18,3 +30,8 @@ export function useAppContext() {
   }
   return context;
 }
+
+export const useI18n = (): I18nFn => {
+  const { getMessage } = useAppContext();
+  return getMessage;
+};

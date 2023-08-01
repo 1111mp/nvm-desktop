@@ -27,6 +27,9 @@ import {
   setNvmdForWindows,
   setNvmdVersionForWindows,
 } from './utils/nvmdShell';
+import { setSetting, getSetting } from './utils/setting';
+import loadLocale from './locale';
+import { Themes } from '../types';
 
 class AppUpdater {
   constructor() {
@@ -36,7 +39,9 @@ class AppUpdater {
   }
 }
 
-let mainWindow: BrowserWindow | null = null;
+let mainWindow: BrowserWindow | null = null,
+  locale: I18n.Locale,
+  setting: Nvmd.Setting;
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -104,7 +109,14 @@ const createWindow = async () => {
       x: 12,
       y: 12,
     },
-    backgroundColor: nativeTheme.shouldUseDarkColors ? '#000000' : '#ffffff',
+    backgroundColor:
+      setting.theme === Themes.System
+        ? nativeTheme.shouldUseDarkColors
+          ? '#000000'
+          : '#ffffff'
+        : setting.theme === Themes.Dark
+        ? '#000000'
+        : '#ffffff',
     webPreferences: {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
@@ -161,8 +173,42 @@ app
   .whenReady()
   .then(async () => {
     try {
-      await checkEnv();
+      const [, settingFromCache] = await Promise.all([
+        checkEnv(),
+        getSetting(),
+      ]);
+
+      if (!setting) setting = settingFromCache;
+
+      if (!locale) {
+        const appLocale = setting.locale;
+        locale = loadLocale({ appLocale });
+      }
     } catch (err) {}
+
+    ipcMain.on('setting-data-get', (event) => {
+      event.returnValue = { ...setting, localeMessages: locale.messages };
+    });
+
+    ipcMain.handle(
+      'setting-data-set',
+      async (_event, data: Partial<Nvmd.Setting>) => {
+        if (data.locale !== setting.locale) {
+          locale = loadLocale({ appLocale: data.locale });
+        }
+        setting = { ...setting, ...data };
+        await setSetting({
+          locale: setting.locale,
+          theme: setting.theme,
+          mirror: setting.mirror,
+        });
+        return;
+      },
+    );
+
+    ipcMain.on('locale-data', (event) => {
+      event.returnValue = locale.messages;
+    });
 
     createWindow();
     app.on('activate', () => {
@@ -193,10 +239,12 @@ ipcMain.handle(
     let result;
     try {
       result = await allNodeVersions({
+        mirror: setting.mirror,
         signal: abortController.signal,
         fetch,
         timeout: {
-          response: 1000 * 60 * 3,
+          request: 1000 * 20,
+          response: 1000 * 60,
         },
       });
     } catch (err) {
@@ -234,6 +282,7 @@ ipcMain.handle(
 
     try {
       const result = await getNode(version, {
+        mirror: setting.mirror,
         signal: abortController.signal,
         onProgress: (data) => {
           mainWindow?.webContents.send('get-node:progress', id, data);

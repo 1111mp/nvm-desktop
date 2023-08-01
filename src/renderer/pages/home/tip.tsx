@@ -1,5 +1,6 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { Drawer, Steps, Typography } from 'antd';
+import { useI18n } from 'renderer/appContext';
 
 export type Ref = {
   show: () => void;
@@ -12,6 +13,8 @@ const { Paragraph, Text, Link } = Typography;
 const Tip = forwardRef<Ref, Props>(({}, ref) => {
   const [open, setOpen] = useState<boolean>(false);
   const [current, setCurrent] = useState<number>(0);
+
+  const i18n = useI18n();
 
   useImperativeHandle(ref, () => ({
     show: onShow,
@@ -42,7 +45,7 @@ const Tip = forwardRef<Ref, Props>(({}, ref) => {
         direction="vertical"
         items={[
           {
-            title: 'Install Node',
+            title: `${i18n('Install')} Node`,
             description: (
               <>
                 <Paragraph>
@@ -64,7 +67,7 @@ const Tip = forwardRef<Ref, Props>(({}, ref) => {
             ),
           },
           {
-            title: 'Setting',
+            title: i18n('Setting'),
             description:
               window.Context.platform === 'win32' ? (
                 <>
@@ -111,7 +114,7 @@ const Tip = forwardRef<Ref, Props>(({}, ref) => {
               ),
           },
           {
-            title: 'Finally',
+            title: i18n('Finally'),
             description: (
               <>
                 <Paragraph>

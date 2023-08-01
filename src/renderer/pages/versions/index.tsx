@@ -13,6 +13,7 @@ import {
 } from '@ant-design/icons';
 import { VirtualTable } from 'renderer/components/VirtualTable';
 import { InfoModal } from './modal';
+import { useI18n, useAppContext } from 'renderer/appContext';
 
 import dayjs from 'dayjs';
 import { useColumnSearchProps } from 'renderer/hooks';
@@ -63,10 +64,13 @@ export const Versions: React.FC = () => {
 
   const getColumnSearchProps = useColumnSearchProps();
 
+  const { locale } = useAppContext();
+  const i18n = useI18n();
+
   const columns: ColumnsType<Nvmd.Version> = useMemo(
     () => [
       {
-        title: 'Version',
+        title: i18n('Version'),
         dataIndex: 'version',
         ...getColumnSearchProps('version'),
         render: (text: string, { lts, version }, index: number) => {
@@ -76,7 +80,7 @@ export const Versions: React.FC = () => {
               {lts ? (
                 <span style={{ color: '#b9b9b9' }}>({lts})</span>
               ) : latestVersion.current === version ? (
-                <span style={{ color: '#b9b9b9' }}>(latest)</span>
+                <span style={{ color: '#b9b9b9' }}>({i18n('latest')})</span>
               ) : null}
             </Space>
           );
@@ -84,32 +88,32 @@ export const Versions: React.FC = () => {
         sorter: (a, b) => compareVersion(a.version, b.version),
       },
       {
-        title: 'V8 Version',
+        title: `V8 ${i18n('Version')}`,
         dataIndex: 'v8',
         className: 'module-versions-label__gray',
         ...getColumnSearchProps('v8'),
       },
       {
-        title: 'NPM Version',
+        title: `NPM ${i18n('Version')}`,
         dataIndex: 'npm',
         className: 'module-versions-label__gray',
         ...getColumnSearchProps('npm'),
       },
       {
-        title: 'Release Date',
+        title: i18n('Release-Date'),
         dataIndex: 'date',
         className: 'module-versions-label__gray',
         render: (text: string) => dayjs(text).format('ll'),
       },
       {
-        title: 'Status',
+        title: i18n('Status'),
         filters: [
           {
-            text: 'Installed',
+            text: i18n('Installed'),
             value: 'Installed',
           },
           {
-            text: 'Supported',
+            text: i18n('Supported'),
             value: 'Supported',
           },
         ],
@@ -133,14 +137,14 @@ export const Versions: React.FC = () => {
           if (!support)
             return (
               <Tag bordered={false} color="error">
-                Not supported
+                {i18n('Not-Supported')}
               </Tag>
             );
 
           if (current && record.version.includes(current))
             return (
               <Tag bordered={false} color="orange">
-                Current
+                {i18n('Current')}
               </Tag>
             );
 
@@ -151,19 +155,19 @@ export const Versions: React.FC = () => {
           )
             return (
               <Tag bordered={false} color="purple">
-                Installed
+                {i18n('Installed')}
               </Tag>
             );
 
           return (
             <Tag bordered={false} color="cyan">
-              Not installed
+              {i18n('Not-Installed')}
             </Tag>
           );
         },
       },
       {
-        title: 'Operation',
+        title: i18n('Operation'),
         width: 120,
         render: (_text, record) => {
           const support = checkSupportive(record.files);
@@ -185,20 +189,20 @@ export const Versions: React.FC = () => {
                             danger: true,
                             key: 'uninstall',
                             icon: <CloseCircleFilled />,
-                            label: 'Uninstall',
+                            label: i18n('Uninstall'),
                           },
                         ]
                       : [
                           {
                             key: 'apply',
                             icon: <CheckCircleFilled />,
-                            label: 'Apply',
+                            label: i18n('Apply'),
                           },
                           {
                             danger: true,
                             key: 'uninstall',
                             icon: <CloseCircleFilled />,
-                            label: 'Uninstall',
+                            label: i18n('Uninstall'),
                           },
                         ],
                   onClick: async ({ key }) => {
@@ -241,7 +245,7 @@ export const Versions: React.FC = () => {
                   icon={<DownCircleFilled />}
                   style={{ color: '#5273e0', borderColor: '#5273e0' }}
                 >
-                  More
+                  {i18n('More')}
                 </Button>
               </Dropdown>
             );
@@ -254,13 +258,13 @@ export const Versions: React.FC = () => {
               icon={<PlusCircleFilled />}
               onClick={() => modal.current?.show(record)}
             >
-              Install
+              {i18n('Install')}
             </Button>
           );
         },
       },
     ],
-    [current, installedVersions, setInstalledVersions],
+    [locale, current, installedVersions, setInstalledVersions],
   );
 
   const onLocalRefresh = async () => {
@@ -316,7 +320,7 @@ export const Versions: React.FC = () => {
       <div className="module-versions">
         <div className="module-versions-header">
           <Title level={4} style={{ margin: 0 }}>
-            All Node Versions
+            {i18n('All-Node-Versions')}
           </Title>
           <Space>
             <Button
@@ -327,7 +331,7 @@ export const Versions: React.FC = () => {
               disabled={loading}
               onClick={onLocalRefresh}
             >
-              Local Refresh
+              {i18n('Local-Refresh')}
             </Button>
             <Button
               size="small"
@@ -336,7 +340,7 @@ export const Versions: React.FC = () => {
               loading={loading}
               onClick={onRemoteRefresh}
             >
-              Remote Refresh
+              {i18n('Remote-Refresh')}
             </Button>
           </Space>
         </div>

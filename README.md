@@ -9,8 +9,8 @@ A visual applications for manage the version of Nodejs. With this applications, 
 
 This project was inspired by [nvm](https://github.com/nvm-sh/nvm)
 
-![WechatIMG14](https://github.com/1111mp/nvm-desktop/assets/31227919/05982ab2-d566-4ba9-8219-90b32fdad474)
-![image](https://github.com/1111mp/nvm-desktop/assets/31227919/da71bd37-b3bc-4e64-9c3c-ab977a5eab56)
+<img width="1067" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/55d4a059-c62e-41a5-af6b-97eaf240d4bb">
+<img width="1059" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/8ce13dfe-d5af-45b7-8ce5-170b8e17472d">
 
 ## Todo
 - [x] Multi-Language (default is english)

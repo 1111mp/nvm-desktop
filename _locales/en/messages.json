@@ -3,6 +3,82 @@
     "message": "About",
     "description": "The text of the About"
   },
+  "Services": {
+    "message": "Services",
+    "description": "The text of the Services"
+  },
+  "Hide": {
+    "message": "Hide",
+    "description": "The text of the Hide"
+  },
+  "Hide-Others": {
+    "message": "Hide Others",
+    "description": "The text of the Hide-Others"
+  },
+  "Show-All": {
+    "message": "Show All",
+    "description": "The text of the Show-All"
+  },
+  "Quit": {
+    "message": "Quit",
+    "description": "The text of the Quit"
+  },
+  "Edit": {
+    "message": "Edit",
+    "description": "The text of the Edit"
+  },
+  "Undo": {
+    "message": "Undo",
+    "description": "The text of the Undo"
+  },
+  "Redo": {
+    "message": "Redo",
+    "description": "The text of the Redo"
+  },
+  "Cut": {
+    "message": "Cut",
+    "description": "The text of the Cut"
+  },
+  "Copy": {
+    "message": "Copy",
+    "description": "The text of the Copy"
+  },
+  "Paste": {
+    "message": "Paste",
+    "description": "The text of the Paste"
+  },
+  "Select-All": {
+    "message": "Select All",
+    "description": "The text of the Select-All"
+  },
+  "Window": {
+    "message": "Window",
+    "description": "The text of the Window"
+  },
+  "Minimize": {
+    "message": "Minimize",
+    "description": "The text of the Minimize"
+  },
+  "Close": {
+    "message": "Close",
+    "description": "The text of the Close"
+  },
+  "Help": {
+    "message": "Help",
+    "description": "The text of the Help"
+  },
+  "Learn-More": {
+    "message": "Learn More",
+    "description": "The text of the Learn-More"
+  },
+  "Documentation": {
+    "message": "Documentation",
+    "description": "The text of the Documentation"
+  },
+  "Search-Issues": {
+    "message": "Search Issues",
+    "description": "The text of the Search-Issues"
+  },
   "Setting": {
     "message": "Setting",
     "description": "The text of the Setting"
@@ -190,5 +266,21 @@
   "Had-set": {
     "message": "is set to the installation path of the node version.",
     "description": "The text of the Had-set"
+  },
+  "Retry": {
+    "message": "Retry",
+    "description": "The text of the Retry"
+  },
+  "Start-Install": {
+    "message": "Start Install",
+    "description": "The text of the Start-Install"
+  },
+  "Version-Manager": {
+    "message": "Version Manager",
+    "description": "The text of the Version-Manager"
+  },
+  "Install-Tip": {
+    "message": "Click the Start Installation button to start the installation.",
+    "description": "The text of the Install-Tip"
   }
 }

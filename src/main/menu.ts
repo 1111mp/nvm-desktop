@@ -12,19 +12,22 @@ interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
 }
 
 export default class MenuBuilder {
-  mainWindow: BrowserWindow;
-
-  constructor(mainWindow: BrowserWindow) {
+  constructor(
+    private readonly mainWindow: BrowserWindow,
+    private i18n: I18n.I18nFn,
+  ) {
     this.mainWindow = mainWindow;
   }
 
-  buildMenu(): Menu {
+  buildMenu(i18n?: I18n.I18nFn): Menu {
     if (
       process.env.NODE_ENV === 'development' ||
       process.env.DEBUG_PROD === 'true'
     ) {
       this.setupDevelopmentEnvironment();
     }
+
+    i18n && (this.i18n = i18n);
 
     const template =
       process.platform === 'darwin'
@@ -57,26 +60,29 @@ export default class MenuBuilder {
       label: 'NVM-Desktop',
       submenu: [
         {
-          label: 'About NVM-Desktop',
+          label: `${this.i18n('About')} NVM-Desktop`,
           selector: 'orderFrontStandardAboutPanel:',
         },
         { type: 'separator' },
-        { label: 'Services', submenu: [] },
+        { label: this.i18n('Services') as string, submenu: [] },
         { type: 'separator' },
         {
-          label: 'Hide NVM-Desktop',
+          label: `${this.i18n('Hide')} NVM-Desktop`,
           accelerator: 'Command+H',
           selector: 'hide:',
         },
         {
-          label: 'Hide Others',
+          label: this.i18n('Hide-Others') as string,
           accelerator: 'Command+Shift+H',
           selector: 'hideOtherApplications:',
         },
-        { label: 'Show All', selector: 'unhideAllApplications:' },
+        {
+          label: this.i18n('Show-All') as string,
+          selector: 'unhideAllApplications:',
+        },
         { type: 'separator' },
         {
-          label: 'Quit',
+          label: this.i18n('Quit') as string,
           accelerator: 'Command+Q',
           click: () => {
             app.quit();
@@ -86,16 +92,36 @@ export default class MenuBuilder {
     };
 
     const subMenuEdit: DarwinMenuItemConstructorOptions = {
-      label: 'Edit',
+      label: this.i18n('Edit') as string,
       submenu: [
-        { label: 'Undo', accelerator: 'Command+Z', selector: 'undo:' },
-        { label: 'Redo', accelerator: 'Shift+Command+Z', selector: 'redo:' },
-        { type: 'separator' },
-        { label: 'Cut', accelerator: 'Command+X', selector: 'cut:' },
-        { label: 'Copy', accelerator: 'Command+C', selector: 'copy:' },
-        { label: 'Paste', accelerator: 'Command+V', selector: 'paste:' },
         {
-          label: 'Select All',
+          label: this.i18n('Undo') as string,
+          accelerator: 'Command+Z',
+          selector: 'undo:',
+        },
+        {
+          label: this.i18n('Redo') as string,
+          accelerator: 'Shift+Command+Z',
+          selector: 'redo:',
+        },
+        { type: 'separator' },
+        {
+          label: this.i18n('Cut') as string,
+          accelerator: 'Command+X',
+          selector: 'cut:',
+        },
+        {
+          label: this.i18n('Copy') as string,
+          accelerator: 'Command+C',
+          selector: 'copy:',
+        },
+        {
+          label: this.i18n('Paste') as string,
+          accelerator: 'Command+V',
+          selector: 'paste:',
+        },
+        {
+          label: this.i18n('Select-All') as string,
           accelerator: 'Command+A',
           selector: 'selectAll:',
         },
@@ -103,34 +129,38 @@ export default class MenuBuilder {
     };
 
     const subMenuWindow: DarwinMenuItemConstructorOptions = {
-      label: 'Window',
+      label: this.i18n('Window') as string,
       submenu: [
         {
-          label: 'Minimize',
+          label: this.i18n('Minimize') as string,
           accelerator: 'Command+M',
           selector: 'performMiniaturize:',
         },
-        { label: 'Close', accelerator: 'Command+W', selector: 'performClose:' },
+        {
+          label: this.i18n('Close') as string,
+          accelerator: 'Command+W',
+          selector: 'performClose:',
+        },
       ],
     };
 
     const subMenuHelp: MenuItemConstructorOptions = {
-      label: 'Help',
+      label: this.i18n('Help') as string,
       submenu: [
         {
-          label: 'Learn More',
+          label: this.i18n('Learn-More') as string,
           click() {
             shell.openExternal('https://github.com/1111mp/NVM-Desktop');
           },
         },
         {
-          label: 'Documentation',
+          label: this.i18n('Documentation') as string,
           click() {
             shell.openExternal('https://github.com/1111mp/NVM-Desktop#readme');
           },
         },
         {
-          label: 'Search Issues',
+          label: this.i18n('Search-Issues') as string,
           click() {
             shell.openExternal('https://github.com/1111mp/NVM-Desktop/issues');
           },
@@ -144,32 +174,16 @@ export default class MenuBuilder {
   buildDefaultTemplate() {
     const templateDefault = [
       {
-        label: '&File',
+        label: this.i18n('Help') as string,
         submenu: [
           {
-            label: '&Open',
-            accelerator: 'Ctrl+O',
-          },
-          {
-            label: '&Close',
-            accelerator: 'Ctrl+W',
-            click: () => {
-              this.mainWindow.close();
-            },
-          },
-        ],
-      },
-      {
-        label: 'Help',
-        submenu: [
-          {
-            label: 'Learn More',
+            label: this.i18n('Learn-More') as string,
             click() {
               shell.openExternal('https://github.com/1111mp/NVM-Desktop');
             },
           },
           {
-            label: 'Documentation',
+            label: this.i18n('Documentation') as string,
             click() {
               shell.openExternal(
                 'https://github.com/1111mp/NVM-Desktop#readme',
@@ -177,7 +191,7 @@ export default class MenuBuilder {
             },
           },
           {
-            label: 'Search Issues',
+            label: this.i18n('Search-Issues') as string,
             click() {
               shell.openExternal(
                 'https://github.com/1111mp/NVM-Desktop/issues',

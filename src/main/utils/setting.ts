@@ -4,7 +4,6 @@ import { SETTING_JSONFILE } from '../constants';
 import { Themes } from '../../types';
 
 export async function getSetting(): Promise<Nvmd.Setting> {
-  console.log(app.getLocale());
   try {
     const setting = await readJSON(SETTING_JSONFILE);
     return setting;

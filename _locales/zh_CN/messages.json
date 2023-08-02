@@ -3,6 +3,82 @@
     "message": "关于",
     "description": "The text of the About"
   },
+  "Services": {
+    "message": "服务",
+    "description": "The text of the Services"
+  },
+  "Hide": {
+    "message": "隐藏",
+    "description": "The text of the Hide"
+  },
+  "Hide-Others": {
+    "message": "隐藏其它",
+    "description": "The text of the Hide-Others"
+  },
+  "Show-All": {
+    "message": "显示所有",
+    "description": "The text of the Show-All"
+  },
+  "Quit": {
+    "message": "退出",
+    "description": "The text of the Quit"
+  },
+  "Edit": {
+    "message": "编辑",
+    "description": "The text of the Edit"
+  },
+  "Undo": {
+    "message": "撤销",
+    "description": "The text of the Undo"
+  },
+  "Redo": {
+    "message": "还原",
+    "description": "The text of the Redo"
+  },
+  "Cut": {
+    "message": "剪切",
+    "description": "The text of the Cut"
+  },
+  "Copy": {
+    "message": "复制",
+    "description": "The text of the Copy"
+  },
+  "Paste": {
+    "message": "粘贴",
+    "description": "The text of the Paste"
+  },
+  "Select-All": {
+    "message": "选中所有",
+    "description": "The text of the Select-All"
+  },
+  "Window": {
+    "message": "窗口",
+    "description": "The text of the Window"
+  },
+  "Minimize": {
+    "message": "最小化",
+    "description": "The text of the Minimize"
+  },
+  "Close": {
+    "message": "关闭",
+    "description": "The text of the Close"
+  },
+  "Help": {
+    "message": "帮助",
+    "description": "The text of the Help"
+  },
+  "Learn-More": {
+    "message": "了解更多",
+    "description": "The text of the Learn-More"
+  },
+  "Documentation": {
+    "message": "文档",
+    "description": "The text of the Documentation"
+  },
+  "Search-Issues": {
+    "message": "搜索问题",
+    "description": "The text of the Search-Issues"
+  },
   "Setting": {
     "message": "设置",
     "description": "The text of the Setting"
@@ -190,5 +266,21 @@
   "Had-set": {
     "message": "的值已经被设置成了该 Node 版本的安装路径。",
     "description": "The text of the Had-set"
+  },
+  "Retry": {
+    "message": "重试",
+    "description": "The text of the Retry"
+  },
+  "Start-Install": {
+    "message": "开始安装",
+    "description": "The text of the Start-Install"
+  },
+  "Version-Manager": {
+    "message": "版本管理",
+    "description": "The text of the Version-Manager"
+  },
+  "Install-Tip": {
+    "message": "点击 开始安装 按钮开始下载安装。",
+    "description": "The text of the Install-Tip"
   }
 }

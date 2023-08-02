@@ -78,8 +78,6 @@ export default function App() {
     });
   }, [state.theme]);
 
-  console.log(state.messages);
-
   // update setting
   const onUpdateSetting = useMemo(
     () => async (setting: Nvmd.Setting) => {

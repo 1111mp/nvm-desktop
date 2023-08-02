@@ -14,6 +14,7 @@ import {
   message,
 } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
+import { useI18n } from 'renderer/appContext';
 
 export type Ref = {
   show: (data: Nvmd.Version) => void;
@@ -34,6 +35,7 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
   const record = useRef<Nvmd.Version>();
   const uuid = useRef<string>();
 
+  const i18n = useI18n();
   const [messageApi, contextHolder] = message.useMessage();
 
   useImperativeHandle(ref, () => ({
@@ -90,14 +92,14 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
     <>
       {contextHolder}
       <Modal
-        title="Version Manager"
+        title={i18n('Version-Manager')}
         open={open}
         closable={false}
         bodyStyle={{ paddingTop: 12 }}
         footer={[
           path && path !== 'error' ? null : loading ? (
             <Button key="cancel" danger onClick={onAbort}>
-              Cancel
+              {i18n('Cancel')}
             </Button>
           ) : (
             <Button
@@ -106,7 +108,7 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
                 setOpen(false);
               }}
             >
-              Cancel
+              {i18n('Cancel')}
             </Button>
           ),
           path && path !== 'error' ? (
@@ -119,7 +121,7 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
                 setOpen(false);
               }}
             >
-              OK
+              {i18n('OK')}
             </Button>
           ) : (
             <Button
@@ -128,7 +130,7 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
               loading={loading}
               onClick={onStart}
             >
-              {path === 'error' ? 'Retry' : 'Start Install'}
+              {path === 'error' ? i18n('Retry') : i18n('Start-Install')}
             </Button>
           ),
         ]}
@@ -140,10 +142,10 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
         }}
       >
         <Descriptions column={2} colon={false}>
-          <Descriptions.Item label="Version">
+          <Descriptions.Item label={i18n('Version')}>
             {record.current?.version}
           </Descriptions.Item>
-          <Descriptions.Item label="NPM Version">
+          <Descriptions.Item label={`NPM ${i18n('Version')}`}>
             {record.current?.npm}
           </Descriptions.Item>
           {progress ? (
@@ -157,10 +159,7 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
               />
             </Descriptions.Item>
           ) : (
-            <Descriptions.Item
-              span={2}
-              label="Click the Start Installation button to start the installation."
-            >
+            <Descriptions.Item span={2} label={i18n('Install-Tip')}>
               {''}
             </Descriptions.Item>
           )}

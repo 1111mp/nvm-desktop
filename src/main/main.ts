@@ -41,6 +41,7 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null,
   locale: I18n.Locale,
+  menuBuilder: MenuBuilder,
   setting: Nvmd.Setting;
 
 if (process.env.NODE_ENV === 'production') {
@@ -75,8 +76,6 @@ nativeTheme.on('updated', () => {
       nativeTheme.shouldUseDarkColors ? 'dark' : 'light',
     );
 });
-
-console.log(app.getPath('home'));
 
 const createWindow = async () => {
   if (isDebug) {
@@ -143,7 +142,7 @@ const createWindow = async () => {
     mainWindow = null;
   });
 
-  const menuBuilder = new MenuBuilder(mainWindow);
+  menuBuilder = new MenuBuilder(mainWindow, locale.i18n);
   menuBuilder.buildMenu();
 
   // Open urls in the user's browser
@@ -195,6 +194,7 @@ app
       async (_event, data: Partial<Nvmd.Setting>) => {
         if (data.locale !== setting.locale) {
           locale = loadLocale({ appLocale: data.locale });
+          menuBuilder.buildMenu(locale.i18n);
         }
         setting = { ...setting, ...data };
         await setSetting({

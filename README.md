@@ -13,8 +13,8 @@ This project was inspired by [nvm](https://github.com/nvm-sh/nvm)
 ![image](https://github.com/1111mp/nvm-desktop/assets/31227919/da71bd37-b3bc-4e64-9c3c-ab977a5eab56)
 
 ## Todo
-- [ ] Multi-Language (default is english)
-- [ ] Support for custom mirrors (default is https://nodejs.org/dist) 
+- [x] Multi-Language (default is english)
+- [x] Support for custom mirrors (default is https://nodejs.org/dist) 
 
 ### On Windows
 After installing and starting the application, an environment variable named `NVMD` will be added to your computer system, default value is `empty`. And it has been added to the environment variable `PATH`.

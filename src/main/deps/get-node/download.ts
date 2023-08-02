@@ -116,7 +116,6 @@ const getDownloadError = ({
   arch,
   fetchOpts,
 }: Omit<Options, 'tmpFile' | 'onProgress'> & { message: string }) => {
-  console.log(fetchOpts);
   if (message.includes('getaddrinfo')) {
     return `Could not connect to ${fetchOpts.mirror}`;
   }

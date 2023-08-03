@@ -31,7 +31,7 @@ const Tip = forwardRef<Ref, Props>(({}, ref) => {
   return (
     <Drawer
       open={open}
-      title="Tip"
+      title={i18n('Tip')}
       width={window.Context.platform === 'win32' ? 478 : undefined}
       closable={false}
       destroyOnClose

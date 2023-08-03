@@ -13,8 +13,8 @@ This project was inspired by [nvm](https://github.com/nvm-sh/nvm)
 <img width="1059" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/8ce13dfe-d5af-45b7-8ce5-170b8e17472d">
 
 ## Todo
-- [x] Multi-Language (default is english)
-- [x] Support for custom mirrors (default is https://nodejs.org/dist) 
+- [x] Support English & Simplified Chinese
+- [x] Support for custom download mirrors (default is https://nodejs.org/dist) 
 
 ### On Windows
 After installing and starting the application, an environment variable named `NVMD` will be added to your computer system, default value is `empty`. And it has been added to the environment variable `PATH`.
@@ -30,6 +30,8 @@ Don't forget to restart your terminal.
 If you encounter problems during use, please check whether the environment variables in the operating system are valid. Of course, your issue is also very welcome.
 
 ### MacOS issues
+
+Because there is no Apple developer account, automatic updates cannot be used on the MacOS platform. Please always check the [latest version](https://github.com/1111mp/nvm-desktop/releases) for the best experience.
 
 > "File/App is damaged and cannot be opened. You should move it to Trash."
 

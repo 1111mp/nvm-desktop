@@ -10,6 +10,7 @@ import {
   CloseOutlined,
   MinusOutlined,
 } from '@ant-design/icons';
+import { Updater } from './updater';
 import { useI18n, useAppContext } from 'renderer/appContext';
 
 import type { TourProps } from 'antd';
@@ -65,7 +66,8 @@ const Home: React.FC = () => {
                   <Text>
                     现在，您的系统中已经被添加了一个系统变量：
                     <Text type="secondary">NVMD</Text>，它的默认值是{' '}
-                    <Text type="secondary">empty</Text>，并且它已经被添加到系统变量{' '}
+                    <Text type="secondary">empty</Text>
+                    ，并且它已经被添加到系统变量{' '}
                     <Text type="secondary">PATH</Text>中。
                   </Text>
                 ) : (
@@ -184,14 +186,15 @@ const Home: React.FC = () => {
               <Button
                 ref={tip}
                 type="text"
-                title={i18n('Tip')}
                 size="small"
+                title={i18n('Tip')}
                 className="module-home-btn"
                 icon={<InfoCircleOutlined />}
                 onClick={() => {
                   tipDrawer.current?.show();
                 }}
               />
+              {platform === 'win32' ? <Updater /> : null}
               <Button
                 type="text"
                 size="small"

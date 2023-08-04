@@ -282,5 +282,41 @@
   "Install-Tip": {
     "message": "点击 开始安装 按钮开始下载安装。",
     "description": "The text of the Install-Tip"
+  },
+  "Check-Update": {
+    "message": "检查更新",
+    "description": "The text of the Check-Update"
+  },
+  "Download-Progress": {
+    "message": "下载进度",
+    "description": "The text of the Progress"
+  },
+  "Update-Info": {
+    "message": "更新信息",
+    "description": "The text of the Update-Info"
+  },
+  "Upgrade": {
+    "message": "升级",
+    "description": "The text of the Upgrade"
+  },
+  "Quit-And-Install": {
+    "message": "退出并安装",
+    "description": "The text of the Quit-And-Install"
+  },
+  "Current-Version": {
+    "message": "当前版本",
+    "description": "The text of the Current-Version"
+  },
+  "New-Version": {
+    "message": "新版本",
+    "description": "The text of the New-Version"
+  },
+  "Release-Name": {
+    "message": "发布名称",
+    "description": "The text of the Release-Name"
+  },
+  "Upgrade-Tip": {
+    "message": "退出并安装以升级到最新版本？",
+    "description": "The text of the Upgrade-Tip"
   }
 }

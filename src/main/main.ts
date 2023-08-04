@@ -11,10 +11,9 @@
 import path from 'node:path';
 import { platform } from 'node:process';
 import { app, BrowserWindow, shell, ipcMain, nativeTheme } from 'electron';
-import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
 import { remove, pathExists, readFile, writeFile } from 'fs-extra';
 import MenuBuilder from './menu';
+import { AppUpdater } from './updater';
 import { resolveHtmlPath } from './utils/resolvePath';
 import {
   allNodeVersions,
@@ -30,14 +29,6 @@ import {
 import { setSetting, getSetting } from './utils/setting';
 import loadLocale from './locale';
 import { Themes } from '../types';
-
-class AppUpdater {
-  constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
-  }
-}
 
 let mainWindow: BrowserWindow | null = null,
   locale: I18n.Locale,
@@ -151,9 +142,12 @@ const createWindow = async () => {
     return { action: 'deny' };
   });
 
-  // Remove this if your app does not use auto updates
-  // eslint-disable-next-line
-  new AppUpdater();
+  if (platform === 'win32') {
+    // windows only
+    // Remove this if your app does not use auto updates
+    // eslint-disable-next-line
+    new AppUpdater(mainWindow);
+  }
 };
 
 /**
@@ -228,6 +222,10 @@ if (platform === 'win32') {
     mainWindow && mainWindow.minimize();
   });
 }
+
+ipcMain.on('get-app-version', (event) => {
+  event.returnValue = app.getVersion();
+});
 
 const controllers = new Map<string, AbortController>();
 

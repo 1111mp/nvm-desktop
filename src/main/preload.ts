@@ -1,17 +1,28 @@
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
-import { contextBridge, ipcRenderer } from 'electron';
+import { app, contextBridge, ipcRenderer } from 'electron';
+import type { ProgressInfo, UpdateInfo } from 'electron-updater';
 
+type OnUpdateProgressCallback = (progress: ProgressInfo) => void;
 type OnProgressCallback = (id: string, data: Nvmd.ProgressData) => void;
 type OnThemeChangedCallback = (theme: string) => void;
 
-let onProgress: OnProgressCallback | null = null,
+let onUpdateProgress: OnUpdateProgressCallback | null = null,
+  onProgress: OnProgressCallback | null = null,
   onThemeChanged: OnThemeChangedCallback | null = null;
+
+ipcRenderer.on('download-progress', (_event, progress: ProgressInfo) => {
+  onUpdateProgress?.(progress);
+});
+
+ipcRenderer.on('update-error', (_event, err) => {
+  console.log(err);
+});
 
 ipcRenderer.on(
   'get-node:progress',
   (_event, id: string, progress: Nvmd.ProgressData) => {
-    onProgress && onProgress(id, progress);
+    onProgress?.(id, progress);
   },
 );
 
@@ -19,23 +30,27 @@ ipcRenderer.on('native-theme:changed', (_event, theme: string) => {
   onThemeChanged && onThemeChanged(theme);
 });
 
-// const { locale, message } = ipcRenderer.sendSync('locale-data') as {
-//   locale: string;
-//   message: I18n.Message;
-// };
-
 const electronHandler = {
   platform: process.platform,
   arch: process.arch,
-
-  // locale,
-  // localeMessages: message,
+  version: ipcRenderer.sendSync('get-app-version') as string,
 
   windowClose: () => {
     ipcRenderer.send('window:close');
   },
   windowMinimize: () => {
     ipcRenderer.send('window:minimize');
+  },
+
+  checkForUpdates: () =>
+    ipcRenderer.invoke('check-for-updates') as Promise<UpdateInfo | null>,
+  comfirmUpdate: () =>
+    ipcRenderer.invoke('confirm-update') as Promise<string[]>,
+  makeUpdateNow() {
+    ipcRenderer.send('make-update-now');
+  },
+  onRegistUpdateProgress(callback: OnUpdateProgressCallback) {
+    onUpdateProgress = callback;
   },
 
   getSettingData: () =>

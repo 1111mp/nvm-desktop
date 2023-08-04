@@ -1,4 +1,5 @@
 import { Themes } from 'types';
+import type { UpdateInfo as ElectronUpdateInfo } from 'electron-updater';
 
 declare global {
   namespace Nvmd {
@@ -24,5 +25,7 @@ declare global {
       theme: Themes;
       mirror: string;
     }
+
+    type UpdateInfo = ElectronUpdateInfo | 'update-not-available';
   }
 }

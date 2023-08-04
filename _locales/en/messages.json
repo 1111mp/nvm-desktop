@@ -282,5 +282,41 @@
   "Install-Tip": {
     "message": "Click the Start Installation button to start the installation.",
     "description": "The text of the Install-Tip"
+  },
+  "Check-Update": {
+    "message": "Check Update",
+    "description": "The text of the Check-Update"
+  },
+  "Download-Progress": {
+    "message": "Download Progress",
+    "description": "The text of the Progress"
+  },
+  "Update-Info": {
+    "message": "Update Info",
+    "description": "The text of the Update-Info"
+  },
+  "Upgrade": {
+    "message": "Upgrade",
+    "description": "The text of the Upgrade"
+  },
+  "Quit-And-Install": {
+    "message": "Quit And Install",
+    "description": "The text of the Quit-And-Install"
+  },
+  "Current-Version": {
+    "message": "Current Version",
+    "description": "The text of the Current-Version"
+  },
+  "New-Version": {
+    "message": "New Version",
+    "description": "The text of the New-Version"
+  },
+  "Release-Name": {
+    "message": "Release Name",
+    "description": "The text of the Release-Name"
+  },
+  "Upgrade-Tip": {
+    "message": "Quit the app and install to upgrade to the latest version?",
+    "description": "The text of the Upgrade-Tip"
   }
 }

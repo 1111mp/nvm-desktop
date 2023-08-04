@@ -43,9 +43,13 @@ export class AppUpdater {
 
   checkForUpdates() {
     ipcMain.handle('check-for-updates', async () => {
-      const result = await autoUpdater.checkForUpdates();
+      try {
+        const result = await autoUpdater.checkForUpdates();
 
-      return result && result.updateInfo ? result?.updateInfo : result;
+        return result && result.updateInfo ? result?.updateInfo : result;
+      } catch (err) {
+        return Promise.reject(err);
+      }
     });
   }
 

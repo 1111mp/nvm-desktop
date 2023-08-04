@@ -177,6 +177,7 @@
     "productName": "nvm-desktop",
     "appId": "org.erb.nvmd",
     "asar": true,
+    "artifactName": "${productName}_Setup_${arch}_${version}.${ext}",
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
       "dist",

@@ -60,13 +60,21 @@ export const Updater: React.FC = () => {
         setOpen({ visible: false, type: ModalType.Check });
         try {
           await window.Context.comfirmUpdate();
-        } finally {
           // download completed
           setOpen({ visible: true, type: ModalType.Complete });
+        } catch (err) {
+          messageApi.error(
+            err.message.replace(
+              "Error invoking remote method 'confirm-update': Error: ",
+              '',
+            ),
+          );
         }
+        return;
       }
       case ModalType.Complete: {
         window.Context.makeUpdateNow();
+        return;
       }
     }
   };

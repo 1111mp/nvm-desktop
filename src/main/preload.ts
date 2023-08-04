@@ -3,13 +3,28 @@
 import { app, contextBridge, ipcRenderer } from 'electron';
 import type { ProgressInfo, UpdateInfo } from 'electron-updater';
 
+type OnCheckUpdateResultCallback = (
+  info: UpdateInfo | 'update-not-available',
+) => void;
 type OnUpdateProgressCallback = (progress: ProgressInfo) => void;
 type OnProgressCallback = (id: string, data: Nvmd.ProgressData) => void;
 type OnThemeChangedCallback = (theme: string) => void;
 
-let onUpdateProgress: OnUpdateProgressCallback | null = null,
+let onCheckUpdateResult: OnCheckUpdateResultCallback | null = null,
+  onUpdateProgress: OnUpdateProgressCallback | null = null,
   onProgress: OnProgressCallback | null = null,
   onThemeChanged: OnThemeChangedCallback | null = null;
+
+ipcRenderer.on('update-available', (_event, info: UpdateInfo) => {
+  onCheckUpdateResult?.(info);
+});
+
+ipcRenderer.on(
+  'update-not-available',
+  (_event, info: 'update-not-available') => {
+    onCheckUpdateResult?.(info);
+  },
+);
 
 ipcRenderer.on('download-progress', (_event, progress: ProgressInfo) => {
   onUpdateProgress?.(progress);
@@ -48,6 +63,9 @@ const electronHandler = {
     ipcRenderer.invoke('confirm-update') as Promise<string[]>,
   makeUpdateNow() {
     ipcRenderer.send('make-update-now');
+  },
+  onCheckUpdateResultCallback(callback: OnCheckUpdateResultCallback) {
+    onCheckUpdateResult = callback;
   },
   onRegistUpdateProgress(callback: OnUpdateProgressCallback) {
     onUpdateProgress = callback;

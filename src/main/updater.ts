@@ -12,11 +12,15 @@ export class AppUpdater {
 
     autoUpdater.on('update-available', (info) => {
       // had updates
+      mainWindow?.webContents.send('update-available', info);
     });
 
-    autoUpdater.on('update-not-available', (info) => {
-      console.log('update-not-available', info);
+    autoUpdater.on('update-not-available', () => {
       // there are no updates
+      mainWindow?.webContents.send(
+        'update-not-available',
+        'update-not-available',
+      );
     });
 
     autoUpdater.on('download-progress', (progress) => {

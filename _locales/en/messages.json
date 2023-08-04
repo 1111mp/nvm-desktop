@@ -318,5 +318,9 @@
   "Upgrade-Tip": {
     "message": "Quit the app and install to upgrade to the latest version?",
     "description": "The text of the Upgrade-Tip"
+  },
+  "Up-to-date": {
+    "message": "You’re up to date!",
+    "description": "The text of the Up-to-date"
   }
 }

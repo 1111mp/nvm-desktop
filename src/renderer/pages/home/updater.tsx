@@ -25,6 +25,15 @@ export const Updater: React.FC = () => {
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
+    window.Context.onCheckUpdateResultCallback((info) => {
+      if (info === 'update-not-available') {
+        return messageApi.success(i18n('Up-to-date'));
+      }
+
+      updateInfo.current = info;
+      setOpen({ visible: true, type: ModalType.Check });
+    });
+
     window.Context.onRegistUpdateProgress((progress) => {
       setProgress(progress);
     });
@@ -34,12 +43,7 @@ export const Updater: React.FC = () => {
     setLoading(true);
     window.Context.checkForUpdates()
       .then((info) => {
-        if (info === null) {
-          return messageApi.success('You’re up to date!');
-        }
-
-        updateInfo.current = info;
-        setOpen({ visible: true, type: ModalType.Check });
+        console.log(info);
       })
       .catch((err) => {
         messageApi.error(
@@ -137,7 +141,7 @@ export const Updater: React.FC = () => {
         }}
         onOk={onUpgrade}
       >
-        {open.type === ModalType.Check ? (
+        {open.type === ModalType.Check && updateInfo ? (
           <Descriptions column={2}>
             <Descriptions.Item label={i18n('Current-Version')}>
               {window.Context.version}

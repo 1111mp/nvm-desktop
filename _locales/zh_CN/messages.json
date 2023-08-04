@@ -318,5 +318,9 @@
   "Upgrade-Tip": {
     "message": "退出并安装以升级到最新版本？",
     "description": "The text of the Upgrade-Tip"
+  },
+  "Up-to-date": {
+    "message": "已是最新版本!",
+    "description": "The text of the Upgrade-Tip"
   }
 }

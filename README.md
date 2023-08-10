@@ -16,6 +16,7 @@ This project was inspired by [nvm](https://github.com/nvm-sh/nvm)
 - [x] Support English & Simplified Chinese
 - [x] Support for custom download mirrors (default is https://nodejs.org/dist)
 - [x] Support automatic update on Windows.
+- [ ] Complete automated testing.
 
 ### On Windows
 After installing and starting the application, an environment variable named `NVMD` will be added to your computer system, default value is `empty`. And it has been added to the environment variable `PATH`.

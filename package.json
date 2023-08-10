@@ -23,19 +23,22 @@
   "main": "./src/main/main.ts",
   "scripts": {
     "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
+    "build:test": "concurrently \"npm run build:main:test\" \"npm run build:renderer\"",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.prod.ts",
+    "build:main:test": "cross-env TEST=true NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.prod.ts",
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
     "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts",
     "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never",
     "package:debug": "ts-node ./.erb/scripts/clean.js dist && cross-env DEBUG_PROD=true npm run build && electron-builder build --publish never",
+    "package:test": "ts-node ./.erb/scripts/clean.js dist && npm run build:test && electron-builder build --publish never",
     "publish": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish always -mwl",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
     "start:main": "cross-env NODE_ENV=development electronmon -r ts-node/register/transpile-only .",
     "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
-    "test": "jest"
+    "test": "wdio run ./wdio.conf.ts"
   },
   "browserslist": [],
   "prettier": {
@@ -52,39 +55,8 @@
       }
     ]
   },
-  "jest": {
-    "moduleDirectories": [
-      "node_modules",
-      "release/app/node_modules",
-      "src"
-    ],
-    "moduleFileExtensions": [
-      "js",
-      "jsx",
-      "ts",
-      "tsx",
-      "json"
-    ],
-    "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/.erb/mocks/fileMock.js",
-      "\\.(css|less|sass|scss)$": "identity-obj-proxy"
-    },
-    "setupFiles": [
-      "./.erb/scripts/check-build-exists.ts"
-    ],
-    "testEnvironment": "jsdom",
-    "testEnvironmentOptions": {
-      "url": "http://localhost/"
-    },
-    "testPathIgnorePatterns": [
-      "release/app/dist",
-      ".erb/dll"
-    ],
-    "transform": {
-      "\\.(ts|tsx|js|jsx)$": "ts-jest"
-    }
-  },
   "dependencies": {
+    "@wdio/spec-reporter": "^8.14.0",
     "antd": "^5.7.3",
     "compressing": "^1.9.0",
     "electron-debug": "^3.2.0",
@@ -106,11 +78,12 @@
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
     "@svgr/webpack": "^8.0.1",
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.2",
-    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/dom": "^9.3.1",
     "@testing-library/react": "^14.0.0",
+    "@testing-library/webdriverio": "^3.2.1",
     "@types/fs-extra": "^11.0.1",
-    "@types/jest": "^29.5.3",
     "@types/lodash": "^4.14.196",
+    "@types/mocha": "^10.0.1",
     "@types/node": "20.4.5",
     "@types/react": "^18.2.17",
     "@types/react-dom": "^18.2.7",
@@ -123,8 +96,13 @@
     "@types/webpack-bundle-analyzer": "^4.6.0",
     "@typescript-eslint/eslint-plugin": "^6.2.0",
     "@typescript-eslint/parser": "^6.2.0",
+    "@wdio/cli": "^8.14.4",
+    "@wdio/globals": "^8.14.3",
+    "@wdio/local-runner": "^8.14.3",
+    "@wdio/mocha-framework": "^8.14.0",
     "browserslist-config-erb": "^0.0.3",
     "chalk": "^4.1.2",
+    "chromedriver": "114",
     "concurrently": "^8.2.0",
     "core-js": "^3.31.1",
     "cross-env": "^7.0.3",
@@ -147,11 +125,13 @@
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-react": "^7.33.0",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "expect": "^29.6.2",
+    "expect-webdriverio": "^4.2.7",
     "file-loader": "^6.2.0",
+    "global-jsdom": "^9.1.0",
     "html-webpack-plugin": "^5.5.3",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^29.6.1",
-    "jest-environment-jsdom": "^29.6.1",
+    "jsdom": "^22.1.0",
     "mini-css-extract-plugin": "^2.7.6",
     "prettier": "^3.0.0",
     "react-refresh": "^0.14.0",
@@ -161,12 +141,13 @@
     "sass-loader": "^13.3.2",
     "style-loader": "^3.3.3",
     "terser-webpack-plugin": "^5.3.9",
-    "ts-jest": "^29.1.1",
     "ts-loader": "^9.4.4",
     "ts-node": "^10.9.1",
     "tsconfig-paths-webpack-plugin": "^4.1.0",
     "typescript": "^5.1.6",
     "url-loader": "^4.1.1",
+    "wdio-electron-service": "^4.3.0",
+    "webdriverio": "^8.14.3",
     "webpack": "^5.88.2",
     "webpack-bundle-analyzer": "^4.9.0",
     "webpack-cli": "^5.1.4",

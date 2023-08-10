@@ -1,6 +1,6 @@
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
-import { app, contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
 import type { ProgressInfo, UpdateInfo } from 'electron-updater';
 
 type OnCheckUpdateResultCallback = (

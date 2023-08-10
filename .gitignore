@@ -1,5 +1,6 @@
 # Logs
 logs
+wdio-logs
 *.log
 
 # Runtime data

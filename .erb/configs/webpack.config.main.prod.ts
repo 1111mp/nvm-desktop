@@ -15,6 +15,8 @@ import deleteSourceMaps from '../scripts/delete-source-maps';
 checkNodeEnv('production');
 deleteSourceMaps();
 
+const isTest = process.env.TEST === 'true';
+
 const configuration: webpack.Configuration = {
   devtool: 'source-map',
 
@@ -23,8 +25,14 @@ const configuration: webpack.Configuration = {
   target: 'electron-main',
 
   entry: {
-    main: path.join(webpackPaths.srcMainPath, 'main.ts'),
-    preload: path.join(webpackPaths.srcMainPath, 'preload.ts'),
+    main: path.join(
+      webpackPaths.srcMainPath,
+      isTest ? 'main.test.ts' : 'main.ts',
+    ),
+    preload: path.join(
+      webpackPaths.srcMainPath,
+      isTest ? 'preload.test.ts' : 'preload.ts',
+    ),
   },
 
   output: {

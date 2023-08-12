@@ -131,6 +131,7 @@
     "global-jsdom": "^9.1.0",
     "html-webpack-plugin": "^5.5.3",
     "identity-obj-proxy": "^3.0.0",
+    "is-plain-obj": "3.0.0",
     "jsdom": "^22.1.0",
     "mini-css-extract-plugin": "^2.7.6",
     "prettier": "^3.0.0",

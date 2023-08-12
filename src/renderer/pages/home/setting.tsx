@@ -58,7 +58,12 @@ const Setting = forwardRef<Ref, Props>(({}, ref) => {
       footer={
         <Space>
           <Button onClick={onClose}>{i18n('Cancel')}</Button>
-          <Button type="primary" loading={loading} onClick={onSubmit}>
+          <Button
+            type="primary"
+            data-testid="setting-submit"
+            loading={loading}
+            onClick={onSubmit}
+          >
             {i18n('OK')}
           </Button>
         </Space>

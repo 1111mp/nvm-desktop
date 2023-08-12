@@ -264,7 +264,7 @@ export const Versions: React.FC = () => {
         },
       },
     ],
-    [locale, current, installedVersions, setInstalledVersions],
+    [locale, current, installedVersions, versions.length, setInstalledVersions],
   );
 
   const onLocalRefresh = async () => {

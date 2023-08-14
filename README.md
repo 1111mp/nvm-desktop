@@ -12,6 +12,43 @@ This project was inspired by [nvm](https://github.com/nvm-sh/nvm)
 <img width="1067" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/55d4a059-c62e-41a5-af6b-97eaf240d4bb">
 <img width="1059" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/8ce13dfe-d5af-45b7-8ce5-170b8e17472d">
 
+## Install
+
+### Download
+
+You can download the source code and build it yourself, or download the built version from following links:
+
+- [nvmd-desktop Download Page (GitHub release)](https://github.com/1111mp/nvm-desktop/releases)
+
+The automatic update function of the application is currently only supported on the Windows platform. If you are a macOS user please always check the [latest version](https://github.com/1111mp/nvm-desktop/releases) for the best experience.
+
+## Develop and Build
+
+### Development
+- Make sure your computer has [Node.js](https://nodejs.org/) installed
+- Change to the folder ./, run `npm install` or `yarn install` to install dependented libraries
+
+There are two ways to start the development server:
+
+- run `npm run start` or `yarn start`
+- `F5` one-button start (debug mode)
+
+### Build and Package
+- It is recommended to use [electron-builder](https://www.electron.build/index.html) for packaging
+- Go to the ./ folder
+- Run `npm run package` or `yarn run package`,  if everything goes well, the packaged files will be in the ./release/build folder.
+
+> Please check `.yarnrc` file for the correct mirror address of the installation dependencies
+
+### Automated Test
+
+1. First you should build the binary startup files for testing via `npm run package:test` or `yarn package:test`
+2. Then run `npm run test` or `yarn test` to start automated testing
+
+Automated testing framework: [WebdriverIO](https://webdriver.io/)
+
+About the Electron Testing can view documents: [wdio-electron-service](https://webdriver.io/docs/desktop-testing/electron)
+
 ## Todo
 - [x] Support English & Simplified Chinese
 - [x] Support for custom download mirrors (default is https://nodejs.org/dist)

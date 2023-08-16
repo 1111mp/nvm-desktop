@@ -3,11 +3,13 @@
 </div>
 
 
-# nvm-desktop
+# Node Version Manager Desktop
 
-A visual applications for manage the version of Nodejs. With this applications, you can easily install the versions of Node you want and manage them.
+`nvm-desktop` is a desktop application to manage multiple active node.js versions. With this applications, you can quickly install and use different versions of node.
 
 This project was inspired by [nvm](https://github.com/nvm-sh/nvm)
+
+## Screenshot
 
 <img width="1067" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/55d4a059-c62e-41a5-af6b-97eaf240d4bb">
 <img width="1059" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/8ce13dfe-d5af-45b7-8ce5-170b8e17472d">

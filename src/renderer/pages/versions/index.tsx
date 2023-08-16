@@ -86,6 +86,7 @@ export const Versions: React.FC = () => {
           );
         },
         sorter: (a, b) => compareVersion(a.version, b.version),
+        sortDirections: ['descend', 'ascend'],
       },
       {
         title: `V8 ${i18n('Version')}`,
@@ -103,6 +104,9 @@ export const Versions: React.FC = () => {
         title: i18n('Release-Date'),
         dataIndex: 'date',
         className: 'module-versions-label__gray',
+        sorter: (a, b) =>
+          new Date(a.date).getTime() - new Date(b.date).getTime(),
+        sortDirections: ['descend', 'ascend'],
         render: (text: string) => dayjs(text).format('ll'),
       },
       {

@@ -25,5 +25,5 @@ export function compareVersion(version1: string, version2: string): number {
   version1 = version1.slice(1);
   version2 = version2.slice(1);
 
-  return semver.gt(version2, version1) as unknown as number;
+  return semver.gt(version2, version1) ? -1 : 1;
 }

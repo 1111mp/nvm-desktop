@@ -94,6 +94,9 @@ export const Component: React.FC = () => {
         title: i18n('Release-Date'),
         dataIndex: 'date',
         className: 'module-versions-label__gray',
+        sorter: (a, b) =>
+          new Date(a.date).getTime() - new Date(b.date).getTime(),
+        sortDirections: ['descend', 'ascend'],
         render: (text: string) => dayjs(text).format('ll'),
       },
       {
@@ -249,7 +252,7 @@ export const Component: React.FC = () => {
       <div className="module-installed">
         <div className="module-installed-header">
           <Typography.Title level={4} style={{ margin: 0 }}>
-            {i18n("Installed-Versions")}
+            {i18n('Installed-Versions')}
           </Typography.Title>
           <Button
             size="small"

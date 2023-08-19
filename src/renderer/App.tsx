@@ -30,9 +30,6 @@ type StateAction = {
 };
 
 export default function App() {
-  // const storageTheme = (localStorage.getItem('nvmd-theme') ||
-  //   Themes.System) as Themes;
-
   const { locale, theme, mirror, localeMessages } =
     window.Context.getSettingData();
 

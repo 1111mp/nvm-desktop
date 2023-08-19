@@ -5,11 +5,11 @@ import { useLoaderData } from 'react-router-dom';
 import {
   App,
   Button,
+  Drawer,
   Popconfirm,
   Select,
   Space,
   Table,
-  Tooltip,
   Typography,
 } from 'antd';
 import { DndContext } from '@dnd-kit/core';
@@ -55,6 +55,7 @@ export const Component: React.FC = () => {
     () => allInstalledVersions,
   );
   const [projects, setProjects] = useState<Nvmd.Project[]>(() => allProjects);
+  const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
   const i18n = useI18n();
@@ -249,43 +250,16 @@ export const Component: React.FC = () => {
             <Title level={4} style={{ margin: 0 }}>
               {i18n('All-Projects')}
             </Title>
-            <Tooltip
-              placement="bottomLeft"
-              title={
-                <>
-                  <Paragraph>
-                    <Text>{i18n('Can-Select')}</Text>
-                  </Paragraph>
-                  <Paragraph>
-                    <Text>
-                      {i18n('Had-File')} <Text type="secondary">.nvmdrc</Text>{' '}
-                      {i18n('Load-Node')}
-                    </Text>
-                  </Paragraph>
-                  <Paragraph>
-                    <Text>{i18n('runtimeExecutable')}</Text>
-                  </Paragraph>
-                  <Paragraph>
-                    <Text type="secondary">
-                      {
-                        '"runtimeExecutable": "${env:NVMD_DIR}/versions/18.17.0/bin/npm"'
-                      }
-                    </Text>
-                  </Paragraph>
-                  <Paragraph>
-                    <Text>{i18n('Directly-Specify')}</Text>
-                  </Paragraph>
-                </>
-              }
-              overlayInnerStyle={{ width: 500, padding: '16px 24px' }}
-            >
-              <Button
-                type="text"
-                size="small"
-                className="module-home-btn"
-                icon={<InfoCircleOutlined />}
-              />
-            </Tooltip>
+            <Button
+              type="text"
+              size="small"
+              title={i18n('Tip')}
+              className="module-home-btn"
+              icon={<InfoCircleOutlined />}
+              onClick={() => {
+                setOpen(true);
+              }}
+            />
           </Space>
           <Space>
             <Button
@@ -330,6 +304,40 @@ export const Component: React.FC = () => {
           </SortableContext>
         </DndContext>
       </div>
+      <Drawer
+        open={open}
+        title={i18n('Tip')}
+        closable={false}
+        destroyOnClose
+        onClose={() => {
+          setOpen(false);
+        }}
+      >
+        <>
+          <Paragraph>
+            <Text>{i18n('Can-Select')}</Text>
+          </Paragraph>
+          <Paragraph>
+            <Text>
+              {i18n('Had-File')} <Text type="secondary">.nvmdrc</Text>{' '}
+              {i18n('Load-Node')}
+            </Text>
+          </Paragraph>
+          <Paragraph>
+            <Text>{i18n('runtimeExecutable')}</Text>
+          </Paragraph>
+          <Paragraph>
+            <Text type="secondary">
+              {
+                '"runtimeExecutable": "${env:NVMD_DIR}/versions/18.17.0/bin/npm"'
+              }
+            </Text>
+          </Paragraph>
+          <Paragraph>
+            <Text>{i18n('Directly-Specify')}</Text>
+          </Paragraph>
+        </>
+      </Drawer>
     </>
   );
 };

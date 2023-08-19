@@ -29,6 +29,7 @@ const Home: React.FC = () => {
   const { pathname } = useLocation();
 
   const tip = useRef(null);
+  const projectsMenu = useRef(null);
   const { locale } = useAppContext();
   const i18n = useI18n();
 
@@ -113,13 +114,47 @@ const Home: React.FC = () => {
             </>
           )}
           <Paragraph>
-            <Text>{i18n('Restar-Terminal')}</Text>
+            <Text>{i18n('Restart-Terminal')}</Text>
           </Paragraph>
         </>
       ),
       placement: 'bottomRight',
       target: () => tip.current,
     },
+    ...(platform !== 'win32'
+      ? [
+          {
+            title: i18n('Projects'),
+            description: (
+              <>
+                <Paragraph>
+                  <Text>{i18n('Can-Select')}</Text>
+                </Paragraph>
+                <Paragraph>
+                  <Text>
+                    {i18n('Had-File')} <Text type="secondary">.nvmdrc</Text>{' '}
+                    {i18n('Load-Node')}
+                  </Text>
+                </Paragraph>
+                <Paragraph>
+                  <Text>{i18n('runtimeExecutable')}</Text>
+                </Paragraph>
+                <Paragraph>
+                  <Text type="secondary">
+                    {
+                      '"runtimeExecutable": "${env:NVMD_DIR}/versions/18.17.0/bin/npm"'
+                    }
+                  </Text>
+                </Paragraph>
+                <Paragraph>
+                  <Text>{i18n('Directly-Specify')}</Text>
+                </Paragraph>
+              </>
+            ),
+            target: () => projectsMenu.current,
+          },
+        ]
+      : []),
     {
       title: i18n('Finally'),
       description: (
@@ -151,20 +186,37 @@ const Home: React.FC = () => {
               mode="horizontal"
               className="module-home-menu"
               selectedKeys={[pathname]}
-              items={[
-                {
-                  label: <Link to="/all">{i18n('Versions')}</Link>,
-                  key: '/all',
-                },
-                {
-                  label: <Link to="/installed">{i18n('Installed')}</Link>,
-                  key: '/installed',
-                },
-                {
-                  label: <Link to="/projects">{i18n('Projects')}</Link>,
-                  key: '/projects',
-                },
-              ]}
+              items={
+                platform !== 'win32'
+                  ? [
+                      {
+                        label: <Link to="/all">{i18n('Versions')}</Link>,
+                        key: '/all',
+                      },
+                      {
+                        label: <Link to="/installed">{i18n('Installed')}</Link>,
+                        key: '/installed',
+                      },
+                      {
+                        label: (
+                          <Link ref={projectsMenu} to="/projects">
+                            {i18n('Projects')}
+                          </Link>
+                        ),
+                        key: '/projects',
+                      },
+                    ]
+                  : [
+                      {
+                        label: <Link to="/all">{i18n('Versions')}</Link>,
+                        key: '/all',
+                      },
+                      {
+                        label: <Link to="/installed">{i18n('Installed')}</Link>,
+                        key: '/installed',
+                      },
+                    ]
+              }
             />
             {platform === 'win32' ? (
               <Space className="module-home-header-bar">

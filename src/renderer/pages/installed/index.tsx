@@ -182,9 +182,7 @@ export const Component: React.FC = () => {
                       const currentVersion =
                         await window.Context.getCurrentVersion();
                       setCurrent(currentVersion);
-                      message.success(
-                        'You might need to restart your terminal instance',
-                      );
+                      message.success(i18n('Restart-Terminal'));
                       return;
                     }
                     case 'uninstall': {

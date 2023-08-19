@@ -235,7 +235,7 @@
     "message": "Now add these lines to your ~/.bashrc, ~/.profile, or ~/.zshrc file to have it automatically sourced upon login: (you may have to add to more than one of the above files)",
     "description": "The text of the Tip-Content"
   },
-  "Restar-Terminal": {
+  "Restart-Terminal": {
     "message": "You might need to restart your terminal instance.",
     "description": "The text of the Tip-First"
   },
@@ -322,5 +322,53 @@
   "Up-to-date": {
     "message": "You’re up to date!",
     "description": "The text of the Up-to-date"
+  },
+  "Projects": {
+    "message": "Projects",
+    "description": "The text of the Projects"
+  },
+  "All-Projects": {
+    "message": "All Projects",
+    "description": "The text of the All-Projects"
+  },
+  "Add-Project": {
+    "message": "Add Project",
+    "description": "The text of the Add-Project"
+  },
+  "Project-Name": {
+    "message": "Project Name",
+    "description": "The text of the Project-Name"
+  },
+  "Project-Path": {
+    "message": "Project Path",
+    "description": "The text of the Project-Path"
+  },
+  "Project-Delete": {
+    "message": "Are you sure to delete this project?",
+    "description": "The text of the Project-Delete"
+  },
+  "Remove": {
+    "message": "Remove",
+    "description": "The text of the Remove"
+  },
+  "Can-Select": {
+    "message": "You can individually select the version of Node you want for your project.",
+    "description": "The text of the Can-Select"
+  },
+  "Had-File": {
+    "message": "A file will be added to the root of the project:",
+    "description": "The text of the Had-File"
+  },
+  "Load-Node": {
+    "message": ". The content is the version number of Node you choose. The version number of Node that is loaded as a global setting if this file is not added.",
+    "description": "The text of the Load-Node"
+  },
+  "runtimeExecutable": {
+    "message": "If you are using VS Code and launch your project with Debug, then you should change the runtimeExecutable configuration in the launch.json file. Like this:",
+    "description": "The text of the runtimeExecutable"
+  },
+  "Directly-Specify": {
+    "message": "Directly specify the installation path of Node or NPM.",
+    "description": "The text of the Directly-Specify"
   }
 }

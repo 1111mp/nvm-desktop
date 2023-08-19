@@ -24,11 +24,12 @@ import { CSS } from '@dnd-kit/utilities';
 import {
   CloseCircleFilled,
   MenuOutlined,
+  InfoCircleOutlined,
   ReloadOutlined,
   SisternodeOutlined,
 } from '@ant-design/icons';
 
-import { useI18n } from 'renderer/appContext';
+import { useAppContext, useI18n } from 'renderer/appContext';
 
 import type { DragEndEvent } from '@dnd-kit/core';
 import type { ColumnsType } from 'antd/es/table';
@@ -41,6 +42,8 @@ export async function loader() {
 
   return versions;
 }
+
+const { Paragraph, Text, Title } = Typography;
 
 export const Component: React.FC = () => {
   const [allProjects, allInstalledVersions] = useLoaderData() as [
@@ -55,6 +58,7 @@ export const Component: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const i18n = useI18n();
+  const { locale } = useAppContext();
   const { message } = App.useApp();
 
   const columns: ColumnsType<Nvmd.Project> = useMemo(
@@ -64,34 +68,34 @@ export const Component: React.FC = () => {
         key: 'sort',
       },
       {
-        title: 'Name',
+        title: i18n('Project-Name'),
         width: 240,
         dataIndex: 'name',
         ellipsis: true,
         render(text: string, { active }) {
           return (
-            <Typography.Text strong delete={!active}>
+            <Text strong delete={!active}>
               {text}
-            </Typography.Text>
+            </Text>
           );
         },
       },
       {
-        title: 'Path',
+        title: i18n('Project-Path'),
         dataIndex: 'path',
         render: (path, { active }) => (
-          <Typography.Text
+          <Text
             type="secondary"
             copyable
             delete={!active}
             ellipsis={{ tooltip: path }}
           >
             {path}
-          </Typography.Text>
+          </Text>
         ),
       },
       {
-        title: 'Version',
+        title: i18n('Version'),
         width: 170,
         dataIndex: 'version',
         render(version: string, { path }) {
@@ -139,9 +143,7 @@ export const Component: React.FC = () => {
                   setProjects(newProjects);
                   window.Context.updateProjects(newProjects);
                   code === 200
-                    ? message.success(
-                        'You might need to restart your terminal instance',
-                      )
+                    ? message.success(i18n('Restart-Terminal'))
                     : message.error(`Project not found, please check it`, 3);
                 } catch (err) {
                   message.error('Something went wrong');
@@ -159,7 +161,7 @@ export const Component: React.FC = () => {
             <Popconfirm
               title={name}
               placement="topRight"
-              description={`Are you sure to delete this project?`}
+              description={i18n('Project-Delete')}
               onConfirm={() => {
                 const newProjects = projects.filter(
                   ({ path: source }) => source !== path,
@@ -183,7 +185,7 @@ export const Component: React.FC = () => {
         },
       },
     ],
-    [projects, installedVersions],
+    [locale, projects, installedVersions],
   );
 
   const onAddProject = async () => {
@@ -243,9 +245,48 @@ export const Component: React.FC = () => {
     <>
       <div className="module-projects">
         <div className="module-projects-header">
-          <Typography.Title level={4} style={{ margin: 0 }}>
-            {i18n('All Projects')}
-          </Typography.Title>
+          <Space>
+            <Title level={4} style={{ margin: 0 }}>
+              {i18n('All-Projects')}
+            </Title>
+            <Tooltip
+              placement="bottomLeft"
+              title={
+                <>
+                  <Paragraph>
+                    <Text>{i18n('Can-Select')}</Text>
+                  </Paragraph>
+                  <Paragraph>
+                    <Text>
+                      {i18n('Had-File')} <Text type="secondary">.nvmdrc</Text>{' '}
+                      {i18n('Load-Node')}
+                    </Text>
+                  </Paragraph>
+                  <Paragraph>
+                    <Text>{i18n('runtimeExecutable')}</Text>
+                  </Paragraph>
+                  <Paragraph>
+                    <Text type="secondary">
+                      {
+                        '"runtimeExecutable": "${env:NVMD_DIR}/versions/18.17.0/bin/npm"'
+                      }
+                    </Text>
+                  </Paragraph>
+                  <Paragraph>
+                    <Text>{i18n('Directly-Specify')}</Text>
+                  </Paragraph>
+                </>
+              }
+              overlayInnerStyle={{ width: 500, padding: '16px 24px' }}
+            >
+              <Button
+                type="text"
+                size="small"
+                className="module-home-btn"
+                icon={<InfoCircleOutlined />}
+              />
+            </Tooltip>
+          </Space>
           <Space>
             <Button
               size="small"
@@ -262,7 +303,7 @@ export const Component: React.FC = () => {
               icon={<SisternodeOutlined />}
               onClick={onAddProject}
             >
-              {i18n('Add Project')}
+              {i18n('Add-Project')}
             </Button>
           </Space>
         </div>

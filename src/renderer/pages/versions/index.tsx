@@ -2,7 +2,7 @@ import './styles.scss';
 
 import { useMemo, useRef, useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
-import { Button, Dropdown, Space, Typography, Tag, message } from 'antd';
+import { App, Button, Dropdown, Space, Typography, Tag } from 'antd';
 import {
   SyncOutlined,
   ReloadOutlined,
@@ -60,7 +60,7 @@ export const Versions: React.FC = () => {
   const modal = useRef<InfoRef>(null);
   const latestVersion = useRef<string>(latest);
 
-  const [messageApi, contextHolder] = message.useMessage();
+  const { message } = App.useApp();
 
   const getColumnSearchProps = useColumnSearchProps();
 
@@ -218,7 +218,7 @@ export const Versions: React.FC = () => {
                         const currentVersion =
                           await window.Context.getCurrentVersion();
                         setCurrent(currentVersion);
-                        messageApi.success(
+                        message.success(
                           'You might need to restart your terminal instance',
                         );
                         return;
@@ -235,7 +235,7 @@ export const Versions: React.FC = () => {
                         ]);
                         setCurrent(currentVersion);
                         setInstalledVersions(versions);
-                        messageApi.success('Successful');
+                        message.success('Successful');
                         return;
                       }
                       default:
@@ -278,7 +278,7 @@ export const Versions: React.FC = () => {
         window.Context.getAllNodeVersions(),
         window.Context.getInstalledNodeVersions(),
       ]);
-      messageApi.success('Refresh successed');
+      message.success('Refresh successed');
       setVersions(versions);
       setInstalledVersions(installeds);
     } catch (err) {
@@ -296,11 +296,11 @@ export const Versions: React.FC = () => {
         }),
         window.Context.getInstalledNodeVersions(true),
       ]);
-      messageApi.success('Refresh successed');
+      message.success('Refresh successed');
       setVersions(versions);
       setInstalledVersions(installeds);
     } catch (err) {
-      messageApi.error(
+      message.error(
         err.message
           ? err.message
               .split("Error invoking remote method 'all-node-versions': ")
@@ -320,7 +320,6 @@ export const Versions: React.FC = () => {
 
   return (
     <>
-      {contextHolder}
       <div className="module-versions">
         <div className="module-versions-header">
           <Title level={4} style={{ margin: 0 }}>

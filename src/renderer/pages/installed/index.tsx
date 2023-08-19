@@ -2,7 +2,7 @@ import './styles.scss';
 
 import { useMemo, useRef, useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
-import { Button, Typography, Table, Space, Tag, Dropdown, message } from 'antd';
+import { App, Button, Typography, Table, Space, Tag, Dropdown } from 'antd';
 import {
   ReloadOutlined,
   CheckCircleFilled,
@@ -52,7 +52,7 @@ export const Component: React.FC = () => {
 
   const latestVersion = useRef<string>(latest);
 
-  const [messageApi, contextHolder] = message.useMessage();
+  const { message } = App.useApp();
   const getColumnSearchProps = useColumnSearchProps();
 
   const { locale } = useAppContext();
@@ -81,19 +81,19 @@ export const Component: React.FC = () => {
       {
         title: `V8 ${i18n('Version')}`,
         dataIndex: 'v8',
-        className: 'module-versions-label__gray',
+        className: 'module-installed-label__gray',
         ...getColumnSearchProps('v8'),
       },
       {
         title: `NPM ${i18n('Version')}`,
         dataIndex: 'npm',
-        className: 'module-versions-label__gray',
+        className: 'module-installed-label__gray',
         ...getColumnSearchProps('npm'),
       },
       {
         title: i18n('Release-Date'),
         dataIndex: 'date',
-        className: 'module-versions-label__gray',
+        className: 'module-installed-label__gray',
         sorter: (a, b) =>
           new Date(a.date).getTime() - new Date(b.date).getTime(),
         sortDirections: ['descend', 'ascend'],
@@ -182,7 +182,7 @@ export const Component: React.FC = () => {
                       const currentVersion =
                         await window.Context.getCurrentVersion();
                       setCurrent(currentVersion);
-                      messageApi.success(
+                      message.success(
                         'You might need to restart your terminal instance',
                       );
                       return;
@@ -204,7 +204,7 @@ export const Component: React.FC = () => {
                           installeds.includes(version.slice(1)),
                         ),
                       );
-                      messageApi.success('Successful');
+                      message.success('Successful');
                       return;
                     }
                     default:
@@ -235,7 +235,7 @@ export const Component: React.FC = () => {
         window.Context.getAllNodeVersions(),
         window.Context.getInstalledNodeVersions(),
       ]);
-      messageApi.success('Refresh successed');
+      message.success('Refresh successed');
       setVersions(
         versions.filter(({ version }) => installeds.includes(version.slice(1))),
       );
@@ -247,34 +247,32 @@ export const Component: React.FC = () => {
   };
 
   return (
-    <>
-      {contextHolder}
-      <div className="module-installed">
-        <div className="module-installed-header">
-          <Typography.Title level={4} style={{ margin: 0 }}>
-            {i18n('Installed-Versions')}
-          </Typography.Title>
-          <Button
-            size="small"
-            type="primary"
-            icon={<ReloadOutlined />}
-            loading={loading}
-            onClick={onRefresh}
-          >
-            {i18n('Refresh')}
-          </Button>
-        </div>
-        <Table
-          bordered={false}
+    <div className="module-installed">
+      <div className="module-installed-header">
+        <Typography.Title level={4} style={{ margin: 0 }}>
+          {i18n('Installed-Versions')}
+        </Typography.Title>
+        <Button
           size="small"
-          rowKey="version"
+          type="primary"
+          icon={<ReloadOutlined />}
           loading={loading}
-          columns={columns}
-          dataSource={versions}
-          pagination={false}
-        />
+          onClick={onRefresh}
+        >
+          {i18n('Refresh')}
+        </Button>
       </div>
-    </>
+      <Table
+        bordered={false}
+        size="small"
+        rowKey="version"
+        loading={loading}
+        columns={columns}
+        dataSource={versions}
+        pagination={false}
+        scroll={{ x: '100%', y: 570 }}
+      />
+    </div>
   );
 };
 

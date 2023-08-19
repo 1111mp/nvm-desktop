@@ -5,14 +5,7 @@ import {
   useState,
   useRef,
 } from 'react';
-import {
-  Button,
-  Descriptions,
-  Progress,
-  Modal,
-  Typography,
-  message,
-} from 'antd';
+import { App, Button, Descriptions, Progress, Modal, Typography } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { useI18n } from 'renderer/appContext';
 
@@ -36,7 +29,7 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
   const uuid = useRef<string>();
 
   const i18n = useI18n();
-  const [messageApi, contextHolder] = message.useMessage();
+  const { message } = App.useApp();
 
   useImperativeHandle(ref, () => ({
     show: onShow,
@@ -67,7 +60,7 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
       setPath(path);
     } catch (err) {
       if (!err.message.includes('This operation was aborted')) {
-        messageApi.error(
+        message.error(
           err.message
             ? err.message
                 .split("Error invoking remote method 'get-node':")
@@ -89,89 +82,86 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
   };
 
   return (
-    <>
-      {contextHolder}
-      <Modal
-        title={i18n('Version-Manager')}
-        open={open}
-        closable={false}
-        bodyStyle={{ paddingTop: 12 }}
-        footer={[
-          path && path !== 'error' ? null : loading ? (
-            <Button key="cancel" danger onClick={onAbort}>
-              {i18n('Cancel')}
-            </Button>
-          ) : (
-            <Button
-              key="cancel"
-              onClick={() => {
-                setOpen(false);
-              }}
-            >
-              {i18n('Cancel')}
-            </Button>
-          ),
-          path && path !== 'error' ? (
-            <Button
-              key="start"
-              type="primary"
-              loading={loading}
-              onClick={() => {
-                onRefrresh();
-                setOpen(false);
-              }}
-            >
-              {i18n('OK')}
-            </Button>
-          ) : (
-            <Button
-              key="start"
-              type="primary"
-              loading={loading}
-              onClick={onStart}
-            >
-              {path === 'error' ? i18n('Retry') : i18n('Start-Install')}
-            </Button>
-          ),
-        ]}
-        afterClose={() => {
-          record.current = undefined;
-          uuid.current = undefined;
-          setPath(undefined);
-          setProgress(undefined);
-        }}
-      >
-        <Descriptions column={2} colon={false}>
-          <Descriptions.Item label={i18n('Version')}>
-            {record.current?.version}
+    <Modal
+      title={i18n('Version-Manager')}
+      open={open}
+      closable={false}
+      bodyStyle={{ paddingTop: 12 }}
+      footer={[
+        path && path !== 'error' ? null : loading ? (
+          <Button key="cancel" danger onClick={onAbort}>
+            {i18n('Cancel')}
+          </Button>
+        ) : (
+          <Button
+            key="cancel"
+            onClick={() => {
+              setOpen(false);
+            }}
+          >
+            {i18n('Cancel')}
+          </Button>
+        ),
+        path && path !== 'error' ? (
+          <Button
+            key="start"
+            type="primary"
+            loading={loading}
+            onClick={() => {
+              onRefrresh();
+              setOpen(false);
+            }}
+          >
+            {i18n('OK')}
+          </Button>
+        ) : (
+          <Button
+            key="start"
+            type="primary"
+            loading={loading}
+            onClick={onStart}
+          >
+            {path === 'error' ? i18n('Retry') : i18n('Start-Install')}
+          </Button>
+        ),
+      ]}
+      afterClose={() => {
+        record.current = undefined;
+        uuid.current = undefined;
+        setPath(undefined);
+        setProgress(undefined);
+      }}
+    >
+      <Descriptions column={2} colon={false}>
+        <Descriptions.Item label={i18n('Version')}>
+          {record.current?.version}
+        </Descriptions.Item>
+        <Descriptions.Item label={`NPM ${i18n('Version')}`}>
+          {record.current?.npm}
+        </Descriptions.Item>
+        {progress ? (
+          <Descriptions.Item span={2} contentStyle={{ maxWidth: 260 }}>
+            <Progress
+              size="small"
+              strokeColor="#74a975"
+              percent={progress.percent * 100}
+              format={() => `${progress.transferred} / ${progress.total} B`}
+              style={{ marginBottom: 0 }}
+            />
           </Descriptions.Item>
-          <Descriptions.Item label={`NPM ${i18n('Version')}`}>
-            {record.current?.npm}
+        ) : (
+          <Descriptions.Item span={2} label={i18n('Install-Tip')}>
+            {''}
           </Descriptions.Item>
-          {progress ? (
-            <Descriptions.Item span={2} contentStyle={{ maxWidth: 260 }}>
-              <Progress
-                size="small"
-                strokeColor="#74a975"
-                percent={progress.percent * 100}
-                format={() => `${progress.transferred} / ${progress.total} B`}
-                style={{ marginBottom: 0 }}
-              />
-            </Descriptions.Item>
-          ) : (
-            <Descriptions.Item span={2} label={i18n('Install-Tip')}>
-              {''}
-            </Descriptions.Item>
-          )}
-          {path && path !== 'error' ? (
-            <Descriptions.Item span={2} label="Installation Directory">
-              <Paragraph copyable style={{ marginBottom: 0 }}>
-                {path}
-              </Paragraph>
-            </Descriptions.Item>
-          ) : null}
-        </Descriptions>
-      </Modal>
-    </>
+        )}
+        {path && path !== 'error' ? (
+          <Descriptions.Item span={2} label="Installation Directory">
+            <Paragraph copyable style={{ marginBottom: 0 }}>
+              {path}
+            </Paragraph>
+          </Descriptions.Item>
+        ) : null}
+      </Descriptions>
+    </Modal>
   );
 });

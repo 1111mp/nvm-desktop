@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Button, Descriptions, Modal, Popover, Progress, message } from 'antd';
+import { App, Button, Descriptions, Modal, Popover, Progress } from 'antd';
 import { CloudSyncOutlined } from '@ant-design/icons';
 import { useI18n } from 'renderer/appContext';
 
@@ -21,13 +21,13 @@ export const Updater: React.FC = () => {
   const [progress, setProgress] = useState<ProgressInfo>();
 
   const i18n = useI18n();
+  const { message } = App.useApp();
   const updateInfo = useRef<UpdateInfo>();
-  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
     window.Context.onCheckUpdateResultCallback((info) => {
       if (info === 'update-not-available') {
-        return messageApi.success(i18n('Up-to-date'));
+        return message.success(i18n('Up-to-date'));
       }
 
       updateInfo.current = info;
@@ -46,7 +46,7 @@ export const Updater: React.FC = () => {
         console.log(info);
       })
       .catch((err) => {
-        messageApi.error(
+        message.error(
           err.message.replace(
             "Error invoking remote method 'check-for-updates': Error: ",
             '',
@@ -67,7 +67,7 @@ export const Updater: React.FC = () => {
           // download completed
           setOpen({ visible: true, type: ModalType.Complete });
         } catch (err) {
-          messageApi.error(
+          message.error(
             err.message.replace(
               "Error invoking remote method 'confirm-update': Error: ",
               '',
@@ -85,7 +85,6 @@ export const Updater: React.FC = () => {
 
   return (
     <>
-      {contextHolder}
       {progress === void 0 ? (
         <Button
           type="text"

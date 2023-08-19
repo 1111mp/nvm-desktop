@@ -19,6 +19,10 @@ const routes: RouteObject[] = [
         path: 'installed',
         lazy: () => import('./pages/installed'),
       },
+      {
+        path: 'projects',
+        lazy: () => import('./pages/projects'),
+      },
     ],
   },
 ];

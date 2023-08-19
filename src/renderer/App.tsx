@@ -1,10 +1,10 @@
 import './App.scss';
 
-import { useEffect, useReducer, useMemo, useState, useCallback } from 'react';
+import { useEffect, useReducer, useMemo, useCallback } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { router } from './routes';
 import { AppContext, type I18nFn } from './appContext';
-import { ConfigProvider, theme as antdTheme } from 'antd';
+import { App as AntdApp, ConfigProvider, theme as antdTheme } from 'antd';
 import en from 'antd/locale/en_US';
 import zhCN from 'antd/locale/zh_CN';
 
@@ -185,7 +185,9 @@ export default function App() {
           onUpdateSetting,
         }}
       >
-        <RouterProvider router={router} />
+        <AntdApp>
+          <RouterProvider router={router} />
+        </AntdApp>
       </AppContext.Provider>
     </ConfigProvider>
   );

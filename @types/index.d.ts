@@ -27,5 +27,14 @@ declare global {
     }
 
     type UpdateInfo = ElectronUpdateInfo | 'update-not-available';
+
+    interface Project {
+      name: string;
+      path: string;
+      version?: string;
+      active: boolean;
+      createAt: string;
+      updateAt: string;
+    }
   }
 }

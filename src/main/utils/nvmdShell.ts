@@ -1,36 +1,53 @@
 import { exec } from 'node:child_process';
 import { platform } from 'node:process';
-import { pathExists, writeFile } from 'fs-extra';
-import { APPDIR, INSTALL_DIR, NVMD_SHELL_FILENAME } from '../constants';
+import { join } from 'node:path';
+import { pathExists, copy, readFile, writeFile } from 'fs-extra';
+import { app } from 'electron';
+
+import {
+  APPDIR,
+  INSTALL_DIR,
+  NVMD_SHELL_FILENAME,
+  SHELL_VERSION_FILE,
+} from '../constants';
 
 export async function checkEnv() {
   if (platform === 'win32') {
     try {
       await setNvmdPathForWindows();
     } catch (err) {}
-
-    return;
   }
 
   await setShellFile();
   return;
 }
 
+export const SCHEMA_VERSIONS = [updateToSchemaVersion1];
+
 export async function setShellFile() {
-  const file = `${APPDIR}/${NVMD_SHELL_FILENAME}`;
-  if (await pathExists(file)) return;
+  const maxUserVersion = SCHEMA_VERSIONS.length;
+  const shellVersion = await getShellVersion();
 
-  const content = `#!/usr/bin/env bash
-  
-CURRENT_VERSION=$(cat "$HOME/.nvmd/default")
-  
-export PATH="$HOME/.nvmd/versions/$CURRENT_VERSION/bin:$PATH"
+  for (let index = 0; index < maxUserVersion; index += 1) {
+    const runSchemaUpdate = SCHEMA_VERSIONS[index];
 
-nvmd() {
-  echo "1.0.0" >/dev/null
-}`;
+    runSchemaUpdate(shellVersion);
+  }
+  return;
+}
 
-  await writeFile(file, content);
+async function updateToSchemaVersion1(version: number) {
+  if (version >= 1) return;
+
+  const targetFile = `${APPDIR}/${NVMD_SHELL_FILENAME}`;
+
+  const sourceFile = app.isPackaged
+    ? join(process.resourcesPath, 'assets', 'nvmd.sh')
+    : join(__dirname, '../../..', 'assets', 'nvmd.sh');
+
+  await copy(sourceFile, targetFile).catch((_err) => {});
+
+  setShellVersion(1);
   return;
 }
 
@@ -100,4 +117,18 @@ async function pathNvmdExistsForWindows(): Promise<boolean> {
       return resolve(stdout.trim() ? true : false);
     });
   });
+}
+
+async function getShellVersion() {
+  if (!(await pathExists(SHELL_VERSION_FILE))) return 0;
+
+  const version = (await readFile(SHELL_VERSION_FILE)).toString() || 0;
+
+  return Number(version);
+}
+
+async function setShellVersion(version: number) {
+  try {
+    await writeFile(SHELL_VERSION_FILE, `${version}`);
+  } catch (err) {}
 }

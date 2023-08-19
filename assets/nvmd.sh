@@ -23,14 +23,19 @@ function __nvmd_chpwd() {
 
   if [[ -n "$file" ]] && [[ "$file" != "$__nvmd_active_file" ]]; then
     CURRENT_VERSION=$(cat "$file")
-    export PATH="$HOME/.nvmd/versions/$CURRENT_VERSION/bin:$PATH"
-    __nvmd_active_file=$file
+    if test -e "$HOME/.nvmd/versions/$CURRENT_VERSION/bin"; then
+      export PATH="$HOME/.nvmd/versions/$CURRENT_VERSION/bin:$PATH"
+    else
+      printf "%b" "[nvmd]: the node version of $CURRENT_VERSION has not installed yet\n"
+    fi
   else
     if test -e "$HOME/.nvmd/default"; then
       CURRENT_VERSION=$(cat "$HOME/.nvmd/default")
       export PATH="$HOME/.nvmd/versions/$CURRENT_VERSION/bin:$PATH"
     fi
   fi
+
+  __nvmd_active_file=$file
 }
 
 # find version specification file

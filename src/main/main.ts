@@ -10,7 +10,14 @@
  */
 import path from 'node:path';
 import { platform } from 'node:process';
-import { app, BrowserWindow, shell, ipcMain, nativeTheme } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  nativeTheme,
+  dialog,
+} from 'electron';
 import { remove, pathExists, readFile, writeFile } from 'fs-extra';
 import MenuBuilder from './menu';
 import { AppUpdater } from './updater';
@@ -27,6 +34,12 @@ import {
   setNvmdVersionForWindows,
 } from './utils/nvmdShell';
 import { setSetting, getSetting } from './utils/setting';
+import {
+  getProjects,
+  getVersion,
+  syncProjectVersion,
+  updateProjects,
+} from './utils/projects';
 import loadLocale from './locale';
 import { Themes } from '../types';
 
@@ -122,6 +135,7 @@ const createWindow = async () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
+
     if (process.env.START_MINIMIZED) {
       mainWindow.minimize();
     } else {
@@ -213,116 +227,151 @@ app
   })
   .catch(console.log);
 
-if (platform === 'win32') {
-  ipcMain.on('window:close', (_event) => {
-    mainWindow && mainWindow.close();
-  });
-
-  ipcMain.on('window:minimize', (_event) => {
-    mainWindow && mainWindow.minimize();
-  });
-}
-
-ipcMain.on('get-app-version', (event) => {
-  event.returnValue = app.getVersion();
-});
-
 const controllers = new Map<string, AbortController>();
 
-ipcMain.handle(
-  'all-node-versions',
-  async (_event, { id, fetch }: { id?: string; fetch?: boolean } = {}) => {
-    const abortController = new AbortController();
-    id && controllers.set(id, abortController);
-    let result;
-    try {
-      result = await allNodeVersions({
-        mirror: setting.mirror,
-        signal: abortController.signal,
-        fetch,
-        timeout: {
-          request: 1000 * 20,
-          response: 1000 * 60,
-        },
-      });
-    } catch (err) {
-      return Promise.reject(`${err.name}: ${err.message}`);
-    } finally {
-      id && controllers.delete(id);
-    }
-    return result;
-  },
-);
+// defer actions
+Promise.resolve().then(() => {
+  if (platform === 'win32') {
+    ipcMain.on('window:close', (_event) => {
+      mainWindow && mainWindow.close();
+    });
 
-ipcMain.handle('controller:abort', async (_event, id) => {
-  const controller = controllers.get(id);
-  if (!controller) return;
+    ipcMain.on('window:minimize', (_event) => {
+      mainWindow && mainWindow.minimize();
+    });
+  }
 
-  controller.abort();
-  controllers.delete(id);
-  return 'successfully';
-});
+  ipcMain.on('get-app-version', (event) => {
+    event.returnValue = app.getVersion();
+  });
 
-ipcMain.handle(
-  'installed-node-versions',
-  async (_event, refresh: boolean = false) => {
-    const versions = await allInstalledNodeVersions(refresh);
-
-    return versions;
-  },
-);
-
-ipcMain.handle(
-  'get-node',
-  async (_event, { id, version }: { id: string; version: string }) => {
-    const abortController = new AbortController();
-    controllers.set(id, abortController);
-
-    try {
-      const result = await getNode(version, {
-        mirror: setting.mirror,
-        signal: abortController.signal,
-        onProgress: (data) => {
-          mainWindow?.webContents.send('get-node:progress', id, data);
-        },
-      });
+  ipcMain.handle(
+    'all-node-versions',
+    async (_event, { id, fetch }: { id?: string; fetch?: boolean } = {}) => {
+      const abortController = new AbortController();
+      id && controllers.set(id, abortController);
+      let result;
+      try {
+        result = await allNodeVersions({
+          mirror: setting.mirror,
+          signal: abortController.signal,
+          fetch,
+          timeout: {
+            request: 1000 * 20,
+            response: 1000 * 60,
+          },
+        });
+      } catch (err) {
+        return Promise.reject(`${err.name}: ${err.message}`);
+      } finally {
+        id && controllers.delete(id);
+      }
       return result;
-    } catch (err) {
-      return Promise.reject(err.message);
-    } finally {
-      controllers.delete(id);
-    }
-  },
-);
+    },
+  );
 
-ipcMain.handle(
-  'uninstall-node-version',
-  async (_event, version: string, current: boolean = false) => {
-    const path = `${INSTALL_DIR}/${version}`;
-    await remove(path);
-    current && (await remove(`${APPDIR}/default`));
-    if (platform === 'win32') await setNvmdForWindows();
+  ipcMain.handle('controller:abort', async (_event, id) => {
+    const controller = controllers.get(id);
+    if (!controller) return;
+
+    controller.abort();
+    controllers.delete(id);
+    return 'successfully';
+  });
+
+  ipcMain.handle(
+    'installed-node-versions',
+    async (_event, refresh: boolean = false) => {
+      const versions = await allInstalledNodeVersions(refresh);
+
+      return versions;
+    },
+  );
+
+  ipcMain.handle(
+    'get-node',
+    async (_event, { id, version }: { id: string; version: string }) => {
+      const abortController = new AbortController();
+      controllers.set(id, abortController);
+
+      try {
+        const result = await getNode(version, {
+          mirror: setting.mirror,
+          signal: abortController.signal,
+          onProgress: (data) => {
+            mainWindow?.webContents.send('get-node:progress', id, data);
+          },
+        });
+        return result;
+      } catch (err) {
+        return Promise.reject(err.message);
+      } finally {
+        controllers.delete(id);
+      }
+    },
+  );
+
+  ipcMain.handle(
+    'uninstall-node-version',
+    async (_event, version: string, current: boolean = false) => {
+      const path = `${INSTALL_DIR}/${version}`;
+      await remove(path);
+      current && (await remove(`${APPDIR}/default`));
+      if (platform === 'win32') await setNvmdForWindows();
+      return;
+    },
+  );
+
+  ipcMain.handle('current-version', async () => {
+    const file = `${APPDIR}/default`;
+    if (!(await pathExists(file))) return '';
+
+    const version = (await readFile(file)).toString();
+    return version;
+  });
+
+  ipcMain.handle('use-version', async (_event, version: string) => {
+    // windows
+    if (platform === 'win32') await setNvmdVersionForWindows(version);
+
+    const file = `${APPDIR}/default`;
+    await writeFile(file, version);
     return;
-  },
-);
+  });
 
-ipcMain.handle('current-version', async () => {
-  const file = `${APPDIR}/default`;
-  if (!(await pathExists(file))) return '';
+  ipcMain.on('get-system-theme', (event) => {
+    event.returnValue = nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
+  });
 
-  const version = (await readFile(file)).toString();
-  return version;
-});
+  ipcMain.handle('open-folder-selecter', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow!, {
+      title: '请选择您的项目',
+      properties: ['openDirectory'],
+    });
 
-ipcMain.handle('use-version', async (_event, version: string) => {
-  // windows
-  if (platform === 'win32') await setNvmdVersionForWindows(version);
+    if (canceled) return { canceled, filePaths };
 
-  const file = `${APPDIR}/default`;
-  await writeFile(file, version);
-  return;
-});
+    const [path] = filePaths;
+    const version = await getVersion(path);
 
-ipcMain.on('get-system-theme', (event) => {
-  event.returnValue = nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
+    return { canceled, filePaths, version };
+  });
+
+  ipcMain.handle('get-projects', async (_event, load: boolean = false) => {
+    return getProjects(load);
+  });
+
+  ipcMain.handle(
+    'update-projects',
+    async (_event, projects: Nvmd.Project[], path?: string) => {
+      return updateProjects(projects, path);
+    },
+  );
+
+  ipcMain.handle(
+    'sync-project-version',
+    (_event, path: string, version: string) => {
+      return syncProjectVersion(path, version);
+    },
+  );
 });

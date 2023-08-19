@@ -3,6 +3,8 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import type { ProgressInfo, UpdateInfo } from 'electron-updater';
 
+import type { OpenDialogReturnValue } from 'electron';
+
 type OnCheckUpdateResultCallback = (
   info: UpdateInfo | 'update-not-available',
 ) => void;
@@ -106,6 +108,19 @@ const electronHandler = {
   onRegistThemeCallback: (callback: OnThemeChangedCallback) => {
     onThemeChanged = callback;
   },
+
+  openFolderSelecter: () =>
+    ipcRenderer.invoke('open-folder-selecter') as Promise<
+      OpenDialogReturnValue & { version: string }
+    >,
+  getProjects: (load: boolean = false) =>
+    ipcRenderer.invoke('get-projects', load) as Promise<Nvmd.Project[]>,
+  updateProjects: (projects: Nvmd.Project[], path?: string) =>
+    ipcRenderer.invoke('update-projects', projects, path) as Promise<void>,
+  syncProjectVersion: (path: string, version: string) =>
+    ipcRenderer.invoke('sync-project-version', path, version) as Promise<
+      404 | 200
+    >,
 };
 
 contextBridge.exposeInMainWorld('Context', electronHandler);

@@ -160,6 +160,10 @@ const Home: React.FC = () => {
                   label: <Link to="/installed">{i18n('Installed')}</Link>,
                   key: '/installed',
                 },
+                {
+                  label: <Link to="/projects">{i18n('Projects')}</Link>,
+                  key: '/projects',
+                },
               ]}
             />
             {platform === 'win32' ? (

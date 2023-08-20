@@ -2,17 +2,18 @@
   <img src="https://github.com/1111mp/nvm-desktop/assets/31227919/67132758-8aa9-4b05-b987-18fdd5980936"/>
 </div>
 
-
 # Node Version Manager Desktop
 
 `nvm-desktop` is a desktop application to manage multiple active node.js versions. With this applications, you can quickly install and use different versions of node.
+
+Now you can individually select the version of Node you want for your project (macOS only).
 
 This project was inspired by [nvm](https://github.com/nvm-sh/nvm)
 
 ## Screenshot
 
-<img width="1067" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/55d4a059-c62e-41a5-af6b-97eaf240d4bb">
-<img width="1059" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/8ce13dfe-d5af-45b7-8ce5-170b8e17472d">
+<img width="1060" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/45f4c613-2d17-4804-bc83-ac07260bc6c0">
+<img width="1048" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/757525bc-489d-4611-b957-c780fa9bfab5">
 
 ## Install
 
@@ -51,6 +52,34 @@ Automated testing framework: [WebdriverIO](https://webdriver.io/)
 
 About the Electron Testing can view documents: [wdio-electron-service](https://webdriver.io/docs/desktop-testing/electron)
 
+## Managing your project (macOS only)
+You can choose different Node versions individually for your projects.
+
+Reference from [avn](https://github.com/wbyoung/avn).
+
+<img width="1049" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/fac4946b-2e1d-45e9-a8ee-1d46a02fb51a">
+
+A file will be added to the root of the project: `.nvmdrc`, the content is the version number of Node you choose. `nvm-desktop` detects this file to set the Node version for your project.
+
+If you are using `VS Code` and launch your project with `Debug`, then you should change the `runtimeExecutable` configuration in the `launch.json` file. Like this:
+```json
+{
+  "name": "Electron: Main",
+  "type": "node",
+  "request": "launch",
+  "protocol": "inspector",
+  // "runtimeExecutable": "npm",
+  "runtimeExecutable": "${env:NVMD_DIR}/versions/18.17.0/bin/npm",
+  "runtimeArgs": ["run", "start"],
+  "env": {
+    "MAIN_ARGS": "--inspect=5858 --remote-debugging-port=9223"
+  }
+},
+```
+Directly specify the installation path of Node or NPM.
+
+Because this function is implemented based on `shell` commands, it does not currently support the Windows platform. If you have some good ideas, you are very welcome to leave a message to communicate.
+
 ## Todo
 - [x] Support English & Simplified Chinese
 - [x] Support for custom download mirrors (default is https://nodejs.org/dist)
@@ -72,7 +101,7 @@ If you encounter problems during use, please check whether the environment varia
 
 ### MacOS issues
 
-Because there is no Apple developer account, automatic updates cannot be used on the MacOS platform. Please always check the [latest version](https://github.com/1111mp/nvm-desktop/releases) for the best experience.
+Because there is no Apple developer account, automatic updates cannot be used on the macOS platform. Please always check the [latest version](https://github.com/1111mp/nvm-desktop/releases) for the best experience.
 
 > "File/App is damaged and cannot be opened. You should move it to Trash."
 

@@ -101,7 +101,7 @@ For Windows platform, if you have installed `zsh` or `bash` on your system. Perh
 export NVMD_DIR="$HOME/.nvmd" 
 [ -s "$NVMD_DIR/nvmd.sh" ] && . "$NVMD_DIR/nvmd.sh" # This loads nvmd
 ```
-On the Windows platform, the `nvmd.sh` file is also added to this directory `$HOME/.nvmd`. Then open the Projects function of the client: . Recompile and install.
+On the Windows platform, the `nvmd.sh` file is also added to this directory `$HOME/.nvmd`. Then open the Projects function of the client: [src/renderer/pages/home/index.tsx](https://github.com/1111mp/nvm-desktop/blob/main/src/renderer/pages/home/index.tsx#L190). Recompile and install.
 
 ## Todo
 - [x] Support English & Simplified Chinese

@@ -127,14 +127,14 @@ export const Component: React.FC = () => {
                 try {
                   const code = await window.Context.syncProjectVersion(
                     path,
-                    newVersion,
+                    newVersion || '',
                   );
 
                   const newProjects = projects.map((project) =>
                     project.path === path
                       ? {
                           ...project,
-                          version: newVersion,
+                          version: newVersion ? newVersion : '',
                           active: code === 200 ? true : false,
                           updateAt: new Date().toISOString(),
                         }

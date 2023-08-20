@@ -71,7 +71,7 @@ You can choose different Node versions individually for your projects.
 
 Reference from [avn](https://github.com/wbyoung/avn).
 
-For more details, please check the [nvmd.sh](https://github.com/1111mp/nvm-desktop/tree/main/assets/nvmd.sh) file.
+For more details, please check the [nvmd.sh](https://github.com/1111mp/nvm-desktop/blob/main/assets/nvmd.sh) file.
 
 <img width="1049" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/fac4946b-2e1d-45e9-a8ee-1d46a02fb51a">
 

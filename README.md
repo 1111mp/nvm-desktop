@@ -71,6 +71,8 @@ You can choose different Node versions individually for your projects.
 
 Reference from [avn](https://github.com/wbyoung/avn).
 
+For more details, please check the [nvmd.sh](https://github.com/1111mp/nvm-desktop/tree/main/assets/nvmd.sh) file.
+
 <img width="1049" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/fac4946b-2e1d-45e9-a8ee-1d46a02fb51a">
 
 A file will be added to the root of the project: `.nvmdrc`, the content is the version number of Node you choose. `nvm-desktop` detects this file to set the Node version for your project.
@@ -93,6 +95,13 @@ If you are using `VS Code` and launch your project with `Debug`, then you should
 Directly specify the installation path of Node or NPM.
 
 Because this function is implemented based on `shell` commands, it does not currently support the Windows platform. If you have some good ideas, you are very welcome to leave a message to communicate.
+
+For Windows platform, if you have installed `zsh` or `bash` on your system. Perhaps you can add the following command to your `.zshrc` or `.bashrc` file like macOS platform:
+```shell
+export NVMD_DIR="$HOME/.nvmd" 
+[ -s "$NVMD_DIR/nvmd.sh" ] && . "$NVMD_DIR/nvmd.sh" # This loads nvmd
+```
+On the Windows platform, the `nvmd.sh` file is also added to this directory `$HOME/.nvmd`. Then open the Projects function of the client: . Recompile and install.
 
 ## Todo
 - [x] Support English & Simplified Chinese

@@ -10,6 +10,20 @@ Now you can individually select the version of Node you want for your project (m
 
 This project was inspired by [nvm](https://github.com/nvm-sh/nvm)
 
+## Table of Contents
+- [Screenshot](#screenshot)
+- [Install](#install)
+  - [Download](#download)
+- [Develop and Build](#develop-and-build)
+  - [Development](#development)
+  - [Build and Package](#build-and-package)
+  - [Automated Test](#automated-test)
+- [Managing your project (macOS only)](#managing-your-project-macos-only)
+- [Todo](#todo)
+- [On Windows](#on-windows)
+- [MacOS issues: "File/App is damaged and cannot be opened. You should move it to Trash."](#macos-issues)
+
+
 ## Screenshot
 
 <img width="1060" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/45f4c613-2d17-4804-bc83-ac07260bc6c0">

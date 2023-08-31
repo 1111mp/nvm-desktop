@@ -1,13 +1,21 @@
 import { exec } from 'node:child_process';
 import { platform } from 'node:process';
 import { join } from 'node:path';
-import { pathExists, copy, readFile, writeFile } from 'fs-extra';
+import {
+  pathExists,
+  copy,
+  readFile,
+  writeFile,
+  symlink,
+  remove,
+} from 'fs-extra';
 import { app } from 'electron';
 
 import {
   APPDIR,
+  BIN_DIR,
   INSTALL_DIR,
-  NVMD_SHELL_FILENAME,
+  NVMD_COMMAND_FILENAME,
   SHELL_VERSION_FILE,
 } from '../constants';
 
@@ -39,13 +47,33 @@ export async function setShellFile() {
 async function updateToSchemaVersion1(version: number) {
   if (version >= 1) return;
 
-  const targetFile = `${APPDIR}/${NVMD_SHELL_FILENAME}`;
+  if (platform === 'win32') {
+    // windows
+    return;
+  }
+
+  // remove file: .nvmd/shell
+  if (await pathExists(`${APPDIR}/shell`)) {
+    await remove(`${APPDIR}/shell`);
+  }
+
+  // remove file: .nvmd/nvmd.sh
+  if (await pathExists(`${APPDIR}/nvmd.sh`)) {
+    await remove(`${APPDIR}/nvmd.sh`);
+  }
+
+  // macOS
+  const targetFile = `${BIN_DIR}/${NVMD_COMMAND_FILENAME}`;
 
   const sourceFile = app.isPackaged
-    ? join(process.resourcesPath, 'assets', 'nvmd.sh')
-    : join(__dirname, '../../..', 'assets', 'nvmd.sh');
+    ? join(process.resourcesPath, 'assets', 'darwin', NVMD_COMMAND_FILENAME)
+    : join(__dirname, '../../..', 'assets', 'darwin', NVMD_COMMAND_FILENAME);
 
   await copy(sourceFile, targetFile).catch((_err) => {});
+
+  ['node', 'npm', 'npx', 'corepack'].forEach((name) => {
+    symlink(targetFile, `${BIN_DIR}/${name}`);
+  });
 
   setShellVersion(1);
   return;

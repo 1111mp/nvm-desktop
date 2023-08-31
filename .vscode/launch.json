@@ -7,11 +7,11 @@
       "request": "launch",
       "protocol": "inspector",
       "runtimeExecutable": "npm",
-      // "runtimeExecutable": "${env:NVMD_DIR}/versions/18.17.0/bin/npm",
       "runtimeArgs": ["run", "start"],
       "env": {
         "MAIN_ARGS": "--inspect=5858 --remote-debugging-port=9223"
-      }
+      },
+      "outputCapture": "std"
     },
     {
       "name": "Electron: Renderer",

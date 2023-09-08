@@ -323,19 +323,6 @@ export const Component: React.FC = () => {
               {i18n('Load-Node')}
             </Text>
           </Paragraph>
-          <Paragraph>
-            <Text>{i18n('runtimeExecutable')}</Text>
-          </Paragraph>
-          <Paragraph>
-            <Text type="secondary">
-              {
-                '"runtimeExecutable": "${env:NVMD_DIR}/versions/18.17.0/bin/npm"'
-              }
-            </Text>
-          </Paragraph>
-          <Paragraph>
-            <Text>{i18n('Directly-Specify')}</Text>
-          </Paragraph>
         </>
       </Drawer>
     </>

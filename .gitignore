@@ -32,3 +32,5 @@ npm-debug.log.*
 *.scss.d.ts
 
 .nvmdrc
+
+assets/sources/**

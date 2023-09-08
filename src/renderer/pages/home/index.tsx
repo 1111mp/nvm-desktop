@@ -61,41 +61,84 @@ const Home: React.FC = () => {
       description: (
         <>
           {platform === 'win32' ? (
-            <>
-              <Paragraph>
-                {locale === 'zh-CN' ? (
+            locale === 'zh-CN' ? (
+              <>
+                <Paragraph>
                   <Text>
-                    现在，您的系统中已经被添加了一个系统变量：
-                    <Text type="secondary">NVMD</Text>，它的默认值是{' '}
-                    <Text type="secondary">empty</Text>
-                    ，并且它已经被添加到系统变量{' '}
-                    <Text type="secondary">PATH</Text>中。
+                    现在，您系统的环境变量<Text type="secondary"> PATH </Text>
+                    中添加了如下路径：
+                    <Text type="secondary"> %HOMEDIR%\.nvmd\bin </Text>，
+                    {i18n('Set-by')} :
+                    <Text type="secondary"> setx -m NVMD path </Text>。
                   </Text>
-                ) : (
+                </Paragraph>
+                <Paragraph>
                   <Text>
-                    Now you have an additional{' '}
-                    <Text type="secondary">NVMD</Text> environment variable in
-                    your system Its default value is{' '}
-                    <Text type="secondary">empty</Text>. And it has been added
-                    to the environment variable{' '}
-                    <Text type="secondary">PATH</Text>.
+                    此目录下保存着用于管理 Node 版本的可执行文件，由 Rust
+                    编写，如果有需要请查看项目源码：
+                    <Typography.Link
+                      href="https://github.com/1111mp/nvmd-command"
+                      target="_blank"
+                    >
+                      nvmd-command
+                    </Typography.Link>
+                    。
                   </Text>
-                )}
-              </Paragraph>
-              <Paragraph>
-                {i18n('Set-by')} :{' '}
-                <Text type="secondary">setx -m NVMD empty</Text>
-              </Paragraph>
-              <Paragraph>{i18n('Had-Install')}</Paragraph>
-              <Paragraph>
-                {i18n('Node-Apply')} <Text type="secondary">NVMD</Text>{' '}
-                {i18n('Had-set')}
-              </Paragraph>
-              <Paragraph>
-                {i18n('Set-by')} :{' '}
-                <Text type="secondary">setx -m NVMD nodePath</Text>
-              </Paragraph>
-            </>
+                </Paragraph>
+                <Paragraph>
+                  <Text>
+                    然后你可以开始下载安装 Node 了。下载安装完成之后点击
+                    <Text type="secondary"> 应用 </Text>
+                    按钮将其设置为全局默认版本。
+                  </Text>
+                </Paragraph>
+                <Paragraph>
+                  <Text>
+                    切换 Node 版本之后，默认不需要重新打开你的终端就能够生效。
+                  </Text>
+                </Paragraph>
+              </>
+            ) : (
+              <>
+                <Paragraph>
+                  <Text>
+                    The following path is now added to your system's
+                    <Text type="secondary"> PATH </Text>environment variable:
+                    <Text type="secondary"> %HOMEDIR%\.nvmd\bin </Text>,{' '}
+                    {i18n('Set-by')} :
+                    <Text type="secondary"> setx -m NVMD path </Text>.
+                  </Text>
+                </Paragraph>
+                <Paragraph>
+                  <Text>
+                    This directory holds the executable for managing the Node
+                    version, written in Rust. Check the project source code if
+                    you needed:{' '}
+                    <Typography.Link
+                      href="https://github.com/1111mp/nvmd-command"
+                      target="_blank"
+                    >
+                      nvmd-command
+                    </Typography.Link>
+                    .
+                  </Text>
+                </Paragraph>
+                <Paragraph>
+                  <Text>
+                    You should then be able to start downloading and installing
+                    Node. After the download and installation is complete, click
+                    the <Text type="secondary"> Apply </Text> button to set it
+                    as the global default version.
+                  </Text>
+                </Paragraph>
+                <Paragraph>
+                  <Text>
+                    After switching the Node version, you don't need to reopen
+                    your terminal to take effect by default.
+                  </Text>
+                </Paragraph>
+              </>
+            )
           ) : (
             <>
               <Paragraph>
@@ -113,48 +156,28 @@ const Home: React.FC = () => {
               </Paragraph>
             </>
           )}
-          <Paragraph>
-            <Text>{i18n('Restart-Terminal')}</Text>
-          </Paragraph>
         </>
       ),
       placement: 'bottomRight',
       target: () => tip.current,
     },
-    ...(platform !== 'win32'
-      ? [
-          {
-            title: i18n('Projects'),
-            description: (
-              <>
-                <Paragraph>
-                  <Text>{i18n('Can-Select')}</Text>
-                </Paragraph>
-                <Paragraph>
-                  <Text>
-                    {i18n('Had-File')} <Text type="secondary">.nvmdrc</Text>{' '}
-                    {i18n('Load-Node')}
-                  </Text>
-                </Paragraph>
-                <Paragraph>
-                  <Text>{i18n('runtimeExecutable')}</Text>
-                </Paragraph>
-                <Paragraph>
-                  <Text type="secondary">
-                    {
-                      '"runtimeExecutable": "${env:NVMD_DIR}/versions/18.17.0/bin/npm"'
-                    }
-                  </Text>
-                </Paragraph>
-                <Paragraph>
-                  <Text>{i18n('Directly-Specify')}</Text>
-                </Paragraph>
-              </>
-            ),
-            target: () => projectsMenu.current,
-          },
-        ]
-      : []),
+    {
+      title: i18n('Projects'),
+      description: (
+        <>
+          <Paragraph>
+            <Text>{i18n('Can-Select')}</Text>
+          </Paragraph>
+          <Paragraph>
+            <Text>
+              {i18n('Had-File')} <Text type="secondary">.nvmdrc</Text>{' '}
+              {i18n('Load-Node')}
+            </Text>
+          </Paragraph>
+        </>
+      ),
+      target: () => projectsMenu.current,
+    },
     {
       title: i18n('Finally'),
       description: (
@@ -186,37 +209,24 @@ const Home: React.FC = () => {
               mode="horizontal"
               className="module-home-menu"
               selectedKeys={[pathname]}
-              items={
-                platform !== 'win32'
-                  ? [
-                      {
-                        label: <Link to="/all">{i18n('Versions')}</Link>,
-                        key: '/all',
-                      },
-                      {
-                        label: <Link to="/installed">{i18n('Installed')}</Link>,
-                        key: '/installed',
-                      },
-                      {
-                        label: (
-                          <Link ref={projectsMenu} to="/projects">
-                            {i18n('Projects')}
-                          </Link>
-                        ),
-                        key: '/projects',
-                      },
-                    ]
-                  : [
-                      {
-                        label: <Link to="/all">{i18n('Versions')}</Link>,
-                        key: '/all',
-                      },
-                      {
-                        label: <Link to="/installed">{i18n('Installed')}</Link>,
-                        key: '/installed',
-                      },
-                    ]
-              }
+              items={[
+                {
+                  label: <Link to="/all">{i18n('Versions')}</Link>,
+                  key: '/all',
+                },
+                {
+                  label: <Link to="/installed">{i18n('Installed')}</Link>,
+                  key: '/installed',
+                },
+                {
+                  label: (
+                    <Link ref={projectsMenu} to="/projects">
+                      {i18n('Projects')}
+                    </Link>
+                  ),
+                  key: '/projects',
+                },
+              ]}
             />
             {platform === 'win32' ? (
               <Space className="module-home-header-bar">

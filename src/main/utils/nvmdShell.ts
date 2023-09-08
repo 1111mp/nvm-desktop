@@ -11,21 +11,9 @@ import {
 } from 'fs-extra';
 import { app } from 'electron';
 
-import {
-  APPDIR,
-  BIN_DIR,
-  INSTALL_DIR,
-  NVMD_COMMAND_FILENAME,
-  SHELL_VERSION_FILE,
-} from '../constants';
+import { APPDIR, BIN_DIR, MIRRATION_FILE } from '../constants';
 
 export async function checkEnv() {
-  if (platform === 'win32') {
-    try {
-      await setNvmdPathForWindows();
-    } catch (err) {}
-  }
-
   await setShellFile();
   return;
 }
@@ -49,6 +37,36 @@ async function updateToSchemaVersion1(version: number) {
 
   if (platform === 'win32') {
     // windows
+    await setNvmdToPathForWindows();
+
+    const exeSourceFile = app.isPackaged
+      ? join(process.resourcesPath, 'assets', 'sources', 'nvmd.exe')
+      : join(__dirname, '../../..', 'assets', 'sources', 'nvmd.exe');
+    const cmdSourceFile = app.isPackaged
+      ? join(process.resourcesPath, 'assets', 'sources', 'temp.cmd')
+      : join(__dirname, '../../..', 'assets', 'sources', 'temp.cmd');
+
+    const promises: Array<Promise<void>> = [];
+
+    promises.push(
+      copy(exeSourceFile, join(BIN_DIR, 'nvmd.exe')).catch((_err) => {}),
+    );
+
+    ['node', 'npm', 'npx', 'corepack'].forEach((name) => {
+      promises.push(
+        copy(exeSourceFile, join(BIN_DIR, `${name}.exe`)).catch((_err) => {}),
+      );
+
+      if (name !== 'node') {
+        promises.push(
+          copy(cmdSourceFile, join(BIN_DIR, `${name}.cmd`)).catch((_err) => {}),
+        );
+      }
+    });
+
+    await Promise.all(promises);
+
+    setShellVersion(1);
     return;
   }
 
@@ -63,11 +81,11 @@ async function updateToSchemaVersion1(version: number) {
   }
 
   // macOS
-  const targetFile = `${BIN_DIR}/${NVMD_COMMAND_FILENAME}`;
+  const targetFile = join(BIN_DIR, 'nvmd');
 
   const sourceFile = app.isPackaged
-    ? join(process.resourcesPath, 'assets', 'darwin', NVMD_COMMAND_FILENAME)
-    : join(__dirname, '../../..', 'assets', 'darwin', NVMD_COMMAND_FILENAME);
+    ? join(process.resourcesPath, 'assets', 'sources', 'nvmd')
+    : join(__dirname, '../../..', 'assets', 'sources', 'nvmd');
 
   await copy(sourceFile, targetFile).catch((_err) => {});
 
@@ -79,48 +97,9 @@ async function updateToSchemaVersion1(version: number) {
   return;
 }
 
-export async function setNvmdPathForWindows() {
-  const exist = await pathNvmdExistsForWindows();
-  if (exist) return;
-
-  const res = await setNvmdForWindows();
-  res && (await setNvmdToPathForWindows());
-  return;
-}
-
-export async function setNvmdForWindows(): Promise<boolean> {
-  return new Promise((resolve) => {
-    exec('setx -m NVMD empty', (err, stdout, stderr) => {
-      if (err) {
-        return resolve(false);
-      }
-
-      if (stderr && stderr.trim()) return resolve(false);
-
-      return resolve(true);
-    });
-  });
-}
-
-export async function setNvmdVersionForWindows(
-  version: string,
-): Promise<boolean> {
-  return new Promise((resolve) => {
-    exec(`setx -m NVMD ${INSTALL_DIR}\\${version}`, (err, stdout, stderr) => {
-      if (err) {
-        return resolve(false);
-      }
-
-      if (stderr && stderr.trim()) return resolve(false);
-
-      return resolve(true);
-    });
-  });
-}
-
 async function setNvmdToPathForWindows(): Promise<boolean> {
   return new Promise((resolve) => {
-    exec('setx -m PATH "%PATH%;%NVMD%"', (err, stdout, stderr) => {
+    exec(`setx -m PATH "${BIN_DIR};%PATH%"`, (err, stdout, stderr) => {
       if (err) {
         return resolve(false);
       }
@@ -128,35 +107,22 @@ async function setNvmdToPathForWindows(): Promise<boolean> {
       if (stderr && stderr.trim()) return resolve(false);
 
       return resolve(true);
-    });
-  });
-}
-
-async function pathNvmdExistsForWindows(): Promise<boolean> {
-  return new Promise((resolve) => {
-    exec('echo %NVMD%', (err, stdout, stderr) => {
-      if (err) return resolve(false);
-
-      if (stderr) return resolve(false);
-
-      if (stdout && stdout.trim() && stdout.trim() === '%NVMD%')
-        return resolve(false);
-
-      return resolve(stdout.trim() ? true : false);
     });
   });
 }
 
 async function getShellVersion() {
-  if (!(await pathExists(SHELL_VERSION_FILE))) return 0;
+  if (!(await pathExists(MIRRATION_FILE))) return 0;
 
-  const version = (await readFile(SHELL_VERSION_FILE)).toString() || 0;
+  const version = (await readFile(MIRRATION_FILE)).toString() || 0;
 
   return Number(version);
 }
 
 async function setShellVersion(version: number) {
   try {
-    await writeFile(SHELL_VERSION_FILE, `${version}`);
-  } catch (err) {}
+    await writeFile(MIRRATION_FILE, `${version}`);
+  } catch (err) {
+    console.log(err);
+  }
 }

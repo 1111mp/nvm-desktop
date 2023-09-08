@@ -30,8 +30,8 @@ import getNode from './deps/get-node';
 import { APPDIR, INSTALL_DIR } from './constants';
 import {
   checkEnv,
-  setNvmdForWindows,
-  setNvmdVersionForWindows,
+  // setNvmdForWindows,
+  // setNvmdVersionForWindows,
 } from './utils/nvmdShell';
 import { setSetting, getSetting } from './utils/setting';
 import {
@@ -317,7 +317,7 @@ Promise.resolve().then(() => {
       const path = `${INSTALL_DIR}/${version}`;
       await remove(path);
       current && (await remove(`${APPDIR}/default`));
-      if (platform === 'win32') await setNvmdForWindows();
+      // if (platform === 'win32') await setNvmdForWindows();
       return;
     },
   );
@@ -332,7 +332,6 @@ Promise.resolve().then(() => {
 
   ipcMain.handle('use-version', async (_event, version: string) => {
     // windows
-    if (platform === 'win32') await setNvmdVersionForWindows(version);
 
     const file = `${APPDIR}/default`;
     await writeFile(file, version);

@@ -142,18 +142,52 @@ const Home: React.FC = () => {
           ) : (
             <>
               <Paragraph>
-                <Text>{i18n('Tip-First')}</Text>
-              </Paragraph>
-              <Paragraph>
                 <Text>{i18n('Tip-Content')}</Text>
               </Paragraph>
               <Paragraph>
-                <Text copyable type="secondary">
+                <Text
+                  copyable
+                  type="secondary"
+                  style={{ wordBreak: 'break-all' }}
+                >
                   {
-                    'export NVMD_DIR="$HOME/.nvmd" \n[ -s "$NVMD_DIR/nvmd.sh" ] && . "$NVMD_DIR/nvmd.sh" # This loads nvmd'
+                    'export NVMD_DIR="$HOME/.nvmd" \nexport PATH="$NVMD_DIR/bin:$PATH"'
                   }
                 </Text>
               </Paragraph>
+              {locale === 'zh-CN' ? (
+                <>
+                  <Paragraph>
+                    <Text>
+                      然后你可以开始下载安装 Node 了。下载安装完成之后点击
+                      <Text type="secondary"> 应用 </Text>
+                      按钮将其设置为全局默认版本。
+                    </Text>
+                  </Paragraph>
+                  <Paragraph>
+                    <Text>
+                      切换 Node 版本之后，默认不需要重新打开你的终端就能够生效。
+                    </Text>
+                  </Paragraph>
+                </>
+              ) : (
+                <>
+                  <Paragraph>
+                    <Text>
+                      You should then be able to start downloading and
+                      installing Node. After the download and installation is
+                      complete, click the <Text type="secondary"> Apply </Text>{' '}
+                      button to set it as the global default version.
+                    </Text>
+                  </Paragraph>
+                  <Paragraph>
+                    <Text>
+                      After switching the Node version, you don't need to reopen
+                      your terminal to take effect by default.
+                    </Text>
+                  </Paragraph>
+                </>
+              )}
             </>
           )}
         </>

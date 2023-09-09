@@ -17,6 +17,8 @@ const Tip = forwardRef<Ref, Props>(({}, ref) => {
   const { locale } = useAppContext();
   const i18n = useI18n();
 
+  const platform = window.Context.platform;
+
   useImperativeHandle(ref, () => ({
     show: onShow,
   }));
@@ -50,6 +52,24 @@ const Tip = forwardRef<Ref, Props>(({}, ref) => {
             description:
               locale === 'zh-CN' ? (
                 <>
+                  {platform !== 'win32' ? (
+                    <>
+                      <Paragraph>
+                        <Text>{i18n('Tip-Content')}</Text>
+                      </Paragraph>
+                      <Paragraph>
+                        <Text
+                          copyable
+                          type="secondary"
+                          style={{ wordBreak: 'break-all' }}
+                        >
+                          {
+                            'export NVMD_DIR="$HOME/.nvmd" \nexport PATH="$NVMD_DIR/bin:$PATH"'
+                          }
+                        </Text>
+                      </Paragraph>
+                    </>
+                  ) : null}
                   <Paragraph>
                     <Text>
                       找到你想要安装的Node的版本，然后点击安装按钮开始下载安装。
@@ -67,6 +87,24 @@ const Tip = forwardRef<Ref, Props>(({}, ref) => {
                 </>
               ) : (
                 <>
+                  {platform !== 'win32' ? (
+                    <>
+                      <Paragraph>
+                        <Text>{i18n('Tip-Content')}</Text>
+                      </Paragraph>
+                      <Paragraph>
+                        <Text
+                          copyable
+                          type="secondary"
+                          style={{ wordBreak: 'break-all' }}
+                        >
+                          {
+                            'export NVMD_DIR="$HOME/.nvmd" \nexport PATH="$NVMD_DIR/bin:$PATH"'
+                          }
+                        </Text>
+                      </Paragraph>
+                    </>
+                  ) : null}
                   <Paragraph>
                     <Text>
                       Find the version you need and click the Install button to

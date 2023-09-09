@@ -6,11 +6,12 @@
 
 `nvm-desktop` is a desktop application to manage multiple active node.js versions. With this applications, you can quickly install and use different versions of node.
 
-Now you can individually select the version of Node you want for your project (macOS only).
+Now you can individually select the version of Node you want for your project.
 
-This project was inspired by [nvm](https://github.com/nvm-sh/nvm)
+The ability to intelligently identify the correct Node engine is powered by [nvmd-command](https://github.com/1111mp/nvmd-command). It’s a single, fast native executable, with no external dependencies, build with Rust.
 
 ## Table of Contents
+
 - [Screenshot](#screenshot)
 - [Install](#install)
   - [Download](#download)
@@ -18,11 +19,10 @@ This project was inspired by [nvm](https://github.com/nvm-sh/nvm)
   - [Development](#development)
   - [Build and Package](#build-and-package)
   - [Automated Test](#automated-test)
-- [Managing your project (macOS only)](#managing-your-project-macos-only)
+- [Managing your project](#managing-your-project-macos-only)
 - [Todo](#todo)
 - [On Windows](#on-windows)
 - [MacOS issues: "File/App is damaged and cannot be opened. You should move it to Trash."](#macos-issues)
-
 
 ## Screenshot
 
@@ -41,7 +41,21 @@ The automatic update function of the application is currently only supported on 
 
 ## Develop and Build
 
+`nvm-desktop` relies on `nvmd-command` to provide intelligent identification of the correct Node engine service, so you need to build an executable file locally. How to build the executable for `nvm-desktop` please check this document: [build-nvmd-command](https://github.com/1111mp/nvmd-command#build-nvmd-command).
+
+- First, Build an executable for `nvm-desktop`.
+- Copy the executable to this directory of nvm-desktop: `./assets/sources/nvmd` (`./assets/sources/nvmd.exe` on Windows).
+- On Windows platform, you also need to add an additional script file named `temp.cmd` in the `./assets/sources/temp.cmd` directory. The content of the `temp.cmd` file is:
+
+```shell
+@echo off
+"%~dpn0.exe" %*
+```
+
+Then you can start running and building `nvm-desktop` locally.
+
 ### Development
+
 - Make sure your computer has [Node.js](https://nodejs.org/) installed
 - Change to the folder ./, run `npm install` or `yarn install` to install dependented libraries
 
@@ -51,9 +65,10 @@ There are two ways to start the development server:
 - `F5` one-button start (debug mode)
 
 ### Build and Package
+
 - It is recommended to use [electron-builder](https://www.electron.build/index.html) for packaging
 - Go to the ./ folder
-- Run `npm run package` or `yarn run package`,  if everything goes well, the packaged files will be in the ./release/build folder.
+- Run `npm run package` or `yarn run package`, if everything goes well, the packaged files will be in the ./release/build folder.
 
 > Please check `.yarnrc` file for the correct mirror address of the installation dependencies
 
@@ -66,61 +81,35 @@ Automated testing framework: [WebdriverIO](https://webdriver.io/)
 
 About the Electron Testing can view documents: [wdio-electron-service](https://webdriver.io/docs/desktop-testing/electron)
 
-## Managing your project (macOS only)
-You can choose different Node versions individually for your projects.
+## Managing your project
 
-Reference from [avn](https://github.com/wbyoung/avn).
+Now you can choose different Node versions individually for your projects and no need for any other dependencies and extra work.
 
-For more details, please check the [nvmd.sh](https://github.com/1111mp/nvm-desktop/blob/main/assets/nvmd.sh) file.
+This feature is enabled by `nvmd-command` support.
+
+For more details, please check the [nvmd-command](https://github.com/1111mp/nvmd-command) project.
 
 <img width="1049" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/fac4946b-2e1d-45e9-a8ee-1d46a02fb51a">
 
-A file will be added to the root of the project: `.nvmdrc`, the content is the version number of Node you choose. `nvm-desktop` detects this file to set the Node version for your project.
+A file will be added to the root of the project: `.nvmdrc`, the content is the version number of Node you choose. `nvm-desktop` detects this file to identify the Node version for your project.
 
-If you are using `VS Code` and launch your project with `Debug`, then you should change the `runtimeExecutable` configuration in the `launch.json` file. Like this:
+If you are using `VS Code` and launch your project with `Debug`, then you should set `outputCapture` to `std` to see more log information in the `launch.json` file:
+
 ```json
 {
-  "name": "Electron: Main",
-  "type": "node",
-  "request": "launch",
-  "protocol": "inspector",
-  // "runtimeExecutable": "npm",
-  "runtimeExecutable": "${env:NVMD_DIR}/versions/18.17.0/bin/npm",
-  "runtimeArgs": ["run", "start"],
-  "env": {
-    "MAIN_ARGS": "--inspect=5858 --remote-debugging-port=9223"
-  }
+  // ...
+
+  "outputCapture": "std"
 },
 ```
-Directly specify the installation path of Node or NPM.
 
-Because this function is implemented based on `shell` commands, it does not currently support the Windows platform. If you have some good ideas, you are very welcome to leave a message to communicate.
+## Feature
 
-For Windows platform, if you have installed `zsh` or `bash` on your system. Perhaps you can add the following command to your `.zshrc` or `.bashrc` file like macOS platform:
-```shell
-export NVMD_DIR="$HOME/.nvmd" 
-[ -s "$NVMD_DIR/nvmd.sh" ] && . "$NVMD_DIR/nvmd.sh" # This loads nvmd
-```
-On the Windows platform, the `nvmd.sh` file is also added to this directory `$HOME/.nvmd`. Then open the Projects function of the client: [src/renderer/pages/home/index.tsx](https://github.com/1111mp/nvm-desktop/blob/main/src/renderer/pages/home/index.tsx#L190). Recompile and install.
-
-## Todo
+- [x] Supports setting the Node engine version separately for the project.
 - [x] Support English & Simplified Chinese
 - [x] Support for custom download mirrors (default is https://nodejs.org/dist)
 - [x] Support automatic update on Windows.
-- [ ] Complete automated testing.
-
-### On Windows
-After installing and starting the application, an environment variable named `NVMD` will be added to your computer system, default value is `empty`. And it has been added to the environment variable `PATH`.
-
-Set by: `setx -m NVMD empty`.
-
-After you install and apply the specified version of node, the value of the environment variable `NVMD` is set to the installation path of the node version.
-
-Set by: `setx -m NVMD nodePath`.
-
-Don't forget to restart your terminal.
-
-If you encounter problems during use, please check whether the environment variables in the operating system are valid. Of course, your issue is also very welcome.
+- [x] Complete automated testing.
 
 ### MacOS issues
 
@@ -135,6 +124,7 @@ It is a Mac error that can occur to various macOS versions, such as macOS Ventur
 To fix "File/App is damaged and can't be opened" on Ventura or other macOS versions, you need to decide whether you want to keep the offending file or app.
 
 If you are experiencing "App is damaged and cannot be opened" on macOS Ventura, do the following steps to fix it:
+
 1. Open the Apple menu > System Settings.
 2. Select Privacy & Security > Developer Tools.
 3. Click the ( + ) button and navigate to the folder where the damaged app resides.
@@ -142,6 +132,7 @@ If you are experiencing "App is damaged and cannot be opened" on macOS Ventura, 
 4. Select the app and click Open.
 
 If you are encountering "Application is damaged and cannot be opened" on Big Sur/Monterey/Catalina when opening an app, try these steps:
+
 1. Open the Apple menu > System Preferences.
 2. Select Security & Privacy.
 3. Tap the yellow lock and enter your password to unlock the preference pane.
@@ -161,9 +152,11 @@ Here's how to open damaged apps on Mac:
    ```
 3. Enter your admin password and hit Enter. (The password won't appear on the screen.)
 4. Check the status of Gatekeeper by typing in the following command and pressing Enter.
-  ```
-  spctl --status
-  ```
+
+```
+spctl --status
+```
+
 5. Open the damaged app.
 
 If you want to enable Gatekeeper again, you can repeat the above process but replace the command in step 2 with `sudo spctl –master-enable`.
@@ -174,12 +167,10 @@ Another way to fix "App/File is damaged and cannot be opened" on M1 or Intel Mac
 
 1. Open Terminal from the Applications folder.
 2. Type in the following command and hit Enter.
-  ```
-  xattr -d com.apple.quarantine file_path
-  ```
 
-To execute this command, first copy and paste `xattr -d com.apple.quarantine ` to Terminal, then drag and drop the file or app to Terminal and hit Enter. 
+```
+xattr -d com.apple.quarantine file_path
+```
+
+To execute this command, first copy and paste `xattr -d com.apple.quarantine ` to Terminal, then drag and drop the file or app to Terminal and hit Enter.
 ![WeChatae77aab16d6d535b0b106128de0736f3](https://github.com/1111mp/nvm-desktop/assets/31227919/b9f804ca-1c8e-4bb2-9f6f-f43810c9ab70)
-
-
-

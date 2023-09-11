@@ -88,7 +88,7 @@ This feature is enabled by `nvmd-command` support.
 
 For more details, please check the [nvmd-command](https://github.com/1111mp/nvmd-command) project.
 
-<img width="1049" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/fac4946b-2e1d-45e9-a8ee-1d46a02fb51a">
+<img width="1660" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/ac8653c4-5b40-447f-b10c-557907d101df">
 
 A file will be added to the root of the project: `.nvmdrc`, the content is the version number of Node you choose. `nvm-desktop` detects this file to identify the Node version for your project.
 

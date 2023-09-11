@@ -19,9 +19,8 @@ The ability to intelligently identify the correct Node engine is powered by [nvm
   - [Development](#development)
   - [Build and Package](#build-and-package)
   - [Automated Test](#automated-test)
-- [Managing your project](#managing-your-project-macos-only)
-- [Todo](#todo)
-- [On Windows](#on-windows)
+- [Managing your project](#managing-your-project)
+- [Features](#features)
 - [MacOS issues: "File/App is damaged and cannot be opened. You should move it to Trash."](#macos-issues)
 
 ## Screenshot
@@ -103,7 +102,7 @@ If you are using `VS Code` and launch your project with `Debug`, then you should
 },
 ```
 
-## Feature
+## Features
 
 - [x] Supports setting the Node engine version separately for the project.
 - [x] Support English & Simplified Chinese

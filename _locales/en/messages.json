@@ -370,5 +370,9 @@
   "Directly-Specify": {
     "message": "Directly specify the installation path of Node or NPM.",
     "description": "The text of the Directly-Specify"
+  },
+  "Project-Select": {
+    "message": "Please select your project",
+    "description": "The text of the Project-Select"
   }
 }

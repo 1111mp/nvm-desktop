@@ -370,5 +370,9 @@
   "Directly-Specify": {
     "message": "直接指定 Node 或者 Npm 的安装路径。",
     "description": "The text of the Directly-Specify"
+  },
+  "Project-Select": {
+    "message": "请选择您的项目",
+    "description": "The text of the Project-Select"
   }
 }

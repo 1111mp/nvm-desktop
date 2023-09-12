@@ -13,7 +13,7 @@ export const fetchIndex = async ({
     ...fetchNodeOpts,
   });
 
-  setCache({ response, fetch });
+  await setCache({ response, fetch });
 
   onProgress &&
     response.on('downloadProgress', (data) => {

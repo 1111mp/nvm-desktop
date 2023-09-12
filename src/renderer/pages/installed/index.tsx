@@ -1,6 +1,6 @@
 import './styles.scss';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
 import { App, Button, Typography, Table, Space, Tag, Dropdown } from 'antd';
 import {
@@ -57,6 +57,13 @@ export const Component: React.FC = () => {
 
   const { locale } = useAppContext();
   const i18n = useI18n();
+
+  useEffect(() => {
+    window.Context.onRegistCurVersionChange((version) => {
+      setCurrent(version);
+      message.success('Succeed');
+    });
+  }, []);
 
   const columns: ColumnsType<Nvmd.Version> = useMemo(
     () => [
@@ -202,7 +209,7 @@ export const Component: React.FC = () => {
                           installeds.includes(version.slice(1)),
                         ),
                       );
-                      message.success('Successful');
+                      message.success('Succeed');
                       return;
                     }
                     default:

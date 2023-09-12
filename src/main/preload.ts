@@ -11,11 +11,15 @@ type OnCheckUpdateResultCallback = (
 type OnUpdateProgressCallback = (progress: ProgressInfo) => void;
 type OnProgressCallback = (id: string, data: Nvmd.ProgressData) => void;
 type OnThemeChangedCallback = (theme: string) => void;
+type OnCurVersionChange = (version: string) => void;
+type OnProjectUpdate = (projects: Nvmd.Project[]) => void;
 
 let onCheckUpdateResult: OnCheckUpdateResultCallback | null = null,
   onUpdateProgress: OnUpdateProgressCallback | null = null,
   onProgress: OnProgressCallback | null = null,
-  onThemeChanged: OnThemeChangedCallback | null = null;
+  onThemeChanged: OnThemeChangedCallback | null = null,
+  onCurVersionChange: OnCurVersionChange | null = null,
+  onProjectUpdate: OnProjectUpdate | null = null;
 
 ipcRenderer.on('update-available', (_event, info: UpdateInfo) => {
   onCheckUpdateResult?.(info);
@@ -44,7 +48,15 @@ ipcRenderer.on(
 );
 
 ipcRenderer.on('native-theme:changed', (_event, theme: string) => {
-  onThemeChanged && onThemeChanged(theme);
+  onThemeChanged?.(theme);
+});
+
+ipcRenderer.on('current-version-update', (_evnet, version: string) => {
+  onCurVersionChange?.(version);
+});
+
+ipcRenderer.on('call-projects-update', (_evnet, projects: Nvmd.Project[]) => {
+  onProjectUpdate?.(projects);
 });
 
 const electronHandler = {
@@ -96,6 +108,9 @@ const electronHandler = {
   useNodeVersion: (version: string) =>
     ipcRenderer.invoke('use-version', version),
   getCurrentVersion: () => ipcRenderer.invoke('current-version'),
+  onRegistCurVersionChange: (callback: OnCurVersionChange) => {
+    onCurVersionChange = callback;
+  },
 
   onRegistProgress: (onProgressSource: OnProgressCallback) => {
     onProgress = onProgressSource;
@@ -121,6 +136,9 @@ const electronHandler = {
     ipcRenderer.invoke('sync-project-version', path, version) as Promise<
       404 | 200
     >,
+  onRegistProjectUpdate: (callback: OnProjectUpdate | null) => {
+    onProjectUpdate = callback;
+  },
 };
 
 contextBridge.exposeInMainWorld('Context', electronHandler);

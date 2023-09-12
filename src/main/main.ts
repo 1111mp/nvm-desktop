@@ -8,7 +8,7 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import path from 'node:path';
+import { join } from 'node:path';
 import { platform } from 'node:process';
 import {
   app,
@@ -17,8 +17,10 @@ import {
   ipcMain,
   nativeTheme,
   dialog,
+  Tray,
+  Menu,
 } from 'electron';
-import { remove, pathExists, readFile, writeFile } from 'fs-extra';
+import { remove } from 'fs-extra';
 import MenuBuilder from './menu';
 import { AppUpdater } from './updater';
 import { resolveHtmlPath } from './utils/resolvePath';
@@ -28,11 +30,8 @@ import {
 } from './deps/all-node-versions';
 import getNode from './deps/get-node';
 import { APPDIR, INSTALL_DIR } from './constants';
-import {
-  checkEnv,
-  // setNvmdForWindows,
-  // setNvmdVersionForWindows,
-} from './utils/nvmdShell';
+import { checkEnv } from './utils/nvmdShell';
+import { getCurrentVersion, setCurrentVersion } from './utils/version';
 import { setSetting, getSetting } from './utils/setting';
 import {
   getProjects,
@@ -40,13 +39,18 @@ import {
   syncProjectVersion,
   updateProjects,
 } from './utils/projects';
+import { gt } from 'semver';
 import loadLocale from './locale';
 import { Themes } from '../types';
 
+import type { MenuItemConstructorOptions } from 'electron';
+
 let mainWindow: BrowserWindow | null = null,
+  tray: Tray | null = null,
   locale: I18n.Locale,
   menuBuilder: MenuBuilder,
-  setting: Nvmd.Setting;
+  setting: Nvmd.Setting,
+  installedVersions: string[];
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -87,11 +91,11 @@ const createWindow = async () => {
   }
 
   const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(__dirname, '../../assets');
+    ? join(process.resourcesPath, 'assets')
+    : join(__dirname, '../../assets');
 
   const getAssetPath = (...paths: string[]): string => {
-    return path.join(RESOURCES_PATH, ...paths);
+    return join(RESOURCES_PATH, ...paths);
   };
 
   mainWindow = new BrowserWindow({
@@ -122,8 +126,8 @@ const createWindow = async () => {
         : '#ffffff',
     webPreferences: {
       preload: app.isPackaged
-        ? path.join(__dirname, 'preload.js')
-        : path.join(__dirname, '../../.erb/dll/preload.js'),
+        ? join(__dirname, 'preload.js')
+        : join(__dirname, '../../.erb/dll/preload.js'),
     },
   });
 
@@ -147,6 +151,7 @@ const createWindow = async () => {
     mainWindow = null;
   });
 
+  createTray();
   menuBuilder = new MenuBuilder(mainWindow, locale.i18n);
   menuBuilder.buildMenu();
 
@@ -180,12 +185,17 @@ app
   .whenReady()
   .then(async () => {
     try {
-      const [, settingFromCache] = await Promise.all([
+      const [, settingFromCache, iVersions] = await Promise.all([
         checkEnv(),
         getSetting(),
+        allInstalledNodeVersions(),
       ]);
 
       if (!setting) setting = settingFromCache;
+      if (!installedVersions)
+        installedVersions = iVersions.sort((version1, version2) =>
+          gt(version2, version1) ? 1 : -1,
+        );
 
       if (!locale) {
         const appLocale = setting.locale;
@@ -226,6 +236,105 @@ app
     });
   })
   .catch(console.log);
+
+function createTray() {
+  const icon = app.isPackaged
+    ? join(process.resourcesPath, 'assets', 'icons', 'unix', 'iconTemplate.png')
+    : join(__dirname, '../..', 'assets', 'icons', 'unix', 'iconTemplate.png');
+
+  tray = new Tray(icon);
+  tray.setToolTip('NVM-Desktop');
+
+  buildTray();
+}
+
+async function buildTray() {
+  if (!tray) return;
+
+  const [curVersion, projects] = await Promise.all([
+    getCurrentVersion(),
+    getProjects(),
+  ]);
+
+  const projectsMenu: MenuItemConstructorOptions[] = projects
+    .slice(0, 5)
+    .map((project, index) => {
+      const { name, path, version: projectVersion } = project;
+      return {
+        label: name,
+        submenu: installedVersions.slice(0, 8).map((version) => ({
+          label: `v${version}`,
+          type: 'radio',
+          checked: projectVersion === version,
+          async click() {
+            const code = await syncProjectVersion(path, version);
+            const newProjects = [...projects];
+            newProjects[index] = {
+              ...project,
+              version: version,
+              active: code === 200 ? true : false,
+              updateAt: new Date().toISOString(),
+            };
+            updateProjects(newProjects);
+
+            mainWindow?.webContents.send('call-projects-update', newProjects);
+          },
+        })),
+      };
+    });
+
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'NVM-Desktop',
+      click: () => {
+        if (mainWindow === null) {
+          createWindow();
+          return;
+        }
+
+        if (!mainWindow.isVisible()) {
+          mainWindow.show();
+          return;
+        }
+
+        if (mainWindow.isFocused()) {
+          mainWindow.minimize();
+          return;
+        }
+
+        mainWindow.focus();
+      },
+    },
+    { type: 'separator' },
+    {
+      label: 'Global (default)',
+      submenu: installedVersions.slice(0, 8).map((version) => ({
+        label: `v${version}`,
+        type: 'radio',
+        checked: curVersion === version,
+        async click() {
+          if (mainWindow === null) return;
+          await setCurrentVersion(version);
+          mainWindow.webContents.send('current-version-update', version);
+        },
+      })),
+    },
+    ...projectsMenu,
+    { type: 'separator' },
+    {
+      label: `${locale.i18n('About')} NVM-Desktop`,
+      role: 'about',
+    },
+    {
+      label: `${locale.i18n('Quit')} NVM-Desktop`,
+      click: () => {
+        app.quit();
+      },
+    },
+  ]);
+
+  tray.setContextMenu(contextMenu);
+}
 
 const controllers = new Map<string, AbortController>();
 
@@ -282,7 +391,13 @@ Promise.resolve().then(() => {
   ipcMain.handle(
     'installed-node-versions',
     async (_event, refresh: boolean = false) => {
+      if (!refresh) return installedVersions;
+
       const versions = await allInstalledNodeVersions(refresh);
+
+      installedVersions = versions.sort((version1, version2) =>
+        gt(version2, version1) ? 1 : -1,
+      );
 
       return versions;
     },
@@ -323,18 +438,15 @@ Promise.resolve().then(() => {
   );
 
   ipcMain.handle('current-version', async () => {
-    const file = `${APPDIR}/default`;
-    if (!(await pathExists(file))) return '';
+    const version = getCurrentVersion();
 
-    const version = (await readFile(file)).toString();
     return version;
   });
 
   ipcMain.handle('use-version', async (_event, version: string) => {
-    // windows
+    await setCurrentVersion(version);
 
-    const file = `${APPDIR}/default`;
-    await writeFile(file, version);
+    buildTray();
     return;
   });
 
@@ -344,7 +456,7 @@ Promise.resolve().then(() => {
 
   ipcMain.handle('open-folder-selecter', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow!, {
-      title: '请选择您的项目',
+      title: locale.i18n('Project-Select') as string,
       properties: ['openDirectory'],
     });
 
@@ -363,7 +475,10 @@ Promise.resolve().then(() => {
   ipcMain.handle(
     'update-projects',
     async (_event, projects: Nvmd.Project[], path?: string) => {
-      return updateProjects(projects, path);
+      await updateProjects(projects, path);
+
+      buildTray();
+      return;
     },
   );
 

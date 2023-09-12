@@ -1,6 +1,6 @@
 import './styles.scss';
 
-import { useMemo, useState, Children, cloneElement } from 'react';
+import { useMemo, useState, Children, cloneElement, useEffect } from 'react';
 import { useLoaderData } from 'react-router-dom';
 import {
   App,
@@ -62,6 +62,16 @@ export const Component: React.FC = () => {
   const { locale } = useAppContext();
   const { message } = App.useApp();
 
+  useEffect(() => {
+    window.Context.onRegistProjectUpdate((pros) => {
+      setProjects(pros);
+    });
+
+    return () => {
+      window.Context.onRegistProjectUpdate(null);
+    };
+  }, []);
+
   const columns: ColumnsType<Nvmd.Project> = useMemo(
     () => [
       {
@@ -101,28 +111,9 @@ export const Component: React.FC = () => {
         dataIndex: 'version',
         render(version: string, { path }) {
           return (
-            <Select
-              size="small"
-              showSearch
-              allowClear
-              defaultValue={version ? version : undefined}
-              placeholder="Select a version"
-              optionFilterProp="children"
-              status={
-                !version || installedVersions.includes(version)
-                  ? undefined
-                  : 'error'
-              }
-              filterOption={(input, option) =>
-                (option?.label ?? '')
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              options={installedVersions.map((version) => ({
-                label: `v${version}`,
-                value: version,
-              }))}
-              style={{ minWidth: 140 }}
+            <Selector
+              version={version}
+              installedVersions={installedVersions}
               onChange={async (newVersion) => {
                 try {
                   const code = await window.Context.syncProjectVersion(
@@ -328,6 +319,48 @@ export const Component: React.FC = () => {
     </>
   );
 };
+
+function Selector({
+  version: versionProp,
+  installedVersions,
+  onChange,
+}: {
+  version: string;
+  installedVersions: string[];
+  onChange: (version: string) => Promise<void>;
+}) {
+  const [version, setVersion] = useState<string>(versionProp);
+
+  useEffect(() => {
+    setVersion(versionProp);
+  }, [versionProp]);
+
+  return (
+    <Select
+      size="small"
+      showSearch
+      allowClear
+      value={version}
+      placeholder="Select a version"
+      optionFilterProp="children"
+      status={
+        !version || installedVersions.includes(version) ? undefined : 'error'
+      }
+      filterOption={(input, option) =>
+        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+      }
+      options={installedVersions.map((version) => ({
+        label: `v${version}`,
+        value: version,
+      }))}
+      style={{ minWidth: 140 }}
+      onChange={(newVersion) => {
+        setVersion(newVersion);
+        onChange?.(newVersion);
+      }}
+    />
+  );
+}
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   'data-row-key': string;

@@ -374,5 +374,9 @@
   "Project-Select": {
     "message": "Please select your project",
     "description": "The text of the Project-Select"
+  },
+  "Whats-new": {
+    "message": "What's new",
+    "description": "The text of the Whats-new"
   }
 }

@@ -10,6 +10,15 @@
   }
 
   &-label {
+    &__link {
+      font-weight: 500;
+      cursor: pointer;
+
+      &:hover {
+        color: #74a975;
+      }
+    }
+
     &__gray {
       color: #999999;
       font-weight: 300;

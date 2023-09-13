@@ -374,5 +374,9 @@
   "Project-Select": {
     "message": "请选择您的项目",
     "description": "The text of the Project-Select"
+  },
+  "Whats-new": {
+    "message": "更新日志",
+    "description": "The text of the Whats-new"
   }
 }

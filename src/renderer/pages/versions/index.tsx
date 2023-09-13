@@ -2,7 +2,7 @@ import './styles.scss';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
-import { App, Button, Dropdown, Space, Typography, Tag } from 'antd';
+import { App, Button, Dropdown, Space, Typography, Tag, Tooltip } from 'antd';
 import {
   SyncOutlined,
   ReloadOutlined,
@@ -80,10 +80,22 @@ export const Versions: React.FC = () => {
         title: i18n('Version'),
         dataIndex: 'version',
         ...getColumnSearchProps('version'),
-        render: (text: string, { lts, version }, index: number) => {
+        render: (text: string, { lts, version }) => {
           return (
             <Space>
-              <span style={{ fontWeight: 500 }}>{text}</span>
+              <Tooltip color="#74a975" title={i18n("Whats-new")}>
+                <span
+                  className="module-versions-label__link"
+                  onClick={() => {
+                    window.open(
+                      `https://github.com/nodejs/node/releases/tag/${text}`,
+                      '_blank',
+                    );
+                  }}
+                >
+                  {text}
+                </span>
+              </Tooltip>
               {lts ? (
                 <span style={{ color: '#b9b9b9' }}>({lts})</span>
               ) : latestVersion.current === version ? (

@@ -11,7 +11,9 @@ import { PROJECTS_JSONFILE, NVMDRC_NAME } from '../constants';
 
 let cacheProjects: Nvmd.Project[];
 
-export async function getProjects(load: boolean = false) {
+export async function getProjects(
+  load: boolean = false,
+): Promise<Nvmd.Project[]> {
   if (cacheProjects !== void 0 && !load) {
     return cacheProjects;
   }

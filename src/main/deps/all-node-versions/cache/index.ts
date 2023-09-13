@@ -2,26 +2,22 @@ import { Stream } from 'node:stream';
 import { platform } from 'node:process';
 import { pipeline as streamPipeline } from 'node:stream/promises';
 import { createWriteStream } from 'node:fs';
-import {
-  pathExistsSync,
-  ensureFileSync,
-  readJsonSync,
-  readdirSync,
-} from 'fs-extra';
+import { join } from 'node:path';
+import { pathExists, ensureFile, readJson, readdir } from 'fs-extra';
 import { VERSIONS_FILENAME, INSTALL_DIR } from '../../../constants';
 
-export function setCache({
+export async function setCache({
   response,
   fetch = false,
 }: {
   response: Stream;
   fetch?: boolean;
 }) {
-  if (pathExistsSync(VERSIONS_FILENAME) && !fetch) return;
+  if ((await pathExists(VERSIONS_FILENAME)) && !fetch) return;
 
   response.on('response', async (response) => {
     try {
-      ensureFileSync(VERSIONS_FILENAME);
+      await ensureFile(VERSIONS_FILENAME);
       await streamPipeline(response, createWriteStream(VERSIONS_FILENAME));
     } catch (error) {
       // onError(error);
@@ -35,20 +31,23 @@ export async function getCache({
 }: {
   fetch?: boolean;
 }): Promise<void | Nvmd.Versions> {
-  if (fetch || !pathExistsSync(VERSIONS_FILENAME)) return;
+  if (fetch || !(await pathExists(VERSIONS_FILENAME))) return;
 
-  return readJsonSync(VERSIONS_FILENAME);
+  const versions = await readJson(VERSIONS_FILENAME);
+  return versions;
 }
 
 export async function getInstalledVersions(): Promise<string[]> {
-  if (!pathExistsSync(INSTALL_DIR)) return [];
+  if (!(await pathExists(INSTALL_DIR))) return [];
 
-  const versions = readdirSync(INSTALL_DIR).filter((version) => {
-    const node =
-      `${INSTALL_DIR}/${version}/` +
-      (platform === 'win32' ? 'node.exe' : 'bin/node');
+  const versions = (await readdir(INSTALL_DIR)).filter(async (version) => {
+    const node = join(
+      INSTALL_DIR,
+      version,
+      platform === 'win32' ? 'node.exe' : 'bin/node',
+    );
 
-    return pathExistsSync(node);
+    return await pathExists(node);
   });
 
   return versions;

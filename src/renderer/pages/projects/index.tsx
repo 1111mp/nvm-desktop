@@ -65,6 +65,7 @@ export const Component: React.FC = () => {
   useEffect(() => {
     window.Context.onRegistProjectUpdate((pros) => {
       setProjects(pros);
+      message.success('Succeed');
     });
 
     return () => {

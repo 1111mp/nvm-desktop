@@ -238,9 +238,13 @@ app
   .catch(console.log);
 
 function createTray() {
+  const iconName =
+    platform === 'win32'
+      ? join('windows', 'icon.png')
+      : join('unix', 'iconTemplate.png');
   const icon = app.isPackaged
-    ? join(process.resourcesPath, 'assets', 'icons', 'unix', 'iconTemplate.png')
-    : join(__dirname, '../..', 'assets', 'icons', 'unix', 'iconTemplate.png');
+    ? join(process.resourcesPath, 'assets', 'icons', iconName)
+    : join(__dirname, '../..', 'assets', 'icons', iconName);
 
   tray = new Tray(icon);
   tray.setToolTip('NVM-Desktop');

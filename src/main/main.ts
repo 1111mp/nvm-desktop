@@ -433,11 +433,15 @@ Promise.resolve().then(() => {
   ipcMain.handle(
     'uninstall-node-version',
     async (_event, version: string, current: boolean = false) => {
-      const path = `${INSTALL_DIR}/${version}`;
-      await remove(path);
-      current && (await remove(`${APPDIR}/default`));
-      // if (platform === 'win32') await setNvmdForWindows();
-      return;
+      try {
+        const path = `${INSTALL_DIR}/${version}`;
+        await remove(path);
+        current && (await remove(`${APPDIR}/default`));
+        // if (platform === 'win32') await setNvmdForWindows();
+        return;
+      } catch (err) {
+        return Promise.reject(err.message);
+      }
     },
   );
 

@@ -191,7 +191,9 @@ export const Component: React.FC = () => {
       return message.error('The project already exists');
     }
 
-    const pathArr = path.split('/');
+    const pathArr = path.split(
+      window.Context.platform === 'win32' ? '\\' : '/',
+    );
     const now = new Date().toISOString();
     const project: Nvmd.Project = {
       name: pathArr[pathArr.length - 1],

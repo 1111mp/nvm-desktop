@@ -193,23 +193,35 @@ export const Component: React.FC = () => {
                       return;
                     }
                     case 'uninstall': {
-                      await window.Context.uninstallVersion(
-                        record.version.slice(1),
-                        record.version.includes(current),
-                      );
+                      try {
+                        await window.Context.uninstallVersion(
+                          record.version.slice(1),
+                          record.version.includes(current),
+                        );
 
-                      const [currentVersion, installeds] = await Promise.all([
-                        window.Context.getCurrentVersion(),
-                        window.Context.getInstalledNodeVersions(true),
-                      ]);
-                      setCurrent(currentVersion);
-                      setInstalledVersions(installeds);
-                      setVersions(
-                        allVersions.filter(({ version }) =>
-                          installeds.includes(version.slice(1)),
-                        ),
-                      );
-                      message.success('Succeed');
+                        const [currentVersion, installeds] = await Promise.all([
+                          window.Context.getCurrentVersion(),
+                          window.Context.getInstalledNodeVersions(true),
+                        ]);
+                        setCurrent(currentVersion);
+                        setInstalledVersions(installeds);
+                        setVersions(
+                          allVersions.filter(({ version }) =>
+                            installeds.includes(version.slice(1)),
+                          ),
+                        );
+                        message.success('Succeed');
+                      } catch (err) {
+                        message.error(
+                          err.message
+                            ? err.message
+                                .split(
+                                  "Error: Error invoking remote method 'uninstall-node-version': ",
+                                )
+                                .slice(-1)
+                            : 'Something went wrong',
+                        );
+                      }
                       return;
                     }
                     default:

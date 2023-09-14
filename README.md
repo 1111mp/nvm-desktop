@@ -10,6 +10,8 @@ Now you can individually select the version of Node you want for your project.
 
 The ability to intelligently identify the correct Node engine is powered by [nvmd-command](https://github.com/1111mp/nvmd-command). It’s a single, fast native executable, with no external dependencies, build with Rust.
 
+English | [简体中文](https://github.com/1111mp/nvm-desktop/blob/main/README-zh_CN.md)
+
 ## Table of Contents
 
 - [Screenshot](#screenshot)

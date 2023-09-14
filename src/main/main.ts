@@ -238,6 +238,8 @@ app
   .catch(console.log);
 
 function createTray() {
+  if (tray) return;
+  
   const iconName =
     platform === 'win32'
       ? join('windows', 'icon.png')

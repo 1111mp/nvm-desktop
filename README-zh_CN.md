@@ -15,6 +15,7 @@
 ## 目录
 
 - [截图](#截图)
+- [命令行工具](#命令行工具)
 - [安装](#安装)
   - [下载](#下载)
 - [开发和构建](#开发和构建)
@@ -29,6 +30,56 @@
 
 <img width="1060" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/45f4c613-2d17-4804-bc83-ac07260bc6c0">
 <img width="1048" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/757525bc-489d-4611-b957-c780fa9bfab5">
+
+## 命令行工具
+
+您可以直接在终端中输入命令行管理所有 Node 版本。 `nvmd` 不提供 Node 的下载安装功能，如果您需要下载安装新版本的 Node，请打开 `nvm-desktop` 客户端。
+
+`nvmd` 允许您通过命令行快速管理不同版本的 Node：
+
+```shell
+$ nvmd use 18.17.1
+Now using node v18.17.1
+$ node -v
+v18.17.1
+$ nvmd use v20.5.1 --project
+Now using node v20.5.1
+$ node -v
+v20.5.1
+$ nvmd ls
+v20.6.1
+v20.5.1 (currently)
+v18.17.1
+$ nvmd current
+v20.5.1
+```
+
+`nvmd --help`：
+
+```shell
+$ nvmd --help
+nvmd (2.2.0)
+The1111mp@outlook.com
+command tools for nvm-desktop
+
+Usage: nvmd [COMMAND]
+
+Commands:
+  current  Get the currently used version
+  list     List the all installed versions of Node.js
+  ls       List the all installed versions of Node.js
+  use      Use the installed version of Node.js (default is global)
+  which    Get the path to the executable to where Node.js was installed
+  help     Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+
+Please download new version of Node.js in nvm-desktop.
+```
+
+更多详情请查看此文档: [command-tools-intro](https://github.com/1111mp/nvmd-command#command-tools-intro) .
 
 ## 安装
 

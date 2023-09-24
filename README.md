@@ -158,6 +158,7 @@ If you are using `VS Code` and launch your project with `Debug`, then you should
 ## Features
 
 - [x] Supports setting the Node engine version separately for the project.
+- [x] Command tools for manage the version of Node.
 - [x] Support English & Simplified Chinese
 - [x] Support for custom download mirrors (default is https://nodejs.org/dist)
 - [x] Support automatic update on Windows.

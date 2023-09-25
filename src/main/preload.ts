@@ -107,7 +107,8 @@ const electronHandler = {
 
   useNodeVersion: (version: string) =>
     ipcRenderer.invoke('use-version', version),
-  getCurrentVersion: () => ipcRenderer.invoke('current-version'),
+  getCurrentVersion: (fetch: boolean = false) =>
+    ipcRenderer.invoke('current-version', fetch),
   onRegistCurVersionChange: (callback: OnCurVersionChange) => {
     onCurVersionChange = callback;
   },

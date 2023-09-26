@@ -248,15 +248,17 @@ export const Component: React.FC = () => {
   const onRefresh = async () => {
     setLoading(true);
     try {
-      const [versions, installeds] = await Promise.all([
+      const [versions, installeds, currentVersion] = await Promise.all([
         window.Context.getAllNodeVersions(),
         window.Context.getInstalledNodeVersions(),
+        window.Context.getCurrentVersion(true),
       ]);
-      message.success('Refresh successed');
       setVersions(
         versions.filter(({ version }) => installeds.includes(version.slice(1))),
       );
       setInstalledVersions(installeds);
+      setCurrent(currentVersion);
+      message.success('Refresh successed');
     } catch (err) {
     } finally {
       setLoading(false);

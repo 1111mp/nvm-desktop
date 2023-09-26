@@ -83,7 +83,7 @@ export const Versions: React.FC = () => {
         render: (text: string, { lts, version }) => {
           return (
             <Space>
-              <Tooltip color="#74a975" title={i18n("Whats-new")}>
+              <Tooltip color="#74a975" title={i18n('Whats-new')}>
                 <span
                   className="module-versions-label__link"
                   onClick={() => {
@@ -291,13 +291,15 @@ export const Versions: React.FC = () => {
   const onLocalRefresh = async () => {
     seLocaltLoading(true);
     try {
-      const [versions, installeds] = await Promise.all([
+      const [versions, installeds, currentVersion] = await Promise.all([
         window.Context.getAllNodeVersions(),
         window.Context.getInstalledNodeVersions(),
+        window.Context.getCurrentVersion(true),
       ]);
-      message.success('Refresh successed');
       setVersions(versions);
       setInstalledVersions(installeds);
+      setCurrent(currentVersion);
+      message.success('Refresh successed');
     } catch (err) {
     } finally {
       seLocaltLoading(false);
@@ -307,15 +309,17 @@ export const Versions: React.FC = () => {
   const onRemoteRefresh = async () => {
     setLoading(true);
     try {
-      const [versions, installeds] = await Promise.all([
+      const [versions, installeds, currentVersion] = await Promise.all([
         window.Context.getAllNodeVersions({
           fetch: true,
         }),
         window.Context.getInstalledNodeVersions(true),
+        window.Context.getCurrentVersion(true),
       ]);
-      message.success('Refresh successed');
       setVersions(versions);
       setInstalledVersions(installeds);
+      setCurrent(currentVersion);
+      message.success('Refresh successed');
     } catch (err) {
       message.error(
         err.message

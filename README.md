@@ -15,6 +15,7 @@ English | [简体中文](https://github.com/1111mp/nvm-desktop/blob/main/README-
 ## Table of Contents
 
 - [Screenshot](#screenshot)
+- [Command toos intro](#command-toos-intro)
 - [Install](#install)
   - [Download](#download)
 - [Develop and Build](#develop-and-build)
@@ -29,6 +30,56 @@ English | [简体中文](https://github.com/1111mp/nvm-desktop/blob/main/README-
 
 <img width="1060" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/45f4c613-2d17-4804-bc83-ac07260bc6c0">
 <img width="1048" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/757525bc-489d-4611-b957-c780fa9bfab5">
+
+## Command toos intro
+
+You can also manage all versions of node directly from the command line. The `nvmd` does not provide the node download and installation functions. If you need to download and install a new version of node, you should open the `nvm-desktop` application.
+
+`nvmd` allows you to quickly manage different versions of node via the command line.
+
+```shell
+$ nvmd use 18.17.1
+Now using node v18.17.1
+$ node -v
+v18.17.1
+$ nvmd use v20.5.1 --project
+Now using node v20.5.1
+$ node -v
+v20.5.1
+$ nvmd ls
+v20.6.1
+v20.5.1 (currently)
+v18.17.1
+$ nvmd current
+v20.5.1
+```
+
+`nvmd --help`:
+
+```shell
+$ nvmd --help
+nvmd (2.2.0)
+The1111mp@outlook.com
+command tools for nvm-desktop
+
+Usage: nvmd [COMMAND]
+
+Commands:
+  current  Get the currently used version
+  list     List the all installed versions of Node.js
+  ls       List the all installed versions of Node.js
+  use      Use the installed version of Node.js (default is global)
+  which    Get the path to the executable to where Node.js was installed
+  help     Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+
+Please download new version of Node.js in nvm-desktop.
+```
+
+For more details, please check document: [command-tools-intro](https://github.com/1111mp/nvmd-command#command-tools-intro) .
 
 ## Install
 
@@ -107,6 +158,7 @@ If you are using `VS Code` and launch your project with `Debug`, then you should
 ## Features
 
 - [x] Supports setting the Node engine version separately for the project.
+- [x] Command tools for manage the version of Node.
 - [x] Support English & Simplified Chinese
 - [x] Support for custom download mirrors (default is https://nodejs.org/dist)
 - [x] Support automatic update on Windows.

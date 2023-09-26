@@ -239,7 +239,7 @@ app
 
 function createTray() {
   if (tray) return;
-  
+
   const iconName =
     platform === 'win32'
       ? join('windows', 'icon.png')
@@ -447,8 +447,8 @@ Promise.resolve().then(() => {
     },
   );
 
-  ipcMain.handle('current-version', async () => {
-    const version = getCurrentVersion();
+  ipcMain.handle('current-version', async (_event, fetch: boolean = false) => {
+    const version = getCurrentVersion(fetch);
 
     return version;
   });

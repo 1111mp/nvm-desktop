@@ -5,6 +5,7 @@ import {
   pathExists,
   copy,
   readFile,
+  readdir,
   writeFile,
   symlink,
   remove,
@@ -18,7 +19,7 @@ export async function checkEnv() {
   return;
 }
 
-export const SCHEMA_VERSIONS = [updateToSchemaVersion1];
+export const SCHEMA_VERSIONS = [updateToSchemaVersion1, updateToSchemaVersion2];
 
 export async function setShellFile() {
   const maxUserVersion = SCHEMA_VERSIONS.length;
@@ -27,7 +28,7 @@ export async function setShellFile() {
   for (let index = 0; index < maxUserVersion; index += 1) {
     const runSchemaUpdate = SCHEMA_VERSIONS[index];
 
-    runSchemaUpdate(shellVersion);
+    await runSchemaUpdate(shellVersion);
   }
   return;
 }
@@ -90,10 +91,61 @@ async function updateToSchemaVersion1(version: number) {
   await copy(sourceFile, targetFile).catch((_err) => {});
 
   ['node', 'npm', 'npx', 'corepack'].forEach((name) => {
-    symlink(targetFile, `${BIN_DIR}/${name}`);
+    symlink(targetFile, join(BIN_DIR, name));
   });
 
-  setShellVersion(1);
+  setShellVersion(2);
+  return;
+}
+
+async function updateToSchemaVersion2(version: number) {
+  // version < 1 || version >= 2
+  if (version !== 1) return;
+
+  // Macos or Linux
+  if (platform !== 'win32') {
+    const targetFile = join(BIN_DIR, 'nvmd');
+
+    await remove(targetFile);
+
+    const sourceFile = app.isPackaged
+      ? join(process.resourcesPath, 'assets', 'sources', 'nvmd')
+      : join(__dirname, '../../..', 'assets', 'sources', 'nvmd');
+    await copy(sourceFile, targetFile).catch((_err) => {});
+
+    setShellVersion(2);
+    return;
+  }
+
+  // Windows
+  const targetFile = join(BIN_DIR, 'nvmd.exe');
+
+  await remove(targetFile);
+
+  const sourceFile = app.isPackaged
+    ? join(process.resourcesPath, 'assets', 'sources', 'nvmd.exe')
+    : join(__dirname, '../../..', 'assets', 'sources', 'nvmd.exe');
+  await copy(sourceFile, targetFile).catch((_err) => {});
+
+  async function updateFile(fileName: string) {
+    const filePath = join(BIN_DIR, fileName);
+
+    await remove(filePath);
+
+    await copy(sourceFile, filePath).catch((_err) => {});
+
+    return;
+  }
+
+  const files = await readdir(BIN_DIR);
+
+  await Promise.all(
+    files
+      .filter((name) => name.endsWith('.exe'))
+      .map((fileName) => updateFile(fileName)),
+  );
+
+  setShellVersion(2);
   return;
 }
 

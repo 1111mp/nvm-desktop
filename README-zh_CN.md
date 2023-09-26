@@ -79,6 +79,8 @@ Options:
 Please download new version of Node.js in nvm-desktop.
 ```
 
+在你通过`nvmd use` 命令行切换Node版本之后，请点击刷新按钮让`nvm-desktop`同步最新的数据。
+
 更多详情请查看此文档: [command-tools-intro](https://github.com/1111mp/nvmd-command#command-tools-intro) .
 
 ## 安装

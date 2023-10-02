@@ -13,7 +13,8 @@ export type Arch =
   | 'ppc64'
   | 's390'
   | 's390x'
-  | 'x64';
+  | 'x64'
+  | 'riscv64';
 
 export interface Options {
   version: string;

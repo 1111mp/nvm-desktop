@@ -1,7 +1,7 @@
-import fs from 'node:fs';
+import { readFileSync } from 'fs-extra';
 import type { Options } from '@wdio/types';
 
-const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf-8'));
+const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'));
 const productName = packageJson.build.productName;
 
 process.env.TEST = 'true';
@@ -71,6 +71,8 @@ export const config: Options.Testrunner = {
     {
       // no need to define any capabilities for local Electron web tests
       // since service plugin takes care of setting everything up
+      browserName: 'chrome',
+      browserVersion: '116',
     },
   ],
 

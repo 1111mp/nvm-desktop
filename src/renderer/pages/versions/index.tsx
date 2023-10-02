@@ -74,6 +74,13 @@ export const Versions: React.FC = () => {
     });
   }, []);
 
+  useEffect(() => {
+    if (!versions.length) return;
+
+    const { version: latest } = allVersions[0];
+    latestVersion.current = latest;
+  }, [versions.length]);
+
   const columns: ColumnsType<Nvmd.Version> = useMemo(
     () => [
       {

@@ -14,18 +14,13 @@ import { app } from 'electron';
 
 import { APPDIR, BIN_DIR, MIRRATION_FILE } from '../constants';
 
-export async function checkEnv() {
-  await setShellFile();
-  return;
-}
-
 export const SCHEMA_VERSIONS = [updateToSchemaVersion1, updateToSchemaVersion2];
 
-export async function setShellFile() {
+export async function updateSchema() {
   const maxUserVersion = SCHEMA_VERSIONS.length;
-  const shellVersion = await getShellVersion();
+  const shellVersion = await getSchemaVersion();
 
-  for (let index = 0; index < maxUserVersion; index += 1) {
+  for (let index = 0; index < maxUserVersion; index++) {
     const runSchemaUpdate = SCHEMA_VERSIONS[index];
 
     await runSchemaUpdate(shellVersion);
@@ -67,7 +62,7 @@ async function updateToSchemaVersion1(version: number) {
 
     await Promise.all(promises);
 
-    setShellVersion(1);
+    setSchemaVersion(1);
     return;
   }
 
@@ -94,7 +89,7 @@ async function updateToSchemaVersion1(version: number) {
     symlink(targetFile, join(BIN_DIR, name));
   });
 
-  setShellVersion(2);
+  setSchemaVersion(2);
   return;
 }
 
@@ -113,7 +108,7 @@ async function updateToSchemaVersion2(version: number) {
       : join(__dirname, '../../..', 'assets', 'sources', 'nvmd');
     await copy(sourceFile, targetFile).catch((_err) => {});
 
-    setShellVersion(2);
+    setSchemaVersion(2);
     return;
   }
 
@@ -145,7 +140,7 @@ async function updateToSchemaVersion2(version: number) {
       .map((fileName) => updateFile(fileName)),
   );
 
-  setShellVersion(2);
+  setSchemaVersion(2);
   return;
 }
 
@@ -163,7 +158,7 @@ async function setNvmdToPathForWindows(): Promise<boolean> {
   });
 }
 
-async function getShellVersion() {
+async function getSchemaVersion() {
   if (!(await pathExists(MIRRATION_FILE))) return 0;
 
   const version = (await readFile(MIRRATION_FILE)).toString() || 0;
@@ -171,7 +166,7 @@ async function getShellVersion() {
   return Number(version);
 }
 
-async function setShellVersion(version: number) {
+async function setSchemaVersion(version: number) {
   try {
     await writeFile(MIRRATION_FILE, `${version}`);
   } catch (err) {

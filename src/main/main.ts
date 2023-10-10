@@ -20,7 +20,6 @@ import {
   Tray,
   Menu,
 } from 'electron';
-import { remove } from 'fs-extra';
 import MenuBuilder from './menu';
 import { AppUpdater } from './updater';
 import { resolveHtmlPath } from './utils/resolvePath';
@@ -29,9 +28,12 @@ import {
   allInstalledNodeVersions,
 } from './deps/all-node-versions';
 import getNode from './deps/get-node';
-import { APPDIR, INSTALL_DIR } from './constants';
-import { checkEnv } from './utils/nvmdShell';
-import { getCurrentVersion, setCurrentVersion } from './utils/version';
+import { updateSchema } from './utils/migration';
+import {
+  getCurrentVersion,
+  setCurrentVersion,
+  uninstallVersion,
+} from './utils/version';
 import { setSetting, getSetting } from './utils/setting';
 import {
   getProjects,
@@ -186,7 +188,7 @@ app
   .then(async () => {
     try {
       const [, settingFromCache, iVersions] = await Promise.all([
-        checkEnv(),
+        updateSchema(),
         getSetting(),
         allInstalledNodeVersions(),
       ]);
@@ -213,6 +215,7 @@ app
         if (data.locale !== setting.locale) {
           locale = loadLocale({ appLocale: data.locale });
           menuBuilder.buildMenu(locale.i18n);
+          buildTray();
         }
         setting = { ...setting, ...data };
         await setSetting({
@@ -333,6 +336,7 @@ async function buildTray() {
     },
     {
       label: `${locale.i18n('Quit')} NVM-Desktop`,
+      accelerator: 'Command+Q',
       click: () => {
         app.quit();
       },
@@ -435,20 +439,12 @@ Promise.resolve().then(() => {
   ipcMain.handle(
     'uninstall-node-version',
     async (_event, version: string, current: boolean = false) => {
-      try {
-        const path = `${INSTALL_DIR}/${version}`;
-        await remove(path);
-        current && (await remove(`${APPDIR}/default`));
-        // if (platform === 'win32') await setNvmdForWindows();
-        return;
-      } catch (err) {
-        return Promise.reject(err.message);
-      }
+      return uninstallVersion(version, current);
     },
   );
 
   ipcMain.handle('current-version', async (_event, fetch: boolean = false) => {
-    const version = getCurrentVersion(fetch);
+    const version = await getCurrentVersion(fetch);
 
     return version;
   });

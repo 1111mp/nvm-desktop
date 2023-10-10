@@ -150,6 +150,7 @@ Please download new version of Node.js in nvm-desktop.
 ## 功能
 
 - [x] 支持为系统全局和项目单独设置Node引擎版本
+- [x] 管理Node的命令行工具
 - [x] 支持英文和简体中文
 - [x] 支持自定义下载镜像地址 (默认是 https://nodejs.org/dist)
 - [x] Windows 平台支持自动检查更新

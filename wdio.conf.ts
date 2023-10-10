@@ -138,7 +138,7 @@ export const config: Options.Testrunner = {
             'chromedriver/bin/chromedriver',
           ),
         },
-        electronVersion: '25.3.2',
+        electronVersion: '26.2.4',
       },
     ],
   ],

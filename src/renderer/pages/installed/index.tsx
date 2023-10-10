@@ -1,6 +1,6 @@
 import './styles.scss';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLoaderData } from 'react-router-dom';
 import { App, Button, Typography, Table, Space, Tag, Dropdown } from 'antd';
 import {
@@ -37,8 +37,6 @@ export const Component: React.FC = () => {
   const [allVersions, allInstalledVersions, currentVersion] =
     useLoaderData() as VersionsResult;
 
-  const { version: latest } = allVersions[0];
-
   const [current, setCurrent] = useState<string>(() => currentVersion);
   const [versions, setVersions] = useState<Nvmd.Versions>(() =>
     allVersions.filter(({ version }) =>
@@ -49,8 +47,6 @@ export const Component: React.FC = () => {
     () => allInstalledVersions,
   );
   const [loading, setLoading] = useState<boolean>(false);
-
-  const latestVersion = useRef<string>(latest);
 
   const { message } = App.useApp();
   const getColumnSearchProps = useColumnSearchProps();
@@ -71,15 +67,11 @@ export const Component: React.FC = () => {
         title: i18n('Version'),
         dataIndex: 'version',
         ...getColumnSearchProps('version'),
-        render: (text: string, { lts, version }, index: number) => {
+        render: (text: string, { lts }) => {
           return (
             <Space>
               <span style={{ fontWeight: 500 }}>{text}</span>
-              {lts ? (
-                <span style={{ color: '#b9b9b9' }}>({lts})</span>
-              ) : latestVersion.current === version ? (
-                <span style={{ color: '#b9b9b9' }}>({i18n('latest')})</span>
-              ) : null}
+              {lts ? <span style={{ color: '#b9b9b9' }}>({lts})</span> : null}
             </Space>
           );
         },

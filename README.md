@@ -15,7 +15,7 @@ English | [简体中文](https://github.com/1111mp/nvm-desktop/blob/main/README-
 ## Table of Contents
 
 - [Screenshot](#screenshot)
-- [Command toos intro](#command-toos-intro)
+- [Command tools intro](#command-tools-intro)
 - [Install](#install)
   - [Download](#download)
 - [Develop and Build](#develop-and-build)
@@ -31,7 +31,7 @@ English | [简体中文](https://github.com/1111mp/nvm-desktop/blob/main/README-
 <img width="1060" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/45f4c613-2d17-4804-bc83-ac07260bc6c0">
 <img width="1048" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/757525bc-489d-4611-b957-c780fa9bfab5">
 
-## Command toos intro
+## Command tools intro
 
 You can also manage all versions of node directly from the command line. The `nvmd` does not provide the node download and installation functions. If you need to download and install a new version of node, you should open the `nvm-desktop` application.
 

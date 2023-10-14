@@ -1,8 +1,4 @@
-import { readFileSync } from 'fs-extra';
 import type { Options } from '@wdio/types';
-
-const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'));
-const productName = packageJson.build.productName;
 
 process.env.TEST = 'true';
 
@@ -14,8 +10,6 @@ export const config: Options.Testrunner = {
   // WebdriverIO supports running e2e tests as well as unit and component tests.
   runner: 'local',
   outputDir: 'wdio-logs',
-  port: 9519,
-  hostname: '127.0.0.1',
   autoCompileOpts: {
     autoCompile: true,
     tsNodeOpts: {
@@ -71,8 +65,7 @@ export const config: Options.Testrunner = {
     {
       // no need to define any capabilities for local Electron web tests
       // since service plugin takes care of setting everything up
-      browserName: 'chrome',
-      browserVersion: '116',
+      browserName: 'electron'
     },
   ],
 
@@ -127,18 +120,7 @@ export const config: Options.Testrunner = {
     [
       'electron',
       {
-        appPath: './release/build',
-        appName: productName,
-        appArgs: ['foo', 'bar=baz'],
-        chromedriver: {
-          port: 9519,
-          hostname: '127.0.0.1',
-          logFileName: 'wdio-chromedriver.log',
-          chromedriverCustomPath: require.resolve(
-            'chromedriver/bin/chromedriver',
-          ),
-        },
-        electronVersion: '26.2.4',
+        appPath: './release/build'
       },
     ],
   ],

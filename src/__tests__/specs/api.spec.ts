@@ -1,4 +1,4 @@
-import { browser } from 'wdio-electron-service';
+import { browser, expect } from '@wdio/globals';
 import { productName, version } from '../../../package.json';
 
 describe('Electron APIs', () => {

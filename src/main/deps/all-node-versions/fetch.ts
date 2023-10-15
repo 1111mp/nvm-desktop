@@ -1,5 +1,4 @@
 import { json } from 'node:stream/consumers';
-import { setCache } from './cache';
 import { fetchNodeWebsite } from '../fetch-node-website';
 
 import type { Options } from './options';
@@ -12,8 +11,6 @@ export const fetchIndex = async ({
   const response = await fetchNodeWebsite(INDEX_PATH, {
     ...fetchNodeOpts,
   });
-
-  await setCache({ response, fetch });
 
   onProgress &&
     response.on('downloadProgress', (data) => {

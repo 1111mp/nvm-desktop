@@ -2,12 +2,10 @@
  * https://github.com/ehmicky/all-node-versions
  */
 
-import { getCache, getInstalledVersions } from './cache';
+import { getCache, getInstalledVersions, setCache } from './cache';
 import { fetchIndex } from './fetch';
-// import { normalizeIndex } from './normalize';
 
 import type { Options } from './options';
-// import type { NodeVersionInfo, MajorNodeVersion } from './normalize';
 
 let processCachedVersions: Nvmd.Versions, installedVersions: string[];
 
@@ -21,8 +19,7 @@ export const allNodeVersions = async (options: Options = {}) => {
   if (cachedVersions) return cachedVersions;
 
   const versionsInfo = await fetchIndex(options);
-  // const versionsInfo = normalizeIndex(index);
-
+  await setCache(versionsInfo, options.fetch);
   processCachedVersions = versionsInfo;
 
   return versionsInfo;

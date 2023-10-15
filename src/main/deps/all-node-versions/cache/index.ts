@@ -1,29 +1,12 @@
-import { Stream } from 'node:stream';
 import { platform } from 'node:process';
-import { pipeline as streamPipeline } from 'node:stream/promises';
-import { createWriteStream } from 'node:fs';
 import { join } from 'node:path';
-import { pathExists, ensureFile, readJson, readdir } from 'fs-extra';
+import { pathExists, readJson, readdir, writeJSON } from 'fs-extra';
 import { VERSIONS_FILENAME, INSTALL_DIR } from '../../../constants';
 
-export async function setCache({
-  response,
-  fetch = false,
-}: {
-  response: Stream;
-  fetch?: boolean;
-}) {
+export async function setCache(versions: Nvmd.Versions, fetch: boolean = true) {
   if ((await pathExists(VERSIONS_FILENAME)) && !fetch) return;
 
-  response.on('response', async (response) => {
-    try {
-      await ensureFile(VERSIONS_FILENAME);
-      await streamPipeline(response, createWriteStream(VERSIONS_FILENAME));
-    } catch (error) {
-      // onError(error);
-      console.log(error);
-    }
-  });
+  await writeJSON(VERSIONS_FILENAME, versions);
 }
 
 export async function getCache({

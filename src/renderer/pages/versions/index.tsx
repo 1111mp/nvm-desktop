@@ -1,8 +1,17 @@
 import './styles.scss';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useLoaderData } from 'react-router-dom';
-import { App, Button, Dropdown, Space, Typography, Tag, Tooltip } from 'antd';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { Await, defer, useAsyncValue, useLoaderData } from 'react-router-dom';
+import {
+  App,
+  Button,
+  Dropdown,
+  Space,
+  Typography,
+  Tag,
+  Tooltip,
+  Skeleton,
+} from 'antd';
 import {
   SyncOutlined,
   ReloadOutlined,
@@ -21,6 +30,7 @@ import { checkSupportive, compareVersion } from 'renderer/util';
 
 import type { ColumnsType } from 'antd/es/table';
 import type { Ref as InfoRef } from './modal';
+import { resolve } from 'node:path';
 
 type VersionsResult = [Nvmd.Versions, Array<string>, string];
 
@@ -29,25 +39,49 @@ dayjs.extend(localizedFormat);
 
 const { Title } = Typography;
 
-export async function loader(): Promise<VersionsResult> {
-  try {
-    const versions = await Promise.all([
-      window.Context.getAllNodeVersions(),
-      window.Context.getInstalledNodeVersions(),
-      window.Context.getCurrentVersion(),
-    ]);
+export async function loader() {
+  const versions = Promise.all([
+    window.Context.getAllNodeVersions(),
+    window.Context.getInstalledNodeVersions(),
+    window.Context.getCurrentVersion(),
+  ]);
 
-    return versions;
-  } catch (err) {
-    return [[], [], ''];
-  }
+  return defer({ versions: versions });
 }
 
-export const Versions: React.FC = () => {
-  const [allVersions, allInstalledVersions, currentVersion] =
-    useLoaderData() as VersionsResult;
+export function VersionsRoute() {
+  const data = useLoaderData() as { versions: VersionsResult };
 
-  const { version: latest } = allVersions[0];
+  return (
+    <Suspense
+      fallback={
+        <div className="module-versions-content">
+          <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+            <Skeleton.Input active size="small" />
+            <Space>
+              <Skeleton.Input active size="small" />
+              <Skeleton.Input active size="small" />
+            </Space>
+          </Space>
+          <Skeleton active paragraph={{ rows: 4 }} />
+        </div>
+      }
+    >
+      <Await resolve={data.versions}>
+        <Versions />
+      </Await>
+    </Suspense>
+  );
+}
+
+const Versions: React.FC = () => {
+  const versionsData = useAsyncValue() as VersionsResult;
+
+  console.log(versionsData);
+
+  const [allVersions, allInstalledVersions, currentVersion] = versionsData;
+
+  const { version: latest } = allVersions[0] || { version: '' };
 
   const [current, setCurrent] = useState<string>(() => currentVersion);
   const [versions, setVersions] = useState<Nvmd.Versions>(() => allVersions);

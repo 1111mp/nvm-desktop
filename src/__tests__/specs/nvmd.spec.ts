@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import { platform } from 'node:process';
 import { pathExists } from 'fs-extra';
-import { browser } from 'wdio-electron-service';
+import { browser, expect } from '@wdio/globals';
 
 describe('nvmd', () => {
   it('file should be existed', async () => {

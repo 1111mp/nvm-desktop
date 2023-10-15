@@ -1,4 +1,4 @@
-import { browser } from 'wdio-electron-service';
+import { browser, expect } from '@wdio/globals';
 import { setupBrowser, WebdriverIOQueries } from '@testing-library/webdriverio';
 
 describe('Module Setting', () => {

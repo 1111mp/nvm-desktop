@@ -15,7 +15,12 @@
     "allowJs": true,
     "useUnknownInCatchVariables": false,
     "outDir": ".erb/dll",
-    "types": ["node", "@wdio/globals/types", "@wdio/mocha-framework", "expect"],
+    "types": [
+      "node",
+      "@wdio/globals/types",
+      "@wdio/mocha-framework",
+      "wdio-electron-service"
+    ],
     "typeRoots": ["@types", "node_modules", "node_modules/@types"]
   },
   "exclude": ["test", "release/build", "release/app/dist", ".erb/dll"]

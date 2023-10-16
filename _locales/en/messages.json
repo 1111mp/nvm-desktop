@@ -224,24 +224,20 @@
     "description": "The text of the Welcome-to"
   },
   "App-Desc": {
-    "message": "A desktop client for manage the version of Nodejs.",
+    "message": "A desktop application to manage multiple active node.js versions.",
     "description": "The text of the Welcome-to"
-  },
-  "Tip-First": {
-    "message": "First you should have Node installed.",
-    "description": "The text of the Tip-First"
   },
   "Tip-Content": {
     "message": "Now add these lines to your ~/.bashrc, ~/.profile, or ~/.zshrc file to have it automatically sourced upon login: (you may have to add to more than one of the above files)",
     "description": "The text of the Tip-Content"
   },
   "Restart-Terminal": {
-    "message": "You might need to restart your terminal instance.",
-    "description": "The text of the Tip-First"
+    "message": "Now using node $version$",
+    "description": "The text of the Restart-Terminal"
   },
   "Tip-Finally": {
     "message": "For more information about this issue and possible workarounds, please",
-    "description": "The text of the Tip-First"
+    "description": "The text of the Tip-Finally"
   },
   "Refer": {
     "message": "refer here.",
@@ -254,18 +250,6 @@
   "Set-by": {
     "message": "Set by",
     "description": "The text of the Set-by"
-  },
-  "Had-Install": {
-    "message": "Then you should have Node installed.",
-    "description": "The text of the Had-Install"
-  },
-  "Node-Apply": {
-    "message": "After the node version is applied, the value of the environment variable",
-    "description": "The text of the Node-Apply"
-  },
-  "Had-set": {
-    "message": "is set to the installation path of the node version.",
-    "description": "The text of the Had-set"
   },
   "Retry": {
     "message": "Retry",
@@ -363,14 +347,6 @@
     "message": ". The content is the version number of Node you choose. The version number of Node that is loaded as a global setting if this file is not added.",
     "description": "The text of the Load-Node"
   },
-  "runtimeExecutable": {
-    "message": "If you are using VS Code and launch your project with Debug, then you should change the runtimeExecutable configuration in the launch.json file. Like this:",
-    "description": "The text of the runtimeExecutable"
-  },
-  "Directly-Specify": {
-    "message": "Directly specify the installation path of Node or NPM.",
-    "description": "The text of the Directly-Specify"
-  },
   "Project-Select": {
     "message": "Please select your project",
     "description": "The text of the Project-Select"
@@ -378,5 +354,17 @@
   "Whats-new": {
     "message": "What's new",
     "description": "The text of the Whats-new"
+  },
+  "Refresh-successful": {
+    "message": "Refresh successful",
+    "description": "The text of the Refresh-successful"
+  },
+  "Command-Tip-Project": {
+    "message": "Or you can also specify the nodejs version for your project through the command line:",
+    "description": "The text of the Command-Tip-Project"
+  },
+  "Command-tools-intro": {
+    "message": "Command tools intro",
+    "description": "The text of the Command-tools-intro"
   }
 }

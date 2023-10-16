@@ -12,7 +12,7 @@ type OnUpdateProgressCallback = (progress: ProgressInfo) => void;
 type OnProgressCallback = (id: string, data: Nvmd.ProgressData) => void;
 type OnThemeChangedCallback = (theme: string) => void;
 type OnCurVersionChange = (version: string) => void;
-type OnProjectUpdate = (projects: Nvmd.Project[]) => void;
+type OnProjectUpdate = (projects: Nvmd.Project[], version: string) => void;
 
 let onCheckUpdateResult: OnCheckUpdateResultCallback | null = null,
   onUpdateProgress: OnUpdateProgressCallback | null = null,
@@ -55,9 +55,12 @@ ipcRenderer.on('current-version-update', (_evnet, version: string) => {
   onCurVersionChange?.(version);
 });
 
-ipcRenderer.on('call-projects-update', (_evnet, projects: Nvmd.Project[]) => {
-  onProjectUpdate?.(projects);
-});
+ipcRenderer.on(
+  'call-projects-update',
+  (_evnet, projects: Nvmd.Project[], version: string) => {
+    onProjectUpdate?.(projects, version);
+  },
+);
 
 const electronHandler = {
   platform: process.platform,

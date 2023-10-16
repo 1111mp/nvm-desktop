@@ -63,9 +63,9 @@ export const Component: React.FC = () => {
   const { message } = App.useApp();
 
   useEffect(() => {
-    window.Context.onRegistProjectUpdate((pros) => {
+    window.Context.onRegistProjectUpdate((pros, version) => {
       setProjects(pros);
-      message.success('Succeed');
+      message.success(i18n('Restart-Terminal', [`v${version}`]));
     });
 
     return () => {
@@ -136,7 +136,9 @@ export const Component: React.FC = () => {
                   setProjects(newProjects);
                   window.Context.updateProjects(newProjects);
                   code === 200
-                    ? message.success(i18n('Restart-Terminal'))
+                    ? message.success(
+                        i18n('Restart-Terminal', [`v${newVersion}`]),
+                      )
                     : message.error(`Project not found, please check it`, 3);
                 } catch (err) {
                   message.error('Something went wrong');
@@ -230,7 +232,7 @@ export const Component: React.FC = () => {
 
       setProjects(allProjects);
       setInstalledVersions(installedVersions);
-      message.success('Refresh successed');
+      message.success(i18n('Refresh-successful'));
     } finally {
       setLoading(false);
     }
@@ -310,6 +312,13 @@ export const Component: React.FC = () => {
         <>
           <Paragraph>
             <Text>{i18n('Can-Select')}</Text>
+          </Paragraph>
+          <Paragraph>
+            <Text>{i18n('Command-Tip-Project')}</Text>
+            <Text type="secondary" copyable>
+              {' '}
+              nvmd use node_version --project
+            </Text>
           </Paragraph>
           <Paragraph>
             <Text>

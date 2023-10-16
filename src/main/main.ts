@@ -286,7 +286,11 @@ async function buildTray() {
             };
             updateProjects(newProjects);
 
-            mainWindow?.webContents.send('call-projects-update', newProjects);
+            mainWindow?.webContents.send(
+              'call-projects-update',
+              newProjects,
+              version,
+            );
           },
         })),
       };

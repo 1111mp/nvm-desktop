@@ -224,24 +224,20 @@
     "description": "The text of the Welcome-to"
   },
   "App-Desc": {
-    "message": "一个用于管理 Nodejs 版本的桌面客户端。",
+    "message": "一个用于管理多个 Nodejs 版本的桌面客户端。",
     "description": "The text of the Welcome-to"
-  },
-  "Tip-First": {
-    "message": "首先，你应该安装过了 Node。",
-    "description": "The text of the Tip-First"
   },
   "Tip-Content": {
     "message": "现在将这些行添加到您的 ~/.bashrc、 ~/.profile 或 ~/.zshrc 文件中，以便在登录时自动获取它：（您可能需要添加到上述多个文件中）",
     "description": "The text of the Tip-Content"
   },
   "Restart-Terminal": {
-    "message": "或许你应该重启你的终端。",
-    "description": "The text of the Tip-First"
+    "message": "现在使用 $version$ 版本",
+    "description": "The text of the Restart-Terminal"
   },
   "Tip-Finally": {
     "message": "有关此问题和可能的解决方法的详细信息，请",
-    "description": "The text of the Tip-First"
+    "description": "The text of the Tip-Finally"
   },
   "Refer": {
     "message": "参考这里。",
@@ -254,18 +250,6 @@
   "Set-by": {
     "message": "命令",
     "description": "The text of the Set-by"
-  },
-  "Had-Install": {
-    "message": "然后你应该安装 Node。",
-    "description": "The text of the Set-by"
-  },
-  "Node-Apply": {
-    "message": "应用 Node 版本后，系统环境变量",
-    "description": "The text of the Node-Apply"
-  },
-  "Had-set": {
-    "message": "的值已经被设置成了该 Node 版本的安装路径。",
-    "description": "The text of the Had-set"
   },
   "Retry": {
     "message": "重试",
@@ -363,14 +347,6 @@
     "message": "，内容为你选择的 Node 的版本号，如果未添加此文件则加载为全局设置的 Node 的版本号。",
     "description": "The text of the Load-Node"
   },
-  "runtimeExecutable": {
-    "message": "如果你正在使用 VS Code 并且使用 Debug 启动你的项目，那么你应该更改 launch.json 文件中的 runtimeExecutable 配置项。像这样：",
-    "description": "The text of the runtimeExecutable"
-  },
-  "Directly-Specify": {
-    "message": "直接指定 Node 或者 Npm 的安装路径。",
-    "description": "The text of the Directly-Specify"
-  },
   "Project-Select": {
     "message": "请选择您的项目",
     "description": "The text of the Project-Select"
@@ -378,5 +354,17 @@
   "Whats-new": {
     "message": "更新日志",
     "description": "The text of the Whats-new"
+  },
+  "Refresh-successful": {
+    "message": "刷新成功",
+    "description": "The text of the Refresh-successful"
+  },
+  "Command-Tip-Project": {
+    "message": "或者你也可以通过命令行为你的项目指定nodejs版本",
+    "description": "The text of the Command-Tip-Project"
+  },
+  "Command-tools-intro": {
+    "message": "命令行工具介绍",
+    "description": "The text of the Command-tools-intro"
   }
 }

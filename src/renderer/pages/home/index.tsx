@@ -94,6 +94,22 @@ const Home: React.FC = () => {
                 </Paragraph>
                 <Paragraph>
                   <Text>
+                    你也可以通过命令行工具直接管理所有的 Nodejs 版本：
+                  </Text>
+                  <Typography.Link
+                    href="https://github.com/1111mp/nvmd-command#command-tools-intro"
+                    target="_blank"
+                  >
+                    nvmd
+                  </Typography.Link>
+                  . 在你的终端输入{' '}
+                  <Text type="secondary" copyable>
+                    nvmd --help
+                  </Text>{' '}
+                  以查看更多信息。
+                </Paragraph>
+                <Paragraph>
+                  <Text>
                     切换 Node 版本之后，默认不需要重新打开你的终端就能够生效。
                   </Text>
                 </Paragraph>
@@ -133,6 +149,29 @@ const Home: React.FC = () => {
                 </Paragraph>
                 <Paragraph>
                   <Text>
+                    You can also manage all versions of node directly from the
+                    command line.
+                  </Text>
+                </Paragraph>
+                <Paragraph>
+                  <Text>
+                    You can also manage all versions of node directly from the
+                    command line:{' '}
+                  </Text>
+                  <Typography.Link
+                    href="https://github.com/1111mp/nvmd-command#command-tools-intro"
+                    target="_blank"
+                  >
+                    nvmd
+                  </Typography.Link>
+                  . Please type{' '}
+                  <Text type="secondary" copyable>
+                    nvmd --help
+                  </Text>{' '}
+                  in your terminal to see more information.
+                </Paragraph>
+                <Paragraph>
+                  <Text>
                     After switching the Node version, you don't need to reopen
                     your terminal to take effect by default.
                   </Text>
@@ -166,6 +205,22 @@ const Home: React.FC = () => {
                   </Paragraph>
                   <Paragraph>
                     <Text>
+                      你也可以通过命令行工具直接管理所有的 Nodejs 版本：
+                    </Text>
+                    <Typography.Link
+                      href="https://github.com/1111mp/nvmd-command#command-tools-intro"
+                      target="_blank"
+                    >
+                      nvmd
+                    </Typography.Link>
+                    . 在你的终端输入{' '}
+                    <Text type="secondary" copyable>
+                      nvmd --help
+                    </Text>{' '}
+                    以查看更多信息。
+                  </Paragraph>
+                  <Paragraph>
+                    <Text>
                       切换 Node 版本之后，默认不需要重新打开你的终端就能够生效。
                     </Text>
                   </Paragraph>
@@ -179,6 +234,23 @@ const Home: React.FC = () => {
                       complete, click the <Text type="secondary"> Apply </Text>{' '}
                       button to set it as the global default version.
                     </Text>
+                  </Paragraph>
+                  <Paragraph>
+                    <Text>
+                      You can also manage all versions of node directly from the
+                      command line:{' '}
+                    </Text>
+                    <Typography.Link
+                      href="https://github.com/1111mp/nvmd-command#command-tools-intro"
+                      target="_blank"
+                    >
+                      nvmd
+                    </Typography.Link>
+                    . Please type{' '}
+                    <Text type="secondary" copyable>
+                      nvmd --help
+                    </Text>{' '}
+                    in your terminal to see more information.
                   </Paragraph>
                   <Paragraph>
                     <Text>
@@ -201,6 +273,13 @@ const Home: React.FC = () => {
         <>
           <Paragraph>
             <Text>{i18n('Can-Select')}</Text>
+          </Paragraph>
+          <Paragraph>
+            <Text>{i18n('Command-Tip-Project')}</Text>
+            <Text type="secondary" copyable>
+              {' '}
+              nvmd use node_version --project
+            </Text>
           </Paragraph>
           <Paragraph>
             <Text>

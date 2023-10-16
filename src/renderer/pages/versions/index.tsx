@@ -102,7 +102,7 @@ const Versions: React.FC = () => {
   useEffect(() => {
     window.Context.onRegistCurVersionChange((version) => {
       setCurrent(version);
-      message.success('Succeed');
+      message.success(i18n('Restart-Terminal', [`v${version}`]));
     });
   }, []);
 
@@ -276,7 +276,9 @@ const Versions: React.FC = () => {
                         const currentVersion =
                           await window.Context.getCurrentVersion();
                         setCurrent(currentVersion);
-                        message.success(i18n('Restart-Terminal'));
+                        message.success(
+                          i18n('Restart-Terminal', [record.version]),
+                        );
                         return;
                       }
                       case 'uninstall': {
@@ -291,7 +293,7 @@ const Versions: React.FC = () => {
                         ]);
                         setCurrent(currentVersion);
                         setInstalledVersions(versions);
-                        message.success('Succeed');
+                        message.success('Successful');
                         return;
                       }
                       default:
@@ -338,7 +340,7 @@ const Versions: React.FC = () => {
       setVersions(versions);
       setInstalledVersions(installeds);
       setCurrent(currentVersion);
-      message.success('Refresh successed');
+      message.success(i18n('Refresh-successful'));
     } catch (err) {
     } finally {
       seLocaltLoading(false);
@@ -358,7 +360,7 @@ const Versions: React.FC = () => {
       setVersions(versions);
       setInstalledVersions(installeds);
       setCurrent(currentVersion);
-      message.success('Refresh successed');
+      message.success(i18n('Refresh-successful'));
     } catch (err) {
       message.error(
         err.message

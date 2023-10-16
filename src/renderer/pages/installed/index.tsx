@@ -57,7 +57,7 @@ export const Component: React.FC = () => {
   useEffect(() => {
     window.Context.onRegistCurVersionChange((version) => {
       setCurrent(version);
-      message.success('Succeed');
+      message.success(i18n('Restart-Terminal', [`v${version}`]));
     });
   }, []);
 
@@ -181,7 +181,9 @@ export const Component: React.FC = () => {
                       const currentVersion =
                         await window.Context.getCurrentVersion();
                       setCurrent(currentVersion);
-                      message.success(i18n('Restart-Terminal'));
+                      message.success(
+                        i18n('Restart-Terminal', [record.version]),
+                      );
                       return;
                     }
                     case 'uninstall': {
@@ -202,7 +204,7 @@ export const Component: React.FC = () => {
                             installeds.includes(version.slice(1)),
                           ),
                         );
-                        message.success('Succeed');
+                        message.success('Successful');
                       } catch (err) {
                         message.error(
                           err.message
@@ -250,7 +252,7 @@ export const Component: React.FC = () => {
       );
       setInstalledVersions(installeds);
       setCurrent(currentVersion);
-      message.success('Refresh successed');
+      message.success(i18n('Refresh-successful'));
     } catch (err) {
     } finally {
       setLoading(false);

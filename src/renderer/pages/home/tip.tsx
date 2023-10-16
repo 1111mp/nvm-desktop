@@ -173,6 +173,89 @@ const Tip = forwardRef<Ref, Props>(({}, ref) => {
               ),
           },
           {
+            title: i18n('Command-tools-intro'),
+            description:
+              locale === 'zh-CN' ? (
+                <>
+                  <Paragraph>
+                    <Text type="secondary"> nvmd </Text>
+                    <Text>允许您通过命令行快速管理多个 Nodejs 版本。</Text>
+                  </Paragraph>
+                  <Paragraph>
+                    使用 list 或者 ls 查看所有已安装的版本：
+                    <Text type="secondary"> nvmd list</Text> or
+                    <Text type="secondary"> nvmd ls</Text>
+                  </Paragraph>
+                  <Paragraph>
+                    为系统设置指定的版本：
+                    <Text type="secondary"> nvmd use node_version</Text>
+                  </Paragraph>
+                  <Paragraph>
+                    或者你也可以通过命令行为你的项目指定nodejs版本：
+                    <Text type="secondary">
+                      {' '}
+                      nvmd use node_version --project
+                    </Text>
+                  </Paragraph>
+                  <Paragraph>
+                    在你的终端输入{' '}
+                    <Text type="secondary" copyable>
+                      nvmd --help
+                    </Text>{' '}
+                    以查看更多信息。
+                  </Paragraph>
+                  <Paragraph>
+                    <Text type="secondary">
+                      通过 nvmd use 命令行切换 Nodejs 版本后，请点击刷新按钮让
+                      nvm-desktop 同步最新数据。
+                    </Text>
+                  </Paragraph>
+                </>
+              ) : (
+                <>
+                  <Paragraph>
+                    The
+                    <Text type="secondary"> nvmd </Text>
+                    <Text>
+                      allows you to quickly manage different versions of node
+                      via the command line.
+                    </Text>
+                  </Paragraph>
+                  <Paragraph>
+                    List all installed versions using list or ls:
+                    <Text type="secondary"> nvmd list</Text> or
+                    <Text type="secondary"> nvmd ls</Text>
+                  </Paragraph>
+                  <Paragraph>
+                    And then in any new shell just use the installed version:
+                    <Text type="secondary"> nvmd use node_version</Text>
+                  </Paragraph>
+                  <Paragraph>
+                    Or you can also specify the nodejs version for your project
+                    through the command line:
+                    <Text type="secondary">
+                      {' '}
+                      nvmd use node_version --project
+                    </Text>
+                  </Paragraph>
+                  <Paragraph>
+                    Please type{' '}
+                    <Text type="secondary" copyable>
+                      nvmd --help
+                    </Text>{' '}
+                    in your terminal to see more information.
+                  </Paragraph>
+                  <Paragraph>
+                    <Text type="secondary">
+                      After you switch the Node version through the nvmd use
+                      command line, please click the refresh button to let
+                      nvm-desktop synchronize the latest data.
+                    </Text>
+                  </Paragraph>
+                </>
+              ),
+          },
+          {
             title: i18n('Finally'),
             description:
               locale === 'zh-CN' ? (

@@ -77,8 +77,6 @@ export function VersionsRoute() {
 const Versions: React.FC = () => {
   const versionsData = useAsyncValue() as VersionsResult;
 
-  console.log(versionsData);
-
   const [allVersions, allInstalledVersions, currentVersion] = versionsData;
 
   const { version: latest } = allVersions[0] || { version: '' };

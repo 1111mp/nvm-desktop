@@ -71,14 +71,6 @@ export type Options = Partial<{
    * @default `process.arch`
    */
   arch?: Arch;
-
-  /**
-   * When using the `local` alias, start looking for a Node.js version file
-   * from this directory.
-   *
-   * @default "."
-   */
-  cwd?: string | URL;
 }>;
 
 // Validate input parameters and assign default values.
@@ -91,8 +83,6 @@ export const getOpts = async (opts: Options = {}) => {
   const {
     output = await getDefaultOutput(),
     arch = processArch,
-    cwd,
-    fetch: fetchOpt,
     mirror = DEFAULT_MIRROR,
     signal,
     onProgress,

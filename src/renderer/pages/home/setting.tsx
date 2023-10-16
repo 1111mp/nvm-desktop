@@ -68,7 +68,7 @@ const Setting = forwardRef<Ref, Props>(({}, ref) => {
           </Button>
         </Space>
       }
-      footerStyle={{ textAlign: 'right' }}
+      styles={{ footer: { textAlign: 'right' } }}
       onClose={onClose}
     >
       <Content ref={content} />

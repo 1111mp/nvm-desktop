@@ -86,7 +86,7 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
       title={i18n('Version-Manager')}
       open={open}
       closable={false}
-      bodyStyle={{ paddingTop: 12 }}
+      styles={{ body: { paddingTop: 12 } }}
       footer={[
         path && path !== 'error' ? null : loading ? (
           <Button key="cancel" danger onClick={onAbort}>

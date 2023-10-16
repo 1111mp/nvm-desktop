@@ -13,13 +13,15 @@ type OnProgressCallback = (id: string, data: Nvmd.ProgressData) => void;
 type OnThemeChangedCallback = (theme: string) => void;
 type OnCurVersionChange = (version: string) => void;
 type OnProjectUpdate = (projects: Nvmd.Project[], version: string) => void;
+type OnMigrationError = () => void;
 
 let onCheckUpdateResult: OnCheckUpdateResultCallback | null = null,
   onUpdateProgress: OnUpdateProgressCallback | null = null,
   onProgress: OnProgressCallback | null = null,
   onThemeChanged: OnThemeChangedCallback | null = null,
   onCurVersionChange: OnCurVersionChange | null = null,
-  onProjectUpdate: OnProjectUpdate | null = null;
+  onProjectUpdate: OnProjectUpdate | null = null,
+  onMigrationError: OnMigrationError | null = null;
 
 ipcRenderer.on('update-available', (_event, info: UpdateInfo) => {
   onCheckUpdateResult?.(info);
@@ -61,6 +63,10 @@ ipcRenderer.on(
     onProjectUpdate?.(projects, version);
   },
 );
+
+ipcRenderer.on('migration-error', (_evnet) => {
+  onMigrationError?.();
+});
 
 const electronHandler = {
   platform: process.platform,
@@ -142,6 +148,10 @@ const electronHandler = {
     >,
   onRegistProjectUpdate: (callback: OnProjectUpdate | null) => {
     onProjectUpdate = callback;
+  },
+
+  onRegistMigrationError: (callback: OnMigrationError) => {
+    onMigrationError = callback;
   },
 };
 

@@ -366,5 +366,9 @@
   "Command-tools-intro": {
     "message": "Command tools intro",
     "description": "The text of the Command-tools-intro"
+  },
+  "Migration-error": {
+    "message": "Please close all Node processes and restart the application to complete the update",
+    "description": "The text of the Migration-error"
   }
 }

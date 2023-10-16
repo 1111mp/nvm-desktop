@@ -366,5 +366,9 @@
   "Command-tools-intro": {
     "message": "命令行工具介绍",
     "description": "The text of the Command-tools-intro"
+  },
+  "Migration-error": {
+    "message": "请关闭所有 Node 进程之后重启应用以完成更新",
+    "description": "The text of the Migration-error"
   }
 }

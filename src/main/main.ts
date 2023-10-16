@@ -87,7 +87,7 @@ nativeTheme.on('updated', () => {
     );
 });
 
-const createWindow = async () => {
+const createWindow = async (code?: number) => {
   if (isDebug) {
     await installExtensions();
   }
@@ -146,6 +146,12 @@ const createWindow = async () => {
       mainWindow.minimize();
     } else {
       mainWindow.show();
+
+      if (code !== void 0) {
+        setTimeout(() => {
+          mainWindow?.webContents.send('migration-error');
+        }, 800);
+      }
     }
   });
 
@@ -186,24 +192,22 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(async () => {
-    try {
-      const [, settingFromCache, iVersions] = await Promise.all([
-        updateSchema(),
-        getSetting(),
-        allInstalledNodeVersions(),
-      ]);
+    const [code, settingFromCache, iVersions] = await Promise.all([
+      updateSchema(),
+      getSetting(),
+      allInstalledNodeVersions(),
+    ]);
 
-      if (!setting) setting = settingFromCache;
-      if (!installedVersions)
-        installedVersions = iVersions.sort((version1, version2) =>
-          gt(version2, version1) ? 1 : -1,
-        );
+    if (!setting) setting = settingFromCache;
+    if (!installedVersions)
+      installedVersions = iVersions.sort((version1, version2) =>
+        gt(version2, version1) ? 1 : -1,
+      );
 
-      if (!locale) {
-        const appLocale = setting.locale;
-        locale = loadLocale({ appLocale });
-      }
-    } catch (err) {}
+    if (!locale) {
+      const appLocale = setting.locale;
+      locale = loadLocale({ appLocale });
+    }
 
     ipcMain.on('setting-data-get', (event) => {
       event.returnValue = { ...setting, localeMessages: locale.messages };
@@ -231,7 +235,7 @@ app
       event.returnValue = locale.messages;
     });
 
-    createWindow();
+    createWindow(code);
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.

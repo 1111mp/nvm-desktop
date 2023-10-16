@@ -25,10 +25,14 @@ export async function updateSchema() {
   const maxUserVersion = SCHEMA_VERSIONS.length;
   const shellVersion = await getSchemaVersion();
 
-  for (let index = 0; index < maxUserVersion; index++) {
-    const runSchemaUpdate = SCHEMA_VERSIONS[index];
+  try {
+    for (let index = 0; index < maxUserVersion; index++) {
+      const runSchemaUpdate = SCHEMA_VERSIONS[index];
 
-    await runSchemaUpdate(shellVersion);
+      await runSchemaUpdate(shellVersion);
+    }
+  } catch (err) {
+    return 408;
   }
   return;
 }

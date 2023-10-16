@@ -1,8 +1,17 @@
 import './styles.scss';
 
-import { useState, useRef, lazy, Suspense } from 'react';
+import { useState, useRef, lazy, Suspense, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Button, Layout, Menu, Space, Tour, Typography } from 'antd';
+import {
+  App,
+  Button,
+  Layout,
+  Menu,
+  Space,
+  Tour,
+  Typography,
+  message,
+} from 'antd';
 import {
   InfoCircleOutlined,
   SettingOutlined,
@@ -28,6 +37,7 @@ const Home: React.FC = () => {
   );
   const { pathname } = useLocation();
 
+  const { message } = App.useApp();
   const tip = useRef(null);
   const projectsMenu = useRef(null);
   const { locale } = useAppContext();
@@ -37,6 +47,12 @@ const Home: React.FC = () => {
   const settingDrawer = useRef<SettingRef>(null);
 
   const platform = window.Context.platform;
+
+  useEffect(() => {
+    window.Context.onRegistMigrationError(() => {
+      message.warning(i18n('Migration-error'), 5);
+    });
+  }, []);
 
   const steps: TourProps['steps'] = [
     {

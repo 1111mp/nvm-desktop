@@ -150,12 +150,6 @@ const Home: React.FC = () => {
                 <Paragraph>
                   <Text>
                     You can also manage all versions of node directly from the
-                    command line.
-                  </Text>
-                </Paragraph>
-                <Paragraph>
-                  <Text>
-                    You can also manage all versions of node directly from the
                     command line:{' '}
                   </Text>
                   <Typography.Link

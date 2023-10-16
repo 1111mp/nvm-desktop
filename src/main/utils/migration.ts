@@ -14,7 +14,12 @@ import { app } from 'electron';
 
 import { APPDIR, BIN_DIR, MIRRATION_FILE } from '../constants';
 
-export const SCHEMA_VERSIONS = [updateToSchemaVersion1, updateToSchemaVersion2];
+const CURRENT_MIGRATION_VERSION: number = 3;
+export const SCHEMA_VERSIONS = [
+  updateToSchemaVersion1,
+  updateToSchemaVersion2,
+  updateToSchemaVersion3,
+];
 
 export async function updateSchema() {
   const maxUserVersion = SCHEMA_VERSIONS.length;
@@ -62,7 +67,7 @@ async function updateToSchemaVersion1(version: number) {
 
     await Promise.all(promises);
 
-    setSchemaVersion(1);
+    setSchemaVersion(CURRENT_MIGRATION_VERSION);
     return;
   }
 
@@ -89,13 +94,12 @@ async function updateToSchemaVersion1(version: number) {
     symlink(targetFile, join(BIN_DIR, name));
   });
 
-  setSchemaVersion(2);
+  setSchemaVersion(CURRENT_MIGRATION_VERSION);
   return;
 }
 
 async function updateToSchemaVersion2(version: number) {
-  // version < 1 || version >= 2
-  if (version !== 1) return;
+  if (version >= 2 || CURRENT_MIGRATION_VERSION !== 2) return;
 
   // Macos or Linux
   if (platform !== 'win32') {
@@ -108,7 +112,7 @@ async function updateToSchemaVersion2(version: number) {
       : join(__dirname, '../../..', 'assets', 'sources', 'nvmd');
     await copy(sourceFile, targetFile).catch((_err) => {});
 
-    setSchemaVersion(2);
+    setSchemaVersion(CURRENT_MIGRATION_VERSION);
     return;
   }
 
@@ -140,7 +144,57 @@ async function updateToSchemaVersion2(version: number) {
       .map((fileName) => updateFile(fileName)),
   );
 
-  setSchemaVersion(2);
+  setSchemaVersion(CURRENT_MIGRATION_VERSION);
+  return;
+}
+
+async function updateToSchemaVersion3(version: number) {
+  if (version >= 3 || CURRENT_MIGRATION_VERSION !== 3) return;
+
+  // Macos or Linux
+  if (platform !== 'win32') {
+    const targetFile = join(BIN_DIR, 'nvmd');
+
+    await remove(targetFile);
+
+    const sourceFile = app.isPackaged
+      ? join(process.resourcesPath, 'assets', 'sources', 'nvmd')
+      : join(__dirname, '../../..', 'assets', 'sources', 'nvmd');
+    await copy(sourceFile, targetFile).catch((_err) => {});
+
+    setSchemaVersion(CURRENT_MIGRATION_VERSION);
+    return;
+  }
+
+  // Windows
+  const targetFile = join(BIN_DIR, 'nvmd.exe');
+
+  await remove(targetFile);
+
+  const sourceFile = app.isPackaged
+    ? join(process.resourcesPath, 'assets', 'sources', 'nvmd.exe')
+    : join(__dirname, '../../..', 'assets', 'sources', 'nvmd.exe');
+  await copy(sourceFile, targetFile).catch((_err) => {});
+
+  async function updateFile(fileName: string) {
+    const filePath = join(BIN_DIR, fileName);
+
+    await remove(filePath);
+
+    await copy(sourceFile, filePath).catch((_err) => {});
+
+    return;
+  }
+
+  const files = await readdir(BIN_DIR);
+
+  await Promise.all(
+    files
+      .filter((name) => name.endsWith('.exe'))
+      .map((fileName) => updateFile(fileName)),
+  );
+
+  setSchemaVersion(CURRENT_MIGRATION_VERSION);
   return;
 }
 

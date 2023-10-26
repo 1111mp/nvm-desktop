@@ -79,8 +79,6 @@ const Versions: React.FC = () => {
 
   const [allVersions, allInstalledVersions, currentVersion] = versionsData;
 
-  const { version: latest } = allVersions[0] || { version: '' };
-
   const [current, setCurrent] = useState<string>(() => currentVersion);
   const [versions, setVersions] = useState<Nvmd.Versions>(() => allVersions);
   const [installedVersions, setInstalledVersions] = useState<string[]>(
@@ -90,7 +88,6 @@ const Versions: React.FC = () => {
   const [localLoading, seLocaltLoading] = useState<boolean>(false);
 
   const modal = useRef<InfoRef>(null);
-  const latestVersion = useRef<string>(latest);
 
   const { message } = App.useApp();
 
@@ -106,13 +103,6 @@ const Versions: React.FC = () => {
     });
   }, []);
 
-  useEffect(() => {
-    if (!versions.length) return;
-
-    const { version: latest } = allVersions[0];
-    latestVersion.current = latest;
-  }, [versions.length]);
-
   const columns: ColumnsType<Nvmd.Version> = useMemo(
     () => [
       {
@@ -120,6 +110,7 @@ const Versions: React.FC = () => {
         dataIndex: 'version',
         ...getColumnSearchProps('version'),
         render: (text: string, { lts, version }) => {
+          const { version: latest } = versions[0] || { version: '' };
           return (
             <Space>
               <Tooltip color="#74a975" title={i18n('Whats-new')}>
@@ -137,7 +128,7 @@ const Versions: React.FC = () => {
               </Tooltip>
               {lts ? (
                 <span style={{ color: '#b9b9b9' }}>({lts})</span>
-              ) : latestVersion.current === version ? (
+              ) : latest === version ? (
                 <span style={{ color: '#b9b9b9' }}>({i18n('latest')})</span>
               ) : null}
             </Space>

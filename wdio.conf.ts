@@ -1,3 +1,4 @@
+/// <reference types="wdio-electron-service" />
 import type { Options } from '@wdio/types';
 
 process.env.TEST = 'true';
@@ -63,9 +64,13 @@ export const config: Options.Testrunner = {
   //
   capabilities: [
     {
-      // no need to define any capabilities for local Electron web tests
-      // since service plugin takes care of setting everything up
-      browserName: 'electron'
+      browserName: 'electron',
+      // Electron service options
+      // see https://webdriver.io/docs/wdio-electron-service/#configuration
+      'wdio:electronServiceOptions': {
+        // custom application args
+        appArgs: [],
+      },
     },
   ],
 
@@ -76,7 +81,7 @@ export const config: Options.Testrunner = {
   // Define all options that are relevant for the WebdriverIO instance here
   //
   // Level of logging verbosity: trace | debug | info | warn | error | silent
-  logLevel: 'debug',
+  logLevel: 'info',
   //
   // Set specific log levels per logger
   // loggers:
@@ -132,6 +137,7 @@ export const config: Options.Testrunner = {
   // Make sure you have the wdio adapter package for the specific framework installed
   // before running any tests.
   framework: 'mocha',
+
   //
   // The number of times to retry the entire specfile when it fails as a whole
   // specFileRetries: 1,
@@ -147,13 +153,13 @@ export const config: Options.Testrunner = {
   // see also: https://webdriver.io/docs/dot-reporter
   reporters: ['spec'],
 
-  //
   // Options to be passed to Mocha.
   // See the full list at http://mochajs.org/
   mochaOpts: {
     ui: 'bdd',
     timeout: 60000,
   },
+
   //
   // =====
   // Hooks
@@ -230,13 +236,13 @@ export const config: Options.Testrunner = {
    * Hook that gets executed _before_ a hook within the suite starts (e.g. runs before calling
    * beforeEach in Mocha)
    */
-  // beforeHook: function (test, context) {
+  // beforeHook: function (test, context, hookName) {
   // },
   /**
    * Hook that gets executed _after_ a hook within the suite starts (e.g. runs after calling
    * afterEach in Mocha)
    */
-  // afterHook: function (test, context, { error, result, duration, passed, retries }) {
+  // afterHook: function (test, context, { error, result, duration, passed, retries }, hookName) {
   // },
   /**
    * Function to be executed after a test (in Mocha/Jasmine only)
@@ -246,7 +252,7 @@ export const config: Options.Testrunner = {
    * @param {*}       result.result    return object of test function
    * @param {number}  result.duration  duration of test
    * @param {boolean} result.passed    true if test has passed, otherwise false
-   * @param {object}  result.retries   informations to spec related retries, e.g. `{ attempts: 0, limit: 0 }`
+   * @param {object}  result.retries   information about spec related retries, e.g. `{ attempts: 0, limit: 0 }`
    */
   // afterTest: function(test, context, { error, result, duration, passed, retries }) {
   // },

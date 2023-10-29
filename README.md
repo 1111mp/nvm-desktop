@@ -18,6 +18,9 @@ English | [简体中文](https://github.com/1111mp/nvm-desktop/blob/main/README-
 - [Command tools intro](#command-tools-intro)
 - [Install](#install)
   - [Download](#download)
+- [Uninstall](#uninstall)
+  - [macOS Uninstall](#macos-uninstall)
+  - [Windows Uninstall](#windows-uninstall)
 - [Develop and Build](#develop-and-build)
   - [Development](#development)
   - [Build and Package](#build-and-package)
@@ -92,6 +95,30 @@ You can download the source code and build it yourself, or download the built ve
 - [nvmd-desktop Download Page (GitHub release)](https://github.com/1111mp/nvm-desktop/releases)
 
 The automatic update function of the application is currently only supported on the Windows platform. If you are a macOS user please always check the [latest version](https://github.com/1111mp/nvm-desktop/releases) for the best experience.
+
+## Uninstall
+
+### macOS Uninstall
+
+- Uninstall `nvm-desktop` application
+- `rm -rf ~/.nvmd`
+- Remove the two lines about `nvmd` from the `shell` configuration file:
+
+  ```shell
+  export NVMD_DIR="$HOME/.nvmd"
+  export PATH="$NVMD_DIR/bin:$PATH"
+  ```
+  The default file might be:
+    - .zshrc
+    - .bashrc
+    - .bash_profile
+    - .profile
+
+### Windows Uninstall
+
+- Uninstall `nvm-desktop` application
+- Remove `%HOMEPATH%\.nvmd` folder
+- Remove environment variables from your system: `%HOMEPATH%\.nvmd\bin`
 
 ## Develop and Build
 

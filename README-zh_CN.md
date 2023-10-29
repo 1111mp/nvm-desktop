@@ -18,6 +18,9 @@
 - [命令行工具](#命令行工具)
 - [安装](#安装)
   - [下载](#下载)
+- [卸载](#卸载)
+  - [macOS 卸载](#macOS-卸载)
+  - [Windows 卸载](#Windows-卸载)
 - [开发和构建](#开发和构建)
   - [开发](#开发)
   - [构建生产包](#构建生产包)
@@ -92,6 +95,30 @@ Please download new version of Node.js in nvm-desktop.
 - [nvmd-desktop 下载页面 (GitHub release)](https://github.com/1111mp/nvm-desktop/releases)
 
 应用程序的自动检查更新功能目前仅支持 Windows 平台。如果您是 Macos 用户，请务必检查[最新版本](https://github.com/1111mp/nvm-desktop/releases)以获得最佳体验。
+
+## 卸载
+
+### macOS 卸载
+
+- 卸载 `nvm-desktop` 应用程序
+- `rm -rf ~/.nvmd`
+- 从 `shell` 的配置文件中删除关于 `nvmd` 的两行：
+
+  ```shell
+  export NVMD_DIR="$HOME/.nvmd"
+  export PATH="$NVMD_DIR/bin:$PATH"
+  ```
+  默认的文件可能是：
+    - .zshrc
+    - .bashrc
+    - .bash_profile
+    - .profile
+
+### Windows 卸载
+
+- 卸载 `nvm-desktop` 应用程序
+- 删除 `%HOMEPATH%\.nvmd` 文件
+- 移除系统环境变量：`%HOMEPATH%\.nvmd\bin`
 
 ## 开发和构建
 

@@ -2,16 +2,7 @@ import './styles.scss';
 
 import { useState, useRef, lazy, Suspense, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import {
-  App,
-  Button,
-  Layout,
-  Menu,
-  Space,
-  Tour,
-  Typography,
-  message,
-} from 'antd';
+import { App, Button, Layout, Menu, Space, Tour, Typography } from 'antd';
 import {
   InfoCircleOutlined,
   SettingOutlined,
@@ -383,6 +374,7 @@ const Home: React.FC = () => {
                   tipDrawer.current?.show();
                 }}
               />
+              <Updater />
               {platform === 'win32' ? <Updater /> : null}
               <Button
                 type="text"

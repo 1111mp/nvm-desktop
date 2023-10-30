@@ -24,14 +24,20 @@ export const Updater: React.FC = () => {
   const { message } = App.useApp();
   const updateInfo = useRef<UpdateInfo>();
 
+  const onCheckUpdate = useRef<
+    (info: UpdateInfo | 'update-not-available') => void
+  >((info) => {
+    if (info === 'update-not-available') {
+      return message.success(i18n('Up-to-date'));
+    }
+
+    updateInfo.current = info;
+    setOpen({ visible: true, type: ModalType.Check });
+  });
+
   useEffect(() => {
     window.Context.onCheckUpdateResultCallback((info) => {
-      if (info === 'update-not-available') {
-        return message.success(i18n('Up-to-date'));
-      }
-
-      updateInfo.current = info;
-      setOpen({ visible: true, type: ModalType.Check });
+      onCheckUpdate.current?.(info);
     });
 
     window.Context.onRegistUpdateProgress((progress) => {
@@ -120,7 +126,8 @@ export const Updater: React.FC = () => {
               />
             }
             onClick={() => {
-              setOpen({ visible: true, type: ModalType.Complete });
+              progress.percent >= 100 &&
+                setOpen({ visible: true, type: ModalType.Complete });
             }}
           />
         </Popover>

@@ -374,7 +374,6 @@ const Home: React.FC = () => {
                   tipDrawer.current?.show();
                 }}
               />
-              <Updater />
               {platform === 'win32' ? <Updater /> : null}
               <Button
                 type="text"

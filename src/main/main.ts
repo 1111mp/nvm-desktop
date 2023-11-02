@@ -209,32 +209,6 @@ app
       locale = loadLocale({ appLocale });
     }
 
-    ipcMain.on('setting-data-get', (event) => {
-      event.returnValue = { ...setting, localeMessages: locale.messages };
-    });
-
-    ipcMain.handle(
-      'setting-data-set',
-      async (_event, data: Partial<Nvmd.Setting>) => {
-        if (data.locale !== setting.locale) {
-          locale = loadLocale({ appLocale: data.locale });
-          menuBuilder.buildMenu(locale.i18n);
-          buildTray();
-        }
-        setting = { ...setting, ...data };
-        await setSetting({
-          locale: setting.locale,
-          theme: setting.theme,
-          mirror: setting.mirror,
-        });
-        return;
-      },
-    );
-
-    ipcMain.on('locale-data', (event) => {
-      event.returnValue = locale.messages;
-    });
-
     createWindow(code);
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
@@ -367,6 +341,32 @@ Promise.resolve().then(() => {
       mainWindow && mainWindow.minimize();
     });
   }
+
+  ipcMain.on('setting-data-get', (event) => {
+    event.returnValue = { ...setting, localeMessages: locale.messages };
+  });
+
+  ipcMain.handle(
+    'setting-data-set',
+    async (_event, data: Partial<Nvmd.Setting>) => {
+      if (data.locale !== setting.locale) {
+        locale = loadLocale({ appLocale: data.locale });
+        menuBuilder.buildMenu(locale.i18n);
+        buildTray();
+      }
+      setting = { ...setting, ...data };
+      await setSetting({
+        locale: setting.locale,
+        theme: setting.theme,
+        mirror: setting.mirror,
+      });
+      return;
+    },
+  );
+
+  ipcMain.on('locale-data', (event) => {
+    event.returnValue = locale.messages;
+  });
 
   ipcMain.on('get-app-version', (event) => {
     event.returnValue = app.getVersion();

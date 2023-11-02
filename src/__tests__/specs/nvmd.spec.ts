@@ -3,7 +3,7 @@ import { platform } from 'node:process';
 import { pathExists } from 'fs-extra';
 import { browser, expect } from '@wdio/globals';
 
-describe('module nvmd', async () => {
+describe('Module nvmd', async () => {
   it('nvmd file should be existed', async () => {
     const HOMEDIR = (await browser.electron.app('getPath', 'home')) as string;
     const nvmdPath = join(

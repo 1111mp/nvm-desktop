@@ -208,6 +208,11 @@
       ],
       "category": "Development"
     },
+    "nsis": {
+      "oneClick": false,
+      "deleteAppDataOnUninstall": true,
+      "allowToChangeInstallationDirectory": true
+    },
     "directories": {
       "app": "release/app",
       "buildResources": "assets",

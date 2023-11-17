@@ -14,6 +14,7 @@ import { Themes } from 'types';
 type StateType = {
   locale: string;
   theme: Themes; // from setting
+  directory: string; // node installation directory
   sysTheme: Themes; // system real theme
   mirror: string;
   messages: I18n.Message;
@@ -30,7 +31,7 @@ type StateAction = {
 };
 
 export default function App() {
-  const { locale, theme, mirror, localeMessages } =
+  const { locale, theme, directory, mirror, localeMessages } =
     window.Context.getSettingData();
 
   const [state, dispatch] = useReducer(
@@ -49,6 +50,7 @@ export default function App() {
     {
       locale,
       theme: theme,
+      directory,
       sysTheme: window.Context.getSystemTheme() as Themes,
       mirror,
       messages: localeMessages,
@@ -100,7 +102,7 @@ export default function App() {
         payload: { ...state, ...setting, messages },
       });
     },
-    [state.locale, state.theme, state.mirror],
+    [state.locale, state.theme, state.directory, state.mirror],
   );
 
   const getMessage = useCallback<I18nFn>(
@@ -177,6 +179,7 @@ export default function App() {
         value={{
           locale: state.locale,
           theme: state.theme,
+          direction: state.directory,
           mirror: state.mirror,
           getMessage,
           onUpdateSetting,

@@ -1,6 +1,6 @@
 import { pathExists, readJson, writeJson } from 'fs-extra';
 import { app } from 'electron';
-import { SETTING_JSONFILE } from '../constants';
+import { INSTALL_DIR, SETTING_JSONFILE } from '../constants';
 import { Themes } from '../../types';
 
 export async function getSetting(): Promise<Nvmd.Setting> {
@@ -8,14 +8,17 @@ export async function getSetting(): Promise<Nvmd.Setting> {
     return {
       locale: app.getLocale().startsWith('en') ? 'en' : 'zh-CN',
       theme: Themes.System,
+      directory: INSTALL_DIR,
       mirror: 'https://nodejs.org/dist',
     };
 
   const setting = await readJson(SETTING_JSONFILE, { throws: false });
+  if (!setting.directory) setting.directory = INSTALL_DIR;
   return (
     setting || {
       locale: app.getLocale().startsWith('en') ? 'en' : 'zh-CN',
       theme: Themes.System,
+      directory: INSTALL_DIR,
       mirror: 'https://nodejs.org/dist',
     }
   );

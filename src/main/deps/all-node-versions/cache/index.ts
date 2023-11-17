@@ -20,18 +20,16 @@ export async function getCache({
   return versions;
 }
 
-export async function getInstalledVersions(): Promise<string[]> {
-  if (!(await pathExists(INSTALL_DIR))) return [];
+export async function getInstalledVersions(
+  path: string = INSTALL_DIR,
+): Promise<string[]> {
+  if (!(await pathExists(path))) return [];
 
-  const contents = await readdir(INSTALL_DIR);
+  const contents = await readdir(path);
   const exists = await Promise.all(
     contents.map(async (version) => {
       return await pathExists(
-        join(
-          INSTALL_DIR,
-          version,
-          platform === 'win32' ? 'node.exe' : 'bin/node',
-        ),
+        join(path, version, platform === 'win32' ? 'node.exe' : 'bin/node'),
       );
     }),
   );

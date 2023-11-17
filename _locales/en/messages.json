@@ -119,6 +119,14 @@
     "message": "Mirror Url",
     "description": "The text of the Mirror Url"
   },
+  "Installation-Directory": {
+    "message": "Installation Directory",
+    "description": "The text of the Installation Directory"
+  },
+  "Installation-Directory-tip": {
+    "message": "Please note that nvm-desktop does not keep track of all your used directories. This means that every time you change the installation directory, you need to re-download Nodejs.",
+    "description": "The text of the Installation-Directory-tip"
+  },
   "For-example": {
     "message": "For example",
     "description": "The text of the For example"
@@ -350,6 +358,10 @@
   "Project-Select": {
     "message": "Please select your project",
     "description": "The text of the Project-Select"
+  },
+  "Directory-Select": {
+    "message": "Please select your directory",
+    "description": "The text of the Directory-Select"
   },
   "Whats-new": {
     "message": "What's new",

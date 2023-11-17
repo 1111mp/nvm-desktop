@@ -4,6 +4,7 @@ import { Themes } from 'types';
 type AppContextType = {
   locale: string;
   theme: Themes;
+  direction: string;
   mirror: string;
   getMessage: I18nFn;
   onUpdateSetting: (setting: Nvmd.Setting) => Promise<void>;

@@ -23,6 +23,7 @@ declare global {
     interface Setting {
       locale: string;
       theme: Themes;
+      directory: string;
       mirror: string;
     }
 

@@ -59,7 +59,7 @@ export const Component: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const i18n = useI18n();
-  const { locale } = useAppContext();
+  const { direction, locale } = useAppContext();
   const { message } = App.useApp();
 
   useEffect(() => {
@@ -72,6 +72,15 @@ export const Component: React.FC = () => {
       window.Context.onRegistProjectUpdate(null);
     };
   }, []);
+
+  useEffect(() => {
+    const fetcher = async () => {
+      const iVersions = await window.Context.getInstalledNodeVersions(true);
+      setInstalledVersions(iVersions);
+    };
+
+    fetcher();
+  }, [direction]);
 
   const columns: ColumnsType<Nvmd.Project> = useMemo(
     () => [
@@ -185,7 +194,10 @@ export const Component: React.FC = () => {
 
   const onAddProject = async () => {
     const { canceled, filePaths, version } =
-      await window.Context.openFolderSelecter();
+      await window.Context.openFolderSelecter({
+        title: i18n('Project-Select'),
+        project: true,
+      });
     if (canceled) return;
     const [path] = filePaths;
 

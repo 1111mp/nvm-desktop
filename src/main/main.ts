@@ -43,7 +43,7 @@ import {
 } from './utils/projects';
 import { gt } from 'semver';
 import loadLocale from './locale';
-import { Themes } from '../types';
+import { Closer, Themes } from '../types';
 
 import type { MenuItemConstructorOptions } from 'electron';
 
@@ -182,9 +182,7 @@ const createWindow = async (code?: number) => {
  */
 
 app.on('window-all-closed', () => {
-  // Respect the OSX convention of having the application in memory even
-  // after all windows have been closed
-  if (process.platform !== 'darwin') {
+  if (setting.closer === Closer.Close) {
     app.quit();
   }
 });

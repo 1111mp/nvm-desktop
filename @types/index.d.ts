@@ -1,4 +1,4 @@
-import { Themes } from 'types';
+import { Closer, Themes } from 'types';
 import type { UpdateInfo as ElectronUpdateInfo } from 'electron-updater';
 
 declare global {
@@ -23,6 +23,7 @@ declare global {
     interface Setting {
       locale: string;
       theme: Themes;
+      closer: Closer;
       directory: string;
       mirror: string;
     }

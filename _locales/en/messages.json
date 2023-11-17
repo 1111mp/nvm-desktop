@@ -382,5 +382,17 @@
   "Migration-error": {
     "message": "Please close all Node processes and restart the application to complete the update",
     "description": "The text of the Migration-error"
+  },
+  "When-Closing": {
+    "message": "When Closing",
+    "description": "The text of the When-Closing"
+  },
+  "Minimize-Window": {
+    "message": "Minimize To System Tray",
+    "description": "The text of the Minimize-Window"
+  },
+  "Quit-App": {
+    "message": "Quit App",
+    "description": "The text of the Quit-App"
   }
 }

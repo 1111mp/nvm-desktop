@@ -1,9 +1,10 @@
 import { createContext, useContext } from 'react';
-import { Themes } from 'types';
+import { Closer, Themes } from 'types';
 
 type AppContextType = {
   locale: string;
   theme: Themes;
+  closer: Closer;
   direction: string;
   mirror: string;
   getMessage: I18nFn;

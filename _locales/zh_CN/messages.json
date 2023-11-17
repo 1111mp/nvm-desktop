@@ -382,5 +382,17 @@
   "Migration-error": {
     "message": "请关闭所有 Node 进程之后重启应用以完成更新",
     "description": "The text of the Migration-error"
+  },
+  "When-Closing": {
+    "message": "关闭时",
+    "description": "The text of the When-Closing"
+  },
+  "Minimize-Window": {
+    "message": "最小化到系统托盘",
+    "description": "The text of the Minimize-Window"
+  },
+  "Quit-App": {
+    "message": "退出应用",
+    "description": "The text of the Quit-App"
   }
 }

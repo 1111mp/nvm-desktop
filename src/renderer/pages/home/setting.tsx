@@ -12,7 +12,7 @@ import {
 } from 'antd';
 import { EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useAppContext, useI18n } from 'renderer/appContext';
-import { Themes } from 'types';
+import { Closer, Themes } from 'types';
 
 export type Ref = {
   show: () => void;
@@ -86,6 +86,7 @@ const Content = forwardRef<ContentRef, {}>(({}, ref) => {
   const {
     locale,
     theme: ctxTheme,
+    closer: ctxCloser,
     direction: ctxDirection,
     mirror: ctxMirror,
     onUpdateSetting,
@@ -94,6 +95,7 @@ const Content = forwardRef<ContentRef, {}>(({}, ref) => {
 
   const [language, setLanguage] = useState<string>(() => locale);
   const [theme, setTheme] = useState<Themes>(() => ctxTheme);
+  const [closer, setCloser] = useState<Closer>(() => ctxCloser);
   const [directory, setDirectory] = useState<string>(() => ctxDirection);
   const [mirror, setMirror] = useState<string>(() => ctxMirror);
 
@@ -116,6 +118,7 @@ const Content = forwardRef<ContentRef, {}>(({}, ref) => {
     if (
       language === locale &&
       theme === ctxTheme &&
+      closer === ctxCloser &&
       directory === ctxDirection &&
       mirror === ctxMirror
     )
@@ -124,6 +127,7 @@ const Content = forwardRef<ContentRef, {}>(({}, ref) => {
     onUpdateSetting({
       locale: language,
       theme,
+      closer,
       directory,
       mirror,
     });
@@ -157,6 +161,19 @@ const Content = forwardRef<ContentRef, {}>(({}, ref) => {
           ]}
           onChange={(evt) => {
             setTheme(evt.target.value as Themes);
+          }}
+        />
+      </Descriptions.Item>
+
+      <Descriptions.Item label={i18n('When-Closing')}>
+        <Radio.Group
+          value={closer}
+          options={[
+            { label: i18n('Minimize-Window'), value: Closer.Minimize },
+            { label: i18n('Quit-App'), value: Closer.Close },
+          ]}
+          onChange={(evt) => {
+            setCloser(evt.target.value as Closer);
           }}
         />
       </Descriptions.Item>

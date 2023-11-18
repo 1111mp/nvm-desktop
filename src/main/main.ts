@@ -232,6 +232,26 @@ function createTray() {
   tray = new Tray(icon);
   tray.setToolTip('NVM-Desktop');
 
+  platform === 'win32' &&
+    tray.on('click', () => {
+      if (mainWindow === null) {
+        createWindow();
+        return;
+      }
+
+      if (!mainWindow.isVisible()) {
+        mainWindow.show();
+        return;
+      }
+
+      if (mainWindow.isFocused()) {
+        mainWindow.minimize();
+        return;
+      }
+
+      mainWindow.focus();
+    });
+
   buildTray();
 }
 

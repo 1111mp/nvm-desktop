@@ -39,13 +39,19 @@ dayjs.extend(localizedFormat);
 const { Title } = Typography;
 
 export async function loader() {
-  const versions = Promise.all([
-    window.Context.getAllNodeVersions(),
-    window.Context.getInstalledNodeVersions(),
-    window.Context.getCurrentVersion(),
-  ]);
+  try {
+    const versions = Promise.all([
+      window.Context.getAllNodeVersions(),
+      window.Context.getInstalledNodeVersions(),
+      window.Context.getCurrentVersion(),
+    ]).catch((_err) => {
+      return [[], [], ''];
+    });
 
-  return defer({ versions: versions });
+    return defer({ versions: versions });
+  } catch (err) {
+    return defer({ versions: [[], [], ''] });
+  }
 }
 
 export function VersionsRoute() {

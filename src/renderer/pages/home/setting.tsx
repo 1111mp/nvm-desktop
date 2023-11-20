@@ -8,9 +8,11 @@ import {
   Button,
   Space,
   Typography,
+  Tooltip,
 } from 'antd';
+import { EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useAppContext, useI18n } from 'renderer/appContext';
-import { Themes } from 'types';
+import { Closer, Themes } from 'types';
 
 export type Ref = {
   show: () => void;
@@ -84,6 +86,8 @@ const Content = forwardRef<ContentRef, {}>(({}, ref) => {
   const {
     locale,
     theme: ctxTheme,
+    closer: ctxCloser,
+    direction: ctxDirection,
     mirror: ctxMirror,
     onUpdateSetting,
   } = useAppContext();
@@ -91,19 +95,40 @@ const Content = forwardRef<ContentRef, {}>(({}, ref) => {
 
   const [language, setLanguage] = useState<string>(() => locale);
   const [theme, setTheme] = useState<Themes>(() => ctxTheme);
+  const [closer, setCloser] = useState<Closer>(() => ctxCloser);
+  const [directory, setDirectory] = useState<string>(() => ctxDirection);
   const [mirror, setMirror] = useState<string>(() => ctxMirror);
 
   useImperativeHandle(ref, () => ({
     submit: onSubmit,
   }));
 
+  const onSelectDirectory = async () => {
+    const { canceled, filePaths } = await window.Context.openFolderSelecter({
+      title: i18n('Directory-Select'),
+    });
+
+    if (canceled) return;
+
+    const [path] = filePaths;
+    setDirectory(path);
+  };
+
   const onSubmit = async () => {
-    if (language === locale && theme === ctxTheme && mirror === ctxMirror)
+    if (
+      language === locale &&
+      theme === ctxTheme &&
+      closer === ctxCloser &&
+      directory === ctxDirection &&
+      mirror === ctxMirror
+    )
       return;
 
     onUpdateSetting({
       locale: language,
       theme,
+      closer,
+      directory,
       mirror,
     });
 
@@ -139,6 +164,55 @@ const Content = forwardRef<ContentRef, {}>(({}, ref) => {
           }}
         />
       </Descriptions.Item>
+
+      <Descriptions.Item label={i18n('When-Closing')}>
+        <Radio.Group
+          value={closer}
+          options={[
+            { label: i18n('Minimize-Window'), value: Closer.Minimize },
+            { label: i18n('Quit-App'), value: Closer.Close },
+          ]}
+          onChange={(evt) => {
+            setCloser(evt.target.value as Closer);
+          }}
+        />
+      </Descriptions.Item>
+
+      <Descriptions.Item
+        label={
+          <Space size={4}>
+            {i18n('Installation-Directory')}
+            <Tooltip title={i18n('Installation-Directory-tip')}>
+              <ExclamationCircleOutlined
+                style={{ color: '#74a975', cursor: 'pointer' }}
+              />
+            </Tooltip>
+          </Space>
+        }
+      >
+        <Space
+          align="center"
+          style={{ width: '100%', justifyContent: 'space-between' }}
+        >
+          <Typography.Paragraph style={{ marginBottom: 0 }}>
+            <Typography.Text
+              copyable
+              ellipsis={{
+                tooltip: directory,
+              }}
+              style={{ width: 300 }}
+            >
+              {directory}
+            </Typography.Text>
+          </Typography.Paragraph>
+          <Button
+            icon={<EditOutlined />}
+            size="small"
+            onClick={onSelectDirectory}
+          />
+        </Space>
+      </Descriptions.Item>
+
       <Descriptions.Item label={i18n('Mirror-Url')}>
         <Space direction="vertical" style={{ width: '100%' }}>
           <Input

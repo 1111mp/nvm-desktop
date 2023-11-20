@@ -3,3 +3,8 @@ export enum Themes {
   Light = 'light',
   Dark = 'dark',
 }
+
+export enum Closer {
+  Minimize = 'minimize',
+  Close = 'close',
+}

@@ -134,9 +134,15 @@ const electronHandler = {
     onThemeChanged = callback;
   },
 
-  openFolderSelecter: () =>
-    ipcRenderer.invoke('open-folder-selecter') as Promise<
-      OpenDialogReturnValue & { version: string }
+  openFolderSelecter: ({
+    title,
+    project = false,
+  }: {
+    title: string;
+    project?: boolean;
+  }) =>
+    ipcRenderer.invoke('open-folder-selecter', { title, project }) as Promise<
+      OpenDialogReturnValue & { version?: string }
     >,
   getProjects: (load: boolean = false) =>
     ipcRenderer.invoke('get-projects', load) as Promise<Nvmd.Project[]>,

@@ -51,7 +51,7 @@ export const Component: React.FC = () => {
   const { message } = App.useApp();
   const getColumnSearchProps = useColumnSearchProps();
 
-  const { locale } = useAppContext();
+  const { direction, locale } = useAppContext();
   const i18n = useI18n();
 
   useEffect(() => {
@@ -60,6 +60,20 @@ export const Component: React.FC = () => {
       message.success(i18n('Restart-Terminal', [`v${version}`]));
     });
   }, []);
+
+  useEffect(() => {
+    const fetcher = async () => {
+      const iVersions = await window.Context.getInstalledNodeVersions(true);
+      setVersions(
+        allVersions.filter(({ version }) =>
+          iVersions.includes(version.slice(1)),
+        ),
+      );
+      setInstalledVersions(iVersions);
+    };
+
+    fetcher();
+  }, [direction]);
 
   const columns: ColumnsType<Nvmd.Version> = useMemo(
     () => [

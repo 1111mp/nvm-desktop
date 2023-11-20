@@ -25,13 +25,18 @@ export async function setCurrentVersion(newVersion: string): Promise<void> {
   return;
 }
 
-export async function uninstallVersion(
-  version: string,
-  current: boolean = false,
-) {
+export async function uninstallVersion({
+  path = INSTALL_DIR,
+  version,
+  current = false,
+}: {
+  path?: string;
+  version: string;
+  current?: boolean;
+}) {
   try {
-    const path = join(INSTALL_DIR, version);
-    await remove(path);
+    const versionPath = join(path, version);
+    await remove(versionPath);
 
     current && (await remove(join(APPDIR, 'default')));
     return;

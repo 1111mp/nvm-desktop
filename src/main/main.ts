@@ -43,7 +43,7 @@ import {
 } from './utils/projects';
 import { gt } from 'semver';
 import loadLocale from './locale';
-import { Themes } from '../types';
+import { Closer, Themes } from '../types';
 
 import type { MenuItemConstructorOptions } from 'electron';
 
@@ -182,9 +182,7 @@ const createWindow = async (code?: number) => {
  */
 
 app.on('window-all-closed', () => {
-  // Respect the OSX convention of having the application in memory even
-  // after all windows have been closed
-  if (process.platform !== 'darwin') {
+  if (setting.closer === Closer.Close) {
     app.quit();
   }
 });
@@ -192,11 +190,13 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(async () => {
-    const [code, settingFromCache, iVersions] = await Promise.all([
+    const [code, settingFromCache] = await Promise.all([
       updateSchema(),
       getSetting(),
-      allInstalledNodeVersions(),
     ]);
+    const iVersions = await allInstalledNodeVersions({
+      path: settingFromCache.directory,
+    });
 
     if (!setting) setting = settingFromCache;
     if (!installedVersions)
@@ -231,6 +231,26 @@ function createTray() {
 
   tray = new Tray(icon);
   tray.setToolTip('NVM-Desktop');
+
+  platform === 'win32' &&
+    tray.on('click', () => {
+      if (mainWindow === null) {
+        createWindow();
+        return;
+      }
+
+      if (!mainWindow.isVisible()) {
+        mainWindow.show();
+        return;
+      }
+
+      if (mainWindow.isFocused()) {
+        mainWindow.minimize();
+        return;
+      }
+
+      mainWindow.focus();
+    });
 
   buildTray();
 }
@@ -354,12 +374,21 @@ Promise.resolve().then(() => {
         menuBuilder.buildMenu(locale.i18n);
         buildTray();
       }
+
+      if (data.directory !== setting.directory) {
+        const versions = await allInstalledNodeVersions({
+          path: data.directory,
+          refresh: true,
+        });
+
+        installedVersions = versions.sort((version1, version2) =>
+          gt(version2, version1) ? 1 : -1,
+        );
+        buildTray();
+      }
+
       setting = { ...setting, ...data };
-      await setSetting({
-        locale: setting.locale,
-        theme: setting.theme,
-        mirror: setting.mirror,
-      });
+      await setSetting(setting);
       return;
     },
   );
@@ -411,7 +440,10 @@ Promise.resolve().then(() => {
     async (_event, refresh: boolean = false) => {
       if (!refresh) return installedVersions;
 
-      const versions = await allInstalledNodeVersions(refresh);
+      const versions = await allInstalledNodeVersions({
+        path: setting.directory,
+        refresh,
+      });
 
       installedVersions = versions.sort((version1, version2) =>
         gt(version2, version1) ? 1 : -1,
@@ -429,6 +461,7 @@ Promise.resolve().then(() => {
 
       try {
         const result = await getNode(version, {
+          output: setting.directory,
           mirror: setting.mirror,
           signal: abortController.signal,
           onProgress: (data) => {
@@ -447,7 +480,7 @@ Promise.resolve().then(() => {
   ipcMain.handle(
     'uninstall-node-version',
     async (_event, version: string, current: boolean = false) => {
-      return uninstallVersion(version, current);
+      return uninstallVersion({ path: setting.directory, version, current });
     },
   );
 
@@ -468,19 +501,27 @@ Promise.resolve().then(() => {
     event.returnValue = nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
   });
 
-  ipcMain.handle('open-folder-selecter', async () => {
-    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow!, {
-      title: locale.i18n('Project-Select') as string,
-      properties: ['openDirectory'],
-    });
+  ipcMain.handle(
+    'open-folder-selecter',
+    async (
+      _event,
+      { title, project }: { title: string; project?: boolean },
+    ) => {
+      const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow!, {
+        title,
+        properties: ['openDirectory', 'createDirectory', 'showHiddenFiles'],
+      });
 
-    if (canceled) return { canceled, filePaths };
+      if (canceled) return { canceled, filePaths };
 
-    const [path] = filePaths;
-    const version = await getVersion(path);
+      const [path] = filePaths;
 
-    return { canceled, filePaths, version };
-  });
+      if (!project) return { canceled, filePaths };
+
+      const version = await getVersion(path);
+      return { canceled, filePaths, version };
+    },
+  );
 
   ipcMain.handle('get-projects', async (_event, load: boolean = false) => {
     return getProjects(load);

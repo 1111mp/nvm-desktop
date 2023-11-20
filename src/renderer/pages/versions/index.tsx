@@ -30,7 +30,6 @@ import { checkSupportive, compareVersion } from 'renderer/util';
 
 import type { ColumnsType } from 'antd/es/table';
 import type { Ref as InfoRef } from './modal';
-import { resolve } from 'node:path';
 
 type VersionsResult = [Nvmd.Versions, Array<string>, string];
 
@@ -40,13 +39,19 @@ dayjs.extend(localizedFormat);
 const { Title } = Typography;
 
 export async function loader() {
-  const versions = Promise.all([
-    window.Context.getAllNodeVersions(),
-    window.Context.getInstalledNodeVersions(),
-    window.Context.getCurrentVersion(),
-  ]);
+  try {
+    const versions = Promise.all([
+      window.Context.getAllNodeVersions(),
+      window.Context.getInstalledNodeVersions(),
+      window.Context.getCurrentVersion(),
+    ]).catch((_err) => {
+      return [[], [], ''];
+    });
 
-  return defer({ versions: versions });
+    return defer({ versions: versions });
+  } catch (err) {
+    return defer({ versions: [[], [], ''] });
+  }
 }
 
 export function VersionsRoute() {
@@ -93,7 +98,7 @@ const Versions: React.FC = () => {
 
   const getColumnSearchProps = useColumnSearchProps();
 
-  const { locale } = useAppContext();
+  const { direction, locale } = useAppContext();
   const i18n = useI18n();
 
   useEffect(() => {
@@ -102,6 +107,15 @@ const Versions: React.FC = () => {
       message.success(i18n('Restart-Terminal', [`v${version}`]));
     });
   }, []);
+
+  useEffect(() => {
+    const fetcher = async () => {
+      const iVersions = await window.Context.getInstalledNodeVersions(true);
+      setInstalledVersions(iVersions);
+    };
+
+    fetcher();
+  }, [direction]);
 
   const columns: ColumnsType<Nvmd.Version> = useMemo(
     () => [
@@ -194,18 +208,18 @@ const Versions: React.FC = () => {
               </Tag>
             );
 
-          if (current && record.version.includes(current))
+          const installed = installedVersions.find((version) =>
+            record.version.includes(version),
+          );
+
+          if (installed && current && record.version.includes(current))
             return (
               <Tag bordered={false} color="orange">
                 {i18n('Current')}
               </Tag>
             );
 
-          if (
-            installedVersions.find((version) =>
-              record.version.includes(version),
-            )
-          )
+          if (installed)
             return (
               <Tag bordered={false} color="purple">
                 {i18n('Installed')}

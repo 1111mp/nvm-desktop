@@ -30,6 +30,7 @@ const Home: React.FC = () => {
 
   const { message } = App.useApp();
   const tip = useRef(null);
+  const setting = useRef(null);
   const projectsMenu = useRef(null);
   const { locale } = useAppContext();
   const i18n = useI18n();
@@ -269,6 +270,62 @@ const Home: React.FC = () => {
       target: () => tip.current,
     },
     {
+      title: 'Setting',
+      target: () => setting.current,
+      description:
+        locale === 'zh-CN' ? (
+          <>
+            <Paragraph>
+              <Text>在这里，你可以更改 Nodejs 的默认安装目录。</Text>
+            </Paragraph>
+            <Paragraph>
+              <Text>
+                请注意，nvm-desktop
+                不会跟踪您所使用过的所有的目录，这意味着您每次更改安装目录之后都需要重新下载
+                Nodejs。
+                <Text type="secondary">
+                  {' '}
+                  但是你可以手动将之前目录下下载的所有 Nodejs
+                  文件移动到新的目录下。
+                </Text>
+              </Text>
+            </Paragraph>
+            <Paragraph>
+              <Text>
+                之所以这么设计是为了避免过多的文件检索从而影响 nvm-command
+                在性能上的表现。
+              </Text>
+            </Paragraph>
+          </>
+        ) : (
+          <>
+            <Paragraph>
+              <Text>
+                Here you can change the Nodejs installation directory.
+              </Text>
+            </Paragraph>
+            <Paragraph>
+              <Text>
+                Please note that nvm-desktop does not keep track of all your
+                used directories. This means that every time you change the
+                installation directory, you need to re-download Nodejs.
+                <Text type="secondary">
+                  {' '}
+                  But maybe you can also manually move all Nodejs version files
+                  downloaded from the previous directory to the new directory.
+                </Text>
+              </Text>
+            </Paragraph>
+            <Paragraph>
+              <Text>
+                The reason for this design is to avoid excessive file retrieval,
+                which will affect the performance of nvm-command.
+              </Text>
+            </Paragraph>
+          </>
+        ),
+    },
+    {
       title: i18n('Projects'),
       description: (
         <>
@@ -378,6 +435,7 @@ const Home: React.FC = () => {
               <Button
                 type="text"
                 size="small"
+                ref={setting}
                 title={i18n('Setting')}
                 className="module-home-btn"
                 icon={<SettingOutlined />}

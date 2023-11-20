@@ -119,6 +119,14 @@
     "message": "镜像地址",
     "description": "The text of the Mirror Url"
   },
+  "Installation-Directory": {
+    "message": "安装目录",
+    "description": "The text of the Installation Directory"
+  },
+  "Installation-Directory-tip": {
+    "message": "请注意，nvm-desktop 不会跟踪您所使用过的所有的目录，这意味着您每次更改安装目录之后都需要重新下载 Nodejs",
+    "description": "The text of the Installation-Directory-tip"
+  },
   "For-example": {
     "message": "例如",
     "description": "The text of the For example"
@@ -351,6 +359,10 @@
     "message": "请选择您的项目",
     "description": "The text of the Project-Select"
   },
+  "Directory-Select": {
+    "message": "请选择您的目录",
+    "description": "The text of the Directory-Select"
+  },
   "Whats-new": {
     "message": "更新日志",
     "description": "The text of the Whats-new"
@@ -370,5 +382,17 @@
   "Migration-error": {
     "message": "请关闭所有 Node 进程之后重启应用以完成更新",
     "description": "The text of the Migration-error"
+  },
+  "When-Closing": {
+    "message": "关闭时",
+    "description": "The text of the When-Closing"
+  },
+  "Minimize-Window": {
+    "message": "最小化到系统托盘",
+    "description": "The text of the Minimize-Window"
+  },
+  "Quit-App": {
+    "message": "退出应用",
+    "description": "The text of the Quit-App"
   }
 }

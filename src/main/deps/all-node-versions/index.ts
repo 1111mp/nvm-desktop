@@ -25,11 +25,17 @@ export const allNodeVersions = async (options: Options = {}) => {
   return versionsInfo;
 };
 
-export async function allInstalledNodeVersions(refresh: boolean = false) {
+export async function allInstalledNodeVersions({
+  path,
+  refresh = false,
+}: {
+  path?: string;
+  refresh?: boolean;
+}) {
   if (installedVersions !== void 0 && refresh !== true)
     return installedVersions;
 
-  const versions = await getInstalledVersions();
+  const versions = await getInstalledVersions(path);
 
   installedVersions = versions;
 

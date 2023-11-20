@@ -9,11 +9,13 @@ import en from 'antd/locale/en_US';
 import zhCN from 'antd/locale/zh_CN';
 
 import { applyTheme } from './util';
-import { Themes } from 'types';
+import { Closer, Themes } from 'types';
 
 type StateType = {
   locale: string;
   theme: Themes; // from setting
+  closer: Closer;
+  directory: string; // node installation directory
   sysTheme: Themes; // system real theme
   mirror: string;
   messages: I18n.Message;
@@ -30,7 +32,7 @@ type StateAction = {
 };
 
 export default function App() {
-  const { locale, theme, mirror, localeMessages } =
+  const { locale, theme, closer, directory, mirror, localeMessages } =
     window.Context.getSettingData();
 
   const [state, dispatch] = useReducer(
@@ -49,6 +51,8 @@ export default function App() {
     {
       locale,
       theme: theme,
+      closer,
+      directory,
       sysTheme: window.Context.getSystemTheme() as Themes,
       mirror,
       messages: localeMessages,
@@ -100,7 +104,7 @@ export default function App() {
         payload: { ...state, ...setting, messages },
       });
     },
-    [state.locale, state.theme, state.mirror],
+    [state.locale, state.theme, state.directory, state.mirror],
   );
 
   const getMessage = useCallback<I18nFn>(
@@ -177,6 +181,8 @@ export default function App() {
         value={{
           locale: state.locale,
           theme: state.theme,
+          closer: state.closer,
+          direction: state.directory,
           mirror: state.mirror,
           getMessage,
           onUpdateSetting,

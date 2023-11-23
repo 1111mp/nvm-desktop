@@ -14,7 +14,7 @@ import { app } from 'electron';
 
 import { APPDIR, BIN_DIR, MIRRATION_FILE } from '../constants';
 
-const CURRENT_MIGRATION_VERSION: number = 5;
+const CURRENT_MIGRATION_VERSION: number = 6;
 
 export async function updateSchema() {
   const schemaVersion = await getSchemaVersion();
@@ -85,9 +85,11 @@ async function updateToSchemaVersionDefault(version: number) {
 
   await copy(sourceFile, targetFile).catch((_err) => {});
 
-  ['node', 'npm', 'npx', 'corepack'].forEach((name) => {
-    symlink(targetFile, join(BIN_DIR, name));
-  });
+  await Promise.all(
+    ['node', 'npm', 'npx', 'corepack'].map((name) =>
+      symlink(targetFile, join(BIN_DIR, name)),
+    ),
+  );
 
   setSchemaVersion(CURRENT_MIGRATION_VERSION);
   return;

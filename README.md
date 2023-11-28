@@ -4,17 +4,18 @@
 
 # Node Version Manager Desktop
 
-`nvm-desktop` is a desktop application to manage multiple active node.js versions. With this applications, you can quickly install and use different versions of node.
+`nvm-desktop` is a desktop application to manage multiple active Node.js versions. With this applications, you can quickly install and use different versions of Node.js.
 
-Now you can individually select the version of Node you want for your project.
+**Now you can set the Node.js version for your project individually**.
 
-The ability to intelligently identify the correct Node engine is powered by [nvmd-command](https://github.com/1111mp/nvmd-command). It’s a single, fast native executable, with no external dependencies, build with Rust.
+The ability to intelligently identify the correct Node.js version is powered by [nvmd-command](https://github.com/1111mp/nvmd-command). It’s a single, fast native executable, with no external dependencies, build with Rust.
 
 English | [简体中文](https://github.com/1111mp/nvm-desktop/blob/main/README-zh_CN.md)
 
 ## Table of Contents
 
 - [Screenshot](#screenshot)
+- [Maybe somethings you need to know](#maybe-somethings-you-need-to-know)
 - [Command tools intro](#command-tools-intro)
 - [Install](#install)
   - [Download](#download)
@@ -34,20 +35,110 @@ English | [简体中文](https://github.com/1111mp/nvm-desktop/blob/main/README-
 <img width="1060" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/45f4c613-2d17-4804-bc83-ac07260bc6c0">
 <img width="1048" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/757525bc-489d-4611-b957-c780fa9bfab5">
 
+## Maybe somethings you need to know
+
+All the files related to `nvm-desktop` are located in the `"$HOME/.nvmd/"` directory:
+
+- `"bin/"`(floder) **All the shims of the Node.js are stored**. The path `"$HOME/.nvmd/bin` needs to be added to the environment variable of the system.
+
+  | macOS        | Windows                      |
+  | :---:        | :---:                        |
+  | `nvmd`       | `nvmd.exe`                   |
+  | `node`       | `node.exe`                   |
+  | `npm`        | `npm.exe npm.cmd`            |
+  | `npx`        | `npx.exe npx.cmd`            |
+  | `corepack`   | `corepack.exe corepack.cmd`  |
+
+- `"versions/"`(floder) **It stores all downloaded Node.js version files, and the floder is usually named with the Node.js version number**. For example: `"$HOME/.nvmd/versions/21.2.0/"`.
+- `"default"`(file) **The file contains the version number of the node that is set globally**, for example: `21.2.0`.
+- `"migration"`(file) Every time `nvm-desktop` is upgraded, it will control the execution of script code based on this file.
+- `"setting.json"`(file) **It stores information about the nvm-desktop settings center**, such as `Theme, Language, Mirror Url`, etc.
+  ```json
+  {
+    "locale": "en",
+    "theme": "system",
+    "closer": "minimize",
+    "directory": "/Users/********/.nvmd/versions",
+    "mirror": "https://nodejs.org/dist"
+  }
+  ```
+- `"projects.json"`(file) **Saves all added projects**.
+  ```json
+  [
+    {
+      "name": "nvm-desktop",
+      "path": "/Users/********/Documents/Electron/nvm-desktop",
+      "version": "20.6.1",
+      "active": true,
+      "createAt": "2023-11-25T04:07:43.012Z",
+      "updateAt": "2023-11-25T04:07:44.931Z"
+    },
+    {
+      "name": "electron_client",
+      "path": "/Users/********/Documents/projects/electron_client",
+      "version": "20.6.1",
+      "active": true,
+      "createAt": "2023-11-25T04:07:35.172Z",
+      "updateAt": "2023-11-25T04:07:37.234Z"
+    }
+  ]
+  ```
+- `"packages.json"`(file) **Information about the installation of the `npm` global package is saved**. For more information, please check [how-does-it-work](https://github.com/1111mp/nvmd-command#how-does-it-work).
+- `"versions.json"`(file) Cache details of all Node.js versions requested from `"https://nodejs.org/dist"`(default).
+  ```json
+  [
+    {
+      "version": "v21.2.0",
+      "date": "2023-11-14",
+      "files": [
+        "aix-ppc64",
+        "headers",
+        "linux-arm64",
+        "linux-armv7l",
+        "linux-ppc64le",
+        "linux-s390x",
+        "linux-x64",
+        "osx-arm64-tar",
+        "osx-x64-pkg",
+        "osx-x64-tar",
+        "src",
+        "win-arm64-7z",
+        "win-arm64-zip",
+        "win-x64-7z",
+        "win-x64-exe",
+        "win-x64-msi",
+        "win-x64-zip",
+        "win-x86-7z",
+        "win-x86-exe",
+        "win-x86-msi",
+        "win-x86-zip"
+      ],
+      "npm": "10.2.3",
+      "v8": "11.8.172.17",
+      "uv": "1.46.0",
+      "zlib": "1.2.13.1-motley",
+      "openssl": "3.0.12+quic",
+      "modules": "120",
+      "lts": false,
+      "security": false
+    },
+  ]
+  ```
+
 ## Command tools intro
 
-You can also manage all versions of node directly from the command line. The `nvmd` does not provide the node download and installation functions. If you need to download and install a new version of node, you should open the `nvm-desktop` application.
+You can also manage all versions of Node.js directly from the command line. The `nvmd` does not provide the Node.js download and installation functions. If you need to download and install a new version of Node.js, you should open the `nvm-desktop` application.
 
-`nvmd` allows you to quickly manage different versions of node via the command line.
+`nvmd` allows you to quickly manage different versions of Node.js via the command line.
 
 ```shell
 $ nvmd use 18.17.1
-Now using node v18.17.1
-$ node -v
+Now using Node.js v18.17.1
+$ Node.js -v
 v18.17.1
 $ nvmd use v20.5.1 --project
-Now using node v20.5.1
-$ node -v
+Now using Node.js v20.5.1
+$ Node.js -v
 v20.5.1
 $ nvmd ls
 v20.6.1
@@ -62,7 +153,6 @@ v20.5.1
 ```shell
 $ nvmd --help
 nvmd (2.2.0)
-The1111mp@outlook.com
 command tools for nvm-desktop
 
 Usage: nvmd [COMMAND]
@@ -108,11 +198,13 @@ The automatic update function of the application is currently only supported on 
   export NVMD_DIR="$HOME/.nvmd"
   export PATH="$NVMD_DIR/bin:$PATH"
   ```
+
   The default file might be:
-    - .zshrc
-    - .bashrc
-    - .bash_profile
-    - .profile
+
+  - .zshrc
+  - .bashrc
+  - .bash_profile
+  - .profile
 
 ### Windows Uninstall
 

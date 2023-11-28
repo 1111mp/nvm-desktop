@@ -15,6 +15,7 @@
 ## 目录
 
 - [截图](#截图)
+- [一些或许你需要知道的事情](#一些或许你需要知道的事情)
 - [命令行工具](#命令行工具)
 - [安装](#安装)
   - [下载](#下载)
@@ -33,6 +34,96 @@
 
 <img width="1060" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/45f4c613-2d17-4804-bc83-ac07260bc6c0">
 <img width="1048" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/757525bc-489d-4611-b957-c780fa9bfab5">
+
+## 一些或许你需要知道的事情
+
+所有与`nvm-desktop`相关的文件都保存在`"$HOME/.nvmd/"`目录下：
+
+- `"bin/"`(文件夹) **保存着所有 Node.js 可执行文件的垫片**。 目录 `"$HOME/.nvmd/bin` 需要添加到系统的环境变量里面。
+
+  | macOS        | Windows                      |
+  | :---:        | :---:                        |
+  | `nvmd`       | `nvmd.exe`                   |
+  | `node`       | `node.exe`                   |
+  | `npm`        | `npm.exe npm.cmd`            |
+  | `npx`        | `npx.exe npx.cmd`            |
+  | `corepack`   | `corepack.exe corepack.cmd`  |
+
+- `"versions/"`(文件夹) **保存着所有下载的 Node.js 版本的文件，文件名一般以 Node.js 的版本号为**。 例如： `"$HOME/.nvmd/versions/21.2.0"`.
+- `"default"`(文件) **文件内容为全局设置 Node.js 版本的版本号**， 例如： `21.2.0`.
+- `"migration"`(文件) `nvm-desktop` 每次升级时都会根据这个文件来控制脚本代码的执行。
+- `"setting.json"`(文件) **保存着 `nvm-desktop` 设置中心的设置信息**， 比如 `Theme, Language, Mirror Url` 等。
+  ```json
+  {
+    "locale": "en",
+    "theme": "system",
+    "closer": "minimize",
+    "directory": "/Users/********/.nvmd/versions",
+    "mirror": "https://nodejs.org/dist"
+  }
+  ```
+- `"projects.json"`(文件) **保存着所有添加过的项目的信息**。
+  ```json
+  [
+    {
+      "name": "nvm-desktop",
+      "path": "/Users/********/Documents/Electron/nvm-desktop",
+      "version": "20.6.1",
+      "active": true,
+      "createAt": "2023-11-25T04:07:43.012Z",
+      "updateAt": "2023-11-25T04:07:44.931Z"
+    },
+    {
+      "name": "electron_client",
+      "path": "/Users/********/Documents/projects/electron_client",
+      "version": "20.6.1",
+      "active": true,
+      "createAt": "2023-11-25T04:07:35.172Z",
+      "updateAt": "2023-11-25T04:07:37.234Z"
+    }
+  ]
+  ```
+- `"packages.json"`(文件) **保存着 npm 全局安装的包的相关的信息**。 更多信息请查看 [how-does-it-work](https://github.com/1111mp/nvmd-command#how-does-it-work).
+- `"versions.json"`(文件) 保存着从 `"https://nodejs.org/dist"`（默认） 请求过来的所有的 Node.js  的版本的信息。
+  ```json
+  [
+    {
+      "version": "v21.2.0",
+      "date": "2023-11-14",
+      "files": [
+        "aix-ppc64",
+        "headers",
+        "linux-arm64",
+        "linux-armv7l",
+        "linux-ppc64le",
+        "linux-s390x",
+        "linux-x64",
+        "osx-arm64-tar",
+        "osx-x64-pkg",
+        "osx-x64-tar",
+        "src",
+        "win-arm64-7z",
+        "win-arm64-zip",
+        "win-x64-7z",
+        "win-x64-exe",
+        "win-x64-msi",
+        "win-x64-zip",
+        "win-x86-7z",
+        "win-x86-exe",
+        "win-x86-msi",
+        "win-x86-zip"
+      ],
+      "npm": "10.2.3",
+      "v8": "11.8.172.17",
+      "uv": "1.46.0",
+      "zlib": "1.2.13.1-motley",
+      "openssl": "3.0.12+quic",
+      "modules": "120",
+      "lts": false,
+      "security": false
+    },
+  ]
+  ```
 
 ## 命令行工具
 
@@ -62,7 +153,6 @@ v20.5.1
 ```shell
 $ nvmd --help
 nvmd (2.2.0)
-The1111mp@outlook.com
 command tools for nvm-desktop
 
 Usage: nvmd [COMMAND]

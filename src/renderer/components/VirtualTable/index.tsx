@@ -130,15 +130,17 @@ export const VirtualTable = <RecordType extends object>(
         setTableWidth(width);
       }}
     >
-      <Table
-        {...props}
-        className="virtual-table"
-        columns={mergedColumns}
-        pagination={false}
-        components={{
-          body: renderVirtualList,
-        }}
-      />
+      <div>
+        <Table
+          {...props}
+          className="virtual-table"
+          columns={mergedColumns}
+          pagination={false}
+          components={{
+            body: renderVirtualList,
+          }}
+        />
+      </div>
     </ResizeObserver>
   );
 };

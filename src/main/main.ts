@@ -124,8 +124,8 @@ const createWindow = async (code?: number) => {
           ? '#000000'
           : '#ffffff'
         : setting.theme === Themes.Dark
-        ? '#000000'
-        : '#ffffff',
+          ? '#000000'
+          : '#ffffff',
     webPreferences: {
       preload: app.isPackaged
         ? join(__dirname, 'preload.js')
@@ -182,6 +182,10 @@ const createWindow = async (code?: number) => {
  */
 
 app.on('window-all-closed', () => {
+  if (setting.closer == Closer.Minimize) {
+    platform !== 'win32' && app.dock.hide();
+  }
+
   if (setting.closer === Closer.Close) {
     app.quit();
   }

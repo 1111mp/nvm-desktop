@@ -1,7 +1,7 @@
 {
   "name": "nvm-desktop",
   "productName": "NVM-Desktop",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "A desktop client for manage the version of Nodejs.",
   "license": "MIT",
   "main": "./dist/main/main.js",

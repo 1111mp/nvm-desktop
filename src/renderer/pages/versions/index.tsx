@@ -298,7 +298,9 @@ const Versions: React.FC = () => {
                         ]);
                         setCurrent(currentVersion);
                         setInstalledVersions(versions);
-                        message.success('Successful');
+                        message.success(
+                          i18n('Tip-Uninstall', [record.version]),
+                        );
                         return;
                       }
                       default:

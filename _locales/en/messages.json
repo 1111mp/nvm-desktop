@@ -243,6 +243,10 @@
     "message": "Now using node $version$",
     "description": "The text of the Restart-Terminal"
   },
+  "Tip-Uninstall": {
+    "message": "The node $version$ has been successfully uninstalled",
+    "description": "The text of the Tip-Uninstall"
+  },
   "Tip-Finally": {
     "message": "For more information about this issue and possible workarounds, please",
     "description": "The text of the Tip-Finally"
@@ -368,7 +372,7 @@
     "description": "The text of the Whats-new"
   },
   "Refresh-successful": {
-    "message": "Refresh successful",
+    "message": "The latest data has been synchronized",
     "description": "The text of the Refresh-successful"
   },
   "Command-Tip-Project": {

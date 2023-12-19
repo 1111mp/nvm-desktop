@@ -218,7 +218,9 @@ export const Component: React.FC = () => {
                             installeds.includes(version.slice(1)),
                           ),
                         );
-                        message.success('Successful');
+                        message.success(
+                          i18n('Tip-Uninstall', [record.version]),
+                        );
                       } catch (err) {
                         message.error(
                           err.message

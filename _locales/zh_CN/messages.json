@@ -243,6 +243,10 @@
     "message": "现在使用 $version$ 版本",
     "description": "The text of the Restart-Terminal"
   },
+  "Tip-Uninstall": {
+    "message": "$version$ 版本已经成功被卸载",
+    "description": "The text of the Tip-Uninstall"
+  },
   "Tip-Finally": {
     "message": "有关此问题和可能的解决方法的详细信息，请",
     "description": "The text of the Tip-Finally"
@@ -368,7 +372,7 @@
     "description": "The text of the Whats-new"
   },
   "Refresh-successful": {
-    "message": "刷新成功",
+    "message": "已同步最新数据",
     "description": "The text of the Refresh-successful"
   },
   "Command-Tip-Project": {

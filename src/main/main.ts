@@ -453,6 +453,8 @@ Promise.resolve().then(() => {
         gt(version2, version1) ? 1 : -1,
       );
 
+      buildTray();
+
       return versions;
     },
   );

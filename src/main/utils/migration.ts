@@ -1,5 +1,5 @@
 import { exec } from 'node:child_process';
-import { platform } from 'node:process';
+import { platform, arch } from 'node:process';
 import { join } from 'node:path';
 import {
   pathExists,
@@ -36,8 +36,8 @@ async function updateToSchemaVersionDefault(version: number) {
     await setNvmdToPathForWindows();
 
     const exeSourceFile = app.isPackaged
-      ? join(process.resourcesPath, 'assets', 'sources', 'nvmd.exe')
-      : join(__dirname, '../../..', 'assets', 'sources', 'nvmd.exe');
+      ? join(process.resourcesPath, 'assets', 'sources', `${arch}.exe`)
+      : join(__dirname, '../../..', 'assets', 'sources', `${arch}.exe`);
     const cmdSourceFile = app.isPackaged
       ? join(process.resourcesPath, 'assets', 'sources', 'temp.cmd')
       : join(__dirname, '../../..', 'assets', 'sources', 'temp.cmd');
@@ -119,8 +119,8 @@ async function updateToSchemaVersionLast(version: number) {
   await remove(targetFile);
 
   const sourceFile = app.isPackaged
-    ? join(process.resourcesPath, 'assets', 'sources', 'nvmd.exe')
-    : join(__dirname, '../../..', 'assets', 'sources', 'nvmd.exe');
+    ? join(process.resourcesPath, 'assets', 'sources', `${arch}.exe`)
+    : join(__dirname, '../../..', 'assets', 'sources', `${arch}.exe`);
   await copy(sourceFile, targetFile).catch((_err) => {});
 
   async function updateFile(fileName: string) {

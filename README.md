@@ -217,7 +217,9 @@ The automatic update function of the application is currently only supported on 
 `nvm-desktop` relies on `nvmd-command` to provide intelligent identification of the correct Node engine service, so you need to build an executable file locally. How to build the executable for `nvm-desktop` please check this document: [build-nvmd-command](https://github.com/1111mp/nvmd-command#build-nvmd-command).
 
 - First, Build an executable for `nvm-desktop`.
-- Copy the executable to this directory of nvm-desktop: `./assets/sources/nvmd` (`./assets/sources/nvmd.exe` on Windows).
+- Copy the executable to this directory of nvm-desktop:
+  - macOS `"./assets/sources/nvmd"`
+  - Windows `"./assets/sources/{arch}.exe"`, example: `"./assets/sources/x64.exe"` & `"./assets/sources/arm64.exe"`
 - On Windows platform, you also need to add an additional script file named `temp.cmd` in the `./assets/sources/temp.cmd` directory. The content of the `temp.cmd` file is:
 
 ```shell

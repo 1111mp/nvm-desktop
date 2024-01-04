@@ -215,7 +215,9 @@ Please download new version of Node.js in nvm-desktop.
 `nvm-desktop` 依赖 `nvmd-command` 提供智能识别正确 Node 引擎版本的功能，所以你需要在本地提前为 `nvm-desktop` 构建一个可执行文件。关于如何构建 `nvmd-command` 的可执行文件，请查看此文档： [build-nvmd-command](https://github.com/1111mp/nvmd-command#build-nvmd-command).
 
 - 首先提前为 `nvm-desktop` 构建一个可执行文件
-- 将这个可执行文件复制到 `nvm-desktop` 的指定目录下：`./assets/sources/nvmd` (`./assets/sources/nvmd.exe` 在 Windows 上).
+- 将这个可执行文件复制到 `nvm-desktop` 的指定目录下：
+  - macOS `"./assets/sources/nvmd"`
+  - Windows `"./assets/sources/{arch}.exe"`, 例如: `"./assets/sources/x64.exe"` & `"./assets/sources/arm64.exe"`
 - 在 Windows 平台，你还需要添加一个名为 `temp.cmd` 的文件到指定目录： `./assets/sources/temp.cmd`， `temp.cmd` 文件的内容为:
 
 ```shell

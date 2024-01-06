@@ -206,7 +206,7 @@
           ]
         }
       ],
-      "requestedExecutionLevel": "requireAdministrator"
+      "requestedExecutionLevel": "highestAvailable"
     },
     "linux": {
       "target": [

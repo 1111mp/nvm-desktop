@@ -4,7 +4,7 @@ import { createWriteStream } from 'node:fs';
 import fetchNodeWebsite from '../fetch-node-website';
 import { checkChecksum } from './checksum';
 
-import type { Request } from 'got-cjs';
+import type { Request } from 'got';
 import type { Options as FetchNodeOptions } from '../fetch-node-website';
 
 // Make HTTP request to retrieve a Node.js binary.

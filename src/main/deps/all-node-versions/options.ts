@@ -1,4 +1,4 @@
-import type { Delays } from 'got-cjs';
+import type { Delays } from 'got';
 import type { Options as FetchNodeWebsiteOptions } from '../fetch-node-website';
 
 export interface Options {

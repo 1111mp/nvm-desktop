@@ -1,10 +1,10 @@
 export enum Themes {
   System = 'system',
   Light = 'light',
-  Dark = 'dark',
+  Dark = 'dark'
 }
 
 export enum Closer {
   Minimize = 'minimize',
-  Close = 'close',
+  Close = 'close'
 }

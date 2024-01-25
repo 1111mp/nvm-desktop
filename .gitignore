@@ -21,6 +21,8 @@ package-lock.json
 # OSX
 .DS_Store
 
+out/
+dist/
 release/app/dist
 release/build
 .erb/dll

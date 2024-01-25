@@ -2,10 +2,10 @@
  * https://github.com/ehmicky/fetch-node-website
  */
 
-import { got } from 'got-cjs';
+import { got } from 'got';
 import { getDefaultMirror } from './mirror';
 
-import type { Request, Delays } from 'got-cjs';
+import type { Request, Delays } from 'got';
 
 const LEADING_SLASH_REGEXP = /^\//u;
 

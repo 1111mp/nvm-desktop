@@ -1,6 +1,6 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { Drawer, Steps, Typography } from 'antd';
-import { useAppContext, useI18n } from '@renderer/appContext';
+import { useAppContext, useI18n } from '@src/renderer/src/app-context';
 
 export type Ref = {
   show: () => void;

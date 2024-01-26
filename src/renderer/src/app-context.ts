@@ -1,5 +1,5 @@
-import { createContext, useContext } from 'react';
-import { Closer, Themes } from '@src/types';
+import { createContext, useContext } from "react";
+import { Closer, Themes } from "@src/types";
 
 type AppContextType = {
   locale: string;
@@ -17,7 +17,7 @@ type ReplacementValuesType = {
 
 export type I18nFn = (
   key: string,
-  substitutions?: Array<string | number> | ReplacementValuesType,
+  substitutions?: Array<string | number> | ReplacementValuesType
 ) => string;
 
 export const AppContext = createContext<AppContextType | null>(null);
@@ -26,9 +26,7 @@ export function useAppContext() {
   const context = useContext(AppContext);
   if (!context) {
     // this is especially useful in TypeScript so you don't need to be checking for null all the time
-    throw new Error(
-      'You have forgot to use AppContext.Provider, shame on you.',
-    );
+    throw new Error("You have forgot to use AppContext.Provider, shame on you.");
   }
   return context;
 }

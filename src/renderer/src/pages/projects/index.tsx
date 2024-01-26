@@ -20,7 +20,7 @@ import {
   SisternodeOutlined
 } from "@ant-design/icons";
 
-import { useAppContext, useI18n } from "@renderer/appContext";
+import { useAppContext, useI18n } from "@src/renderer/src/app-context";
 
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { ColumnsType } from "antd/es/table";

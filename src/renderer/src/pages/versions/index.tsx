@@ -13,7 +13,7 @@ import {
 } from "@ant-design/icons";
 import { VirtualTable } from "@renderer/components/VirtualTable";
 import { InfoModal } from "./modal";
-import { useI18n, useAppContext } from "@renderer/appContext";
+import { useI18n, useAppContext } from "@src/renderer/src/app-context";
 
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";

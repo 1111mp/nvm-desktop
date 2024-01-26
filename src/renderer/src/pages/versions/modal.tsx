@@ -6,7 +6,7 @@ import {
   useRef,
 } from 'react';
 import { App, Button, Descriptions, Progress, Modal, Typography } from 'antd';
-import { useI18n } from '@renderer/appContext';
+import { useI18n } from '@src/renderer/src/app-context';
 import { v4 as uuidv4 } from 'uuid';
 
 export type Ref = {

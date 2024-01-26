@@ -9,7 +9,7 @@ import {
   CloseCircleFilled,
   DownCircleFilled,
 } from '@ant-design/icons';
-import { useI18n, useAppContext } from '@renderer/appContext';
+import { useI18n, useAppContext } from '@src/renderer/src/app-context';
 
 import dayjs from 'dayjs';
 import { useColumnSearchProps } from '@renderer/hooks';

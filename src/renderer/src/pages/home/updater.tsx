@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { App, Button, Descriptions, Modal, Popover, Progress } from "antd";
 import { CloudSyncOutlined } from "@ant-design/icons";
-import { useI18n } from "@renderer/appContext";
+import { useI18n } from "@src/renderer/src/app-context";
 
 import dayjs from "dayjs";
 

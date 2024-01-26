@@ -39,7 +39,7 @@ $color-black: #000000;
 }
 
 @mixin dark-theme() {
-  .dark-theme & {
+  .dark & {
     @content;
   }
 }

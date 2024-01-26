@@ -1,36 +1,38 @@
-import { createMemoryRouter } from 'react-router-dom';
+import { createMemoryRouter } from "react-router-dom";
 
-import Home from './pages/home';
-import { ErrorBoundary } from './components/ErrorBoundary';
-import { VersionsRoute, loader as VersionsLoader } from './pages/versions';
+import Home from "./pages/home";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { VersionsRoute, loader as VersionsLoader } from "./pages/versions";
 
-import type { RouteObject } from 'react-router-dom';
+import type { RouteObject } from "react-router-dom";
 
 const routes: RouteObject[] = [
   {
-    path: '/',
+    path: "/",
     element: <Home />,
     children: [
       {
-        path: 'all',
+        path: "all",
         loader: VersionsLoader,
         element: <VersionsRoute />,
-        errorElement: <ErrorBoundary />,
+        errorElement: <ErrorBoundary />
       },
       {
-        path: 'installed',
-        lazy: () => import('./pages/installed'),
-        errorElement: <ErrorBoundary />,
+        path: "installed",
+        lazy: () => import("./pages/installed"),
+        errorElement: <ErrorBoundary />
       },
       {
-        path: 'projects',
-        lazy: () => import('./pages/projects'),
-        errorElement: <ErrorBoundary />,
-      },
-    ],
-  },
+        path: "projects",
+        lazy: () => import("./pages/projects"),
+        errorElement: <ErrorBoundary />
+      }
+    ]
+  }
 ];
 
-export const router = createMemoryRouter(routes, {
-  initialEntries: ['/all'],
+const router: ReturnType<typeof createMemoryRouter> = createMemoryRouter(routes, {
+  initialEntries: ["/all"]
 });
+
+export { router };

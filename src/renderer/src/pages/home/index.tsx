@@ -11,7 +11,7 @@ import {
   MinusOutlined,
 } from '@ant-design/icons';
 import { Updater } from './updater';
-import { useI18n, useAppContext } from '@renderer/appContext';
+import { useI18n, useAppContext } from '@src/renderer/src/app-context';
 
 import type { TourProps } from 'antd';
 import type { Ref as TipRef } from './tip';

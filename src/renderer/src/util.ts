@@ -1,22 +1,23 @@
-import semver from 'semver';
-import { Themes } from '@src/types';
+import semver from "semver";
+import { Themes } from "@src/types";
 
 export function applyTheme(theme: Themes) {
-  if (window.document.body.classList.contains(`${theme}-theme`)) return;
+  const root = window.document.documentElement;
 
-  window.document.body.classList.remove('dark-theme');
-  window.document.body.classList.remove('light-theme');
-  window.document.body.classList.add(`${theme}-theme`);
+  if (root.classList.contains(theme)) return;
+
+  root.classList.remove("light", "dark");
+  root.classList.add(theme);
 }
 
 export function checkSupportive(files: string[]): boolean {
   const { platform, arch } = window.Context;
   const name =
-    platform === 'darwin'
+    platform === "darwin"
       ? `osx-${arch}`
-      : platform === 'win32'
-      ? `win-${arch}`
-      : `${platform}-${arch}`;
+      : platform === "win32"
+        ? `win-${arch}`
+        : `${platform}-${arch}`;
 
   return !!files.find((file) => file.includes(name));
 }

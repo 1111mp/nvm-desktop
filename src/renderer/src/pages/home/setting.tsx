@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from 'antd';
 import { EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { useAppContext, useI18n } from '@renderer/appContext';
+import { useAppContext, useI18n } from '@src/renderer/src/app-context';
 import { Closer, Themes } from '@src/types';
 
 export type Ref = {

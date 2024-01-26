@@ -12,5 +12,5 @@
     "transpileOnly": true,
     "files": true
   },
-  "include": ["src/__tests__/**/*.spec.ts"]
+  "include": ["src/__tests__/**/*.spec.ts", "src/preload/preload.d.ts"]
 }

@@ -16,7 +16,6 @@ describe("Electron APIs", () => {
   describe("IPC Renderer", () => {
     describe("get-system-theme", () => {
       it("should return the value of system theme", async () => {
-        // @ts-ignore
         const theme = await browser.execute(() => window.Context.getSystemTheme());
 
         expect(theme).toHaveText(["light", "dark"]);
@@ -25,7 +24,6 @@ describe("Electron APIs", () => {
 
     describe("setting-data-get", () => {
       it("should return the value of setting", async () => {
-        // @ts-ignore
         const setting = await browser.execute(() => window.Context.getSettingData());
 
         expect(setting).toBeDefined();

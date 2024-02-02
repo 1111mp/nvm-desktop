@@ -338,7 +338,7 @@ export const Component: React.FC = () => {
           <div className="flex items-center gap-2">
             <DataTableToolbar table={table} options={statuses} />
             <Button size="sm" loading={loading} icon={<ReloadIcon />} onClick={onPageReload}>
-              Page Reload
+              {i18n("Page-Reload")}
             </Button>
           </div>
         )}

@@ -318,7 +318,7 @@ const controllers = new Map<string, AbortController>();
 
 // defer actions
 Promise.resolve().then(() => {
-  if (platform === "win32") {
+  if (platform !== "darwin") {
     ipcMain.on("window:close", (_event) => {
       mainWindow && mainWindow.close();
     });

@@ -10,6 +10,7 @@ import {
 } from "@renderer/components/ui";
 import { CookieIcon, InfoCircledIcon } from "@radix-ui/react-icons";
 import { useAppContext, useI18n } from "@src/renderer/src/app-context";
+import { toast } from "sonner";
 
 export function Tip() {
   const { locale } = useAppContext();
@@ -292,6 +293,7 @@ export function Tip() {
               icon={<CookieIcon />}
               onClick={() => {
                 localStorage.removeItem("nvmd-first");
+                toast.success(i18n("Tour-Tip"));
               }}
             >
               {i18n("Tour-Text")}

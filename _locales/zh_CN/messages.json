@@ -414,5 +414,17 @@
   "Tour-Text": {
     "message": "点我以下次运行漫游式引导",
     "description": "The text of the Tour-Text"
+  },
+  "Page-Reload": {
+    "message": "页面刷新",
+    "description": "The text of the Page-Reload"
+  },
+  "Data-Update": {
+    "message": "更新数据",
+    "description": "The text of the Data-Update"
+  },
+  "Tour-Tip": {
+    "message": "操作成功，下次打开客户端时将会运行漫游式引导",
+    "description": "The text of the Tour-Tip"
   }
 }

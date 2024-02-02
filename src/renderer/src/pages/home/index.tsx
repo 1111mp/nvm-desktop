@@ -3,6 +3,7 @@ import "./intro.css";
 import { useState, useEffect, useMemo } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import {
+  Button,
   NavigationMenu,
   NavigationMenuItem,
   NavigationMenuLink,
@@ -10,7 +11,7 @@ import {
   navigationMenuTriggerStyle
 } from "@renderer/components/ui";
 import { ThemeCustomizer } from "@renderer/components/theme-customizer";
-import { RocketIcon, HeartIcon, FaceIcon } from "@radix-ui/react-icons";
+import { RocketIcon, HeartIcon, FaceIcon, MinusIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { Updater } from "./updater";
 import { Setting } from "./setting";
 import { Tip } from "./tip";
@@ -346,39 +347,106 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <header className="flex items-center pt-2 pr-3 justify-between pl-24 select-none [-webkit-app-region:drag]">
-        <NavigationMenu>
-          <NavigationMenuList className="[-webkit-app-region:no-drag]">
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link to="/all" className={linkStyle} data-active={pathname === "/all"}>
-                  {i18n("Versions")}
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link to="/installed" className={linkStyle} data-active={pathname === "/installed"}>
-                  {i18n("Installed")}
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem className="nvmd-project">
-              <NavigationMenuLink asChild>
-                <Link to="/projects" className={linkStyle} data-active={pathname === "/projects"}>
-                  {i18n("Projects")}
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-        <div className="flex items-center [-webkit-app-region:no-drag]">
-          {platform === "win32" ? <Updater /> : null}
-          <ThemeCustomizer />
-          <Tip />
-          <Setting />
-        </div>
-      </header>
+      {platform === "darwin" ? (
+        <header className="flex items-center pt-2 pr-3 justify-between pl-24 select-none [-webkit-app-region:drag]">
+          <NavigationMenu>
+            <NavigationMenuList className="[-webkit-app-region:no-drag]">
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link to="/all" className={linkStyle} data-active={pathname === "/all"}>
+                    {i18n("Versions")}
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link
+                    to="/installed"
+                    className={linkStyle}
+                    data-active={pathname === "/installed"}
+                  >
+                    {i18n("Installed")}
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem className="nvmd-project">
+                <NavigationMenuLink asChild>
+                  <Link to="/projects" className={linkStyle} data-active={pathname === "/projects"}>
+                    {i18n("Projects")}
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+          <div className="flex items-center [-webkit-app-region:no-drag]">
+            <ThemeCustomizer />
+            <Tip />
+            <Setting />
+          </div>
+        </header>
+      ) : (
+        <header className="flex items-center pt-2 px-3 justify-between select-none [-webkit-app-region:drag]">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 [-webkit-app-region:no-drag]">
+              <Button
+                size="sm"
+                variant="secondary"
+                icon={<Cross2Icon />}
+                onClick={() => {
+                  window.Context.windowClose();
+                }}
+              ></Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                icon={<MinusIcon />}
+                onClick={() => {
+                  window.Context.windowMinimize();
+                }}
+              />
+            </div>
+            <NavigationMenu>
+              <NavigationMenuList className="[-webkit-app-region:no-drag]">
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link to="/all" className={linkStyle} data-active={pathname === "/all"}>
+                      {i18n("Versions")}
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      to="/installed"
+                      className={linkStyle}
+                      data-active={pathname === "/installed"}
+                    >
+                      {i18n("Installed")}
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem className="nvmd-project">
+                  <NavigationMenuLink asChild>
+                    <Link
+                      to="/projects"
+                      className={linkStyle}
+                      data-active={pathname === "/projects"}
+                    >
+                      {i18n("Projects")}
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
+          <div className="flex items-center [-webkit-app-region:no-drag]">
+            {platform === "win32" ? <Updater /> : null}
+            <ThemeCustomizer />
+            <Tip />
+            <Setting />
+          </div>
+        </header>
+      )}
       <main className="px-6 py-4 flex-1 overflow-hidden">
         <Outlet />
       </main>

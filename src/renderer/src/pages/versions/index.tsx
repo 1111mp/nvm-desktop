@@ -437,7 +437,7 @@ const Versions: React.FC = () => {
                   icon={<ReloadIcon />}
                   onClick={onPageReload}
                 >
-                  Page Reload
+                  {i18n("Page-Reload")}
                 </Button>
                 <Button
                   loading={loading}
@@ -446,7 +446,7 @@ const Versions: React.FC = () => {
                   icon={<UpdateIcon />}
                   onClick={onDataUpdate}
                 >
-                  Data Update
+                  {i18n("Data-Update")}
                 </Button>
               </div>
             </div>

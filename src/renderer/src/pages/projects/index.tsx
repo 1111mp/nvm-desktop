@@ -74,6 +74,7 @@ export const Component: React.FC = () => {
       {
         accessorKey: "sort",
         maxSize: 50,
+        enableHiding: false,
         header: () => null
       },
       {
@@ -247,7 +248,7 @@ export const Component: React.FC = () => {
               <DataTableToolbar table={table} filterName="name" status={false} />
               <div className="flex items-center gap-2">
                 <Button size="sm" loading={loading} icon={<ReloadIcon />} onClick={onPageReload}>
-                  Page Reload
+                  {i18n("Page-Reload")}
                 </Button>
                 <Button size="sm" icon={<FilePlusIcon />} onClick={onAddProject}>
                   {i18n("Add-Project")}

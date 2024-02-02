@@ -2,7 +2,7 @@ import { Button, Label, Popover, PopoverContent, PopoverTrigger } from "./ui";
 import { CheckIcon, ColorWheelIcon } from "@radix-ui/react-icons";
 
 import { cn } from "@renderer/lib/utils";
-import { useAppContext } from "@renderer/app-context";
+import { useAppContext, useI18n } from "@renderer/app-context";
 
 const themes = [
   {
@@ -105,11 +105,12 @@ const themes = [
 
 export function ThemeCustomizer() {
   const { theme: mode, color, setColor } = useAppContext();
+  const i18n = useI18n();
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="theme-customizer" size="sm" title="Color" variant="ghost">
+        <Button className="theme-customizer" size="sm" title={i18n("Theme-Color")} variant="ghost">
           <ColorWheelIcon />
         </Button>
       </PopoverTrigger>
@@ -118,7 +119,7 @@ export function ThemeCustomizer() {
         className="z-40 w-[340px] rounded-[0.5rem] bg-white p-3 dark:bg-zinc-950"
       >
         <div className="space-y-1.5">
-          <Label className="text-xs">Color</Label>
+          <Label className="text-xs">{i18n("Theme-Color")}</Label>
           <div className="grid grid-cols-3 gap-2">
             {themes.map(({ name, label, activeColor }) => {
               const isActive = color === name;

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   ColumnDef,
   flexRender,
@@ -45,7 +45,7 @@ function DraggableRow<TData>({ row, reorderRow }: DraggableRowProps<TData>) {
     drop: (draggedRow: Row<TData>) => reorderRow(draggedRow.index, row.index)
   });
 
-  const [{ isDragging }, dragRef, previewRef] = useDrag({
+  const [, dragRef, previewRef] = useDrag({
     collect: (monitor) => ({
       isDragging: monitor.isDragging()
     }),

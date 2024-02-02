@@ -22,7 +22,7 @@ export default defineConfig({
         }
       }
     },
-    plugins: [del({ targets: ["release/app/dist", "release/build"] }), externalizeDepsPlugin()]
+    plugins: [del({ targets: ["release/app/dist", "release/build"] })]
   },
   preload: {
     build: {

@@ -18,6 +18,7 @@ import { allNodeVersions, allInstalledNodeVersions } from "./deps/all-node-versi
 import getNode from "./deps/get-node";
 import { updateSchema } from "./utils/migration";
 import { getCurrentVersion, setCurrentVersion, uninstallVersion } from "./utils/version";
+import { __dirname } from "./utils/dirname";
 import { setSetting, getSetting } from "./utils/setting";
 import { getProjects, getVersion, syncProjectVersion, updateProjects } from "./utils/projects";
 import { gt } from "semver";

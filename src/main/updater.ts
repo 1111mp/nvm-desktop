@@ -1,43 +1,42 @@
-import { ipcMain } from 'electron';
-import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
+import { ipcMain } from "electron";
+import updater from "electron-updater";
+import log from "electron-log";
 
-import type { BrowserWindow } from 'electron';
+const { autoUpdater } = updater;
+
+import type { BrowserWindow } from "electron";
 
 export class AppUpdater {
   constructor(private readonly mainWindow: BrowserWindow) {
-    log.transports.file.level = 'info';
+    log.transports.file.level = "info";
     autoUpdater.logger = log;
     autoUpdater.autoDownload = false;
 
-    autoUpdater.on('update-available', (info) => {
+    autoUpdater.on("update-available", (info) => {
       // had updates
-      mainWindow?.webContents.send('update-available', info);
+      this.mainWindow?.webContents.send("update-available", info);
     });
 
-    autoUpdater.on('update-not-available', () => {
+    autoUpdater.on("update-not-available", () => {
       // there are no updates
-      mainWindow?.webContents.send(
-        'update-not-available',
-        'update-not-available',
-      );
+      this.mainWindow?.webContents.send("update-not-available", "update-not-available");
     });
 
-    autoUpdater.on('download-progress', (progress) => {
+    autoUpdater.on("download-progress", (progress) => {
       // download progress
-      mainWindow?.webContents.send('download-progress', progress);
+      mainWindow?.webContents.send("download-progress", progress);
     });
 
-    autoUpdater.on('update-downloaded', (evt) => {
+    autoUpdater.on("update-downloaded", (_evt) => {
       // update downloaded
-      ipcMain.once('make-update-now', () => {
+      ipcMain.once("make-update-now", () => {
         autoUpdater.quitAndInstall();
       });
     });
 
-    autoUpdater.on('error', (error) => {
+    autoUpdater.on("error", (error) => {
       // update error
-      mainWindow?.webContents.send('update-error', error);
+      mainWindow?.webContents.send("update-error", error);
     });
 
     // initial
@@ -46,7 +45,7 @@ export class AppUpdater {
   }
 
   checkForUpdates() {
-    ipcMain.handle('check-for-updates', async () => {
+    ipcMain.handle("check-for-updates", async () => {
       try {
         const result = await autoUpdater.checkForUpdates();
 
@@ -58,8 +57,12 @@ export class AppUpdater {
   }
 
   comfirmUpdate() {
-    ipcMain.handle('confirm-update', () => {
+    ipcMain.handle("confirm-update", () => {
       return autoUpdater.downloadUpdate();
     });
+  }
+
+  clearMainBindings() {
+    autoUpdater.removeAllListeners();
   }
 }

@@ -1,7 +1,7 @@
 import { pathExists, readJson, writeJson } from 'fs-extra';
 import { app } from 'electron';
 import { INSTALL_DIR, SETTING_JSONFILE } from '../constants';
-import { Closer, Themes } from '../../types';
+import { Closer, Themes } from '@src/types';
 
 export async function getSetting(): Promise<Nvmd.Setting> {
   if (!(await pathExists(SETTING_JSONFILE)))

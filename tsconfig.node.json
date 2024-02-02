@@ -1,0 +1,13 @@
+{
+  "extends": "@electron-toolkit/tsconfig/tsconfig.node.json",
+  "include": ["@types", "electron.vite.config.*", "src/types.ts", "src/main/**/*", "src/preload/*"],
+  "compilerOptions": {
+    "composite": true,
+    "moduleResolution": "Bundler",
+    "useUnknownInCatchVariables": false,
+    "paths": {
+      "@src/*": ["./src/*"]
+    },
+    "types": ["electron-vite/node"]
+  }
+}

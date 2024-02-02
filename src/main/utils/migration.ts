@@ -147,7 +147,7 @@ async function updateToSchemaVersionLast(version: number) {
 
 async function setNvmdToPathForWindows(): Promise<boolean> {
   return new Promise((resolve) => {
-    exec(`setx -m PATH "${BIN_DIR};%PATH%"`, (err, stdout, stderr) => {
+    exec(`setx -m PATH "${BIN_DIR};%PATH%"`, (err, _stdout, stderr) => {
       if (err) {
         return resolve(false);
       }

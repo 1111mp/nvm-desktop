@@ -398,5 +398,33 @@
   "Quit-App": {
     "message": "Quit App",
     "description": "The text of the Quit-App"
+  },
+  "Theme-Color": {
+    "message": "Theme Color",
+    "description": "The text of the Theme-Color"
+  },
+  "Color-Tip": {
+    "message": "Here you can choose your favorite color as the theme color.",
+    "description": "The text of the Color-Tip"
+  },
+  "Tour": {
+    "message": "Tour",
+    "description": "The text of the Tour"
+  },
+  "Tour-Text": {
+    "message": "Click me to run the onboarding tours",
+    "description": "The text of the Tour-Text"
+  },
+  "Page-Reload": {
+    "message": "Page Reload",
+    "description": "The text of the Page-Reload"
+  },
+  "Data-Update": {
+    "message": "Data Update",
+    "description": "The text of the Data-Update"
+  },
+  "Tour-Tip": {
+    "message": "The operation is successful. The onboarding tours will be run the next time you open the client",
+    "description": "The text of the Tour-Tip"
   }
 }

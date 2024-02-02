@@ -1,49 +1,101 @@
-import { forwardRef, useImperativeHandle, useState, useRef } from 'react';
+import { memo, useState } from "react";
 import {
-  Drawer,
-  Descriptions,
-  Input,
-  Radio,
-  Select,
   Button,
-  Space,
-  Typography,
+  LabelCopyable,
+  RadioGroup,
+  RadioGroupItem,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
   Tooltip,
-} from 'antd';
-import { EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { useAppContext, useI18n } from '@src/renderer/src/app-context';
-import { Closer, Themes } from '@src/types';
+  TooltipContent,
+  TooltipTrigger
+} from "@renderer/components/ui";
+import { GearIcon, InfoCircledIcon, Pencil2Icon } from "@radix-ui/react-icons";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input,
+  Select
+} from "@renderer/components/ui";
 
-export type Ref = {
-  show: () => void;
-};
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { useAppContext, useI18n } from "@src/renderer/src/app-context";
+import { Closer, Themes } from "@src/types";
 
 type Props = {};
 
-const Setting = forwardRef<Ref, Props>(({}, ref) => {
+const formSchema = z.object({
+  locale: z.string(),
+  theme: z.nativeEnum(Themes),
+  closer: z.nativeEnum(Closer),
+  directory: z.string().min(1),
+  mirror: z.string().url({ message: "Invalid url" })
+});
+
+export const Setting: React.FC<Props> = memo(({}) => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const content = useRef<ContentRef>(null);
+  const { locale, theme, closer, directory, mirror, onUpdateSetting } = useAppContext();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      locale,
+      theme,
+      closer,
+      directory,
+      mirror
+    }
+  });
 
   const i18n = useI18n();
 
-  useImperativeHandle(ref, () => ({
-    show: onShow,
-  }));
-
-  const onShow = () => {
-    setOpen(true);
-  };
-
-  const onClose = () => {
-    setOpen(false);
-  };
-
-  const onSubmit = async () => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
+    const {
+      locale: newLocale,
+      theme: newTheme,
+      closer: newCloser,
+      directory: newDirectory,
+      mirror: newMirror
+    } = values;
+    if (
+      locale === newLocale &&
+      theme === newTheme &&
+      closer === newCloser &&
+      directory === newDirectory &&
+      mirror === newMirror
+    ) {
+      setLoading(false);
+      setOpen(false);
+      return;
+    }
+
     try {
-      await content.current?.submit();
+      await onUpdateSetting({
+        locale: newLocale,
+        theme: newTheme,
+        closer: newCloser,
+        directory: newDirectory,
+        mirror: newMirror
+      });
     } finally {
       setLoading(false);
       setOpen(false);
@@ -51,186 +103,198 @@ const Setting = forwardRef<Ref, Props>(({}, ref) => {
   };
 
   return (
-    <Drawer
+    <Sheet
       open={open}
-      width={394}
-      title={i18n('Setting')}
-      closable={false}
-      destroyOnClose
-      footer={
-        <Space>
-          <Button onClick={onClose}>{i18n('Cancel')}</Button>
+      onOpenChange={(open) => {
+        if (!open) form.reset({ locale, theme, closer, directory, mirror });
+        setOpen(open);
+      }}
+    >
+      <SheetTrigger asChild>
+        <Button
+          className="nvmd-setting"
+          size="sm"
+          title={i18n("Setting")}
+          variant="ghost"
+          icon={<GearIcon />}
+        />
+      </SheetTrigger>
+      <SheetContent className="flex flex-col">
+        <SheetHeader>
+          <SheetTitle>{i18n("Setting")}</SheetTitle>
+        </SheetHeader>
+        <div className="flex-1 space-y-6">
+          <Form {...form}>
+            <FormField
+              control={form.control}
+              name="locale"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-muted-foreground">{i18n("Language")}</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-44 h-8">
+                          <SelectValue placeholder="Select a language to display" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="zh-CN">简体中文</SelectItem>
+                        <SelectItem value="en">English</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="theme"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-muted-foreground">{i18n("Themes")}</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex space-x-1"
+                    >
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value={Themes.System} />
+                        </FormControl>
+                        <FormLabel className="font-normal">{i18n("System-Default")}</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value={Themes.Light} />
+                        </FormControl>
+                        <FormLabel className="font-normal">{i18n("Light")}</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value={Themes.Dark} />
+                        </FormControl>
+                        <FormLabel className="font-normal">{i18n("Dark")}</FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="closer"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel className="text-muted-foreground">{i18n("When-Closing")}</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex space-x-1"
+                    >
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value={Closer.Minimize} />
+                        </FormControl>
+                        <FormLabel className="font-normal">{i18n("Minimize-Window")}</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value={Closer.Close} />
+                        </FormControl>
+                        <FormLabel className="font-normal">{i18n("Quit-App")}</FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="directory"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-1 text-muted-foreground">
+                    {i18n("Installation-Directory")}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <InfoCircledIcon className="text-primary cursor-pointer" />
+                      </TooltipTrigger>
+                      <TooltipContent className="w-96 text-accent-foreground bg-accent">
+                        {i18n("Installation-Directory-tip")}
+                      </TooltipContent>
+                    </Tooltip>
+                  </FormLabel>
+                  <FormControl>
+                    <div className="flex items-center justify-between">
+                      <Tooltip delayDuration={700}>
+                        <TooltipTrigger asChild>
+                          <LabelCopyable className="max-w-64 leading-5 truncate">
+                            {field.value}
+                          </LabelCopyable>
+                        </TooltipTrigger>
+                        <TooltipContent className="text-accent-foreground bg-accent">
+                          {field.value}
+                        </TooltipContent>
+                      </Tooltip>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        icon={<Pencil2Icon />}
+                        onClick={async () => {
+                          const { canceled, filePaths } = await window.Context.openFolderSelecter({
+                            title: i18n("Directory-Select")
+                          });
+
+                          if (canceled) return;
+
+                          const [path] = filePaths;
+                          field.onChange(path);
+                        }}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="mirror"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-muted-foreground">{i18n("Mirror-Url")}</FormLabel>
+                  <FormControl>
+                    <Input placeholder="mirror url" {...field} />
+                  </FormControl>
+                  <FormDescription className="flex items-center gap-1">
+                    {i18n("For-example")}:
+                    <LabelCopyable>https://npmmirror.com/mirrors/node</LabelCopyable>
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </Form>
+        </div>
+        <SheetFooter>
+          <SheetClose asChild>
+            <Button variant="secondary">{i18n("Cancel")}</Button>
+          </SheetClose>
           <Button
-            type="primary"
             data-testid="setting-submit"
             loading={loading}
-            onClick={onSubmit}
+            onClick={form.handleSubmit(onSubmit)}
           >
-            {i18n('OK')}
+            {i18n("OK")}
           </Button>
-        </Space>
-      }
-      styles={{ footer: { textAlign: 'right' } }}
-      onClose={onClose}
-    >
-      <Content ref={content} />
-    </Drawer>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 });
-
-type ContentRef = {
-  submit: () => Promise<void>;
-};
-
-const Content = forwardRef<ContentRef, {}>(({}, ref) => {
-  const {
-    locale,
-    theme: ctxTheme,
-    closer: ctxCloser,
-    direction: ctxDirection,
-    mirror: ctxMirror,
-    onUpdateSetting,
-  } = useAppContext();
-  const i18n = useI18n();
-
-  const [language, setLanguage] = useState<string>(() => locale);
-  const [theme, setTheme] = useState<Themes>(() => ctxTheme);
-  const [closer, setCloser] = useState<Closer>(() => ctxCloser);
-  const [directory, setDirectory] = useState<string>(() => ctxDirection);
-  const [mirror, setMirror] = useState<string>(() => ctxMirror);
-
-  useImperativeHandle(ref, () => ({
-    submit: onSubmit,
-  }));
-
-  const onSelectDirectory = async () => {
-    const { canceled, filePaths } = await window.Context.openFolderSelecter({
-      title: i18n('Directory-Select'),
-    });
-
-    if (canceled) return;
-
-    const [path] = filePaths;
-    setDirectory(path);
-  };
-
-  const onSubmit = async () => {
-    if (
-      language === locale &&
-      theme === ctxTheme &&
-      closer === ctxCloser &&
-      directory === ctxDirection &&
-      mirror === ctxMirror
-    )
-      return;
-
-    onUpdateSetting({
-      locale: language,
-      theme,
-      closer,
-      directory,
-      mirror,
-    });
-
-    return;
-  };
-
-  return (
-    <Descriptions layout="vertical" column={1}>
-      <Descriptions.Item label={i18n('Language')}>
-        <Select
-          size="small"
-          value={language}
-          options={[
-            { label: '简体中文', value: 'zh-CN' },
-            { label: 'English', value: 'en' },
-          ]}
-          style={{ width: 160 }}
-          onChange={(val) => {
-            setLanguage(val);
-          }}
-        />
-      </Descriptions.Item>
-      <Descriptions.Item label={i18n('Themes')}>
-        <Radio.Group
-          value={theme}
-          options={[
-            { label: i18n('System-Default'), value: Themes.System },
-            { label: i18n('Light'), value: Themes.Light },
-            { label: i18n('Dark'), value: Themes.Dark },
-          ]}
-          onChange={(evt) => {
-            setTheme(evt.target.value as Themes);
-          }}
-        />
-      </Descriptions.Item>
-
-      <Descriptions.Item label={i18n('When-Closing')}>
-        <Radio.Group
-          value={closer}
-          options={[
-            { label: i18n('Minimize-Window'), value: Closer.Minimize },
-            { label: i18n('Quit-App'), value: Closer.Close },
-          ]}
-          onChange={(evt) => {
-            setCloser(evt.target.value as Closer);
-          }}
-        />
-      </Descriptions.Item>
-
-      <Descriptions.Item
-        label={
-          <Space size={4}>
-            {i18n('Installation-Directory')}
-            <Tooltip title={i18n('Installation-Directory-tip')}>
-              <ExclamationCircleOutlined
-                style={{ color: '#74a975', cursor: 'pointer' }}
-              />
-            </Tooltip>
-          </Space>
-        }
-      >
-        <Space
-          align="center"
-          style={{ width: '100%', justifyContent: 'space-between' }}
-        >
-          <Typography.Paragraph style={{ marginBottom: 0 }}>
-            <Typography.Text
-              copyable
-              ellipsis={{
-                tooltip: directory,
-              }}
-              style={{ width: 300 }}
-            >
-              {directory}
-            </Typography.Text>
-          </Typography.Paragraph>
-          <Button
-            icon={<EditOutlined />}
-            size="small"
-            onClick={onSelectDirectory}
-          />
-        </Space>
-      </Descriptions.Item>
-
-      <Descriptions.Item label={i18n('Mirror-Url')}>
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <Input
-            value={mirror}
-            onChange={(evt) => {
-              setMirror(evt.target.value);
-            }}
-          />
-          <Typography.Text type="secondary">
-            {i18n('For-example')}:{' '}
-            <Typography.Text type="secondary" copyable>
-              https://npmmirror.com/mirrors/node
-            </Typography.Text>
-          </Typography.Text>
-        </Space>
-      </Descriptions.Item>
-    </Descriptions>
-  );
-});
-
-export default Setting;

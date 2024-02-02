@@ -1,9 +1,28 @@
+import "./progress.css";
+
 import { useEffect, useState, useRef } from "react";
-import { App, Button, Descriptions, Modal, Popover, Progress } from "antd";
-import { CloudSyncOutlined } from "@ant-design/icons";
-import { useI18n } from "@src/renderer/src/app-context";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Button,
+  Label,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Progress
+} from "@renderer/components/ui";
+import { GlobeIcon } from "@radix-ui/react-icons";
+import { CircularProgressbar } from "react-circular-progressbar";
 
 import dayjs from "dayjs";
+import { toast } from "sonner";
+import { useI18n } from "@src/renderer/src/app-context";
 
 import type { ProgressInfo, UpdateInfo } from "electron-updater";
 
@@ -17,16 +36,16 @@ export const Updater: React.FC = () => {
     visible: false,
     type: ModalType.Check
   });
+  const [pop, setPop] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [progress, setProgress] = useState<ProgressInfo>();
 
   const i18n = useI18n();
-  const { message } = App.useApp();
   const updateInfo = useRef<UpdateInfo>();
 
   const onCheckUpdate = useRef<(info: UpdateInfo | "update-not-available") => void>((info) => {
     if (info === "update-not-available") {
-      return message.success(i18n("Up-to-date"));
+      return toast.success(i18n("Up-to-date"));
     }
 
     updateInfo.current = info;
@@ -50,7 +69,7 @@ export const Updater: React.FC = () => {
         console.log(info);
       })
       .catch((err) => {
-        message.error(
+        toast.error(
           err.message.replace("Error invoking remote method 'check-for-updates': Error: ", "")
         );
       })
@@ -68,7 +87,7 @@ export const Updater: React.FC = () => {
           // download completed
           setOpen({ visible: true, type: ModalType.Complete });
         } catch (err) {
-          message.error(
+          toast.error(
             err.message.replace("Error invoking remote method 'confirm-update': Error: ", "")
           );
         }
@@ -85,71 +104,83 @@ export const Updater: React.FC = () => {
     <>
       {progress === void 0 ? (
         <Button
-          type="text"
-          size="small"
+          size="sm"
+          variant="ghost"
           loading={loading}
           title={i18n("Check-Update")}
           className="module-home-btn"
-          icon={<CloudSyncOutlined />}
+          icon={<GlobeIcon />}
           onClick={onCheckUpdates}
         />
       ) : (
-        <Popover
-          title={i18n("Download-Progress")}
-          placement="bottomRight"
-          content={<Progress percent={Math.floor(progress.percent)} strokeColor="#74a975" />}
-        >
-          <Button
-            type="text"
-            size="small"
-            className="module-home-btn"
-            icon={
-              <Progress
-                type="circle"
-                size={14}
-                percent={progress.percent}
-                showInfo={false}
-                strokeColor="#74a975"
-              />
-            }
-            onClick={() => {
-              progress.percent >= 100 && setOpen({ visible: true, type: ModalType.Complete });
-            }}
-          />
+        <Popover open={pop} onOpenChange={(open) => setPop(open)}>
+          <PopoverTrigger asChild>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="w-[31px] h-6"
+              icon={<CircularProgressbar value={progress.percent} />}
+              onClick={() => {
+                progress.percent >= 100 && setOpen({ visible: true, type: ModalType.Complete });
+              }}
+              onMouseOver={() => {
+                setPop(true);
+              }}
+            />
+          </PopoverTrigger>
+          <PopoverContent align="end" className="p-2">
+            <p className="text-sm font-normal">{i18n("Download-Progress")}</p>
+            <div className="flex items-center gap-2">
+              <Progress value={Math.floor(progress.percent)} className="my-2" />
+              <span className="text-xs">{Math.floor(progress.percent)}%</span>
+            </div>
+          </PopoverContent>
         </Popover>
       )}
 
-      <Modal
-        open={open.visible}
-        title={i18n("Update-Info")}
-        okText={open.type === ModalType.Check ? i18n("Upgrade") : i18n("Quit-And-Install")}
-        destroyOnClose
-        onCancel={() => {
-          setOpen({ visible: false, type: ModalType.Check });
-        }}
-        onOk={onUpgrade}
-      >
-        {open.type === ModalType.Check && updateInfo ? (
-          <Descriptions column={2}>
-            <Descriptions.Item label={i18n("Current-Version")}>
-              {window.Context.version}
-            </Descriptions.Item>
-            <Descriptions.Item label={i18n("New-Version")}>
-              {updateInfo.current?.version}
-            </Descriptions.Item>
-            <Descriptions.Item label={i18n("Release-Name")}>
-              {updateInfo.current?.releaseName}
-            </Descriptions.Item>
-            <Descriptions.Item label={i18n("Release-Date")}>
-              {dayjs(updateInfo.current?.releaseDate).format("YYYY-MM-DD HH:mm")}
-            </Descriptions.Item>
-          </Descriptions>
-        ) : (
-          <Descriptions column={1}>
-            <Descriptions.Item>{i18n("Upgrade-Tip")}</Descriptions.Item>
-          </Descriptions>
-        )}
-      </Modal>
+      <AlertDialog open={open.visible}>
+        <AlertDialogContent className="top-1/3">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{i18n("Update-Info")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {open.type === ModalType.Check && updateInfo ? (
+                <div className="columns-2">
+                  <p className="space-x-4 mb-3">
+                    <Label>{i18n("Current-Version")} :</Label>
+                    <span className="text-popover-foreground">{window.Context.version}</span>
+                  </p>
+                  <p className="space-x-4">
+                    <Label>{i18n("Release-Name")} :</Label>
+                    <span className="text-popover-foreground">
+                      {updateInfo.current?.releaseName}
+                    </span>
+                  </p>
+                  <p className="space-x-4 mb-3">
+                    <Label>{i18n("New-Version")} :</Label>
+                    <span className="text-popover-foreground">{updateInfo.current?.version}</span>
+                  </p>
+                  <p className="space-x-4">
+                    <Label>{i18n("Release-Date")} :</Label>
+                    <span className="text-popover-foreground">
+                      {dayjs(updateInfo.current?.releaseDate).format("YYYY-MM-DD HH:mm")}
+                    </span>
+                  </p>
+                </div>
+              ) : (
+                <p>{i18n("Upgrade-Tip")}</p>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setOpen({ visible: false, type: ModalType.Check })}>
+              {i18n("Cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={onUpgrade}>
+              {open.type === ModalType.Check ? i18n("Upgrade") : i18n("Quit-And-Install")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

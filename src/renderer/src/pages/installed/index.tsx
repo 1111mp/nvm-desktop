@@ -1,21 +1,34 @@
-import './styles.scss';
+import { useEffect, useMemo, useState } from "react";
+import { useLoaderData } from "react-router-dom";
+import { toast } from "sonner";
 
-import { useEffect, useMemo, useState } from 'react';
-import { useLoaderData } from 'react-router-dom';
-import { App, Button, Typography, Table, Space, Tag, Dropdown } from 'antd';
 import {
-  ReloadOutlined,
-  CheckCircleFilled,
-  CloseCircleFilled,
-  DownCircleFilled,
-} from '@ant-design/icons';
-import { useI18n, useAppContext } from '@src/renderer/src/app-context';
+  Button,
+  DataTable,
+  DataTableColumnFilterHeader,
+  DataTableColumnSortHeader,
+  DataTableToolbar,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Tag,
+  Tooltip,
+  TooltipContent,
+  TooltipPortal,
+  TooltipTrigger
+} from "@renderer/components/ui";
+import { type ColumnDef, type Table, memo } from "@tanstack/react-table";
+import {
+  CheckCircledIcon,
+  ChevronDownIcon,
+  CrossCircledIcon,
+  MinusCircledIcon,
+  ReloadIcon
+} from "@radix-ui/react-icons";
 
-import dayjs from 'dayjs';
-import { useColumnSearchProps } from '@renderer/hooks';
-import { compareVersion } from '@renderer/util';
-
-import type { ColumnsType } from 'antd/es/table';
+import dayjs from "dayjs";
+import { useI18n, useAppContext } from "@src/renderer/src/app-context";
 
 type VersionsResult = [Nvmd.Versions, Array<string>, string];
 
@@ -24,251 +37,291 @@ export async function loader() {
     const versions = await Promise.all([
       window.Context.getAllNodeVersions(),
       window.Context.getInstalledNodeVersions(),
-      window.Context.getCurrentVersion(),
+      window.Context.getCurrentVersion()
     ]);
 
     return versions;
   } catch (err) {
-    return [[], [], ''];
+    return [[], [], ""];
   }
 }
 
 export const Component: React.FC = () => {
-  const [allVersions, allInstalledVersions, currentVersion] =
-    useLoaderData() as VersionsResult;
+  const [allVersions, allInstalledVersions, currentVersion] = useLoaderData() as VersionsResult;
 
   const [current, setCurrent] = useState<string>(() => currentVersion);
   const [versions, setVersions] = useState<Nvmd.Versions>(() =>
-    allVersions.filter(({ version }) =>
-      allInstalledVersions.includes(version.slice(1)),
-    ),
+    allVersions.filter(({ version }) => allInstalledVersions.includes(version.slice(1)))
   );
-  const [installedVersions, setInstalledVersions] = useState<string[]>(
-    () => allInstalledVersions,
-  );
+  const [installedVersions, setInstalledVersions] = useState<string[]>(() => allInstalledVersions);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { message } = App.useApp();
-  const getColumnSearchProps = useColumnSearchProps();
-
-  const { direction, locale } = useAppContext();
+  const { directory, locale } = useAppContext();
   const i18n = useI18n();
 
   useEffect(() => {
     window.Context.onRegistCurVersionChange((version) => {
       setCurrent(version);
-      message.success(i18n('Restart-Terminal', [`v${version}`]));
+      toast.success(i18n("Restart-Terminal", [`v${version}`]));
     });
   }, []);
 
   useEffect(() => {
     const fetcher = async () => {
       const iVersions = await window.Context.getInstalledNodeVersions(true);
-      setVersions(
-        allVersions.filter(({ version }) =>
-          iVersions.includes(version.slice(1)),
-        ),
-      );
+      setVersions(allVersions.filter(({ version }) => iVersions.includes(version.slice(1))));
       setInstalledVersions(iVersions);
     };
 
     fetcher();
-  }, [direction]);
+  }, [directory]);
 
-  const columns: ColumnsType<Nvmd.Version> = useMemo(
+  const columns: ColumnDef<Nvmd.Version>[] = useMemo(() => {
+    const { version: latest } = versions[0] || { version: "" };
+    return [
+      {
+        accessorKey: "version",
+        header: ({ column }) => (
+          <DataTableColumnSortHeader column={column} title={i18n("Version")} />
+        ),
+        enableHiding: false,
+        filterFn: (row, _columnId, filterValue: string) => {
+          const { version, lts } = row.original;
+          if ("lts".includes(filterValue.toLocaleLowerCase())) return !!lts;
+
+          return (
+            ("lts".includes(filterValue.toLocaleLowerCase()) ? !!lts : false) ||
+            version.toString().toLowerCase().includes(filterValue.toLowerCase()) ||
+            (lts ? lts.toString().toLowerCase().includes(filterValue.toLowerCase()) : false)
+          );
+        },
+        cell: ({ row }) => {
+          const { version, lts } = row.original;
+          return (
+            <div className="flex gap-1 items-center">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="link"
+                    className="h-6 p-0 text-md text-foreground font-medium hover:text-primary"
+                    onClick={() => {
+                      window.open(
+                        `https://github.com/nodejs/node/releases/tag/${version}`,
+                        "_blank"
+                      );
+                    }}
+                  >
+                    {version}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipPortal>
+                  <TooltipContent>{i18n("Whats-new")}</TooltipContent>
+                </TooltipPortal>
+              </Tooltip>
+              {lts ? (
+                <span className="text-foreground-foreground">({lts})</span>
+              ) : latest === version ? (
+                <span className="text-foreground-foreground">({i18n("latest")})</span>
+              ) : null}
+            </div>
+          );
+        }
+      },
+      {
+        accessorKey: "v8",
+        header: ({ column }) => (
+          <DataTableColumnFilterHeader column={column} title={`V8 ${i18n("Version")}`} />
+        ),
+        enableSorting: false
+      },
+      {
+        accessorKey: "npm",
+        header: ({ column }) => (
+          <DataTableColumnFilterHeader column={column} title={`NPM ${i18n("Version")}`} />
+        ),
+        enableSorting: false
+      },
+      {
+        accessorKey: "date",
+        header: ({ column }) => (
+          <DataTableColumnSortHeader column={column} title={i18n("Release-Date")} />
+        ),
+        cell: ({ row }) => dayjs(row.original.date).format("ll")
+      },
+      {
+        accessorKey: "status",
+        header: i18n("Status"),
+        enableSorting: false,
+        filterFn: (row, _columnId, filterValue: string[]) => {
+          const { version } = row.original;
+
+          const rets = filterValue.map((value) => {
+            switch (value) {
+              case "Current": {
+                return version.includes(current);
+              }
+              case "Installed": {
+                return !!installedVersions.find((installed) => version.includes(installed));
+              }
+              default:
+                return false;
+            }
+          });
+
+          return rets.includes(true);
+        },
+        cell: ({ row }) => {
+          const { version } = row.original;
+
+          const installed = installedVersions.find((installed) => version.includes(installed));
+
+          if (installed && current && version.includes(current))
+            return <Tag color="lime">{i18n("Current")}</Tag>;
+
+          if (installed) return <Tag color="purple">{i18n("Installed")}</Tag>;
+
+          return <Tag color="neutral">{i18n("Not-Installed")}</Tag>;
+        }
+      },
+      {
+        header: i18n("Operation"),
+        enableHiding: false,
+        enableSorting: false,
+        cell: ({ row }) => {
+          const { version } = row.original;
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="tag"
+                  className="text-fuchsia-500 border-fuchsia-500 hover:text-fuchsia-500/80 hover:border-fuchsia-500/60 focus-visible:ring-1 focus-visible:ring-fuchsia-500/60"
+                  icon={<ChevronDownIcon />}
+                >
+                  {i18n("More")}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="min-w-8">
+                <DropdownMenuItem
+                  className="flex gap-2 cursor-pointer"
+                  onSelect={async () => {
+                    await window.Context.useNodeVersion(version.slice(1));
+                    const currentVersion = await window.Context.getCurrentVersion();
+                    setCurrent(currentVersion);
+                    toast.success(i18n("Restart-Terminal", [version]));
+                  }}
+                >
+                  <CheckCircledIcon />
+                  {i18n("Apply")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="flex gap-2 text-red-600 focus:text-red-500 cursor-pointer"
+                  onSelect={async () => {
+                    try {
+                      await window.Context.uninstallVersion(
+                        version.slice(1),
+                        version.includes(current)
+                      );
+
+                      const [currentVersion, installeds] = await Promise.all([
+                        window.Context.getCurrentVersion(),
+                        window.Context.getInstalledNodeVersions(true)
+                      ]);
+                      setCurrent(currentVersion);
+                      setInstalledVersions(installeds);
+                      setVersions(
+                        allVersions.filter(({ version }) => installeds.includes(version.slice(1)))
+                      );
+                      toast.success(i18n("Tip-Uninstall", [version]));
+                    } catch (err) {
+                      toast.error(
+                        err.message
+                          ? err.message
+                              .split(
+                                "Error: Error invoking remote method 'uninstall-node-version': "
+                              )
+                              .slice(-1)
+                          : "Something went wrong"
+                      );
+                    }
+                  }}
+                >
+                  <CrossCircledIcon />
+                  {i18n("Uninstall")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        }
+      }
+    ];
+  }, [locale, current, installedVersions.length]);
+
+  const statuses = useMemo(
     () => [
       {
-        title: i18n('Version'),
-        dataIndex: 'version',
-        ...getColumnSearchProps('version'),
-        render: (text: string, { lts }) => {
-          return (
-            <Space>
-              <span style={{ fontWeight: 500 }}>{text}</span>
-              {lts ? <span style={{ color: '#b9b9b9' }}>({lts})</span> : null}
-            </Space>
-          );
-        },
-        sorter: (a, b) => compareVersion(a.version, b.version),
+        label: i18n("Current"),
+        value: "Current",
+        icon: CheckCircledIcon
       },
       {
-        title: `V8 ${i18n('Version')}`,
-        dataIndex: 'v8',
-        className: 'module-installed-label__gray',
-        ...getColumnSearchProps('v8'),
-      },
-      {
-        title: `NPM ${i18n('Version')}`,
-        dataIndex: 'npm',
-        className: 'module-installed-label__gray',
-        ...getColumnSearchProps('npm'),
-      },
-      {
-        title: i18n('Release-Date'),
-        dataIndex: 'date',
-        className: 'module-installed-label__gray',
-        sorter: (a, b) =>
-          new Date(a.date).getTime() - new Date(b.date).getTime(),
-        sortDirections: ['descend', 'ascend'],
-        render: (text: string) => dayjs(text).format('ll'),
-      },
-      {
-        title: i18n('Status'),
-        filters: [
-          {
-            text: i18n('Current'),
-            value: 'Current',
-          },
-        ],
-        onFilter: (value, { version }) => {
-          switch (value) {
-            case 'Current': {
-              return version.includes(current);
-            }
-            default:
-              return false;
-          }
-        },
-        render: (_text: string, record) => {
-          if (current && record.version.includes(current))
-            return (
-              <Tag bordered={false} color="orange">
-                {i18n('Current')}
-              </Tag>
-            );
-
-          if (
-            installedVersions.find((version) =>
-              record.version.includes(version),
-            )
-          )
-            return (
-              <Tag bordered={false} color="purple">
-                {i18n('Installed')}
-              </Tag>
-            );
-
-          return (
-            <Tag bordered={false} color="cyan">
-              {i18n('Not-Installed')}
-            </Tag>
-          );
-        },
-      },
-      {
-        title: i18n('Operation'),
-        width: 120,
-        render: (_text, record) => {
-          return (
-            <Dropdown
-              trigger={['click']}
-              menu={{
-                items:
-                  current && record.version.includes(current)
-                    ? [
-                        {
-                          danger: true,
-                          key: 'uninstall',
-                          icon: <CloseCircleFilled />,
-                          label: i18n('Uninstall'),
-                        },
-                      ]
-                    : [
-                        {
-                          key: 'apply',
-                          icon: <CheckCircleFilled />,
-                          label: i18n('Apply'),
-                        },
-                        {
-                          danger: true,
-                          key: 'uninstall',
-                          icon: <CloseCircleFilled />,
-                          label: i18n('Uninstall'),
-                        },
-                      ],
-                onClick: async ({ key }) => {
-                  switch (key) {
-                    case 'apply': {
-                      await window.Context.useNodeVersion(
-                        record.version.slice(1),
-                      );
-                      const currentVersion =
-                        await window.Context.getCurrentVersion();
-                      setCurrent(currentVersion);
-                      message.success(
-                        i18n('Restart-Terminal', [record.version]),
-                      );
-                      return;
-                    }
-                    case 'uninstall': {
-                      try {
-                        await window.Context.uninstallVersion(
-                          record.version.slice(1),
-                          record.version.includes(current),
-                        );
-
-                        const [currentVersion, installeds] = await Promise.all([
-                          window.Context.getCurrentVersion(),
-                          window.Context.getInstalledNodeVersions(true),
-                        ]);
-                        setCurrent(currentVersion);
-                        setInstalledVersions(installeds);
-                        setVersions(
-                          allVersions.filter(({ version }) =>
-                            installeds.includes(version.slice(1)),
-                          ),
-                        );
-                        message.success(
-                          i18n('Tip-Uninstall', [record.version]),
-                        );
-                      } catch (err) {
-                        message.error(
-                          err.message
-                            ? err.message
-                                .split(
-                                  "Error: Error invoking remote method 'uninstall-node-version': ",
-                                )
-                                .slice(-1)
-                            : 'Something went wrong',
-                        );
-                      }
-                      return;
-                    }
-                    default:
-                      return;
-                  }
-                },
-              }}
-            >
-              <Button
-                size="small"
-                icon={<DownCircleFilled />}
-                style={{ color: '#5273e0', borderColor: '#5273e0' }}
-              >
-                {i18n('More')}
-              </Button>
-            </Dropdown>
-          );
-        },
-      },
+        label: i18n("Installed"),
+        value: "Installed",
+        icon: MinusCircledIcon
+      }
     ],
-    [locale, current, installedVersions],
+    [locale]
   );
 
-  const onRefresh = async () => {
+  const getFacetedUniqueValues: () => (
+    table: Table<Nvmd.Version>,
+    columnId: string
+  ) => () => Map<any, number> = useMemo(() => {
+    return function getFacetedUniqueValues() {
+      return (table, columnId) =>
+        memo(
+          () => [table.getColumn(columnId)?.getFacetedRowModel()],
+          (facetedRowModel) => {
+            if (!facetedRowModel) return new Map();
+
+            let facetedUniqueValues = new Map<any, number>();
+
+            for (let i = 0; i < facetedRowModel.flatRows.length; i++) {
+              const { version } = facetedRowModel.flatRows[i]!.original;
+
+              let key: string = "Installed";
+              if (version.includes(current)) key = "Current";
+
+              if (facetedUniqueValues.has(key)) {
+                facetedUniqueValues.set(key, (facetedUniqueValues.get(key) ?? 0) + 1);
+              } else {
+                facetedUniqueValues.set(key, 1);
+              }
+            }
+
+            return facetedUniqueValues;
+          },
+          {
+            key: process.env.NODE_ENV === "development" && "getFacetedUniqueValues_" + columnId,
+            debug: () => table.options.debugAll ?? table.options.debugTable,
+            onChange: () => {}
+          }
+        );
+    };
+  }, [current, installedVersions.length]);
+
+  const onPageReload = async () => {
     setLoading(true);
     try {
       const [versions, installeds, currentVersion] = await Promise.all([
         window.Context.getAllNodeVersions(),
         window.Context.getInstalledNodeVersions(),
-        window.Context.getCurrentVersion(true),
+        window.Context.getCurrentVersion(true)
       ]);
-      setVersions(
-        versions.filter(({ version }) => installeds.includes(version.slice(1))),
-      );
+      setVersions(versions.filter(({ version }) => installeds.includes(version.slice(1))));
       setInstalledVersions(installeds);
       setCurrent(currentVersion);
-      message.success(i18n('Refresh-successful'));
+      toast.success(i18n("Refresh-successful"));
     } catch (err) {
     } finally {
       setLoading(false);
@@ -276,33 +329,23 @@ export const Component: React.FC = () => {
   };
 
   return (
-    <div className="module-installed">
-      <div className="module-installed-header">
-        <Typography.Title level={4} style={{ margin: 0 }}>
-          {i18n('Installed-Versions')}
-        </Typography.Title>
-        <Button
-          size="small"
-          type="primary"
-          icon={<ReloadOutlined />}
-          loading={loading}
-          onClick={onRefresh}
-        >
-          {i18n('Refresh')}
-        </Button>
-      </div>
-      <Table
-        bordered={false}
-        size="small"
-        rowKey="version"
-        loading={loading}
+    <div className="h-full flex flex-col space-y-2">
+      <DataTable
         columns={columns}
-        dataSource={versions}
-        pagination={false}
-        scroll={{ x: '100%', y: 570 }}
+        data={versions}
+        loading={loading}
+        toolbar={(table) => (
+          <div className="flex items-center gap-2">
+            <DataTableToolbar table={table} options={statuses} />
+            <Button size="sm" loading={loading} icon={<ReloadIcon />} onClick={onPageReload}>
+              {i18n("Page-Reload")}
+            </Button>
+          </div>
+        )}
+        getFacetedUniqueValues={getFacetedUniqueValues}
       />
     </div>
   );
 };
 
-Component.displayName = 'Installed';
+Component.displayName = "Installed";

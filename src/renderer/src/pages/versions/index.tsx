@@ -1,33 +1,46 @@
-import "./styles.scss";
-
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Await, defer, useAsyncValue, useLoaderData } from "react-router-dom";
-import { App, Button, Dropdown, Space, Typography, Tag, Tooltip, Skeleton } from "antd";
+
 import {
-  SyncOutlined,
-  ReloadOutlined,
-  CheckCircleFilled,
-  CloseCircleFilled,
-  PlusCircleFilled,
-  DownCircleFilled
-} from "@ant-design/icons";
-import { VirtualTable } from "@renderer/components/VirtualTable";
+  Button,
+  DataTable,
+  Skeleton,
+  Tag,
+  Tooltip,
+  TooltipContent,
+  TooltipPortal,
+  TooltipTrigger,
+  DataTableColumnSortHeader,
+  DataTableColumnFilterHeader,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+  DataTableToolbar
+} from "@renderer/components/ui";
+import {
+  CheckCircledIcon,
+  ChevronDownIcon,
+  CrossCircledIcon,
+  DownloadIcon,
+  MinusCircledIcon,
+  ReloadIcon,
+  UpdateIcon
+} from "@radix-ui/react-icons";
+import { memo, type ColumnDef, type Table } from "@tanstack/react-table";
+import { toast } from "sonner";
 import { InfoModal } from "./modal";
-import { useI18n, useAppContext } from "@src/renderer/src/app-context";
 
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { useColumnSearchProps } from "@renderer/hooks";
-import { checkSupportive, compareVersion } from "@renderer/util";
+import { checkSupportive } from "@renderer/util";
+import { useI18n, useAppContext } from "@src/renderer/src/app-context";
 
-import type { ColumnsType } from "antd/es/table";
 import type { Ref as InfoRef } from "./modal";
 
 type VersionsResult = [Nvmd.Versions, Array<string>, string];
 
 dayjs.extend(localizedFormat);
-
-const { Title } = Typography;
 
 export async function loader(): Promise<unknown> {
   try {
@@ -51,15 +64,20 @@ export function VersionsRoute() {
   return (
     <Suspense
       fallback={
-        <div className="module-versions-content">
-          <Space style={{ width: "100%", justifyContent: "space-between" }}>
-            <Skeleton.Input active size="small" />
-            <Space>
-              <Skeleton.Input active size="small" />
-              <Skeleton.Input active size="small" />
-            </Space>
-          </Space>
-          <Skeleton active paragraph={{ rows: 4 }} />
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-8 w-40" />
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-8 w-40" />
+              <Skeleton className="h-8 w-40" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-full" />
+            <Skeleton className="h-6 w-full" />
+            <Skeleton className="h-6 w-full" />
+            <Skeleton className="h-6 w-[400px]" />
+          </div>
         </div>
       }
     >
@@ -83,17 +101,13 @@ const Versions: React.FC = () => {
 
   const modal = useRef<InfoRef>(null);
 
-  const { message } = App.useApp();
-
-  const getColumnSearchProps = useColumnSearchProps();
-
-  const { direction, locale } = useAppContext();
+  const { directory, locale } = useAppContext();
   const i18n = useI18n();
 
   useEffect(() => {
     window.Context.onRegistCurVersionChange((version) => {
       setCurrent(version);
-      message.success(i18n("Restart-Terminal", [`v${version}`]));
+      toast.success(i18n("Restart-Terminal", [`v${version}`]));
     });
   }, []);
 
@@ -104,209 +118,257 @@ const Versions: React.FC = () => {
     };
 
     fetcher();
-  }, [direction]);
+  }, [directory]);
 
-  const columns: ColumnsType<Nvmd.Version> = useMemo(
-    () => [
+  const columns: ColumnDef<Nvmd.Version>[] = useMemo(() => {
+    const { version: latest } = versions[0] || { version: "" };
+    return [
       {
-        title: i18n("Version"),
-        dataIndex: "version",
-        ...getColumnSearchProps("version"),
-        render: (text: string, { lts, version }) => {
-          const { version: latest } = versions[0] || { version: "" };
+        accessorKey: "version",
+        header: ({ column }) => (
+          <DataTableColumnSortHeader column={column} title={i18n("Version")} />
+        ),
+        enableHiding: false,
+        filterFn: (row, _columnId, filterValue: string) => {
+          const { version, lts } = row.original;
+          if ("lts".includes(filterValue.toLocaleLowerCase())) return !!lts;
+
           return (
-            <Space>
-              <Tooltip color="#74a975" title={i18n("Whats-new")}>
-                <span
-                  className="module-versions-label__link"
-                  onClick={() => {
-                    window.open(`https://github.com/nodejs/node/releases/tag/${text}`, "_blank");
-                  }}
-                >
-                  {text}
-                </span>
-              </Tooltip>
-              {lts ? (
-                <span style={{ color: "#b9b9b9" }}>({lts})</span>
-              ) : latest === version ? (
-                <span style={{ color: "#b9b9b9" }}>({i18n("latest")})</span>
-              ) : null}
-            </Space>
+            ("lts".includes(filterValue.toLocaleLowerCase()) ? !!lts : false) ||
+            version.toString().toLowerCase().includes(filterValue.toLowerCase()) ||
+            (lts ? lts.toString().toLowerCase().includes(filterValue.toLowerCase()) : false)
           );
         },
-        sorter: (a, b) => compareVersion(a.version, b.version),
-        sortDirections: ["descend", "ascend"]
-      },
-      {
-        title: `V8 ${i18n("Version")}`,
-        dataIndex: "v8",
-        className: "module-versions-label__gray",
-        ...getColumnSearchProps("v8")
-      },
-      {
-        title: `NPM ${i18n("Version")}`,
-        dataIndex: "npm",
-        className: "module-versions-label__gray",
-        ...getColumnSearchProps("npm")
-      },
-      {
-        title: i18n("Release-Date"),
-        dataIndex: "date",
-        className: "module-versions-label__gray",
-        sorter: (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-        sortDirections: ["descend", "ascend"],
-        render: (text: string) => dayjs(text).format("ll")
-      },
-      {
-        title: i18n("Status"),
-        filters: [
-          {
-            text: i18n("Installed"),
-            value: "Installed"
-          },
-          {
-            text: i18n("Supported"),
-            value: "Supported"
-          }
-        ],
-        onFilter: (value, { version, files }) => {
-          switch (value) {
-            case "Installed": {
-              return !!installedVersions.find((installed) => version.includes(installed));
-            }
-            case "Supported": {
-              return checkSupportive(files);
-            }
-            default:
-              return false;
-          }
-        },
-        render: (_text: string, record) => {
-          const support = checkSupportive(record.files);
-
-          if (!support)
-            return (
-              <Tag bordered={false} color="error">
-                {i18n("Not-Supported")}
-              </Tag>
-            );
-
-          const installed = installedVersions.find((version) => record.version.includes(version));
-
-          if (installed && current && record.version.includes(current))
-            return (
-              <Tag bordered={false} color="orange">
-                {i18n("Current")}
-              </Tag>
-            );
-
-          if (installed)
-            return (
-              <Tag bordered={false} color="purple">
-                {i18n("Installed")}
-              </Tag>
-            );
-
+        cell: ({ row }) => {
+          const { version, lts } = row.original;
           return (
-            <Tag bordered={false} color="cyan">
-              {i18n("Not-Installed")}
-            </Tag>
+            <div className="flex gap-1 items-center">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="link"
+                    className="h-6 p-0 text-md text-foreground font-medium hover:text-primary"
+                    onClick={() => {
+                      window.open(
+                        `https://github.com/nodejs/node/releases/tag/${version}`,
+                        "_blank"
+                      );
+                    }}
+                  >
+                    {version}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipPortal>
+                  <TooltipContent>{i18n("Whats-new")}</TooltipContent>
+                </TooltipPortal>
+              </Tooltip>
+              {lts ? (
+                <span className="text-foreground-foreground">({lts})</span>
+              ) : latest === version ? (
+                <span className="text-foreground-foreground">({i18n("latest")})</span>
+              ) : null}
+            </div>
           );
         }
       },
       {
-        title: i18n("Operation"),
-        width: 120,
-        render: (_text, record) => {
-          const support = checkSupportive(record.files);
-          if (!support) return;
+        accessorKey: "v8",
+        header: ({ column }) => (
+          <DataTableColumnFilterHeader column={column} title={`V8 ${i18n("Version")}`} />
+        ),
+        enableSorting: false
+      },
+      {
+        accessorKey: "npm",
+        header: ({ column }) => (
+          <DataTableColumnFilterHeader column={column} title={`NPM ${i18n("Version")}`} />
+        ),
+        enableSorting: false
+      },
+      {
+        accessorKey: "date",
+        header: ({ column }) => (
+          <DataTableColumnSortHeader column={column} title={i18n("Release-Date")} />
+        ),
+        cell: ({ row }) => dayjs(row.original.date).format("ll")
+      },
+      {
+        accessorKey: "status",
+        header: i18n("Status"),
+        enableSorting: false,
+        filterFn: (row, _columnId, filterValue: string[]) => {
+          const { version, files } = row.original;
 
-          if (installedVersions.find((version) => record.version.includes(version)))
+          const rets = filterValue.map((value) => {
+            switch (value) {
+              case "Installed": {
+                return !!installedVersions.find((installed) => version.includes(installed));
+              }
+              case "Supported": {
+                return checkSupportive(files);
+              }
+              case "UnSupported": {
+                return !checkSupportive(files);
+              }
+              default:
+                return false;
+            }
+          });
+
+          return rets.includes(true);
+        },
+        cell: ({ row }) => {
+          const { version, files } = row.original;
+          const support = checkSupportive(files);
+
+          if (!support) return <Tag color="rose">{i18n("Not-Supported")}</Tag>;
+
+          const installed = installedVersions.find((installed) => version.includes(installed));
+
+          if (installed && current && version.includes(current))
+            return <Tag color="lime">{i18n("Current")}</Tag>;
+
+          if (installed) return <Tag color="purple">{i18n("Installed")}</Tag>;
+
+          return <Tag color="neutral">{i18n("Not-Installed")}</Tag>;
+        }
+      },
+      {
+        header: i18n("Operation"),
+        enableHiding: false,
+        enableSorting: false,
+        cell: ({ row }) => {
+          const { version, files } = row.original;
+          if (!checkSupportive(files)) return;
+
+          if (installedVersions.find((install) => version.includes(install)))
             return (
-              <Dropdown
-                trigger={["click"]}
-                menu={{
-                  items:
-                    current && record.version.includes(current)
-                      ? [
-                          {
-                            danger: true,
-                            key: "uninstall",
-                            icon: <CloseCircleFilled />,
-                            label: i18n("Uninstall")
-                          }
-                        ]
-                      : [
-                          {
-                            key: "apply",
-                            icon: <CheckCircleFilled />,
-                            label: i18n("Apply")
-                          },
-                          {
-                            danger: true,
-                            key: "uninstall",
-                            icon: <CloseCircleFilled />,
-                            label: i18n("Uninstall")
-                          }
-                        ],
-                  onClick: async ({ key }) => {
-                    switch (key) {
-                      case "apply": {
-                        await window.Context.useNodeVersion(record.version.slice(1));
-                        const currentVersion = await window.Context.getCurrentVersion();
-                        setCurrent(currentVersion);
-                        message.success(i18n("Restart-Terminal", [record.version]));
-                        return;
-                      }
-                      case "uninstall": {
-                        await window.Context.uninstallVersion(
-                          record.version.slice(1),
-                          record.version.includes(current)
-                        );
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="tag"
+                    className="text-fuchsia-500 border-fuchsia-500 hover:text-fuchsia-500/80 hover:border-fuchsia-500/60 focus-visible:ring-1 focus-visible:ring-fuchsia-500/60"
+                    icon={<ChevronDownIcon />}
+                  >
+                    {i18n("More")}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="min-w-8">
+                  <DropdownMenuItem
+                    className="flex gap-2 cursor-pointer"
+                    onSelect={async () => {
+                      await window.Context.useNodeVersion(version.slice(1));
+                      const currentVersion = await window.Context.getCurrentVersion();
+                      setCurrent(currentVersion);
+                      toast.success(i18n("Restart-Terminal", [version]));
+                    }}
+                  >
+                    <CheckCircledIcon />
+                    {i18n("Apply")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="flex gap-2 text-red-600 focus:text-red-500 cursor-pointer"
+                    onSelect={async () => {
+                      await window.Context.uninstallVersion(
+                        version.slice(1),
+                        version.includes(current)
+                      );
 
-                        const [currentVersion, versions] = await Promise.all([
-                          window.Context.getCurrentVersion(),
-                          window.Context.getInstalledNodeVersions(true)
-                        ]);
-                        setCurrent(currentVersion);
-                        setInstalledVersions(versions);
-                        message.success(i18n("Tip-Uninstall", [record.version]));
-                        return;
-                      }
-                      default:
-                        return;
-                    }
-                  }
-                }}
-              >
-                <Button
-                  size="small"
-                  icon={<DownCircleFilled />}
-                  style={{ color: "#5273e0", borderColor: "#5273e0" }}
-                >
-                  {i18n("More")}
-                </Button>
-              </Dropdown>
+                      const [currentVersion, versions] = await Promise.all([
+                        window.Context.getCurrentVersion(),
+                        window.Context.getInstalledNodeVersions(true)
+                      ]);
+                      setCurrent(currentVersion);
+                      setInstalledVersions(versions);
+                      toast.success(i18n("Tip-Uninstall", [version]));
+                    }}
+                  >
+                    <CrossCircledIcon />
+                    {i18n("Uninstall")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             );
 
           return (
             <Button
-              ghost
-              size="small"
-              type="primary"
-              icon={<PlusCircleFilled />}
-              onClick={() => modal.current?.show(record)}
+              size="sm"
+              variant="tag"
+              icon={<DownloadIcon />}
+              onClick={() => modal.current?.show(row.original)}
             >
               {i18n("Install")}
             </Button>
           );
         }
       }
+    ];
+  }, [locale, current, installedVersions.length, versions.length]);
+
+  const statuses = useMemo(
+    () => [
+      {
+        label: i18n("Installed"),
+        value: "Installed",
+        icon: MinusCircledIcon
+      },
+      {
+        label: i18n("Supported"),
+        value: "Supported",
+        icon: CheckCircledIcon
+      },
+      {
+        label: i18n("Not-Supported"),
+        value: "UnSupported",
+        icon: CrossCircledIcon
+      }
     ],
-    [locale, current, installedVersions, versions.length, setInstalledVersions]
+    [locale]
   );
 
-  const onLocalRefresh = async () => {
+  const getFacetedUniqueValues: () => (
+    table: Table<Nvmd.Version>,
+    columnId: string
+  ) => () => Map<any, number> = useMemo(() => {
+    return function getFacetedUniqueValues() {
+      return (table, columnId) =>
+        memo(
+          () => [table.getColumn(columnId)?.getFacetedRowModel()],
+          (facetedRowModel) => {
+            if (!facetedRowModel) return new Map();
+
+            let facetedUniqueValues = new Map<any, number>();
+
+            for (let i = 0; i < facetedRowModel.flatRows.length; i++) {
+              const { version, files } = facetedRowModel.flatRows[i]!.original;
+
+              let key: string | undefined;
+              if (installedVersions.includes(version.slice(1))) key = "Installed";
+
+              if (key === void 0 && checkSupportive(files)) key = "Supported";
+
+              if (key === void 0) key = "UnSupported";
+
+              if (facetedUniqueValues.has(key)) {
+                facetedUniqueValues.set(key, (facetedUniqueValues.get(key) ?? 0) + 1);
+              } else {
+                facetedUniqueValues.set(key, 1);
+              }
+            }
+
+            return facetedUniqueValues;
+          },
+          {
+            key: process.env.NODE_ENV === "development" && "getFacetedUniqueValues_" + columnId,
+            debug: () => table.options.debugAll ?? table.options.debugTable,
+            onChange: () => {}
+          }
+        );
+    };
+  }, [installedVersions.length]);
+
+  const onPageReload = async () => {
     seLocaltLoading(true);
     try {
       const [versions, installeds, currentVersion] = await Promise.all([
@@ -317,14 +379,15 @@ const Versions: React.FC = () => {
       setVersions(versions);
       setInstalledVersions(installeds);
       setCurrent(currentVersion);
-      message.success(i18n("Refresh-successful"));
+
+      toast.success(i18n("Refresh-successful"));
     } catch (err) {
     } finally {
       seLocaltLoading(false);
     }
   };
 
-  const onRemoteRefresh = async () => {
+  const onDataUpdate = async () => {
     setLoading(true);
     try {
       const [versions, installeds, currentVersion] = await Promise.all([
@@ -337,13 +400,13 @@ const Versions: React.FC = () => {
       setVersions(versions);
       setInstalledVersions(installeds);
       setCurrent(currentVersion);
-      message.success(i18n("Refresh-successful"));
+
+      toast.success(i18n("Refresh-successful"));
     } catch (err) {
-      message.error(
+      toast.error(
         err.message
           ? err.message.split("Error invoking remote method 'all-node-versions': ").slice(-1)
-          : "Something went wrong",
-        3
+          : "Something went wrong"
       );
     } finally {
       setLoading(false);
@@ -357,42 +420,38 @@ const Versions: React.FC = () => {
 
   return (
     <>
-      <div className="module-versions">
-        <div className="module-versions-header">
-          <Title level={4} style={{ margin: 0 }}>
-            {i18n("All-Node-Versions")}
-          </Title>
-          <Space>
-            <Button
-              size="small"
-              type="primary"
-              icon={<ReloadOutlined />}
-              loading={localLoading}
-              disabled={loading}
-              onClick={onLocalRefresh}
-            >
-              {i18n("Local-Refresh")}
-            </Button>
-            <Button
-              size="small"
-              type="primary"
-              icon={<SyncOutlined />}
-              loading={loading}
-              onClick={onRemoteRefresh}
-            >
-              {i18n("Remote-Refresh")}
-            </Button>
-          </Space>
-        </div>
-        <VirtualTable
-          size="small"
-          bordered={false}
-          loading={loading || localLoading}
+      <div className="h-full flex flex-col space-y-2">
+        <DataTable
           columns={columns}
-          dataSource={versions}
-          rowKey="version"
-          pagination={false}
-          scroll={{ x: "100%", y: 570 }}
+          data={versions}
+          loading={loading || localLoading}
+          toolbar={(table) => (
+            <div className="flex items-center gap-2">
+              <DataTableToolbar table={table} options={statuses} />
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  disabled={loading}
+                  className=" text-sm"
+                  loading={localLoading}
+                  icon={<ReloadIcon />}
+                  onClick={onPageReload}
+                >
+                  {i18n("Page-Reload")}
+                </Button>
+                <Button
+                  loading={loading}
+                  size="sm"
+                  className="text-sm"
+                  icon={<UpdateIcon />}
+                  onClick={onDataUpdate}
+                >
+                  {i18n("Data-Update")}
+                </Button>
+              </div>
+            </div>
+          )}
+          getFacetedUniqueValues={getFacetedUniqueValues}
         />
       </div>
       <InfoModal ref={modal} onRefrresh={onInstalledRefresh} />

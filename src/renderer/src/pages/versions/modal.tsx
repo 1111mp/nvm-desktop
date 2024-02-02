@@ -1,13 +1,20 @@
+import { forwardRef, useEffect, useImperativeHandle, useState, useRef } from "react";
 import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useState,
-  useRef,
-} from 'react';
-import { App, Button, Descriptions, Progress, Modal, Typography } from 'antd';
-import { useI18n } from '@src/renderer/src/app-context';
-import { v4 as uuidv4 } from 'uuid';
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Button,
+  Label,
+  LabelCopyable,
+  Progress
+} from "@renderer/components/ui";
+import { toast } from "sonner";
+
+import { v4 as uuidv4 } from "uuid";
+import { useI18n } from "@src/renderer/src/app-context";
 
 export type Ref = {
   show: (data: Nvmd.Version) => void;
@@ -16,8 +23,6 @@ export type Ref = {
 type Props = {
   onRefrresh: () => void;
 };
-
-const { Paragraph } = Typography;
 
 export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
   const [open, setOpen] = useState<boolean>(false);
@@ -29,10 +34,9 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
   const uuid = useRef<string>();
 
   const i18n = useI18n();
-  const { message } = App.useApp();
 
   useImperativeHandle(ref, () => ({
-    show: onShow,
+    show: onShow
   }));
 
   useEffect(() => {
@@ -42,7 +46,7 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
     });
   }, []);
 
-  const onShow: Ref['show'] = (data) => {
+  const onShow: Ref["show"] = (data) => {
     record.current = data;
     setOpen(true);
   };
@@ -55,20 +59,17 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
     try {
       const { path } = await window.Context.getNode({
         id: uuid.current!,
-        version: record.current!.version.slice(1),
+        version: record.current!.version.slice(1)
       });
       setPath(path);
     } catch (err) {
-      if (!err.message.includes('This operation was aborted')) {
-        message.error(
+      if (!err.message.includes("This operation was aborted")) {
+        toast.error(
           err.message
-            ? err.message
-                .split("Error invoking remote method 'get-node':")
-                .slice(-1)
-            : 'Something went wrong',
-          3,
+            ? err.message.split("Error invoking remote method 'get-node':").slice(-1)
+            : "Something went wrong"
         );
-        setPath('error');
+        setPath("error");
       }
     } finally {
       setLoading(false);
@@ -82,86 +83,79 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
   };
 
   return (
-    <Modal
-      title={i18n('Version-Manager')}
-      open={open}
-      closable={false}
-      styles={{ body: { paddingTop: 12 } }}
-      footer={[
-        path && path !== 'error' ? null : loading ? (
-          <Button key="cancel" danger onClick={onAbort}>
-            {i18n('Cancel')}
-          </Button>
-        ) : (
-          <Button
-            key="cancel"
-            onClick={() => {
-              setOpen(false);
-            }}
-          >
-            {i18n('Cancel')}
-          </Button>
-        ),
-        path && path !== 'error' ? (
-          <Button
-            key="start"
-            type="primary"
-            loading={loading}
-            onClick={() => {
-              onRefrresh();
-              setOpen(false);
-            }}
-          >
-            {i18n('OK')}
-          </Button>
-        ) : (
-          <Button
-            key="start"
-            type="primary"
-            loading={loading}
-            onClick={onStart}
-          >
-            {path === 'error' ? i18n('Retry') : i18n('Start-Install')}
-          </Button>
-        ),
-      ]}
-      afterClose={() => {
-        record.current = undefined;
-        uuid.current = undefined;
-        setPath(undefined);
-        setProgress(undefined);
-      }}
-    >
-      <Descriptions column={2} colon={false}>
-        <Descriptions.Item label={i18n('Version')}>
-          {record.current?.version}
-        </Descriptions.Item>
-        <Descriptions.Item label={`NPM ${i18n('Version')}`}>
-          {record.current?.npm}
-        </Descriptions.Item>
-        {progress ? (
-          <Descriptions.Item span={2} contentStyle={{ maxWidth: 260 }}>
-            <Progress
-              size="small"
-              strokeColor="#74a975"
-              percent={progress.percent * 100}
-              format={() => `${progress.transferred} / ${progress.total} B`}
-              style={{ marginBottom: 0 }}
-            />
-          </Descriptions.Item>
-        ) : (
-          <Descriptions.Item span={2} label={i18n('Install-Tip')}>
-            {''}
-          </Descriptions.Item>
-        )}
-        {path && path !== 'error' ? (
-          <Descriptions.Item span={2} label="Installation Directory">
-            <Paragraph copyable style={{ marginBottom: 0 }}>
-              {path}
-            </Paragraph>
-          </Descriptions.Item>
-        ) : null}
-      </Descriptions>
-    </Modal>
+    <AlertDialog open={open}>
+      <AlertDialogContent className="top-1/3">
+        <AlertDialogHeader>
+          <AlertDialogTitle>{i18n("Version-Manager")}</AlertDialogTitle>
+          <AlertDialogDescription asChild>
+            <div className="space-y-2">
+              <div className="columns-2">
+                <p className="space-x-2">
+                  <Label>{i18n("Version")}</Label>
+                  <Label className="text-foreground">{record.current?.version}</Label>
+                </p>
+                <p className="space-x-2">
+                  <Label>{`NPM ${i18n("Version")}`}</Label>
+                  <Label className="text-foreground">{record.current?.npm}</Label>
+                </p>
+              </div>
+              <div className="flex items-center h-5">
+                {progress ? (
+                  <div className="flex flex-1 items-center space-x-2">
+                    <Progress value={progress.percent * 100} className="max-w-60" />
+                    <Label>{`${progress.transferred} / ${progress.total} B`}</Label>
+                  </div>
+                ) : (
+                  <p className="flex-1">{i18n("Install-Tip")}</p>
+                )}
+              </div>
+              {path && path !== "error" ? (
+                <div className="flex items-center gap-2">
+                  <Label>Installation Directory</Label>
+                  <LabelCopyable className="text-foreground">{path}</LabelCopyable>
+                </div>
+              ) : null}
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          {path && path !== "error" ? null : loading ? (
+            <Button variant="destructive" onClick={onAbort}>
+              {i18n("Cancel")}
+            </Button>
+          ) : (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setOpen(false);
+              }}
+            >
+              {i18n("Cancel")}
+            </Button>
+          )}
+          {path && path !== "error" ? (
+            <Button
+              loading={loading}
+              onClick={() => {
+                onRefrresh();
+                setOpen(false);
+                setTimeout(() => {
+                  record.current = undefined;
+                  uuid.current = undefined;
+                  setPath(undefined);
+                  setProgress(undefined);
+                }, 0);
+              }}
+            >
+              {i18n("OK")}
+            </Button>
+          ) : (
+            <Button loading={loading} onClick={onStart}>
+              {path === "error" ? i18n("Retry") : i18n("Start-Install")}
+            </Button>
+          )}
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 });

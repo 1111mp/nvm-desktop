@@ -27,6 +27,7 @@ import { Closer, Themes } from "../types";
 import type { MenuItemConstructorOptions } from "electron";
 
 let mainWindow: BrowserWindow | null = null,
+  updater: AppUpdater | null = null,
   tray: Tray | null = null,
   locale: I18n.Locale,
   menuBuilder: MenuBuilder,
@@ -151,7 +152,7 @@ const createWindow = async (code?: number) => {
     // windows only
     // Remove this if your app does not use auto updates
     // eslint-disable-next-line
-    new AppUpdater(mainWindow);
+    updater = new AppUpdater(mainWindow);
   }
 };
 
@@ -161,11 +162,15 @@ const createWindow = async (code?: number) => {
 
 app.on("window-all-closed", () => {
   if (setting.closer == Closer.Minimize) {
-    platform !== "win32" && app.dock.hide();
+    platform === "darwin" && app.dock.hide();
   }
 
   if (setting.closer === Closer.Close) {
     app.quit();
+  } else {
+    updater?.clearMainBindings();
+
+    updater = null;
   }
 });
 
@@ -318,7 +323,7 @@ const controllers = new Map<string, AbortController>();
 
 // defer actions
 Promise.resolve().then(() => {
-  if (platform === "win32") {
+  if (platform !== "darwin") {
     ipcMain.on("window:close", (_event) => {
       mainWindow && mainWindow.close();
     });

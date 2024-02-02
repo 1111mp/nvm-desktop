@@ -1,7 +1,7 @@
 import { createMemoryRouter } from "react-router-dom";
 
 import Home from "./pages/home";
-import { ErrorBoundary } from "./components/ErrorBoundary";
+import { ErrorBoundary } from "@renderer/components/error-boundary";
 import { VersionsRoute, loader as VersionsLoader } from "./pages/versions";
 
 import type { RouteObject } from "react-router-dom";

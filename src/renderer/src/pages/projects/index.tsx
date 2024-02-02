@@ -1,29 +1,33 @@
-import "./styles.scss";
-
-import { useMemo, useState, Children, cloneElement, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useLoaderData } from "react-router-dom";
-import { App, Button, Drawer, Popconfirm, Select, Space, Table, Typography } from "antd";
-import { DndContext } from "@dnd-kit/core";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+
 import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import {
-  CloseCircleFilled,
-  MenuOutlined,
-  InfoCircleOutlined,
-  ReloadOutlined,
-  SisternodeOutlined
-} from "@ant-design/icons";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  Button,
+  DataDndTable,
+  DataTableToolbar,
+  LabelCopyable,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@renderer/components/ui";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { toast } from "sonner";
+import { FilePlusIcon, ReloadIcon, TrashIcon } from "@radix-ui/react-icons";
 
 import { useAppContext, useI18n } from "@src/renderer/src/app-context";
-
-import type { DragEndEvent } from "@dnd-kit/core";
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnDef } from "@tanstack/react-table";
 
 export async function loader() {
   const versions = await Promise.all([
@@ -34,24 +38,21 @@ export async function loader() {
   return versions;
 }
 
-const { Paragraph, Text, Title } = Typography;
-
 export const Component: React.FC = () => {
   const [allProjects, allInstalledVersions] = useLoaderData() as [Nvmd.Project[], Array<string>];
 
   const [installedVersions, setInstalledVersions] = useState<string[]>(() => allInstalledVersions);
   const [projects, setProjects] = useState<Nvmd.Project[]>(() => allProjects);
-  const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
   const i18n = useI18n();
-  const { direction, locale } = useAppContext();
-  const { message } = App.useApp();
+  const { directory, locale } = useAppContext();
+  // const { message } = App.useApp();
 
   useEffect(() => {
     window.Context.onRegistProjectUpdate((pros, version) => {
       setProjects(pros);
-      message.success(i18n("Restart-Terminal", [`v${version}`]));
+      toast.success(i18n("Restart-Terminal", [`v${version}`]));
     });
 
     return () => {
@@ -66,46 +67,41 @@ export const Component: React.FC = () => {
     };
 
     fetcher();
-  }, [direction]);
+  }, [directory]);
 
-  const columns: ColumnsType<Nvmd.Project> = useMemo(
+  const columns: ColumnDef<Nvmd.Project>[] = useMemo(
     () => [
       {
-        width: 30,
-        key: "sort"
+        accessorKey: "sort",
+        maxSize: 50,
+        header: () => null
       },
       {
-        title: i18n("Project-Name"),
-        width: 240,
-        dataIndex: "name",
-        ellipsis: true,
-        render(text: string, { active }) {
-          return (
-            <Text strong delete={!active}>
-              {text}
-            </Text>
-          );
-        }
+        accessorKey: "name",
+        header: i18n("Project-Name"),
+        maxSize: 240,
+        enableHiding: false
       },
       {
-        title: i18n("Project-Path"),
-        dataIndex: "path",
-        render: (path, { active }) => (
-          <Text type="secondary" copyable delete={!active} ellipsis={{ tooltip: path }}>
-            {path}
-          </Text>
+        accessorKey: "path",
+        header: i18n("Project-Path"),
+        enableHiding: false,
+        cell: ({ row }) => (
+          <LabelCopyable className="max-w-[360px] inline-block truncate">
+            {row.original.path}
+          </LabelCopyable>
         )
       },
       {
-        title: i18n("Version"),
-        width: 170,
-        dataIndex: "version",
-        render(version: string, { path }) {
+        accessorKey: "version",
+        header: i18n("Version"),
+        maxSize: 170,
+        cell: ({ row }) => {
+          const { version, path } = row.original;
           return (
-            <Selector
-              version={version}
-              installedVersions={installedVersions}
-              onChange={async (newVersion) => {
+            <Select
+              defaultValue={version}
+              onValueChange={async (newVersion) => {
                 try {
                   const code = await window.Context.syncProjectVersion(path, newVersion || "");
 
@@ -123,41 +119,65 @@ export const Component: React.FC = () => {
                   setProjects(newProjects);
                   window.Context.updateProjects(newProjects);
                   code === 200
-                    ? message.success(i18n("Restart-Terminal", [`v${newVersion}`]))
-                    : message.error(`Project not found, please check it`, 3);
+                    ? toast.success(i18n("Restart-Terminal", [`v${newVersion}`]))
+                    : toast.error(`Project not found, please check it`);
                 } catch (err) {
-                  message.error("Something went wrong");
+                  toast.error("Something went wrong");
                 }
               }}
-            />
+            >
+              <SelectTrigger className="h-6 w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {installedVersions.map((version) => (
+                  <SelectItem key={version} value={version}>
+                    v{version}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           );
         }
       },
       {
-        title: i18n("Operation"),
-        width: 120,
-        render(_text, { name, path }) {
+        header: i18n("Operation"),
+        maxSize: 120,
+        cell: ({ row }) => {
+          const { name, path } = row.original;
           return (
-            <Popconfirm
-              title={name}
-              placement="topRight"
-              description={i18n("Project-Delete")}
-              onConfirm={() => {
-                const newProjects = projects.filter(({ path: source }) => source !== path);
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="sm" variant="tag">
+                  <TrashIcon />
+                  {i18n("Remove")}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{name}</AlertDialogTitle>
+                  <AlertDialogDescription>{i18n("Project-Delete")}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{i18n("Cancel")}</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      const newProjects = projects.filter(({ path: source }) => source !== path);
 
-                setProjects(newProjects);
-                window.Context.updateProjects(newProjects, path);
-              }}
-            >
-              <Button ghost danger size="small" type="primary" icon={<CloseCircleFilled />}>
-                {i18n("Remove")}
-              </Button>
-            </Popconfirm>
+                      setProjects(newProjects);
+                      window.Context.updateProjects(newProjects, path);
+                    }}
+                  >
+                    {i18n("OK")}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           );
         }
       }
     ],
-    [locale, projects, installedVersions]
+    [locale, projects, installedVersions.length]
   );
 
   const onAddProject = async () => {
@@ -169,7 +189,7 @@ export const Component: React.FC = () => {
     const [path] = filePaths;
 
     if (projects.find(({ path: source }) => source === path)) {
-      return message.error("The project already exists");
+      return toast.error("The project already exists");
     }
 
     const pathArr = path.split(window.Context.platform === "win32" ? "\\" : "/");
@@ -188,19 +208,18 @@ export const Component: React.FC = () => {
     return;
   };
 
-  const onDragEnd = ({ active, over }: DragEndEvent) => {
-    if (active.id !== over?.id) {
-      setProjects((previous) => {
-        const activeIndex = previous.findIndex((i) => i.path === active.id);
-        const overIndex = previous.findIndex((i) => i.path === over?.id);
-        const newProject = arrayMove(previous, activeIndex, overIndex);
-        window.Context.updateProjects(newProject);
-        return newProject;
-      });
-    }
+  const reorderRow = (draggedRowIndex: number, targetRowIndex: number) => {
+    setProjects((previous) => {
+      previous.splice(targetRowIndex, 0, previous.splice(draggedRowIndex, 1)[0]);
+
+      const newProject = [...previous];
+      window.Context.updateProjects(newProject);
+
+      return newProject;
+    });
   };
 
-  const onRefresh = async () => {
+  const onPageReload = async () => {
     setLoading(true);
     try {
       const [allProjects, installedVersions] = await Promise.all([
@@ -210,186 +229,36 @@ export const Component: React.FC = () => {
 
       setProjects(allProjects);
       setInstalledVersions(installedVersions);
-      message.success(i18n("Refresh-successful"));
+      toast.success(i18n("Refresh-successful"));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <>
-      <div className="module-projects">
-        <div className="module-projects-header">
-          <Space>
-            <Title level={4} style={{ margin: 0 }}>
-              {i18n("All-Projects")}
-            </Title>
-            <Button
-              type="text"
-              size="small"
-              title={i18n("Tip")}
-              className="module-home-btn"
-              icon={<InfoCircleOutlined />}
-              onClick={() => {
-                setOpen(true);
-              }}
-            />
-          </Space>
-          <Space>
-            <Button
-              size="small"
-              type="primary"
-              icon={<ReloadOutlined />}
-              loading={loading}
-              onClick={onRefresh}
-            >
-              {i18n("Refresh")}
-            </Button>
-            <Button
-              size="small"
-              type="primary"
-              icon={<SisternodeOutlined />}
-              onClick={onAddProject}
-            >
-              {i18n("Add-Project")}
-            </Button>
-          </Space>
-        </div>
-        <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
-          <SortableContext
-            // rowKey array
-            items={projects.map((i) => i.path)}
-            strategy={verticalListSortingStrategy}
-          >
-            <Table
-              size="small"
-              rowKey="path"
-              bordered={false}
-              columns={columns}
-              dataSource={projects}
-              components={{
-                body: {
-                  row: Row
-                }
-              }}
-              pagination={false}
-              scroll={{ x: "100%", y: 570 }}
-            />
-          </SortableContext>
-        </DndContext>
+    <DndProvider backend={HTML5Backend}>
+      <div className="h-full flex flex-col space-y-2">
+        <DataDndTable
+          columns={columns}
+          data={projects}
+          loading={loading}
+          toolbar={(table) => (
+            <div className="flex items-center gap-2">
+              <DataTableToolbar table={table} filterName="name" status={false} />
+              <div className="flex items-center gap-2">
+                <Button size="sm" loading={loading} icon={<ReloadIcon />} onClick={onPageReload}>
+                  Page Reload
+                </Button>
+                <Button size="sm" icon={<FilePlusIcon />} onClick={onAddProject}>
+                  {i18n("Add-Project")}
+                </Button>
+              </div>
+            </div>
+          )}
+          reorderRow={reorderRow}
+        />
       </div>
-      <Drawer
-        open={open}
-        title={i18n("Tip")}
-        closable={false}
-        destroyOnClose
-        onClose={() => {
-          setOpen(false);
-        }}
-      >
-        <>
-          <Paragraph>
-            <Text>{i18n("Can-Select")}</Text>
-          </Paragraph>
-          <Paragraph>
-            <Text>{i18n("Command-Tip-Project")}</Text>
-            <Text type="secondary" copyable>
-              {" "}
-              nvmd use node_version --project
-            </Text>
-          </Paragraph>
-          <Paragraph>
-            <Text>
-              {i18n("Had-File")} <Text type="secondary">.nvmdrc</Text> {i18n("Load-Node")}
-            </Text>
-          </Paragraph>
-        </>
-      </Drawer>
-    </>
-  );
-};
-
-function Selector({
-  version: versionProp,
-  installedVersions,
-  onChange
-}: {
-  version: string;
-  installedVersions: string[];
-  onChange: (version: string) => Promise<void>;
-}) {
-  const [version, setVersion] = useState<string>(versionProp);
-
-  useEffect(() => {
-    setVersion(versionProp);
-  }, [versionProp]);
-
-  return (
-    <Select
-      size="small"
-      showSearch
-      allowClear
-      value={version}
-      placeholder="Select a version"
-      optionFilterProp="children"
-      status={!version || installedVersions.includes(version) ? undefined : "error"}
-      filterOption={(input, option) =>
-        (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-      }
-      options={installedVersions.map((version) => ({
-        label: `v${version}`,
-        value: version
-      }))}
-      style={{ minWidth: 140 }}
-      onChange={(newVersion) => {
-        setVersion(newVersion);
-        onChange?.(newVersion);
-      }}
-    />
-  );
-}
-
-interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
-  "data-row-key": string;
-}
-
-const Row = ({ children, ...props }: RowProps) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    setActivatorNodeRef,
-    transform,
-    transition,
-    isDragging
-  } = useSortable({
-    id: props["data-row-key"]
-  });
-
-  const style: React.CSSProperties = {
-    ...props.style,
-    transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
-    transition,
-    ...(isDragging ? { position: "relative", zIndex: 9999 } : {})
-  };
-
-  return (
-    <tr {...props} ref={setNodeRef} style={style} {...attributes}>
-      {Children.map(children, (child) => {
-        if ((child as React.ReactElement).key === "sort") {
-          return cloneElement(child as React.ReactElement, {
-            children: (
-              <MenuOutlined
-                ref={setActivatorNodeRef}
-                style={{ touchAction: "none", cursor: "move" }}
-                {...listeners}
-              />
-            )
-          });
-        }
-        return child;
-      })}
-    </tr>
+    </DndProvider>
   );
 };
 

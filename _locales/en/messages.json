@@ -398,5 +398,21 @@
   "Quit-App": {
     "message": "Quit App",
     "description": "The text of the Quit-App"
+  },
+  "Theme-Color": {
+    "message": "Theme Color",
+    "description": "The text of the Theme-Color"
+  },
+  "Color-Tip": {
+    "message": "Here you can choose your favorite color as the theme color.",
+    "description": "The text of the Color-Tip"
+  },
+  "Tour": {
+    "message": "Tour",
+    "description": "The text of the Tour"
+  },
+  "Tour-Text": {
+    "message": "Click me to run the onboarding tours",
+    "description": "The text of the Tour-Text"
   }
 }

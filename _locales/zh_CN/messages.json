@@ -398,5 +398,21 @@
   "Quit-App": {
     "message": "退出应用",
     "description": "The text of the Quit-App"
+  },
+  "Theme-Color": {
+    "message": "主题颜色",
+    "description": "The text of the Theme-Color"
+  },
+  "Color-Tip": {
+    "message": "在这里你可以选择你喜爱的颜色作为主题的颜色。",
+    "description": "Color-Tip"
+  },
+  "Tour": {
+    "message": "引导",
+    "description": "The text of the Tour"
+  },
+  "Tour-Text": {
+    "message": "点我以下次运行漫游式引导",
+    "description": "The text of the Tour-Text"
   }
 }

@@ -426,5 +426,17 @@
   "Tour-Tip": {
     "message": "操作成功，下次打开客户端时将会运行漫游式引导",
     "description": "The text of the Tour-Tip"
+  },
+  "Selected": {
+    "message": "已选择",
+    "description": "The text of the Selected"
+  },
+  "Clear-Filters": {
+    "message": "清空",
+    "description": "The text of the Clear-Filters"
+  },
+  "No-results": {
+    "message": "无记录。",
+    "description": "The text of the No-results"
   }
 }

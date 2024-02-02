@@ -6,6 +6,7 @@ import { Input } from "./input";
 import { DataTableViewOptions } from "./data-table-view-options";
 
 import { DataTableFacetedFilter, type Options } from "./data-table-faceted-filter";
+import { useI18n } from "@renderer/app-context";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -20,6 +21,8 @@ export function DataTableToolbar<TData>({
   status = true,
   options = []
 }: DataTableToolbarProps<TData>) {
+  const i18n = useI18n();
+
   const isFiltered = table.getState().columnFilters.length > 0;
 
   return (
@@ -34,7 +37,7 @@ export function DataTableToolbar<TData>({
         {status ? (
           <DataTableFacetedFilter
             column={table.getColumn("status")}
-            title="Status"
+            title={i18n("Status")}
             options={options}
           />
         ) : null}
@@ -44,7 +47,7 @@ export function DataTableToolbar<TData>({
             onClick={() => table.resetColumnFilters()}
             className="h-8 px-2 lg:px-3"
           >
-            Reset
+            {i18n("Reset")}
             <Cross2Icon className="ml-2 h-4 w-4" />
           </Button>
         )}

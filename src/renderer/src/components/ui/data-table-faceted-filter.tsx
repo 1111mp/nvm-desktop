@@ -15,6 +15,7 @@ import {
 } from "./command";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Separator } from "./separator";
+import { useI18n } from "@renderer/app-context";
 
 export interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
@@ -33,6 +34,8 @@ export function DataTableFacetedFilter<TData, TValue>({
   title,
   options
 }: DataTableFacetedFilterProps<TData, TValue>) {
+  const i18n = useI18n();
+
   const facets = column?.getFacetedUniqueValues();
   const selectedValues = new Set(column?.getFilterValue() as string[]);
 
@@ -51,7 +54,7 @@ export function DataTableFacetedFilter<TData, TValue>({
               <div className="hidden space-x-1 lg:flex">
                 {selectedValues.size > 2 ? (
                   <Badge variant="secondary" className="rounded-sm px-1 font-normal">
-                    {selectedValues.size} selected
+                    {selectedValues.size} {i18n("Selected")}
                   </Badge>
                 ) : (
                   options
@@ -121,7 +124,7 @@ export function DataTableFacetedFilter<TData, TValue>({
                     onSelect={() => column?.setFilterValue(undefined)}
                     className="justify-center text-center"
                   >
-                    Clear filters
+                    {i18n("Clear-Filters")}
                   </CommandItem>
                 </CommandGroup>
               </>

@@ -426,5 +426,17 @@
   "Tour-Tip": {
     "message": "The operation is successful. The onboarding tours will be run the next time you open the client",
     "description": "The text of the Tour-Tip"
+  },
+  "Selected": {
+    "message": "selected",
+    "description": "The text of the Selected"
+  },
+  "Clear-Filters": {
+    "message": "Clear filters",
+    "description": "The text of the Clear-Filters"
+  },
+  "No-results": {
+    "message": "No results.",
+    "description": "The text of the No-results"
   }
 }

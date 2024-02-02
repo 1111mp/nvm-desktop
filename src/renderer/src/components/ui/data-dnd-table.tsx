@@ -21,6 +21,7 @@ import { type Table as StackTable } from "@tanstack/react-table";
 import { useDrag, useDrop } from "react-dnd";
 import { Button } from "./button";
 import { HamburgerMenuIcon } from "@radix-ui/react-icons";
+import { useI18n } from "@renderer/app-context";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -106,6 +107,8 @@ export function DataDndTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
+  const i18n = useI18n();
+
   const table = useReactTable({
     columns,
     data,
@@ -185,8 +188,8 @@ export function DataDndTable<TData, TValue>({
                 .rows.map((row) => <DraggableRow key={row.id} row={row} reorderRow={reorderRow} />)
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                <TableCell colSpan={columns.length} className="h-24 justify-center">
+                  {i18n("No-results")}
                 </TableCell>
               </TableRow>
             )}

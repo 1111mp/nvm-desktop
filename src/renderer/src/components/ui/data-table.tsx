@@ -19,6 +19,7 @@ import { Bars } from "svg-loaders-react";
 
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { type Table as StackTable } from "@tanstack/react-table";
+import { useI18n } from "@renderer/app-context";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -44,6 +45,8 @@ export function DataTable<TData, TValue>({
 
   // The virtualizer needs to know the scrollable container element
   const tableContainerRef = useRef<HTMLTableSectionElement>(null);
+
+  const i18n = useI18n();
 
   const table = useReactTable({
     columns,
@@ -174,8 +177,8 @@ export function DataTable<TData, TValue>({
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                <TableCell colSpan={columns.length} className="h-24 justify-center">
+                  {i18n("No-results")}
                 </TableCell>
               </TableRow>
             )}

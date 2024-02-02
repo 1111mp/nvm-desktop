@@ -14,7 +14,7 @@ import { app } from 'electron';
 
 import { APPDIR, BIN_DIR, MIRRATION_FILE } from '../constants';
 
-const CURRENT_MIGRATION_VERSION: number = 8;
+const CURRENT_MIGRATION_VERSION: number = 9;
 
 export async function updateSchema() {
   const schemaVersion = await getSchemaVersion();

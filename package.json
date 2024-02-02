@@ -1,7 +1,7 @@
 {
   "name": "nvm-desktop",
   "productName": "NVM-Desktop",
-  "version": "2.6.2",
+  "version": "3.0.0",
   "description": "A desktop client for manage the version of Nodejs.",
   "keywords": [
     "node",
@@ -33,6 +33,9 @@
     "build": "npm run typecheck && electron-vite build --outDir=release/app/dist",
     "postinstall": "electron-builder install-app-deps",
     "package": "npm run build && electron-builder build --publish never",
+    "package:mac": "npm run build && electron-builder build --publish never --mac",
+    "package:linux": "npm run build && electron-builder build --publish never --linux",
+    "package:win": "npm run build && electron-builder build --publish never --win",
     "package:debug": "DEBUG_PROD=true npm run build && electron-builder build --publish never",
     "package:test": "TEST=true npm run build && electron-builder build --publish never",
     "publish": "npm run build && electron-builder build --publish always",
@@ -174,7 +177,13 @@
     },
     "linux": {
       "target": [
-        "AppImage"
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ],
       "category": "Development"
     },

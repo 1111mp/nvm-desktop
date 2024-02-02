@@ -73,7 +73,9 @@ async function updateToSchemaVersionDefault(version: number) {
   await copy(sourceFile, targetFile).catch((_err) => {});
 
   await Promise.all(
-    ["node", "npm", "npx", "corepack"].map((name) => symlink(targetFile, join(BIN_DIR, name)))
+    ["node", "npm", "npx", "corepack"].map((name) =>
+      symlink(targetFile, join(BIN_DIR, name)).catch((_err) => {})
+    )
   );
 
   setSchemaVersion(CURRENT_MIGRATION_VERSION);

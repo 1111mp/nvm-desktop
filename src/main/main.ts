@@ -161,7 +161,7 @@ const createWindow = async (code?: number) => {
 
 app.on("window-all-closed", () => {
   if (setting.closer == Closer.Minimize) {
-    platform !== "win32" && app.dock.hide();
+    platform === "darwin" && app.dock.hide();
   }
 
   if (setting.closer === Closer.Close) {

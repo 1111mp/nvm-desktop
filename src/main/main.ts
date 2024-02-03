@@ -36,24 +36,23 @@ let mainWindow: BrowserWindow | null = null,
   installedVersions: string[];
 
 if (process.env.NODE_ENV === "production") {
-  const sourceMapSupport = require("source-map-support");
-  sourceMapSupport.install();
+  import("source-map-support").then((mapper) => mapper.default.install());
 }
 
 const isDebug = process.env.NODE_ENV === "development" || process.env.DEBUG_PROD === "true";
 
 if (isDebug) {
-  require("electron-debug")();
+  import("electron-debug").then(({ default: debug }) => debug());
 }
 
 const installExtensions = async () => {
-  const installer = require("electron-devtools-installer");
+  const devtools = await import("electron-devtools-installer");
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = ["REACT_DEVELOPER_TOOLS"];
 
-  return installer
+  return devtools
     .default(
-      extensions.map((name) => installer[name]),
+      extensions.map((name) => devtools[name]),
       forceDownload
     )
     .catch(console.log);

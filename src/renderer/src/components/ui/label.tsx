@@ -37,7 +37,7 @@ const LabelCopyable = forwardRef<React.ElementRef<typeof LabelPrimitive.Root>, L
     }, []);
 
     return (
-      <span className="space-x-1">
+      <span className="flex items-center space-x-1">
         <LabelPrimitive.Root ref={ref} className={cn(labelVariants(), className)} {...props}>
           {children}
         </LabelPrimitive.Root>

@@ -438,5 +438,25 @@
   "No-results": {
     "message": "No results.",
     "description": "The text of the No-results"
+  },
+  "Asc": {
+    "message": "Asc",
+    "description": "The text of the Asc"
+  },
+  "Desc": {
+    "message": "Desc",
+    "description": "The text of the Desc"
+  },
+  "Mirror-Tip": {
+    "message": "Please select or input the appropriate mirror url according to your region.",
+    "description": "The text of the Mirror-Tip"
+  },
+  "Default": {
+    "message": "Default",
+    "description": "The text of the Default"
+  },
+  "Custom": {
+    "message": "Custom",
+    "description": "The text of the Custom"
   }
 }

@@ -1,5 +1,8 @@
-import { memo, useState } from "react";
+import { memo, useRef, useState } from "react";
 import {
+  DefMirrors,
+  AutoComplete,
+  AutoCompleteProps,
   Button,
   LabelCopyable,
   RadioGroup,
@@ -28,7 +31,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  Input,
   Select
 } from "@renderer/components/ui";
 
@@ -38,6 +40,8 @@ import { z } from "zod";
 import { useAppContext, useI18n } from "@src/renderer/src/app-context";
 import { Closer, Themes } from "@src/types";
 
+type Options = NonNullable<AutoCompleteProps["options"]>;
+
 type Props = {};
 
 const formSchema = z.object({
@@ -45,12 +49,17 @@ const formSchema = z.object({
   theme: z.nativeEnum(Themes),
   closer: z.nativeEnum(Closer),
   directory: z.string().min(1),
-  mirror: z.string().url({ message: "Invalid url" })
+  mirror: z.string().url({ message: "Invalid mirror url" })
 });
 
 export const Setting: React.FC<Props> = memo(({}) => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [options, setOptions] = useState<Options>(() => {
+    const optStr = localStorage.getItem("nvmd-mirror");
+    return optStr ? optStr.split("__") : [];
+  });
 
   const { locale, theme, closer, directory, mirror, onUpdateSetting } = useAppContext();
 
@@ -86,6 +95,20 @@ export const Setting: React.FC<Props> = memo(({}) => {
       setLoading(false);
       setOpen(false);
       return;
+    }
+
+    // for custom mirror url
+    // if not exesit need to cache
+    if (![...DefMirrors, ...options].includes(newMirror)) {
+      setOptions((pre) => {
+        let newOptions = [...pre];
+        newOptions.unshift(newMirror);
+        // max cache 5
+        newOptions = newOptions.slice(0, 5);
+        localStorage.setItem("nvmd-mirror", newOptions.join("__"));
+
+        return newOptions;
+      });
     }
 
     try {
@@ -270,12 +293,15 @@ export const Setting: React.FC<Props> = memo(({}) => {
                 <FormItem>
                   <FormLabel className="text-muted-foreground">{i18n("Mirror-Url")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="mirror url" {...field} />
+                    <AutoComplete
+                      value={field.value}
+                      shouldFilter={false}
+                      placeholder="mirror url"
+                      options={options}
+                      onChange={field.onChange}
+                    />
                   </FormControl>
-                  <FormDescription className="flex items-center gap-1">
-                    {i18n("For-example")}:
-                    <LabelCopyable>https://npmmirror.com/mirrors/node</LabelCopyable>
-                  </FormDescription>
+                  <FormDescription>{i18n("Mirror-Tip")}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

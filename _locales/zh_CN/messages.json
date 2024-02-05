@@ -438,5 +438,25 @@
   "No-results": {
     "message": "无记录。",
     "description": "The text of the No-results"
+  },
+  "Asc": {
+    "message": "升序",
+    "description": "The text of the Asc"
+  },
+  "Desc": {
+    "message": "降序",
+    "description": "The text of the Desc"
+  },
+  "Mirror-Tip": {
+    "message": "请根据您所在的地区选择或者输入适合的镜像地址。",
+    "description": "The text of the Mirror-Tip"
+  },
+  "Default": {
+    "message": "默认",
+    "description": "The text of the Default"
+  },
+  "Custom": {
+    "message": "自定义",
+    "description": "The text of the Custom"
   }
 }

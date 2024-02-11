@@ -3,7 +3,6 @@ import { readFileSync } from "fs-extra";
 import { app } from "electron";
 import { merge } from "lodash";
 import { setup } from "./i18n";
-import { __dirname } from "./utils/dirname";
 
 function normalizeLocaleName(locale: string) {
   if (/^en-/.test(locale)) {

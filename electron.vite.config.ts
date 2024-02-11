@@ -1,41 +1,25 @@
 import { resolve } from "path";
-import { defineConfig, externalizeDepsPlugin } from "electron-vite";
-import react from "@vitejs/plugin-react";
-import del from "rollup-plugin-delete";
+import { defineConfig } from "electron-vite-tsup";
+import react from "@vitejs/plugin-react-swc";
+import stylePlugin from "esbuild-style-plugin";
+import tailwindcss from "tailwindcss";
+import autoprefixer from "autoprefixer";
 
 const isTest = process.env.TEST === "true";
 
 export default defineConfig({
   main: {
-    resolve: {
-      alias: {
-        "@src": resolve("src")
-      }
-    },
-    build: {
-      rollupOptions: {
-        input: isTest ? "src/main/main.test.ts" : "src/main/main.ts",
-        output: {
-          entryFileNames: "main.mjs",
-          inlineDynamicImports: true,
-          format: "es"
-        }
-      }
-    },
-    plugins: [del({ targets: ["release/app/dist", "release/build"] })]
+    clean: true,
+    entry: [isTest ? "src/main/main.test.ts" : "src/main/main.ts"],
+    target: "node18",
+    format: "esm",
+    watch: true
   },
   preload: {
-    build: {
-      rollupOptions: {
-        input: isTest ? "src/preload/preload.test.ts" : "src/preload/index.ts",
-        output: {
-          entryFileNames: "preload.js",
-          inlineDynamicImports: true,
-          format: "cjs"
-        }
-      }
-    },
-    plugins: [externalizeDepsPlugin()]
+    clean: true,
+    entry: [isTest ? "src/preload/preload.test.ts" : "src/preload/index.ts"],
+    format: "cjs",
+    watch: true
   },
   renderer: {
     resolve: {
@@ -43,6 +27,17 @@ export default defineConfig({
         "@src": resolve("src"),
         "@renderer": resolve("src/renderer/src")
       }
+    },
+    build: {
+      clean: true,
+      entry: ["src/renderer/src/index.tsx"],
+      esbuildPlugins: [
+        stylePlugin({
+          postcss: {
+            plugins: [tailwindcss(), autoprefixer()]
+          }
+        })
+      ]
     },
     plugins: [react()]
   }

@@ -3,7 +3,7 @@ import { defineConfig, externalizeDepsPlugin } from "electron-vite";
 import react from "@vitejs/plugin-react";
 import del from "rollup-plugin-delete";
 
-const isTest = process.env.TEST === "true";
+const isTest = true;
 
 export default defineConfig({
   main: {

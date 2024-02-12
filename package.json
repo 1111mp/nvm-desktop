@@ -120,7 +120,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
     "vite": "^5.0.12",
-    "wdio-electron-service": "^6.2.0",
+    "wdio-electron-service": "^6.3.0",
     "webdriverio": "^8.29.7"
   },
   "build": {

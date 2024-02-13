@@ -136,6 +136,7 @@ export const Setting: React.FC<Props> = memo(({}) => {
       <SheetTrigger asChild>
         <Button
           className="nvmd-setting"
+          data-testid="setting-trigger"
           size="sm"
           title={i18n("Setting")}
           variant="ghost"
@@ -157,13 +158,20 @@ export const Setting: React.FC<Props> = memo(({}) => {
                   <FormControl>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="w-44 h-8">
-                          <SelectValue placeholder="Select a language to display" />
+                        <SelectTrigger data-testid="language-trigger" className="w-44 h-8">
+                          <SelectValue
+                            data-testid="language-value"
+                            placeholder="Select a language to display"
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="zh-CN">简体中文</SelectItem>
-                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem data-testid="language-item" value="zh-CN">
+                          简体中文
+                        </SelectItem>
+                        <SelectItem data-testid="language-item" value="en">
+                          English
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>

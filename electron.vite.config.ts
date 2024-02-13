@@ -9,10 +9,10 @@ export default defineConfig(({ mode }) => {
   const isProd = mode === "production",
     isTest = process.env.TEST === "true";
 
-  return {
+    return {
     main: {
       clean: true,
-      entry: [isTest ? "src/main/main.test.ts" : "src/main/main.ts"],
+      entry: { main: isTest ? "src/main/main.test.ts" : "src/main/main.ts" },
       target: "node18",
       format: "esm",
       minify: isProd,
@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
     },
     preload: {
       clean: true,
-      entry: [isTest ? "src/preload/preload.test.ts" : "src/preload/index.ts"],
+      entry: { preload: isTest ? "src/preload/preload.test.ts" : "src/preload/index.ts" },
       format: "cjs",
       minify: isProd,
       watch: !isProd

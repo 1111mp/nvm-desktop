@@ -21,16 +21,21 @@ describe("Module Setting", () => {
 
   describe("Language", async () => {
     it("should be set & update", async () => {
-      const defaultLocale = await (await browser.$(".ant-select-selection-item")).getText(),
+      await (await browser.$('button[data-testid="setting-trigger"]')).click();
+
+      const trigger = await browser.$('button[data-testid="language-trigger"]');
+      const defaultLocale = await browser.waitUntil(async () => {
+          return await trigger.getText();
+        }),
         selectLocale = defaultLocale === "English" ? "简体中文" : "English",
-        index = selectLocale === "English" ? 1 : 0;
+        index = defaultLocale === "English" ? 0 : 1;
+
+      await (await browser.$('button[data-testid="language-trigger"]')).click();
 
       const exist = await browser.waitUntil(
         async function () {
-          return await browser
-            .$$(".ant-select-item-option")
-            [index].$(".ant-select-item-option-content")
-            .getText();
+          const item = await browser.$$('div[data-testid="language-item"]')[index];
+          return await item.$$("span")[1].getText();
         },
         {
           timeout: 5000,
@@ -40,11 +45,13 @@ describe("Module Setting", () => {
 
       expect(exist).toHaveText(selectLocale);
 
-      await (await browser.$$(".ant-select-item-option"))[index].click();
+      await (await browser.$$('div[data-testid="language-item"]'))[index].click();
 
-      await expect(await browser.$(".ant-select-selection-item")).toHaveText(selectLocale);
+      await expect(await browser.$('button[data-testid="language-trigger"]')).toHaveText(
+        selectLocale
+      );
 
-      await (await screen.getByTestId("setting-submit")).click();
+      await (await browser.getByTestId("setting-submit")).click();
     });
   });
 

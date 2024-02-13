@@ -2998,14 +2998,6 @@ packages:
       - '@swc/helpers'
     dev: true
 
-  /@vitest/snapshot@1.2.1:
-    resolution: {integrity: sha512-Tmp/IcYEemKaqAYCS08sh0vORLJkMr0NRV76Gl8sHGxXT5151cITJCET20063wk0Yr/1koQ6dnmP6eEqezmd/Q==}
-    dependencies:
-      magic-string: 0.30.7
-      pathe: 1.1.2
-      pretty-format: 29.7.0
-    dev: true
-
   /@vitest/snapshot@1.2.2:
     resolution: {integrity: sha512-SmGY4saEw1+bwE1th6S/cZmPxz/Q4JWsl7LvbQIky2tKE35US4gd0Mjzqfr84/4OD0tikGWaWdMja/nWL5NIPA==}
     requiresBuild: true
@@ -3027,7 +3019,7 @@ packages:
     hasBin: true
     dependencies:
       '@types/node': 20.11.17
-      '@vitest/snapshot': 1.2.1
+      '@vitest/snapshot': 1.2.2
       '@wdio/config': 8.31.1
       '@wdio/globals': 8.31.1(typescript@5.3.3)
       '@wdio/logger': 8.28.0
@@ -3223,6 +3215,7 @@ packages:
   /@xmldom/xmldom@0.8.10:
     resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
     engines: {node: '>=10.0.0'}
+    requiresBuild: true
     dev: true
 
   /acorn-jsx@5.3.2(acorn@8.11.3):
@@ -9066,6 +9059,7 @@ packages:
   /xmlbuilder@15.1.1:
     resolution: {integrity: sha512-yMqGBqtXyeN1e3TGYvgNgDVZ3j84W4cwkOXQswghol6APgZWaff9lnbvN7MHYJOiXsvGPXtjTYJEiC9J2wv9Eg==}
     engines: {node: '>=8.0'}
+    requiresBuild: true
     dev: true
 
   /xtend@4.0.2:

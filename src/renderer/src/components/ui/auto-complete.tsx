@@ -74,6 +74,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = memo(
         <CommandInput
           ref={input}
           value={value}
+          className="h-8"
           placeholder={placeholder}
           onFocus={() => setOpen(true)}
           onBlur={() => setOpen(false)}

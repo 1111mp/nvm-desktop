@@ -105,9 +105,9 @@ const createWindow = async (code?: number) => {
           ? "#000000"
           : "#ffffff",
     webPreferences: {
-      preload: app.isPackaged
-        ? join(__dirname, "../preload/index.js")
-        : join(__dirname, "../../out/preload/index.js")
+            preload: app.isPackaged
+        ? join(__dirname, "../preload/preload.js")
+        : join(__dirname, "../../out/preload/preload.js")
     }
   });
 

@@ -32,8 +32,9 @@
 
 ## 截图
 
-<img width="1060" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/45f4c613-2d17-4804-bc83-ac07260bc6c0">
-<img width="1048" alt="image" src="https://github.com/1111mp/nvm-desktop/assets/31227919/757525bc-489d-4611-b957-c780fa9bfab5">
+<img width="1036" alt="Screenshot 2024-02-02 at 23 17 57" src="https://github.com/1111mp/nvm-desktop/assets/31227919/b98e048b-c919-4ad6-9e37-bff06ba75c2f">
+
+<img width="1035" alt="Screenshot 2024-02-02 at 23 17 39" src="https://github.com/1111mp/nvm-desktop/assets/31227919/bcbedf11-bdf0-44e6-bad6-683b613caa17">
 
 ## 一些或许你需要知道的事情
 

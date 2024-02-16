@@ -337,7 +337,13 @@ export const Component: React.FC = () => {
         toolbar={(table) => (
           <div className="flex items-center gap-2">
             <DataTableToolbar table={table} options={statuses} />
-            <Button size="sm" loading={loading} icon={<ReloadIcon />} onClick={onPageReload}>
+            <Button
+              size="sm"
+              className="h-8 text-sm"
+              loading={loading}
+              icon={<ReloadIcon />}
+              onClick={onPageReload}
+            >
               {i18n("Page-Reload")}
             </Button>
           </div>

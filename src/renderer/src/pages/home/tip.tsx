@@ -45,7 +45,7 @@ export function Tip() {
                         <span>{i18n("Tip-Content")}</span>
                       </p>
                       <p>
-                        <LabelCopyable className="break-all">
+                        <LabelCopyable className=" break-all">
                           {'export NVMD_DIR="$HOME/.nvmd" \nexport PATH="$NVMD_DIR/bin:$PATH"'}
                         </LabelCopyable>
                       </p>

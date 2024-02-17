@@ -5,7 +5,6 @@ import { pathExists, copy, readFile, readdir, writeFile, symlink, remove } from 
 import { app } from "electron";
 
 import { APPDIR, BIN_DIR, MIRRATION_FILE } from "../constants";
-import { __dirname } from "./dirname";
 
 const CURRENT_MIGRATION_VERSION: number = 9;
 

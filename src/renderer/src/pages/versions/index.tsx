@@ -432,7 +432,7 @@ const Versions: React.FC = () => {
                 <Button
                   size="sm"
                   disabled={loading}
-                  className=" text-sm"
+                  className="h-7 text-sm"
                   loading={localLoading}
                   icon={<ReloadIcon />}
                   onClick={onPageReload}
@@ -442,7 +442,7 @@ const Versions: React.FC = () => {
                 <Button
                   loading={loading}
                   size="sm"
-                  className="text-sm"
+                  className="h-7 text-sm"
                   icon={<UpdateIcon />}
                   onClick={onDataUpdate}
                 >

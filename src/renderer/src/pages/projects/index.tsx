@@ -88,9 +88,15 @@ export const Component: React.FC = () => {
         header: i18n("Project-Path"),
         enableHiding: false,
         cell: ({ row }) => (
-          <LabelCopyable className="max-w-[360px] inline-block truncate">
-            {row.original.path}
-          </LabelCopyable>
+          <span className="flex items-center gap-1">
+            <LabelCopyable
+              asChild
+              className="max-w-[360px] leading-6 inline-block truncate"
+              title={row.original.path}
+            >
+              {row.original.path}
+            </LabelCopyable>
+          </span>
         )
       },
       {
@@ -247,10 +253,21 @@ export const Component: React.FC = () => {
             <div className="flex items-center gap-2">
               <DataTableToolbar table={table} filterName="name" status={false} />
               <div className="flex items-center gap-2">
-                <Button size="sm" loading={loading} icon={<ReloadIcon />} onClick={onPageReload}>
+                <Button
+                  size="sm"
+                  className="h-7 text-sm"
+                  loading={loading}
+                  icon={<ReloadIcon />}
+                  onClick={onPageReload}
+                >
                   {i18n("Page-Reload")}
                 </Button>
-                <Button size="sm" icon={<FilePlusIcon />} onClick={onAddProject}>
+                <Button
+                  size="sm"
+                  className="h-7 text-sm"
+                  icon={<FilePlusIcon />}
+                  onClick={onAddProject}
+                >
                   {i18n("Add-Project")}
                 </Button>
               </div>

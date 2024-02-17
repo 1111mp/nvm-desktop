@@ -18,7 +18,6 @@ import { allNodeVersions, allInstalledNodeVersions } from "./deps/all-node-versi
 import getNode from "./deps/get-node";
 import { updateSchema } from "./utils/migration";
 import { getCurrentVersion, setCurrentVersion, uninstallVersion } from "./utils/version";
-import { __dirname } from "./utils/dirname";
 import { setSetting, getSetting } from "./utils/setting";
 import { getProjects, getVersion, syncProjectVersion, updateProjects } from "./utils/projects";
 import { gt } from "semver";
@@ -46,7 +45,7 @@ if (isDebug) {
 }
 
 const installExtensions = async () => {
-  const devtools = await import("electron-devtools-installer");
+  const devtools = require("electron-devtools-installer");
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = ["REACT_DEVELOPER_TOOLS"];
 
@@ -106,7 +105,7 @@ const createWindow = async (code?: number) => {
           ? "#000000"
           : "#ffffff",
     webPreferences: {
-      preload: app.isPackaged
+            preload: app.isPackaged
         ? join(__dirname, "../preload/preload.js")
         : join(__dirname, "../../out/preload/preload.js")
     }

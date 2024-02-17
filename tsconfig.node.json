@@ -8,6 +8,6 @@
     "paths": {
       "@src/*": ["./src/*"]
     },
-    "types": ["electron-vite/node"]
+    "types": ["electron-vite-tsup/node"]
   }
 }

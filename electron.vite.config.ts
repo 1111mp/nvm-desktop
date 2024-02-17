@@ -1,49 +1,50 @@
 import { resolve } from "path";
-import { defineConfig, externalizeDepsPlugin } from "electron-vite";
-import react from "@vitejs/plugin-react";
-import del from "rollup-plugin-delete";
+import { defineConfig } from "electron-vite-tsup";
+import react from "@vitejs/plugin-react-swc";
+import stylePlugin from "esbuild-style-plugin";
+import tailwindcss from "tailwindcss";
+import autoprefixer from "autoprefixer";
 
-const isTest = process.env.TEST === "true";
+export default defineConfig(({ mode }) => {
+  const isProd = mode === "production",
+    isTest = process.env.TEST === "true";
 
-export default defineConfig({
-  main: {
-    resolve: {
-      alias: {
-        "@src": resolve("src")
-      }
+    return {
+    main: {
+      clean: true,
+      entry: { main: isTest ? "src/main/main.test.ts" : "src/main/main.ts" },
+      target: "node18",
+      format: "esm",
+      minify: isProd,
+      watch: !isProd
     },
-    build: {
-      rollupOptions: {
-        input: isTest ? "src/main/main.test.ts" : "src/main/main.ts",
-        output: {
-          entryFileNames: "main.mjs",
-          inlineDynamicImports: true,
-          format: "es"
+    preload: {
+      clean: true,
+      entry: { preload: isTest ? "src/preload/preload.test.ts" : "src/preload/index.ts" },
+      format: "cjs",
+      minify: isProd,
+      watch: !isProd
+    },
+    renderer: {
+      resolve: {
+        alias: {
+          "@src": resolve("src"),
+          "@renderer": resolve("src/renderer/src")
         }
-      }
-    },
-    plugins: [del({ targets: ["release/app/dist", "release/build"] })]
-  },
-  preload: {
-    build: {
-      rollupOptions: {
-        input: isTest ? "src/preload/preload.test.ts" : "src/preload/index.ts",
-        output: {
-          entryFileNames: "preload.js",
-          inlineDynamicImports: true,
-          format: "cjs"
-        }
-      }
-    },
-    plugins: [externalizeDepsPlugin()]
-  },
-  renderer: {
-    resolve: {
-      alias: {
-        "@src": resolve("src"),
-        "@renderer": resolve("src/renderer/src")
-      }
-    },
-    plugins: [react()]
-  }
+      },
+      build: {
+        clean: true,
+        entry: ["src/renderer/src/index.tsx"],
+        minify: true,
+        esbuildPlugins: [
+          stylePlugin({
+            postcss: {
+              plugins: [tailwindcss(), autoprefixer()]
+            }
+          })
+        ]
+      },
+      plugins: [react()]
+    }
+  };
 });

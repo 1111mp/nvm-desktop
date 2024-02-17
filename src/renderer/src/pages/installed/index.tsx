@@ -339,7 +339,7 @@ export const Component: React.FC = () => {
             <DataTableToolbar table={table} options={statuses} />
             <Button
               size="sm"
-              className="h-8 text-sm"
+              className="h-7 text-sm"
               loading={loading}
               icon={<ReloadIcon />}
               onClick={onPageReload}

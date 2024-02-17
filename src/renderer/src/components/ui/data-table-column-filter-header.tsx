@@ -43,7 +43,7 @@ export function DataTableColumnFilterHeader<TData, TValue>({
           <div className="relative">
             <Input
               ref={input}
-              className="w-40 h-8"
+              className="w-40 h-7"
               placeholder={`Filter ${title}`}
               value={value ?? ""}
               onChange={(event) => column.setFilterValue(event.target.value)}

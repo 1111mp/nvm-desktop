@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useRef, useState } from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
+import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { CopyIcon } from "@radix-ui/react-icons";
 import { Tooltip, TooltipContent, TooltipPortal, TooltipTrigger } from "./tooltip";
@@ -22,7 +23,7 @@ const Label = forwardRef<React.ElementRef<typeof LabelPrimitive.Root>, LabelProp
 Label.displayName = LabelPrimitive.Root.displayName;
 
 const LabelCopyable = forwardRef<React.ElementRef<typeof LabelPrimitive.Root>, LabelProps>(
-  ({ className, children, ...props }, ref) => {
+  ({ asChild, className, children, ...props }, ref) => {
     const [open, setOpen] = useState<boolean>(false);
     const [did, setDid] = useState<boolean>(false);
 
@@ -36,40 +37,44 @@ const LabelCopyable = forwardRef<React.ElementRef<typeof LabelPrimitive.Root>, L
       };
     }, []);
 
-    return (
-      <span className="flex items-center space-x-1">
-        <LabelPrimitive.Root ref={ref} className={cn(labelVariants(), className)} {...props}>
-          {children}
-        </LabelPrimitive.Root>
-        <Tooltip open={open}>
-          <TooltipTrigger asChild>
-            <CopyIcon
-              className="inline-block text-primary cursor-pointer hover:opacity-70 active:opacity-80"
-              onClick={(evt) => {
-                evt.stopPropagation();
-                copy(children as unknown as string);
-                setDid(true);
+    const Component = asChild ? Slot : "span";
 
-                timer.current && clearTimeout(timer.current);
-                timer.current = setTimeout(() => {
-                  setDid(false);
-                }, 3000);
-              }}
-              onMouseOver={() => {
-                setOpen(true);
-              }}
-              onMouseLeave={() => {
-                setOpen(false);
-              }}
-            />
-          </TooltipTrigger>
-          <TooltipPortal>
-            <TooltipContent className="text-accent-foreground bg-accent">
-              {did ? "Copied" : "Copy"}
-            </TooltipContent>
-          </TooltipPortal>
-        </Tooltip>
-      </span>
+    return (
+      <Component className="inline-block items-center space-x-1">
+        <>
+          <LabelPrimitive.Root ref={ref} className={cn(labelVariants(), className)} {...props}>
+            {children}
+          </LabelPrimitive.Root>
+          <Tooltip open={open}>
+            <TooltipTrigger asChild>
+              <CopyIcon
+                className="inline-block text-primary cursor-pointer hover:opacity-70 active:opacity-80"
+                onClick={(evt) => {
+                  evt.stopPropagation();
+                  copy(children as unknown as string);
+                  setDid(true);
+
+                  timer.current && clearTimeout(timer.current);
+                  timer.current = setTimeout(() => {
+                    setDid(false);
+                  }, 3000);
+                }}
+                onMouseOver={() => {
+                  setOpen(true);
+                }}
+                onMouseLeave={() => {
+                  setOpen(false);
+                }}
+              />
+            </TooltipTrigger>
+            <TooltipPortal>
+              <TooltipContent className="text-accent-foreground bg-accent">
+                {did ? "Copied" : "Copy"}
+              </TooltipContent>
+            </TooltipPortal>
+          </Tooltip>
+        </>
+      </Component>
     );
   }
 );

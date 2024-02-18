@@ -9,12 +9,13 @@ export default defineConfig(({ mode }) => {
   const isProd = mode === "production",
     isTest = process.env.TEST === "true";
 
-    return {
+  return {
     main: {
       clean: true,
       entry: { main: isTest ? "src/main/main.test.ts" : "src/main/main.ts" },
       target: "node18",
       format: "esm",
+      noExternal: isProd ? [/(.*)/] : undefined,
       minify: isProd,
       watch: !isProd
     },

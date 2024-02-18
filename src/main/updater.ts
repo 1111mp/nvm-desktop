@@ -1,10 +1,9 @@
 import { ipcMain } from "electron";
-import updater from "electron-updater";
 import log from "electron-log";
 
-const { autoUpdater } = updater;
-
 import type { BrowserWindow } from "electron";
+
+const { autoUpdater } = require("electron-updater");
 
 export class AppUpdater {
   constructor(private readonly mainWindow: BrowserWindow) {

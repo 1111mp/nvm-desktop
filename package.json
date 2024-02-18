@@ -71,6 +71,7 @@
     "electron-updater": "^6.1.7",
     "framer-motion": "^11.0.5",
     "got": "^14.2.0",
+    "intro.js": "^7.2.0",
     "intro.js-react": "^1.0.0",
     "is-plain-obj": "^4.1.0",
     "react-circular-progressbar": "^2.1.0",

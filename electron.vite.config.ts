@@ -15,7 +15,8 @@ export default defineConfig(({ mode }) => {
       entry: { main: isTest ? "src/main/main.test.ts" : "src/main/main.ts" },
       target: "node18",
       format: "esm",
-      noExternal: isProd ? [/(.*)/] : undefined,
+      // The requested module 'electron-updater' is a CommonJS module, which may not support all module.exports as named exports.
+      noExternal: isProd ? [/(.*)/] : ["electron-updater"],
       minify: isProd,
       watch: !isProd
     },

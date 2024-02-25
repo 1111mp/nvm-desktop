@@ -188,28 +188,39 @@ export const Component: React.FC = () => {
   );
 
   const onAddProject = async () => {
-    const { canceled, filePaths, version } = await window.Context.openFolderSelecter({
+    const {
+      canceled,
+      filePaths,
+      versions = []
+    } = await window.Context.openFolderSelecter({
       title: i18n("Project-Select"),
+      multiple: true,
       project: true
     });
     if (canceled) return;
-    const [path] = filePaths;
 
-    if (projects.find(({ path: source }) => source === path)) {
-      return toast.error("The project already exists");
-    }
+    const addProjects: Nvmd.Project[] = [];
 
-    const pathArr = path.split(window.Context.platform === "win32" ? "\\" : "/");
-    const now = new Date().toISOString();
-    const project: Nvmd.Project = {
-      name: pathArr[pathArr.length - 1],
-      path,
-      version,
-      active: true,
-      createAt: now,
-      updateAt: now
-    };
-    const newProjects = [project, ...projects];
+    filePaths.forEach((path, index) => {
+      const pathArr = path.split(window.Context.platform === "win32" ? "\\" : "/"),
+        name = pathArr[pathArr.length - 1],
+        now = new Date().toISOString();
+
+      if (!projects.find(({ path: source }) => source === path)) {
+        addProjects.push({
+          name,
+          path,
+          version: versions[index],
+          active: true,
+          createAt: now,
+          updateAt: now
+        });
+      } else {
+        toast.error(`The project "${name}" already exists`);
+      }
+    });
+
+    const newProjects = [...addProjects, ...projects];
     setProjects(newProjects);
     window.Context.updateProjects(newProjects);
     return;

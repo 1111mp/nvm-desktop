@@ -24,7 +24,7 @@ import { gt } from "semver";
 import loadLocale from "./locale";
 import { Closer, Themes } from "../types";
 
-import type { MenuItemConstructorOptions } from "electron";
+import type { MenuItemConstructorOptions, OpenDialogOptions } from "electron";
 
 let mainWindow: BrowserWindow | null = null,
   updater: AppUpdater | null = null,
@@ -105,7 +105,7 @@ const createWindow = async (code?: number) => {
           ? "#000000"
           : "#ffffff",
     webPreferences: {
-            preload: app.isPackaged
+      preload: app.isPackaged
         ? join(__dirname, "../preload/preload.js")
         : join(__dirname, "../../out/preload/preload.js")
     }
@@ -462,20 +462,28 @@ Promise.resolve().then(() => {
 
   ipcMain.handle(
     "open-folder-selecter",
-    async (_event, { title, project }: { title: string; project?: boolean }) => {
+    async (
+      _event,
+      { title, multiple, project }: { title: string; multiple?: boolean; project?: boolean }
+    ) => {
+      const properties: OpenDialogOptions["properties"] = [
+        "openDirectory",
+        "createDirectory",
+        "showHiddenFiles"
+      ];
+      multiple && properties.push("multiSelections");
       const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow!, {
         title,
-        properties: ["openDirectory", "createDirectory", "showHiddenFiles"]
+        properties: properties
       });
 
       if (canceled) return { canceled, filePaths };
 
-      const [path] = filePaths;
-
       if (!project) return { canceled, filePaths };
 
-      const version = await getVersion(path);
-      return { canceled, filePaths, version };
+      const versions = await Promise.all(filePaths.map((path) => getVersion(path)));
+
+      return { canceled, filePaths, versions };
     }
   );
 

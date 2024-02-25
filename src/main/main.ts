@@ -96,6 +96,7 @@ const createWindow = async (code?: number) => {
       x: 12,
       y: 12
     },
+    opacity: 0,
     backgroundColor:
       setting.theme === Themes.System
         ? nativeTheme.shouldUseDarkColors
@@ -124,6 +125,7 @@ const createWindow = async (code?: number) => {
       mainWindow.minimize();
     } else {
       mainWindow.show();
+      setTimeout(() => mainWindow!.setOpacity(1), 60);
 
       if (code !== void 0) {
         setTimeout(() => {

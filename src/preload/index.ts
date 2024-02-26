@@ -95,7 +95,8 @@ const electronHandler = {
   getInstalledNodeVersions: async (refresh: boolean = false): Promise<string[]> =>
     ipcRenderer.invoke("installed-node-versions", refresh),
 
-  getNode: async (args: { id: string; version: string }) => ipcRenderer.invoke("get-node", args),
+  getNode: async (args: { id: string; arch: string; version: string }) =>
+    ipcRenderer.invoke("get-node", args),
   controllerAbort: (id: string) => ipcRenderer.invoke("controller:abort", id),
 
   useNodeVersion: (version: string) => ipcRenderer.invoke("use-version", version),

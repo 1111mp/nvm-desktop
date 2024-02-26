@@ -11,6 +11,7 @@ const PLATFORMS: { [kek: string]: string } = {
   s390: 's390x',
   s390x: 's390x',
   x32: 'x86',
+  x86: 'x86',
   x64: 'x64',
 };
 

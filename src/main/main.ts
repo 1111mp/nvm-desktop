@@ -25,6 +25,7 @@ import loadLocale from "./locale";
 import { Closer, Themes } from "../types";
 
 import type { MenuItemConstructorOptions, OpenDialogOptions } from "electron";
+import type { Arch } from "./deps/get-node/archive/types";
 
 let mainWindow: BrowserWindow | null = null,
   updater: AppUpdater | null = null,
@@ -417,26 +418,30 @@ Promise.resolve().then(() => {
     return versions;
   });
 
-  ipcMain.handle("get-node", async (_event, { id, version }: { id: string; version: string }) => {
-    const abortController = new AbortController();
-    controllers.set(id, abortController);
+  ipcMain.handle(
+    "get-node",
+    async (_event, { id, arch, version }: { id: string; arch: Arch; version: string }) => {
+      const abortController = new AbortController();
+      controllers.set(id, abortController);
 
-    try {
-      const result = await getNode(version, {
-        output: setting.directory,
-        mirror: setting.mirror,
-        signal: abortController.signal,
-        onProgress: (data) => {
-          mainWindow?.webContents.send("get-node:progress", id, data);
-        }
-      });
-      return result;
-    } catch (err) {
-      return Promise.reject(err.message);
-    } finally {
-      controllers.delete(id);
+      try {
+        const result = await getNode(version, {
+          arch,
+          output: setting.directory,
+          mirror: setting.mirror,
+          signal: abortController.signal,
+          onProgress: (data) => {
+            mainWindow?.webContents.send("get-node:progress", id, data);
+          }
+        });
+        return result;
+      } catch (err) {
+        return Promise.reject(err.message);
+      } finally {
+        controllers.delete(id);
+      }
     }
-  });
+  );
 
   ipcMain.handle(
     "uninstall-node-version",

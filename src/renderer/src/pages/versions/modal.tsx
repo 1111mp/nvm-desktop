@@ -9,7 +9,13 @@ import {
   Button,
   Label,
   LabelCopyable,
-  Progress
+  Progress,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@renderer/components/ui";
 import { toast } from "sonner";
 
@@ -24,6 +30,8 @@ type Props = {
   onRefrresh: () => void;
 };
 
+const archs = ["arm64", "x64", "x86"];
+
 export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -31,9 +39,15 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
   const [progress, setProgress] = useState<Nvmd.ProgressData>();
 
   const record = useRef<Nvmd.Version>();
+  const arch = useRef<HTMLSpanElement>(null);
+  const archOption = useRef<string[]>(archs);
   const uuid = useRef<string>();
 
   const i18n = useI18n();
+
+  const systemArch = ["x86", "x32", "ia32"].includes(window.Context.arch)
+    ? "x86"
+    : window.Context.arch;
 
   useImperativeHandle(ref, () => ({
     show: onShow
@@ -47,7 +61,19 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
   }, []);
 
   const onShow: Ref["show"] = (data) => {
+    const { files } = data,
+      platform = window.Context.platform;
+    const newArchs = archOption.current.filter((arch) => {
+      const name =
+        platform === "darwin"
+          ? `osx-${arch}`
+          : platform === "win32"
+            ? `win-${arch}`
+            : `${platform}-${arch}`;
+      return !!files.find((file) => file.includes(name));
+    });
     record.current = data;
+    archOption.current = newArchs;
     setOpen(true);
   };
 
@@ -59,6 +85,7 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
     try {
       const { path } = await window.Context.getNode({
         id: uuid.current!,
+        arch: arch.current?.innerText || systemArch,
         version: record.current!.version.slice(1)
       });
       setPath(path);
@@ -118,42 +145,60 @@ export const InfoModal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          {path && path !== "error" ? null : loading ? (
-            <Button variant="destructive" onClick={onAbort}>
-              {i18n("Cancel")}
-            </Button>
-          ) : (
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setOpen(false);
-              }}
-            >
-              {i18n("Cancel")}
-            </Button>
-          )}
-          {path && path !== "error" ? (
-            <Button
-              loading={loading}
-              onClick={() => {
-                onRefrresh();
-                setOpen(false);
-                setTimeout(() => {
-                  record.current = undefined;
-                  uuid.current = undefined;
-                  setPath(undefined);
-                  setProgress(undefined);
-                }, 0);
-              }}
-            >
-              {i18n("OK")}
-            </Button>
-          ) : (
-            <Button loading={loading} onClick={onStart}>
-              {path === "error" ? i18n("Retry") : i18n("Start-Install")}
-            </Button>
-          )}
+        <AlertDialogFooter className="sm:justify-between">
+          <p className="flex items-center space-x-2">
+            <Select disabled={loading} defaultValue={systemArch}>
+              <SelectTrigger className="w-24 h-6">
+                <SelectValue ref={arch} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {archOption.current.map((arch) => (
+                    <SelectItem key={arch} value={arch}>
+                      {arch}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </p>
+          <div className="flex items-center space-x-2">
+            {path && path !== "error" ? null : loading ? (
+              <Button variant="destructive" onClick={onAbort}>
+                {i18n("Cancel")}
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setOpen(false);
+                }}
+              >
+                {i18n("Cancel")}
+              </Button>
+            )}
+            {path && path !== "error" ? (
+              <Button
+                loading={loading}
+                onClick={() => {
+                  onRefrresh();
+                  setOpen(false);
+                  setTimeout(() => {
+                    record.current = undefined;
+                    uuid.current = undefined;
+                    setPath(undefined);
+                    setProgress(undefined);
+                  }, 0);
+                }}
+              >
+                {i18n("OK")}
+              </Button>
+            ) : (
+              <Button loading={loading} onClick={onStart}>
+                {path === "error" ? i18n("Retry") : i18n("Start-Install")}
+              </Button>
+            )}
+          </div>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

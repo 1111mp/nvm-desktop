@@ -61,11 +61,11 @@ export const Configration: React.FC = () => {
 
   useEffect(() => {
     const listener = (evt: KeyboardEvent) => {
-      if (evt.metaKey && evt.shiftKey && evt.key === "e") {
+      if (evt.metaKey && evt.shiftKey && (evt.key === "e" || evt.key === "E")) {
         exporter.current?.alert();
       }
 
-      if (evt.metaKey && evt.shiftKey && evt.key === "i") {
+      if (evt.metaKey && evt.shiftKey && (evt.key === "i" || evt.key === "I")) {
         importer.current?.alert();
       }
     };

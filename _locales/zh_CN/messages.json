@@ -93,7 +93,11 @@
   },
   "Cancel": {
     "message": "取消",
-    "description": "The text of the OK"
+    "description": "The text of the Cancel"
+  },
+  "Continue": {
+    "message": "继续",
+    "description": "The text of the Continue"
   },
   "Language": {
     "message": "语言",
@@ -399,9 +403,9 @@
     "message": "退出应用",
     "description": "The text of the Quit-App"
   },
-  "Theme-Color": {
+  "Theme color": {
     "message": "主题颜色",
-    "description": "The text of the Theme-Color"
+    "description": "The text of the Theme color"
   },
   "Color-Tip": {
     "message": "在这里你可以选择你喜爱的颜色作为主题的颜色。",
@@ -458,5 +462,45 @@
   "Custom": {
     "message": "自定义",
     "description": "The text of the Custom"
+  },
+  "Configration": {
+    "message": "配置",
+    "description": "The text of the Configration"
+  },
+  "Configration-export": {
+    "message": "配置导出",
+    "description": "The text of the Configration-export"
+  },
+  "Configration-export-tip": {
+    "message": "请选择您要导出的配置：",
+    "description": "Configration-export-tip"
+  },
+  "Configration-export-setting": {
+    "message": "（语言、安装目录、镜像地址等。）",
+    "description": "Configration-export-setting"
+  },
+  "Configration-export-success": {
+    "message": "导出已完成，请在 $filename$ 文件中查看",
+    "description": "Configration-export-setting"
+  },
+  "Configration-import": {
+    "message": "配置导入",
+    "description": "The text of the Configration-import"
+  },
+  "Configration-import-tip": {
+    "message": "导入项目数据时是否自动同步 nodejs 版本（.nvmdrc）？",
+    "description": "The text of the Configration-import-tip"
+  },
+  "Import-only": {
+    "message": "仅导入",
+    "description": "The text of the Import-only"
+  },
+  "Import-and-sync": {
+    "message": "导入且同步",
+    "description": "The text of the Import-and-sync"
+  },
+  "Configration-import-success": {
+    "message": "导入已完成。 如果遇到数据不一致，请重启应用。",
+    "description": "The text of the Configration-import-success"
   }
 }

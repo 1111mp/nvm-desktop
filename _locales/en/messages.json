@@ -93,7 +93,11 @@
   },
   "Cancel": {
     "message": "Cancel",
-    "description": "The text of the OK"
+    "description": "The text of the Cancel"
+  },
+  "Continue": {
+    "message": "Continue",
+    "description": "The text of the Continue"
   },
   "Language": {
     "message": "Language",
@@ -399,9 +403,9 @@
     "message": "Quit App",
     "description": "The text of the Quit-App"
   },
-  "Theme-Color": {
+  "Theme color": {
     "message": "Theme Color",
-    "description": "The text of the Theme-Color"
+    "description": "The text of the Theme color"
   },
   "Color-Tip": {
     "message": "Here you can choose your favorite color as the theme color.",
@@ -458,5 +462,45 @@
   "Custom": {
     "message": "Custom",
     "description": "The text of the Custom"
+  },
+  "Configration": {
+    "message": "Configration",
+    "description": "The text of the Configration"
+  },
+  "Configration-export": {
+    "message": "Configration export",
+    "description": "The text of the Configration-export"
+  },
+  "Configration-export-tip": {
+    "message": "Please select the configuration you want to export:",
+    "description": "Configration-export-tip"
+  },
+  "Configration-export-setting": {
+    "message": "(lanuage, installation directory, mirror url, etc.)",
+    "description": "Configration-export-setting"
+  },
+  "Configration-export-success": {
+    "message": "The export has been completed, please view it in the $filename$ file",
+    "description": "Configration-export-success"
+  },
+  "Configration-import": {
+    "message": "Configration import",
+    "description": "The text of the Configration-import"
+  },
+  "Configration-import-tip": {
+    "message": "Whether to automatically synchronize the nodejs version (.nvmdrc) for project data when importing it?",
+    "description": "The text of the Configration-import-tip"
+  },
+  "Import-only": {
+    "message": "Import only",
+    "description": "The text of the Import-only"
+  },
+  "Import-and-sync": {
+    "message": "Import and sync",
+    "description": "The text of the Import-and-sync"
+  },
+  "Configration-import-success": {
+    "message": "The import has been completed. If you encounter data inconsistency, please restart the application.",
+    "description": "The text of the Configration-import-success"
   }
 }

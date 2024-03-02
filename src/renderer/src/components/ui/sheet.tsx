@@ -54,7 +54,7 @@ interface SheetContentProps
 const SheetContent = forwardRef<React.ElementRef<typeof SheetPrimitive.Content>, SheetContentProps>(
   ({ side = "right", className, children, ...props }, ref) => (
     <SheetPortal>
-      <SheetOverlay className="bg-black/50" />
+      <SheetOverlay className="bg-black/40" />
       <SheetPrimitive.Content
         ref={ref}
         className={cn(sheetVariants({ side }), className)}

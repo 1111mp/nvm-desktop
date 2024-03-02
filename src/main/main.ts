@@ -17,9 +17,16 @@ import { resolveHtmlPath } from "./utils/resolvePath";
 import { allNodeVersions, allInstalledNodeVersions } from "./deps/all-node-versions";
 import getNode from "./deps/get-node";
 import { updateSchema } from "./utils/migration";
+import { configrationExport, configrationImport } from "./utils/configration";
 import { getCurrentVersion, setCurrentVersion, uninstallVersion } from "./utils/version";
 import { setSetting, getSetting } from "./utils/setting";
-import { getProjects, getVersion, syncProjectVersion, updateProjects } from "./utils/projects";
+import {
+  getProjects,
+  getVersion,
+  syncProjectVersion,
+  updateProjects,
+  updateProjectsAndSync
+} from "./utils/projects";
 import { gt } from "semver";
 import loadLocale from "./locale";
 import { Closer, Themes } from "../types";
@@ -508,4 +515,40 @@ Promise.resolve().then(() => {
   ipcMain.handle("sync-project-version", (_event, path: string, version: string) => {
     return syncProjectVersion(path, version);
   });
+
+  ipcMain.handle("configration-export", async (_event, args: Nvmd.ConfigrationExport) => {
+    const { color, setting: exportSetting, projects, path, mirrors } = args;
+    let output: Nvmd.Configration = {};
+
+    if (color) output.color = color;
+
+    if (exportSetting) output.setting = setting;
+    if (mirrors) output.mirrors = mirrors;
+
+    if (projects) output.projects = await getProjects();
+
+    return configrationExport(path, output);
+  });
+
+  ipcMain.handle(
+    "configration-import",
+    async (_event, { sync, title }: { sync: boolean; title: string }) => {
+      const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow!, {
+        title,
+        filters: [{ extensions: ["json"], name: "" }],
+        properties: ["openFile", "createDirectory", "showHiddenFiles"]
+      });
+
+      if (canceled) return { canceled };
+      const [path] = filePaths;
+      const { color, mirrors, setting: importSetting, projects } = await configrationImport(path);
+
+      if (projects) {
+        await updateProjectsAndSync(projects, sync);
+        projects && mainWindow?.webContents.send("call-projects-update", projects);
+      }
+
+      return { canceled, color, mirrors, setting: importSetting };
+    }
+  );
 });

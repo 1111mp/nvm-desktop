@@ -1,5 +1,5 @@
-import { Closer, Themes } from 'types';
-import type { UpdateInfo as ElectronUpdateInfo } from 'electron-updater';
+import { Closer, Themes } from "types";
+import type { UpdateInfo as ElectronUpdateInfo } from "electron-updater";
 
 declare global {
   namespace Nvmd {
@@ -28,7 +28,7 @@ declare global {
       mirror: string;
     }
 
-    type UpdateInfo = ElectronUpdateInfo | 'update-not-available';
+    type UpdateInfo = ElectronUpdateInfo | "update-not-available";
 
     interface Project {
       name: string;
@@ -37,6 +37,21 @@ declare global {
       active: boolean;
       createAt: string;
       updateAt: string;
+    }
+
+    interface ConfigrationExport {
+      color?: string;
+      mirrors?: string | null;
+      path: string;
+      projects?: boolean;
+      setting?: boolean;
+    }
+
+    interface Configration {
+      color?: string;
+      mirrors?: string;
+      setting?: Setting;
+      projects?: Project[];
     }
   }
 }

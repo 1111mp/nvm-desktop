@@ -2,6 +2,7 @@ export * from "./alert-dialog";
 export * from "./auto-complete";
 export * from "./badge";
 export * from "./button";
+export * from "./checkbox";
 export * from "./command";
 export * from "./data-table";
 export * from "./data-dnd-table";

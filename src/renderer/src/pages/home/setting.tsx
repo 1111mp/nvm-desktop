@@ -129,7 +129,7 @@ export const Setting: React.FC<Props> = memo(({}) => {
     <Sheet
       open={open}
       onOpenChange={(open) => {
-        if (!open) form.reset({ locale, theme, closer, directory, mirror });
+        form.reset({ locale, theme, closer, directory, mirror });
         setOpen(open);
       }}
     >

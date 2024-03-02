@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { FilePlusIcon, ReloadIcon, TrashIcon } from "@radix-ui/react-icons";
 
 import { useAppContext, useI18n } from "@src/renderer/src/app-context";
+import { cn } from "@renderer/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 
 export async function loader() {
@@ -47,12 +48,11 @@ export const Component: React.FC = () => {
 
   const i18n = useI18n();
   const { directory, locale } = useAppContext();
-  // const { message } = App.useApp();
 
   useEffect(() => {
     window.Context.onRegistProjectUpdate((pros, version) => {
       setProjects(pros);
-      toast.success(i18n("Restart-Terminal", [`v${version}`]));
+      version && toast.success(i18n("Restart-Terminal", [`v${version}`]));
     });
 
     return () => {
@@ -91,7 +91,9 @@ export const Component: React.FC = () => {
           <span className="flex items-center gap-1">
             <LabelCopyable
               asChild
-              className="max-w-[360px] leading-6 inline-block truncate"
+              className={cn("max-w-[360px] leading-6 inline-block truncate", {
+                "line-through": !row.original.active
+              })}
               title={row.original.path}
             >
               {row.original.path}

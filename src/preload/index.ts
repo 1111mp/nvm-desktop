@@ -10,7 +10,7 @@ type OnUpdateProgressCallback = (progress: ProgressInfo) => void;
 type OnProgressCallback = (id: string, data: Nvmd.ProgressData) => void;
 type OnThemeChangedCallback = (theme: string) => void;
 type OnCurVersionChange = (version: string) => void;
-type OnProjectUpdate = (projects: Nvmd.Project[], version: string) => void;
+type OnProjectUpdate = (projects: Nvmd.Project[], version?: string) => void;
 type OnMigrationError = () => void;
 
 let onCheckUpdateResult: OnCheckUpdateResultCallback | null = null,
@@ -49,7 +49,7 @@ ipcRenderer.on("current-version-update", (_evnet, version: string) => {
   onCurVersionChange?.(version);
 });
 
-ipcRenderer.on("call-projects-update", (_evnet, projects: Nvmd.Project[], version: string) => {
+ipcRenderer.on("call-projects-update", (_evnet, projects: Nvmd.Project[], version?: string) => {
   onProjectUpdate?.(projects, version);
 });
 
@@ -141,7 +141,16 @@ const electronHandler = {
 
   onRegistMigrationError: (callback: OnMigrationError) => {
     onMigrationError = callback;
-  }
+  },
+
+  // Configration Export
+  onConfigrationExport: (args: Nvmd.ConfigrationExport) =>
+    ipcRenderer.invoke("configration-export", args) as Promise<string>,
+  // Configration import
+  onConfigrationImport: (args: { sync: boolean; title: string }) =>
+    ipcRenderer.invoke("configration-import", args) as Promise<
+      OpenDialogReturnValue & { color?: string; mirrors?: string; setting?: Nvmd.Setting }
+    >
 };
 
 contextBridge.exposeInMainWorld("Context", electronHandler);

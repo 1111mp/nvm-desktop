@@ -13,19 +13,20 @@ export default defineConfig(({ mode }) => {
     main: {
       clean: true,
       entry: { main: isTest ? "src/main/main.test.ts" : "src/main/main.ts" },
-      target: "node18",
       format: "esm",
       // The requested module 'electron-updater' is a CommonJS module, which may not support all module.exports as named exports.
       noExternal: isProd ? [/(.*)/] : ["electron-updater"],
       minify: isProd,
-      watch: !isProd
+      watch: !isProd,
+      sourcemap: !isProd
     },
     preload: {
       clean: true,
       entry: { preload: isTest ? "src/preload/preload.test.ts" : "src/preload/index.ts" },
       format: "cjs",
       minify: isProd,
-      watch: !isProd
+      watch: !isProd,
+      sourcemap: !isProd
     },
     renderer: {
       resolve: {

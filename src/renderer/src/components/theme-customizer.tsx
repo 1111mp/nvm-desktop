@@ -110,7 +110,7 @@ export function ThemeCustomizer() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="theme-customizer" size="sm" title={i18n("Theme-Color")} variant="ghost">
+        <Button className="theme-customizer" size="sm" title={i18n("Theme color")} variant="ghost">
           <ColorWheelIcon />
         </Button>
       </PopoverTrigger>
@@ -119,7 +119,7 @@ export function ThemeCustomizer() {
         className="z-40 w-[340px] rounded-[0.5rem] bg-white p-3 dark:bg-zinc-950"
       >
         <div className="space-y-1.5">
-          <Label className="text-xs">{i18n("Theme-Color")}</Label>
+          <Label className="text-xs">{i18n("Theme color")}</Label>
           <div className="grid grid-cols-3 gap-2">
             {themes.map(({ name, label, activeColor }) => {
               const isActive = color === name;

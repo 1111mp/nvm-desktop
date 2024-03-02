@@ -111,7 +111,7 @@
     "electron-builder": "^24.12.0",
     "electron-debug": "github:1111mp/electron-debug",
     "electron-devtools-installer": "^3.2.0",
-    "electron-vite-tsup": "^2.0.3",
+    "electron-vite-tsup": "^2.0.4",
     "esbuild-style-plugin": "^1.6.3",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.33.2",

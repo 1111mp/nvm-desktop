@@ -1,19 +1,10 @@
-import { join } from 'node:path';
-import {
-  pathExists,
-  readFile,
-  readJson,
-  writeJson,
-  writeFile,
-  remove,
-} from 'fs-extra';
-import { PROJECTS_JSONFILE, NVMDRC_NAME } from '../constants';
+import { join } from "node:path";
+import { pathExists, readFile, readJson, writeJson, writeFile, remove } from "fs-extra";
+import { PROJECTS_JSONFILE, NVMDRC_NAME } from "../constants";
 
 let cacheProjects: Nvmd.Project[];
 
-export async function getProjects(
-  load: boolean = false,
-): Promise<Nvmd.Project[]> {
+export async function getProjects(load: boolean = false): Promise<Nvmd.Project[]> {
   if (cacheProjects !== void 0 && !load) {
     return cacheProjects;
   }
@@ -37,13 +28,29 @@ export async function updateProjects(projects: Nvmd.Project[], path?: string) {
   return;
 }
 
+export async function updateProjectsAndSync(projects: Nvmd.Project[], sync: boolean = false) {
+  const syncProject = async ({ path, version }: Nvmd.Project, index: number) => {
+    if (!(await pathExists(path))) {
+      projects[index].active = false;
+      return;
+    }
+
+    sync && (await writeFile(join(path, NVMDRC_NAME), version));
+    return;
+  };
+
+  await Promise.all(projects.map((project, index) => syncProject(project, index)));
+  cacheProjects = projects;
+  await writeJson(PROJECTS_JSONFILE, projects);
+}
+
 export async function getVersion(path: string): Promise<string> {
   const target = join(path, NVMDRC_NAME);
-  if (!(await pathExists(target))) return '';
+  if (!(await pathExists(target))) return "";
 
   const version = (await readFile(target)).toString();
 
-  return version || '';
+  return version || "";
 }
 
 export async function syncProjectVersion(path: string, version: string) {

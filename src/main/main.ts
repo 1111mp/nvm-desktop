@@ -17,14 +17,22 @@ import { resolveHtmlPath } from "./utils/resolvePath";
 import { allNodeVersions, allInstalledNodeVersions } from "./deps/all-node-versions";
 import getNode from "./deps/get-node";
 import { updateSchema } from "./utils/migration";
+import { configrationExport, configrationImport } from "./utils/configration";
 import { getCurrentVersion, setCurrentVersion, uninstallVersion } from "./utils/version";
 import { setSetting, getSetting } from "./utils/setting";
-import { getProjects, getVersion, syncProjectVersion, updateProjects } from "./utils/projects";
+import {
+  getProjects,
+  getVersion,
+  syncProjectVersion,
+  updateProjects,
+  updateProjectsAndSync
+} from "./utils/projects";
 import { gt } from "semver";
 import loadLocale from "./locale";
 import { Closer, Themes } from "../types";
 
-import type { MenuItemConstructorOptions } from "electron";
+import type { MenuItemConstructorOptions, OpenDialogOptions } from "electron";
+import type { Arch } from "./deps/get-node/archive/types";
 
 let mainWindow: BrowserWindow | null = null,
   updater: AppUpdater | null = null,
@@ -96,6 +104,7 @@ const createWindow = async (code?: number) => {
       x: 12,
       y: 12
     },
+    opacity: 0,
     backgroundColor:
       setting.theme === Themes.System
         ? nativeTheme.shouldUseDarkColors
@@ -105,7 +114,7 @@ const createWindow = async (code?: number) => {
           ? "#000000"
           : "#ffffff",
     webPreferences: {
-            preload: app.isPackaged
+      preload: app.isPackaged
         ? join(__dirname, "../preload/preload.js")
         : join(__dirname, "../../out/preload/preload.js")
     }
@@ -124,6 +133,7 @@ const createWindow = async (code?: number) => {
       mainWindow.minimize();
     } else {
       mainWindow.show();
+      setTimeout(() => mainWindow!.setOpacity(1), 60);
 
       if (code !== void 0) {
         setTimeout(() => {
@@ -415,26 +425,30 @@ Promise.resolve().then(() => {
     return versions;
   });
 
-  ipcMain.handle("get-node", async (_event, { id, version }: { id: string; version: string }) => {
-    const abortController = new AbortController();
-    controllers.set(id, abortController);
+  ipcMain.handle(
+    "get-node",
+    async (_event, { id, arch, version }: { id: string; arch: Arch; version: string }) => {
+      const abortController = new AbortController();
+      controllers.set(id, abortController);
 
-    try {
-      const result = await getNode(version, {
-        output: setting.directory,
-        mirror: setting.mirror,
-        signal: abortController.signal,
-        onProgress: (data) => {
-          mainWindow?.webContents.send("get-node:progress", id, data);
-        }
-      });
-      return result;
-    } catch (err) {
-      return Promise.reject(err.message);
-    } finally {
-      controllers.delete(id);
+      try {
+        const result = await getNode(version, {
+          arch,
+          output: setting.directory,
+          mirror: setting.mirror,
+          signal: abortController.signal,
+          onProgress: (data) => {
+            mainWindow?.webContents.send("get-node:progress", id, data);
+          }
+        });
+        return result;
+      } catch (err) {
+        return Promise.reject(err.message);
+      } finally {
+        controllers.delete(id);
+      }
     }
-  });
+  );
 
   ipcMain.handle(
     "uninstall-node-version",
@@ -462,20 +476,28 @@ Promise.resolve().then(() => {
 
   ipcMain.handle(
     "open-folder-selecter",
-    async (_event, { title, project }: { title: string; project?: boolean }) => {
+    async (
+      _event,
+      { title, multiple, project }: { title: string; multiple?: boolean; project?: boolean }
+    ) => {
+      const properties: OpenDialogOptions["properties"] = [
+        "openDirectory",
+        "createDirectory",
+        "showHiddenFiles"
+      ];
+      multiple && properties.push("multiSelections");
       const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow!, {
         title,
-        properties: ["openDirectory", "createDirectory", "showHiddenFiles"]
+        properties: properties
       });
 
       if (canceled) return { canceled, filePaths };
 
-      const [path] = filePaths;
-
       if (!project) return { canceled, filePaths };
 
-      const version = await getVersion(path);
-      return { canceled, filePaths, version };
+      const versions = await Promise.all(filePaths.map((path) => getVersion(path)));
+
+      return { canceled, filePaths, versions };
     }
   );
 
@@ -493,4 +515,40 @@ Promise.resolve().then(() => {
   ipcMain.handle("sync-project-version", (_event, path: string, version: string) => {
     return syncProjectVersion(path, version);
   });
+
+  ipcMain.handle("configration-export", async (_event, args: Nvmd.ConfigrationExport) => {
+    const { color, setting: exportSetting, projects, path, mirrors } = args;
+    let output: Nvmd.Configration = {};
+
+    if (color) output.color = color;
+
+    if (exportSetting) output.setting = setting;
+    if (mirrors) output.mirrors = mirrors;
+
+    if (projects) output.projects = await getProjects();
+
+    return configrationExport(path, output);
+  });
+
+  ipcMain.handle(
+    "configration-import",
+    async (_event, { sync, title }: { sync: boolean; title: string }) => {
+      const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow!, {
+        title,
+        filters: [{ extensions: ["json"], name: "" }],
+        properties: ["openFile", "createDirectory", "showHiddenFiles"]
+      });
+
+      if (canceled) return { canceled };
+      const [path] = filePaths;
+      const { color, mirrors, setting: importSetting, projects } = await configrationImport(path);
+
+      if (projects) {
+        await updateProjectsAndSync(projects, sync);
+        projects && mainWindow?.webContents.send("call-projects-update", projects);
+      }
+
+      return { canceled, color, mirrors, setting: importSetting };
+    }
+  );
 });

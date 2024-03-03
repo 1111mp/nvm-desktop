@@ -12,6 +12,7 @@ import {
 } from "@renderer/components/ui";
 import { ThemeCustomizer } from "@renderer/components/theme-customizer";
 import { RocketIcon, HeartIcon, FaceIcon, MinusIcon, Cross2Icon } from "@radix-ui/react-icons";
+import { Configration } from "./configration";
 import { Updater } from "./updater";
 import { Setting } from "./setting";
 import { Tip } from "./tip";
@@ -53,7 +54,7 @@ const Home: React.FC = () => {
       },
       {
         element: ".theme-customizer",
-        title: i18n("Theme-Color"),
+        title: i18n("Theme color"),
         intro: (
           <p className="flex items-center gap-2">
             {i18n("Color-Tip")}
@@ -381,6 +382,7 @@ const Home: React.FC = () => {
           <div className="flex items-center [-webkit-app-region:no-drag]">
             <ThemeCustomizer />
             <Tip />
+            <Configration />
             <Setting />
           </div>
         </header>
@@ -440,9 +442,10 @@ const Home: React.FC = () => {
             </NavigationMenu>
           </div>
           <div className="flex items-center [-webkit-app-region:no-drag]">
-            {platform === "win32" ? <Updater /> : null}
+            {platform === "win32" && <Updater />}
             <ThemeCustomizer />
             <Tip />
+            <Configration />
             <Setting />
           </div>
         </header>

@@ -88,8 +88,6 @@ async function updateToSchemaVersionLast(version: number) {
   if (platform !== "win32") {
     const targetFile = join(BIN_DIR, "nvmd");
 
-    await remove(targetFile);
-
     const sourceFile = app.isPackaged
       ? join(process.resourcesPath, "assets", "sources", "nvmd")
       : join(__dirname, "../../..", "assets", "sources", "nvmd");
@@ -100,27 +98,17 @@ async function updateToSchemaVersionLast(version: number) {
   }
 
   // Windows
-  const targetFile = join(BIN_DIR, "nvmd.exe");
-
-  await remove(targetFile);
-
   const sourceFile = app.isPackaged
     ? join(process.resourcesPath, "assets", "sources", `${arch}.exe`)
     : join(__dirname, "../../..", "assets", "sources", `${arch}.exe`);
-  await copy(sourceFile, targetFile).catch((_err) => {});
+  await copy(sourceFile, join(BIN_DIR, "nvmd.exe")).catch((_err) => {});
 
   async function updateFile(fileName: string) {
-    const filePath = join(BIN_DIR, fileName);
-
-    await remove(filePath);
-
-    await copy(sourceFile, filePath).catch((_err) => {});
-
+    await copy(sourceFile, join(BIN_DIR, fileName)).catch((_err) => {});
     return;
   }
 
   const files = await readdir(BIN_DIR);
-
   await Promise.all(
     files.filter((name) => name.endsWith(".exe")).map((fileName) => updateFile(fileName))
   );

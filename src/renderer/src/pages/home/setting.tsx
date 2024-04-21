@@ -52,7 +52,7 @@ const formSchema = z.object({
   mirror: z.string().url({ message: "Invalid mirror url" })
 });
 
-export const Setting: React.FC<Props> = memo(({}) => {
+export const Setting: React.FC<Props> = memo(() => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 

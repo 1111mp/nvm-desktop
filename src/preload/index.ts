@@ -117,6 +117,7 @@ const electronHandler = {
     onThemeChanged = callback;
   },
 
+  // projects
   openFolderSelecter: ({
     title,
     multiple = false,
@@ -135,6 +136,14 @@ const electronHandler = {
     ipcRenderer.invoke("update-projects", projects, path) as Promise<void>,
   syncProjectVersion: (path: string, version: string) =>
     ipcRenderer.invoke("sync-project-version", path, version) as Promise<404 | 200>,
+  updateProjectsWhenRemoveGroup: (
+    projectsPath: string[],
+    groupName: string = "",
+    version: string = ""
+  ) =>
+    ipcRenderer.invoke("update-project-remove-group", projectsPath, groupName, version) as Promise<
+      Nvmd.Project[]
+    >,
   onRegistProjectUpdate: (callback: OnProjectUpdate | null) => {
     onProjectUpdate = callback;
   },
@@ -150,7 +159,15 @@ const electronHandler = {
   onConfigrationImport: (args: { sync: boolean; title: string }) =>
     ipcRenderer.invoke("configration-import", args) as Promise<
       OpenDialogReturnValue & { color?: string; mirrors?: string; setting?: Nvmd.Setting }
-    >
+    >,
+
+  // * Groups
+  getGroups: (load: boolean = false) =>
+    ipcRenderer.invoke("group-get", load) as Promise<Nvmd.Group[]>,
+  onGroupCreate: (group: Nvmd.Group) => ipcRenderer.invoke("group-create", group),
+  onGroupUpdate: (groups: Nvmd.Group[]) => ipcRenderer.invoke("group-update", groups),
+  onGroupUpdateVersion: (group: Nvmd.Group, version: string) =>
+    ipcRenderer.invoke("group-update-version", group, version) as Promise<Nvmd.Group[]>
 };
 
 contextBridge.exposeInMainWorld("Context", electronHandler);

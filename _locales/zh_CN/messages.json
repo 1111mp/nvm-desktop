@@ -502,5 +502,29 @@
   "Configration-import-success": {
     "message": "导入已完成。 如果遇到数据不一致，请重启应用。",
     "description": "The text of the Configration-import-success"
+  },
+  "Groups": {
+    "message": "分组",
+    "description": "The text of the Groups"
+  },
+  "Group-Name": {
+    "message": "分组名称",
+    "description": "The text of the Group-Name"
+  },
+  "Group-Desc": {
+    "message": "分组描述",
+    "description": "The text of the Group-Desc"
+  },
+  "Create-Group": {
+    "message": "创建分组",
+    "description": "The text of the Create-Group"
+  },
+  "Group-Delete": {
+    "message": "确定要删除此分组吗？",
+    "description": "The text of the Group-Delete"
+  },
+  "Input-To-Search": {
+    "message": "输入以搜索",
+    "description": "The text of the Input-To-Search"
   }
 }

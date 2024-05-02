@@ -39,6 +39,13 @@ declare global {
       updateAt: string;
     }
 
+    interface Group {
+      name: string;
+      desc?: string;
+      version: string;
+      projects: string[];
+    }
+
     interface ConfigrationExport {
       color?: string;
       mirrors?: string | null;

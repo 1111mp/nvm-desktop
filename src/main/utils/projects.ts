@@ -59,3 +59,32 @@ export async function syncProjectVersion(path: string, version: string) {
   await writeFile(join(path, NVMDRC_NAME), version);
   return 200;
 }
+
+type UpdateByGroup = {
+  projects: string[];
+  groupName: string;
+  version: string;
+};
+
+export async function updateProjectAndSyncVersion({ projects, groupName, version }: UpdateByGroup) {
+  const asyncVerions: Promise<any>[] = [],
+    newProjects = [...cacheProjects];
+  projects.forEach((projectPath) => {
+    // update projectpath/.nvmdrc
+    asyncVerions.push(syncProjectVersion(projectPath, version));
+
+    // update $HOMEPATH/.nvmd/projects.json
+    // await updateProjectFromGroup({ groupName });
+    newProjects.forEach((project) => {
+      if (project.path === projectPath) {
+        project.version = groupName;
+      }
+    });
+  });
+
+  cacheProjects = newProjects;
+  asyncVerions.push(writeJson(PROJECTS_JSONFILE, newProjects));
+
+  await Promise.all(asyncVerions);
+  return cacheProjects;
+}

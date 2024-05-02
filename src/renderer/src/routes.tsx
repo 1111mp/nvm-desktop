@@ -26,6 +26,11 @@ const routes: RouteObject[] = [
         path: "projects",
         lazy: () => import("./pages/projects"),
         errorElement: <ErrorBoundary />
+      },
+      {
+        path: "groups",
+        lazy: () => import("./pages/groups"),
+        errorElement: <ErrorBoundary />
       }
     ]
   }

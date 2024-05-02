@@ -24,9 +24,11 @@ import {
   getProjects,
   getVersion,
   syncProjectVersion,
+  updateProjectAndSyncVersion,
   updateProjects,
   updateProjectsAndSync
 } from "./utils/projects";
+import { createGroup, getGroups, updateGroupVersion, updateGroups } from "./utils/groups";
 import { gt } from "semver";
 import loadLocale from "./locale";
 import { Closer, Themes } from "../types";
@@ -501,6 +503,7 @@ Promise.resolve().then(() => {
     }
   );
 
+  // * Projects
   ipcMain.handle("get-projects", async (_event, load: boolean = false) => {
     return getProjects(load);
   });
@@ -516,6 +519,18 @@ Promise.resolve().then(() => {
     return syncProjectVersion(path, version);
   });
 
+  ipcMain.handle(
+    "update-project-remove-group",
+    (_event, projectsPath: string[], groupName: string, version: string) => {
+      return updateProjectAndSyncVersion({
+        projects: projectsPath,
+        groupName,
+        version
+      });
+    }
+  );
+
+  // * Configration
   ipcMain.handle("configration-export", async (_event, args: Nvmd.ConfigrationExport) => {
     const { color, setting: exportSetting, projects, path, mirrors } = args;
     let output: Nvmd.Configration = {};
@@ -550,5 +565,16 @@ Promise.resolve().then(() => {
 
       return { canceled, color, mirrors, setting: importSetting };
     }
+  );
+
+  // * Groups
+  ipcMain.handle("group-get", (_event, load: boolean = false) => getGroups(load));
+
+  ipcMain.handle("group-create", (_event, group: Nvmd.Group) => createGroup(group));
+
+  ipcMain.handle("group-update", (_event, groups: Nvmd.Group[]) => updateGroups(groups));
+
+  ipcMain.handle("group-update-version", (_event, group: Nvmd.Group, version: string) =>
+    updateGroupVersion(group, version)
   );
 });

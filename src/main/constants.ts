@@ -9,5 +9,6 @@ export const APPDIR = join(HOME, '.nvmd'),
   VERSIONS_FILENAME = join(APPDIR, 'versions.json'),
   SETTING_JSONFILE = join(APPDIR, 'setting.json'),
   PROJECTS_JSONFILE = join(APPDIR, 'projects.json'),
+  GROUPS_JSONFILE = join(APPDIR, 'groups.json'),
   MIRRATION_FILE = join(APPDIR, 'migration'),
   NVMDRC_NAME = '.nvmdrc';

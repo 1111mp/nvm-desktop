@@ -1,5 +1,6 @@
 export * from "./alert-dialog";
 export * from "./auto-complete";
+export * from "./bars-icon";
 export * from "./badge";
 export * from "./button";
 export * from "./checkbox";

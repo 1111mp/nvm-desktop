@@ -10,7 +10,11 @@ type OnUpdateProgressCallback = (progress: ProgressInfo) => void;
 type OnProgressCallback = (id: string, data: Nvmd.ProgressData) => void;
 type OnThemeChangedCallback = (theme: string) => void;
 type OnCurVersionChange = (version: string) => void;
-type OnProjectUpdate = (projects: Nvmd.Project[], version?: string) => void;
+type OnProjectUpdate = (args: {
+  projects: Nvmd.Project[];
+  groups?: Nvmd.Group[];
+  version?: string;
+}) => void;
 type OnMigrationError = () => void;
 
 let onCheckUpdateResult: OnCheckUpdateResultCallback | null = null,
@@ -49,9 +53,19 @@ ipcRenderer.on("current-version-update", (_evnet, version: string) => {
   onCurVersionChange?.(version);
 });
 
-ipcRenderer.on("call-projects-update", (_evnet, projects: Nvmd.Project[], version?: string) => {
-  onProjectUpdate?.(projects, version);
-});
+ipcRenderer.on(
+  "call-projects-update",
+  (
+    _evnet,
+    args: {
+      projects: Nvmd.Project[];
+      groups?: Nvmd.Group[];
+      version?: string;
+    }
+  ) => {
+    onProjectUpdate?.(args);
+  }
+);
 
 ipcRenderer.on("migration-error", (_evnet) => {
   onMigrationError?.();

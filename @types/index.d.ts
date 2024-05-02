@@ -59,6 +59,7 @@ declare global {
       mirrors?: string;
       setting?: Setting;
       projects?: Project[];
+      groups?: Group[];
     }
   }
 }

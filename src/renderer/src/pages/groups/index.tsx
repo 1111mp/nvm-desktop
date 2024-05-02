@@ -64,8 +64,9 @@ export const Component: React.FC = () => {
   const { directory, locale } = useAppContext();
 
   useEffect(() => {
-    window.Context.onRegistProjectUpdate((pros, version) => {
-      setProjects(pros);
+    window.Context.onRegistProjectUpdate(({ projects, groups, version }) => {
+      setProjects(projects);
+      groups && setGroups(groups);
       version && toast.success(i18n("Restart-Terminal", [`v${version}`]));
     });
 

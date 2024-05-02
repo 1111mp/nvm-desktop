@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { pathExists, readFile, readJson, writeJson, writeFile, remove } from "fs-extra";
 import { PROJECTS_JSONFILE, NVMDRC_NAME } from "../constants";
+import { updateGroups } from "./groups";
 
 let cacheProjects: Nvmd.Project[];
 
@@ -28,20 +29,33 @@ export async function updateProjects(projects: Nvmd.Project[], path?: string) {
   return;
 }
 
-export async function updateProjectsAndSync(projects: Nvmd.Project[], sync: boolean = false) {
+// For configration import
+export async function updateProjectsAndSync({
+  projects,
+  groups = [],
+  sync = false
+}: {
+  projects: Nvmd.Project[];
+  groups?: Nvmd.Group[];
+  sync: boolean;
+}) {
   const syncProject = async ({ path, version }: Nvmd.Project, index: number) => {
     if (!(await pathExists(path))) {
       projects[index].active = false;
       return;
     }
 
-    sync && (await writeFile(join(path, NVMDRC_NAME), version));
+    const group = groups.length
+      ? groups?.find(({ name: groupName }) => groupName === version)
+      : void 0;
+    sync && (await writeFile(join(path, NVMDRC_NAME), group ? group.version : version));
     return;
   };
 
   await Promise.all(projects.map((project, index) => syncProject(project, index)));
   cacheProjects = projects;
   await writeJson(PROJECTS_JSONFILE, projects);
+  groups.length && (await updateGroups(groups));
 }
 
 export async function getVersion(path: string): Promise<string> {

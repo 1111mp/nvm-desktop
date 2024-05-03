@@ -24,9 +24,11 @@ import {
   getProjects,
   getVersion,
   syncProjectVersion,
+  updateProjectAndSyncVersion,
   updateProjects,
   updateProjectsAndSync
 } from "./utils/projects";
+import { createGroup, getGroups, updateGroupVersion, updateGroups } from "./utils/groups";
 import { gt } from "semver";
 import loadLocale from "./locale";
 import { Closer, Themes } from "../types";
@@ -247,30 +249,107 @@ function createTray() {
 async function buildTray() {
   if (!tray) return;
 
-  const [curVersion, projects] = await Promise.all([getCurrentVersion(), getProjects()]);
+  const [curVersion, projects, groups] = await Promise.all([
+    getCurrentVersion(),
+    getProjects(),
+    getGroups()
+  ]);
 
   const projectsMenu: MenuItemConstructorOptions[] = projects.slice(0, 5).map((project, index) => {
     const { name, path, version: projectVersion } = project;
     return {
       label: name,
-      submenu: installedVersions.slice(0, 8).map((version) => ({
-        label: `v${version}`,
-        type: "radio",
-        checked: projectVersion === version,
-        async click() {
-          const code = await syncProjectVersion(path, version);
-          const newProjects = [...projects];
-          newProjects[index] = {
-            ...project,
-            version: version,
-            active: code === 200 ? true : false,
-            updateAt: new Date().toISOString()
-          };
-          updateProjects(newProjects);
+      submenu: [
+        ...(installedVersions.map((version) => ({
+          label: `v${version}`,
+          type: "radio",
+          checked: projectVersion === version,
+          async click() {
+            const code = await syncProjectVersion(path, version);
 
-          mainWindow?.webContents.send("call-projects-update", newProjects, version);
-        }
-      }))
+            const [newProjects, newGroups] = await Promise.all([
+              (async () => {
+                const newProjects = [...projects];
+                newProjects[index] = {
+                  ...project,
+                  version: version,
+                  active: code === 200 ? true : false,
+                  updateAt: new Date().toISOString()
+                };
+                await updateProjects(newProjects);
+                return newProjects;
+              })(),
+              (async () => {
+                const newGroups = [...groups];
+                let needUpdate: boolean = false;
+                newGroups.forEach((group) => {
+                  if (group.name === projectVersion) {
+                    needUpdate = true;
+                    const groupsProjects = [...group.projects];
+                    group.projects = groupsProjects.filter((proPath) => proPath !== path);
+                  }
+                });
+
+                needUpdate && (await updateGroups(newGroups));
+                return newGroups;
+              })()
+            ]);
+
+            mainWindow?.webContents.send("call-projects-update", {
+              projects: newProjects,
+              groups: newGroups,
+              version
+            });
+
+            setTimeout(() => {
+              buildTray();
+            });
+          }
+        })) as MenuItemConstructorOptions[]),
+        {
+          type: "separator"
+        },
+        ...(groups.map(({ name, version }) => ({
+          label: name,
+          type: "radio",
+          checked: projectVersion === name,
+          async click() {
+            const code = await syncProjectVersion(path, version);
+            const newProjects = [...projects];
+            newProjects[index] = {
+              ...project,
+              version: name,
+              active: code === 200 ? true : false,
+              updateAt: new Date().toISOString()
+            };
+
+            const newGroups = [...groups];
+            newGroups.forEach((group) => {
+              // If the project is already in other groups, you need to remove it from the original group.
+              const groupProjects = [...group.projects];
+              if (group.projects.includes(path) && group.name !== name) {
+                group.projects = groupProjects.filter((proPath) => proPath !== path);
+              }
+
+              if (group.name === name) {
+                group.projects = [path, ...groupProjects];
+              }
+            });
+
+            await Promise.all([updateProjects(newProjects), updateGroups(newGroups)]);
+
+            mainWindow?.webContents.send("call-projects-update", {
+              projects: newProjects,
+              groups: newGroups,
+              version
+            });
+
+            setTimeout(() => {
+              buildTray();
+            });
+          }
+        })) as MenuItemConstructorOptions[])
+      ]
     };
   });
 
@@ -299,7 +378,7 @@ async function buildTray() {
     { type: "separator" },
     {
       label: "Global (default)",
-      submenu: installedVersions.slice(0, 8).map((version) => ({
+      submenu: installedVersions.map((version) => ({
         label: `v${version}`,
         type: "radio",
         checked: curVersion === version,
@@ -501,6 +580,7 @@ Promise.resolve().then(() => {
     }
   );
 
+  // * Projects
   ipcMain.handle("get-projects", async (_event, load: boolean = false) => {
     return getProjects(load);
   });
@@ -516,6 +596,18 @@ Promise.resolve().then(() => {
     return syncProjectVersion(path, version);
   });
 
+  ipcMain.handle(
+    "update-project-remove-group",
+    (_event, projectsPath: string[], groupName: string, version: string) => {
+      return updateProjectAndSyncVersion({
+        projects: projectsPath,
+        groupName,
+        version
+      });
+    }
+  );
+
+  // * Configration
   ipcMain.handle("configration-export", async (_event, args: Nvmd.ConfigrationExport) => {
     const { color, setting: exportSetting, projects, path, mirrors } = args;
     let output: Nvmd.Configration = {};
@@ -525,7 +617,10 @@ Promise.resolve().then(() => {
     if (exportSetting) output.setting = setting;
     if (mirrors) output.mirrors = mirrors;
 
-    if (projects) output.projects = await getProjects();
+    if (projects) {
+      output.projects = await getProjects();
+      output.groups = await getGroups();
+    }
 
     return configrationExport(path, output);
   });
@@ -541,14 +636,43 @@ Promise.resolve().then(() => {
 
       if (canceled) return { canceled };
       const [path] = filePaths;
-      const { color, mirrors, setting: importSetting, projects } = await configrationImport(path);
+      const {
+        color,
+        mirrors,
+        setting: importSetting,
+        projects,
+        groups
+      } = await configrationImport(path);
 
       if (projects) {
-        await updateProjectsAndSync(projects, sync);
-        projects && mainWindow?.webContents.send("call-projects-update", projects);
+        await updateProjectsAndSync({
+          projects,
+          groups,
+          sync
+        });
+        projects && mainWindow?.webContents.send("call-projects-update", { projects, groups });
+
+        setTimeout(() => {
+          buildTray();
+        });
       }
 
       return { canceled, color, mirrors, setting: importSetting };
     }
+  );
+
+  // * Groups
+  ipcMain.handle("group-get", (_event, load: boolean = false) => getGroups(load));
+
+  ipcMain.handle("group-create", (_event, group: Nvmd.Group) => createGroup(group));
+
+  ipcMain.handle("group-update", async (_event, groups: Nvmd.Group[]) => {
+    await updateGroups(groups);
+    buildTray();
+    return;
+  });
+
+  ipcMain.handle("group-update-version", (_event, group: Nvmd.Group, version: string) =>
+    updateGroupVersion(group, version)
   );
 });

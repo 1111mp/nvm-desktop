@@ -15,7 +15,7 @@ import {
 } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./table";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bars } from "svg-loaders-react";
+import { Bars } from "./bars-icon";
 
 import { type Table as StackTable } from "@tanstack/react-table";
 import { useDrag, useDrop } from "react-dnd";

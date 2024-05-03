@@ -377,6 +377,13 @@ const Home: React.FC = () => {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link to="/groups" className={linkStyle} data-active={pathname === "/groups"}>
+                    {i18n("Groups")}
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
           <div className="flex items-center [-webkit-app-region:no-drag]">
@@ -435,6 +442,13 @@ const Home: React.FC = () => {
                       data-active={pathname === "/projects"}
                     >
                       {i18n("Projects")}
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink asChild>
+                    <Link to="/groups" className={linkStyle} data-active={pathname === "/groups"}>
+                      {i18n("Groups")}
                     </Link>
                   </NavigationMenuLink>
                 </NavigationMenuItem>

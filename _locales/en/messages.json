@@ -502,5 +502,29 @@
   "Configration-import-success": {
     "message": "The import has been completed. If you encounter data inconsistency, please restart the application.",
     "description": "The text of the Configration-import-success"
+  },
+  "Groups": {
+    "message": "Groups",
+    "description": "The text of the Groups"
+  },
+  "Group-Name": {
+    "message": "Group Name",
+    "description": "The text of the Group-Name"
+  },
+  "Group-Desc": {
+    "message": "Group Description",
+    "description": "The text of the Group-Desc"
+  },
+  "Create-Group": {
+    "message": "Create Group",
+    "description": "The text of the Create-Group"
+  },
+  "Group-Delete": {
+    "message": "Are you sure to delete this group?",
+    "description": "The text of the Group-Delete"
+  },
+  "Input-To-Search": {
+    "message": "input to search",
+    "description": "The text of the Input-To-Search"
   }
 }

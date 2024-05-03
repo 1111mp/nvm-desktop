@@ -34,9 +34,9 @@ import {
   Select
 } from "@renderer/components/ui";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppContext, useI18n } from "@src/renderer/src/app-context";
 import { Closer, Themes } from "@src/types";
 
@@ -52,7 +52,7 @@ const formSchema = z.object({
   mirror: z.string().url({ message: "Invalid mirror url" })
 });
 
-export const Setting: React.FC<Props> = memo(({}) => {
+export const Setting: React.FC<Props> = memo(() => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 

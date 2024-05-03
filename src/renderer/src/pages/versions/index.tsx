@@ -422,12 +422,13 @@ const Versions: React.FC = () => {
     <>
       <div className="h-full flex flex-col space-y-2">
         <DataTable
+          key="page-versions-table"
           columns={columns}
           data={versions}
           loading={loading || localLoading}
           toolbar={(table) => (
             <div className="flex items-center gap-2">
-              <DataTableToolbar table={table} options={statuses} />
+              <DataTableToolbar key="page-versions-table-tool" table={table} options={statuses} />
               <div className="flex items-center gap-2">
                 <Button
                   size="sm"

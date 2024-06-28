@@ -5,13 +5,13 @@
   "tsx": true,
   "tailwind": {
     "config": "tailwind.config.ts",
-    "css": "src/renderer/src/global.css",
+    "css": "src/global.css",
     "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""
   },
   "aliases": {
-    "components": "src/renderer/src/components",
-    "utils": "@renderer/lib/utils"
+    "components": "@/components",
+    "utils": "@/lib/utils"
   }
 }

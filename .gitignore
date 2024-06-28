@@ -1,38 +1,26 @@
 # Logs
 logs
-wdio-logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Runtime data
-pids
-*.pid
-*.seed
-
-# Coverage directory used by tools like istanbul
-coverage
-.eslintcache
-
-# Dependency directory
-# https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
+dist
+dist-ssr
+*.local
 
-package-lock.json
-
-# OSX
-.DS_Store
-
-out/
-dist/
-release/app/dist
-release/build
-.erb/dll
-
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
 .idea
-npm-debug.log.*
-*.css.d.ts
-*.sass.d.ts
-*.scss.d.ts
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 .nvmdrc
-
-assets/sources/**

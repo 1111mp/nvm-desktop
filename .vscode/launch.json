@@ -1,39 +1,40 @@
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Debug Main Process",
-      "type": "node",
-      "request": "launch",
-      "cwd": "${workspaceRoot}",
-      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite-tsup",
-      "windows": {
-        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite-tsup.cmd"
-      },
-      "runtimeArgs": ["--sourcemap", "--watch"],
-      "env": {
-        "REMOTE_DEBUGGING_PORT": "9222"
-      }
-    },
-    {
-      "name": "Debug Renderer Process",
-      "port": 9222,
-      "request": "attach",
-      "type": "chrome",
-      "webRoot": "${workspaceFolder}/src/renderer",
-      "timeout": 60000,
-      "presentation": {
-        "hidden": true
-      }
-    }
-  ],
-  "compounds": [
-    {
-      "name": "Debug All",
-      "configurations": ["Debug Main Process", "Debug Renderer Process"],
-      "presentation": {
-        "order": 1
-      }
-    }
-  ]
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Tauri Development Debug",
+			"cargo": {
+				"args": [
+					"build",
+					"--manifest-path=./src-tauri/Cargo.toml",
+					"--no-default-features"
+				]
+			},
+			// task for the `beforeDevCommand` if used, must be configured in `.vscode/tasks.json`
+			"preLaunchTask": "ui:dev"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Tauri Production Debug",
+			"cargo": {
+				"args": ["build", "--release", "--manifest-path=./src-tauri/Cargo.toml"]
+			},
+			// task for the `beforeBuildCommand` if used, must be configured in `.vscode/tasks.json`
+			"preLaunchTask": "ui:build"
+		},
+		{
+			"name": "Tauri UI Debug",
+			"type": "pwa-chrome",
+			"request": "launch",
+			"url": "http://localhost:3000",
+			"webRoot": "${workspaceFolder}",
+			"skipFiles": ["${workspaceFolder}/node_modules/**/*.js"]
+		}
+	]
 }

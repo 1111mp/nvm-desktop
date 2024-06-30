@@ -8,16 +8,22 @@
 	flex-direction: column;
 }
 
+a {
+	-webkit-user-drag: none;
+}
+
+
 @layer base {
 	html {
 		font-family: sans-serif;
 		font-weight: 300;
+		overflow: hidden;
 	}
 
 	/*? deffault theme -> neutral */
 
 	:root {
-		--background: 0 0% 100%;
+		--background: transparent;
 		--foreground: 0 0% 3.9%;
 		--card: 0 0% 100%;
 		--card-foreground: 0 0% 3.9%;
@@ -68,6 +74,7 @@
 	* {
 		@apply border-border;
 	}
+
 	body {
 		@apply bg-background text-foreground;
 	}
@@ -666,6 +673,7 @@
 	height: 6px;
 	background-color: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
 	border-radius: 3px;
 	background-color: #b9b9b9;

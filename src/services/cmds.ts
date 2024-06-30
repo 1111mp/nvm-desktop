@@ -1,17 +1,17 @@
 import { invoke } from '@tauri-apps/api/core';
 
 export async function getSettings() {
-	return invoke<Nvmd.Setting>('read_settings');
+  return invoke<Nvmd.Setting>('read_settings');
 }
 
-export function current() {
-	return invoke<string>('current');
+export function vCurrent() {
+  return invoke<string>('current');
 }
 
-export function version_list() {
-	return invoke<Nvmd.Versions>('version_list');
+export function versionList(fetch: boolean = false) {
+  return invoke<Nvmd.Versions>('version_list', { fetch });
 }
 
-export function installed_list() {
-	return invoke<Array<string>>('installed_list');
+export function installedList(fetch: boolean = false) {
+  return invoke<Array<string>>('installed_list', { fetch });
 }

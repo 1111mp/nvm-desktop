@@ -52,9 +52,9 @@ pub fn read_installed(path: &String) -> Result<Vec<String>> {
         let version = entry.file_name().to_string_lossy().to_string();
         let node_path = directory.clone();
         #[cfg(target_os = "windows")]
-        let _ = node_path.join(&version).join("node.exe");
+        let node_path = node_path.join(&version).join("node.exe");
         #[cfg(any(target_os = "macos", target_os = "linux"))]
-        node_path.join("bin/node");
+        let node_path = node_path.join(&version).join("bin/node");
         if node_path.exists() {
             versions.push(version);
         }

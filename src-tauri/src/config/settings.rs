@@ -12,6 +12,9 @@ pub struct ISettings {
     /// installation directory
     pub directory: Option<String>,
 
+    /// not show the window on launch
+    pub enable_silent_start: Option<bool>,
+
     /// language
     /// `en` or `zh-CN`
     pub locale: Option<String>,
@@ -53,7 +56,12 @@ impl ISettings {
     pub fn template() -> Self {
         Self {
             directory: Some(dirs::default_install_dir().to_string_lossy().to_string()),
+            enable_silent_start: Some(false),
+            locale: Some("en".into()),
+            proxy: None,
             mirror: Some("https://nodejs.org/dist".into()),
+            no_proxy: Some(false),
+            theme: Some("system".into()),
             ..Self::default()
         }
     }

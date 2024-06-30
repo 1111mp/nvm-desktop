@@ -1,16 +1,19 @@
 use anyhow::Result;
 use tauri::{App, AppHandle, Manager};
 
-use crate::{log_err, trace_err, utils::tray};
+use crate::{config::Config, log_err, trace_err, utils::tray};
 
 /// handle something when start app
 pub fn resolve_setup(app: &mut App) -> Result<()> {
     #[cfg(target_os = "macos")]
-    app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+    app.set_activation_policy(tauri::ActivationPolicy::Regular);
 
     log_err!(tray::Tray::update_systray(&app.app_handle()));
 
-    create_window(&app.app_handle())?;
+    let silent_start = { Config::settings().data().enable_silent_start };
+    if !silent_start.unwrap_or(false) {
+        create_window(&app.app_handle())?;
+    }
 
     Ok(())
 }
@@ -29,7 +32,7 @@ pub fn create_window(app_handle: &AppHandle) -> Result<()> {
         "main",
         tauri::WebviewUrl::App("index.html".into()),
     )
-    .title("Tauri App")
+    .title("NVM-Desktop")
     .visible(false)
     .fullscreen(false)
     .inner_size(1024.0, 728.0)
@@ -43,6 +46,16 @@ pub fn create_window(app_handle: &AppHandle) -> Result<()> {
         .transparent(true)
         .visible(false)
         .build()?;
+    #[cfg(target_os = "macos")]
+    let window = builder
+        .decorations(true)
+        .transparent(true)
+        .hidden_title(true)
+        .shadow(true)
+        .title_bar_style(tauri::TitleBarStyle::Overlay)
+        .build()?;
+    #[cfg(target_os = "linux")]
+    let window = builder.decorations(false).transparent(true).build()?;
 
     if tauri::is_dev() {
         window.open_devtools();

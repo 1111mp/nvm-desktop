@@ -10,6 +10,7 @@
 		"event:default",
 		"window:default",
 		"window:allow-close",
+		"window:allow-start-dragging",
 		"window:allow-minimize",
 		"window:allow-unminimize",
 		"window:allow-show",

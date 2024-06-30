@@ -8,7 +8,7 @@ import { SystemTheme } from '@/types';
  * @since tauri 2.0.0
  */
 export function getCurrent() {
-	return getCurrentWindow();
+  return getCurrentWindow();
 }
 
 /**
@@ -16,7 +16,7 @@ export function getCurrent() {
  * @return {Promise<void>} A promise indicating the success or failure of the operation.
  */
 export function windowClose() {
-	return getCurrent().close();
+  return getCurrent().close();
 }
 
 /**
@@ -25,7 +25,11 @@ export function windowClose() {
  * @returns {Promise<void>} A promise indicating the success or failure of the operation.
  */
 export function windowMinimize() {
-	return getCurrent().minimize();
+  return getCurrent().minimize();
+}
+
+export function setWindowFocus() {
+  return getCurrent().setFocus();
 }
 
 /**
@@ -38,5 +42,5 @@ export function windowMinimize() {
  * @returns {Promise<Theme>} The window theme: `light` or `dark`.
  */
 export function getSystemCurrentTheme() {
-	return getCurrent().theme() as Promise<SystemTheme>;
+  return getCurrent().theme() as Promise<SystemTheme>;
 }

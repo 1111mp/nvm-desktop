@@ -43,6 +43,12 @@ pub async fn read_settings() -> CmdResult<ISettings> {
     Ok(Config::settings().data().clone())
 }
 
+// /// install node
+// #[tauri::command]
+// pub async fn install(arch: Option<String>, version: Option<String>) -> CmdResult<()> {
+
+// }
+
 #[tauri::command]
 pub fn exit_app(app_handle: tauri::AppHandle) {
     app_handle.exit(0);

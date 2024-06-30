@@ -116,7 +116,7 @@ pub async fn read_version_list(params: &ListParams) -> Result<Option<Vec<NVersio
 pub async fn read_installed_list(fetch: Option<bool>) -> Result<Option<Vec<String>>> {
     let fetch = fetch.unwrap_or(false);
     if !fetch {
-        return Ok(Config::node().data().get_installed());
+        return Ok(Config::node().latest().get_installed());
     }
 
     let directory: Option<String> = Config::settings().data().get_directory();
@@ -135,9 +135,9 @@ pub async fn read_installed_list(fetch: Option<bool>) -> Result<Option<Vec<Strin
         let version = entry.file_name().to_string_lossy().to_string();
         let node_path = directory.clone();
         #[cfg(target_os = "windows")]
-        let _ = node_path.join(&version).join("node.exe");
+        let node_path = node_path.join(&version).join("node.exe");
         #[cfg(any(target_os = "macos", target_os = "linux"))]
-        node_path.join("bin/node");
+        let node_path = node_path.join(&version).join("bin/node");
         if node_path.exists() {
             versions.push(version);
         }

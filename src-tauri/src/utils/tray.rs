@@ -48,12 +48,12 @@ impl Tray {
     }
 
     pub fn update_systray(app_handle: &AppHandle) -> Result<()> {
-        let _tray = TrayIconBuilder::with_id("main")
-            .icon(Image::from_path("icons/icon.png")?)
+        let builder = TrayIconBuilder::with_id("main")
             .tooltip("NVM-Desktop")
             .menu(&Tray::tray_menu(app_handle)?)
             .on_menu_event(Tray::on_menu_event)
             .on_tray_icon_event(|tray, event| {
+                #[cfg(not(target_os = "macos"))]
                 if let TrayIconEvent::Click {
                     button: MouseButton::Left,
                     ..
@@ -61,11 +61,17 @@ impl Tray {
                 {
                     let _ = resolve::create_window(&tray.app_handle());
                 }
-            })
-            .build(app_handle)?;
+            });
 
+        #[cfg(not(target_os = "macos"))]
+        builder
+            .icon(Image::from_path("icons/icon.png")?)
+            .build(app_handle)?;
         #[cfg(target_os = "macos")]
-        let _ = _tray.set_icon_as_template(true);
+        builder
+            .icon(Image::from_path("icons/icon-template.png")?)
+            .icon_as_template(true)
+            .build(app_handle)?;
 
         Ok(())
     }

@@ -61,22 +61,14 @@ pub async fn fetch(
 
     // Unpack the tarball to the destination directory and report progress
     let mut entries: tokio_tar::Entries<GzipDecoder<BufReader<File>>> = tarball.entries()?;
-    let mut total_uncompressed_size = 0;
     let mut unpacked_size = 0;
-    while let Some(entry) = entries.next().await {
-        total_uncompressed_size += entry?.header().size()? as usize;
-    }
 
     while let Some(entry) = entries.next().await {
         let mut entry = entry?;
         let entry_size = entry.header().size()?;
         entry.unpack_in(&dest).await?;
         unpacked_size += entry_size;
-        on_progress(
-            "unzip",
-            unpacked_size as usize,
-            total_uncompressed_size as usize,
-        );
+        on_progress("unzip", unpacked_size as usize, unpacked_size as usize);
     }
 
     let (_rename_future, _remove_future) = tokio::join!(

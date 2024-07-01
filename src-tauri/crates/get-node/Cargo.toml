@@ -6,9 +6,12 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0"
 async-compression = { version = "0.4", features = ["tokio", "gzip"] }
+async_zip = { version = "0.0.17", features = ["full"] }
 cfg-if = "1"
+futures-lite = "2.3"
 futures-util = "0.3"
+node-semver = "2"
 reqwest = { version = "0.12", features = ["json", "rustls-tls", "stream"] }
-async-tar = "0.4"
 tokio = { version = "1", features = ["full"] }
+tokio-tar = "0.3"
 tokio-util = { version = "0.7", features = ["compat"] }

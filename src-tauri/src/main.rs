@@ -20,7 +20,8 @@ fn main() -> tauri::Result<()> {
             cmds::current,
             cmds::version_list,
             cmds::read_settings,
-            cmds::installed_list
+            cmds::installed_list,
+            cmds::install_node
         ]);
 
     let app = builder.build(tauri::generate_context!())?;

@@ -7,6 +7,7 @@ use crate::{
 };
 
 use anyhow::Result;
+use get_node::archive::fetch_native;
 
 type CmdResult<T = ()> = Result<T, String>;
 
@@ -34,6 +35,7 @@ pub async fn version_list(
 /// read node installed version list
 #[tauri::command]
 pub async fn installed_list(fetch: Option<bool>) -> CmdResult<Option<Vec<String>>> {
+    println!("installed_list");
     wrap_err!(read_installed_list(fetch).await)
 }
 
@@ -44,10 +46,17 @@ pub async fn read_settings() -> CmdResult<ISettings> {
 }
 
 // /// install node
-// #[tauri::command]
-// pub async fn install(arch: Option<String>, version: Option<String>) -> CmdResult<()> {
+#[tauri::command]
+pub async fn install_node(version: Option<String>) -> CmdResult<()> {
+    let version: String = version.unwrap_or("22.3.0".to_string());
+    let mirror = { Config::settings().latest().mirror.clone().unwrap() };
+    let dest = { Config::settings().latest().directory.clone().unwrap() };
 
-// }
+    let on_progress = |source: &str, downloaded: usize, total: usize| {
+        println!("Source: {}, Progress: {}/{}", source, downloaded, total);
+    };
+    wrap_err!(fetch_native(&mirror, &version, &dest, &on_progress).await)
+}
 
 #[tauri::command]
 pub fn exit_app(app_handle: tauri::AppHandle) {

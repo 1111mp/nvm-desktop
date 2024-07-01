@@ -166,8 +166,9 @@ mod tests {
 
     #[test]
     fn test_node_archive_filename() {
+        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap());
         assert_eq!(
-            Node::archive_filename(&Version::parse("20.2.3").unwrap()),
+            full_name,
             format!(
                 "node-v20.2.3-{}-{}.{}",
                 NODE_DISTRO_OS, NODE_DISTRO_ARCH, NODE_DISTRO_EXTENSION
@@ -178,8 +179,9 @@ mod tests {
     #[test]
     #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
     fn test_fallback_node_archive_basename() {
+        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap());
         assert_eq!(
-            Node::archive_basename(&Version::parse("15.2.3").unwrap()),
+            full_name,
             format!(
                 "node-v15.2.3-{}-{}",
                 NODE_DISTRO_OS, NODE_DISTRO_ARCH_FALLBACK
@@ -190,8 +192,9 @@ mod tests {
     #[test]
     #[cfg(all(target_os = "windows", target_arch = "aarch64"))]
     fn test_fallback_node_archive_basename() {
+        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap());
         assert_eq!(
-            Node::archive_basename(&Version::parse("19.2.3").unwrap()),
+            full_name,
             format!(
                 "node-v19.2.3-{}-{}",
                 NODE_DISTRO_OS, NODE_DISTRO_ARCH_FALLBACK
@@ -202,8 +205,9 @@ mod tests {
     #[test]
     #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
     fn test_fallback_node_archive_filename() {
+        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap());
         assert_eq!(
-            Node::archive_filename(&Version::parse("15.2.3").unwrap()),
+            full_name,
             format!(
                 "node-v15.2.3-{}-{}.{}",
                 NODE_DISTRO_OS, NODE_DISTRO_ARCH_FALLBACK, NODE_DISTRO_EXTENSION
@@ -214,8 +218,9 @@ mod tests {
     #[test]
     #[cfg(all(target_os = "windows", target_arch = "aarch64"))]
     fn test_fallback_node_archive_filename() {
+        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap());
         assert_eq!(
-            Node::archive_filename(&Version::parse("19.2.3").unwrap()),
+            full_name,
             format!(
                 "node-v19.2.3-{}-{}.{}",
                 NODE_DISTRO_OS, NODE_DISTRO_ARCH_FALLBACK, NODE_DISTRO_EXTENSION

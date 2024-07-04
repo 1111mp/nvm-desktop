@@ -1,6 +1,7 @@
 use crate::utils::{dirs, help};
 
 use anyhow::Result;
+use get_node::Proxy;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
@@ -33,12 +34,6 @@ pub struct ISettings {
     /// app theme
     /// `system` or `light` or `dark`
     pub theme: Option<String>,
-}
-
-#[derive(Default, Debug, Clone, Deserialize, Serialize)]
-pub struct Proxy {
-    pub ip: String,
-    pub port: String,
 }
 
 impl ISettings {

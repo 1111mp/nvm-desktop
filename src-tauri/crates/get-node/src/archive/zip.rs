@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use anyhow::{bail, Result};
 use async_zip::tokio::read::seek::ZipFileReader;
 use futures_util::StreamExt;
@@ -8,22 +10,27 @@ use tokio::{
 };
 use tokio_util::compat::TokioAsyncWriteCompatExt;
 
-use super::{node::*, OnProgress, PathBuf};
+use super::{create_client, node::*, send, FetchConfig, PathBuf};
 
-pub async fn fetch(
-    mirror: &String,
-    version: &String,
-    dest: &String,
-    on_progress: &OnProgress,
-) -> Result<()> {
+pub async fn fetch(config: FetchConfig<'_>) -> Result<()> {
+    let FetchConfig {
+        dest,
+        mirror,
+        version,
+        proxy,
+        no_proxy,
+        timeout,
+        mut cancel_signal,
+        on_progress,
+    } = config;
+
     let (name, full_name) = Node::archive_filename(&Version::parse(version)?);
     let url = format!("{}/v{}/{}", mirror, version, &full_name);
-    let response = reqwest::ClientBuilder::new()
-        .use_rustls_tls()
-        .build()?
-        .get(url.as_str())
-        .send()
-        .await?;
+    // timeout default value is `20s`
+    let timeout = timeout.unwrap_or(Duration::from_millis(20000));
+    let client = create_client(proxy, no_proxy, timeout)?;
+
+    let response = send(&client, &url, cancel_signal.as_mut()).await?;
 
     let status = response.status();
     if !status.is_success() {
@@ -39,7 +46,19 @@ pub async fn fetch(
     let mut temp_file = File::create(&temp_file_path).await?;
     let mut stream = response.bytes_stream();
 
-    while let Some(chunk) = stream.next().await {
+    while let Some(chunk) = match cancel_signal.as_mut() {
+        Some(cancel_receiver) => {
+            tokio::select! {
+                chunk = stream.next() => {
+                    chunk
+                },
+                _ = cancel_receiver.changed() => {
+                    bail!("Download was cancelled");
+                }
+            }
+        }
+        None => stream.next().await,
+    } {
         let chunk = chunk?;
         downloaded_size += chunk.len();
         temp_file.write_all(&chunk).await?;
@@ -53,18 +72,21 @@ pub async fn fetch(
     let mut reader = BufReader::new(file);
 
     // Initialize the GzipDecoder
-    let mut zip: async_zip::base::read::seek::ZipFileReader<
-        tokio_util::compat::Compat<&mut BufReader<File>>,
-    > = ZipFileReader::with_tokio(&mut reader).await?;
+    let mut zip = ZipFileReader::with_tokio(&mut reader).await?;
     // Unpack the tarball to the destination directory and report progress
     let total_entries = zip.file().entries().len();
     for index in 0..total_entries {
+        // Check for cancel signal
+        if let Some(cancel_receiver) = cancel_signal.as_mut() {
+            if cancel_receiver.changed().await.is_ok() {
+                bail!("Unzipping was cancelled");
+            }
+        }
+
         let entry = zip.file().entries().get(index).unwrap();
         let path = dest.join(entry.filename().as_str()?);
         // If the filename of the entry ends with '/', it is treated as a directory.
         // This is implemented by previous versions of this crate and the Python Standard Library.
-        // https://docs.rs/async_zip/0.0.8/src/async_zip/read/mod.rs.html#63-65
-        // https://github.com/python/cpython/blob/820ef62833bd2d84a141adedd9a05998595d6b6d/Lib/zipfile.py#L528
         let entry_is_dir = entry.dir()?;
         let mut entry_reader = zip.reader_without_entry(index).await?;
 

@@ -2,30 +2,34 @@ use anyhow::{bail, Result};
 use async_compression::tokio::bufread::GzipDecoder;
 use futures_util::StreamExt;
 use node_semver::Version;
-use std::path::PathBuf;
+use std::{path::PathBuf, time::Duration};
 use tokio::{
     fs::{remove_file, rename, File},
     io::{AsyncWriteExt, BufReader},
 };
 use tokio_tar::Archive;
 
-use super::{node::*, OnProgress};
+use super::{create_client, node::*, send, FetchConfig};
 
-pub async fn fetch(
-    mirror: &String,
-    version: &String,
-    dest: &String,
-    on_progress: &OnProgress,
-) -> Result<()> {
+pub async fn fetch(config: FetchConfig<'_>) -> Result<()> {
+    let FetchConfig {
+        dest,
+        mirror,
+        version,
+        proxy,
+        no_proxy,
+        timeout,
+        mut cancel_signal,
+        on_progress,
+    } = config;
+
     let (name, full_name) = Node::archive_filename(&Version::parse(version)?);
     let url = format!("{}/v{}/{}", mirror, version, &full_name);
-    println!("url: {}", &url);
-    let response = reqwest::ClientBuilder::new()
-        .use_rustls_tls()
-        .build()?
-        .get(url.as_str())
-        .send()
-        .await?;
+    // timeout default value is `20s`
+    let timeout = timeout.unwrap_or(Duration::from_millis(20000));
+    let client = create_client(proxy, no_proxy, timeout)?;
+
+    let response = send(&client, &url, cancel_signal.as_mut()).await?;
 
     let status = response.status();
     if !status.is_success() {
@@ -38,10 +42,24 @@ pub async fn fetch(
     let mut downloaded_size = 0;
     let dest = PathBuf::from(dest);
     let temp_file_path = dest.join(&full_name);
+
+    // start to download file
     let mut temp_file = File::create(&temp_file_path).await?;
     let mut stream = response.bytes_stream();
-
-    while let Some(chunk) = stream.next().await {
+    // write stream buffer to file
+    while let Some(chunk) = match cancel_signal.as_mut() {
+        Some(cancel_receiver) => {
+            tokio::select! {
+                chunk = stream.next() => {
+                    chunk
+                },
+                _ = cancel_receiver.changed() => {
+                    bail!("Download was cancelled");
+                }
+            }
+        }
+        None => stream.next().await,
+    } {
         let chunk = chunk?;
         downloaded_size += chunk.len();
         temp_file.write_all(&chunk).await?;
@@ -63,11 +81,25 @@ pub async fn fetch(
     let mut entries: tokio_tar::Entries<GzipDecoder<BufReader<File>>> = tarball.entries()?;
     let mut unpacked_size = 0;
 
-    while let Some(entry) = entries.next().await {
+    while let Some(entry) = match cancel_signal.as_mut() {
+        Some(cancel_receiver) => {
+            tokio::select! {
+                entry = entries.next() => {
+                    entry
+                },
+                _ = cancel_receiver.changed() => {
+                    bail!("Unzipping was cancelled");
+                }
+            }
+        }
+        None => entries.next().await,
+    } {
         let mut entry = entry?;
         let entry_size = entry.header().size()?;
         entry.unpack_in(&dest).await?;
         unpacked_size += entry_size;
+
+        //todo Get the total size of the decompressed file on a Unix system
         on_progress("unzip", unpacked_size as usize, unpacked_size as usize);
     }
 

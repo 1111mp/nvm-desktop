@@ -1,10 +1,33 @@
-use crate::{
-    node::NVersion,
-    utils::{dirs, help},
-};
+use crate::utils::{dirs, help};
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+pub struct NVersion {
+    /// version release date
+    pub date: String,
+
+    /// long time support version
+    /// String or bool
+    pub lts: Option<Value>,
+
+    /// openssl version
+    pub openssl: Option<String>,
+
+    /// npm version
+    pub npm: Option<String>,
+
+    /// v8 engine version
+    pub v8: String,
+
+    /// node version
+    pub version: String,
+
+    /// the downloadbable files with types
+    pub files: Vec<String>,
+}
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct INode {

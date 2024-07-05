@@ -47,7 +47,7 @@ declare global {
 		type Versions = Array<Version>;
 
 		interface ProgressData {
-			percent: number;
+			source: 'download' | 'unzip';
 			transferred: number;
 			total: number;
 		}

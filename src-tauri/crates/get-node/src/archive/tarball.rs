@@ -11,7 +11,7 @@ use tokio_tar::Archive;
 
 use super::{create_client, node::*, send, FetchConfig};
 
-pub async fn fetch(config: FetchConfig<'_>) -> Result<()> {
+pub async fn fetch(config: FetchConfig) -> Result<()> {
     let FetchConfig {
         dest,
         mirror,
@@ -23,8 +23,8 @@ pub async fn fetch(config: FetchConfig<'_>) -> Result<()> {
         on_progress,
     } = config;
 
-    let (name, full_name) = Node::archive_filename(&Version::parse(version)?);
-    let url = format!("{}/v{}/{}", mirror, version, &full_name);
+    let (name, full_name) = Node::archive_filename(&Version::parse(&version)?);
+    let url = format!("{}/v{}/{}", mirror, &version, &full_name);
     // timeout default value is `20s`
     let timeout = timeout.unwrap_or(Duration::from_millis(20000));
     let client = create_client(proxy, no_proxy, timeout)?;

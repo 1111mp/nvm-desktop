@@ -1,3 +1,8 @@
+use std::{
+    sync::{Arc, Mutex},
+    time::Duration,
+};
+
 use crate::{
     config::{Config, ISettings, NVersion},
     node::*,
@@ -6,6 +11,8 @@ use crate::{
 
 use anyhow::Result;
 use get_node::archive::{fetch_native, FetchConfig};
+use tauri::Manager;
+use tokio::time::Instant;
 
 type CmdResult<T = ()> = Result<T, String>;
 
@@ -35,7 +42,7 @@ pub async fn read_settings() -> CmdResult<ISettings> {
 
 /// install node
 #[tauri::command]
-pub async fn install_node(version: Option<String>) -> CmdResult<()> {
+pub async fn install_node(window: tauri::Window, version: Option<String>) -> CmdResult<String> {
     if version.is_none() {
         ret_err!("version should not be null");
     }
@@ -45,17 +52,35 @@ pub async fn install_node(version: Option<String>) -> CmdResult<()> {
     let mirror = settings.mirror.unwrap();
     let directory = settings.directory.unwrap();
 
+    let last_emit_time = Arc::new(Mutex::new(Instant::now()));
+
     let config = FetchConfig {
-        dest: &directory,
-        mirror: &mirror,
-        version: &version,
+        dest: directory,
+        mirror: mirror,
+        version: version,
         no_proxy: settings.no_proxy,
         proxy: settings.proxy,
         cancel_signal: None,
         timeout: None,
-        on_progress: &|source: &str, downloaded: usize, total: usize| {
-            println!("Source: {}, Progress: {}/{}", source, downloaded, total);
-        },
+        on_progress: Box::new({
+            move |source: &str, transferred: usize, total: usize| {
+                let mut last_emit_time = last_emit_time.lock().unwrap();
+                let now = Instant::now();
+                if now.duration_since(*last_emit_time) >= Duration::from_millis(300) {
+                    *last_emit_time = now;
+                    println!("Source: {}, Progress: {}/{}", source, transferred, total);
+                    let source: String = source.to_string();
+                    let _ = window.emit(
+                        "on-node-progress",
+                        ProgressData {
+                            source: &source,
+                            transferred,
+                            total,
+                        },
+                    );
+                }
+            }
+        }),
     };
 
     wrap_err!(fetch_native(config).await)

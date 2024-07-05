@@ -11,15 +11,15 @@ use std::{path::PathBuf, time::Duration};
 /// total size
 pub type OnProgress = dyn Fn(&str, usize, usize) + Send + Sync;
 
-pub struct FetchConfig<'a> {
+pub struct FetchConfig {
     /// output dir
-    pub dest: &'a str,
+    pub dest: String,
 
     /// fetch mirror url
-    pub mirror: &'a str,
+    pub mirror: String,
 
     /// node version
-    pub version: &'a str,
+    pub version: String,
 
     /// proxy host & ip
     pub proxy: Option<Proxy>,
@@ -34,7 +34,7 @@ pub struct FetchConfig<'a> {
     pub cancel_signal: Option<tokio::sync::watch::Receiver<bool>>,
 
     /// progress callback
-    pub on_progress: &'a OnProgress,
+    pub on_progress: Box<OnProgress>,
 }
 
 fn create_client(
@@ -97,7 +97,7 @@ cfg_if::cfg_if! {
         ///
         /// On Windows, the preferred format is zip. On Unixes, the preferred format
         /// is tarball.
-        pub async fn fetch_native(config: FetchConfig<'_>) -> Result<()> {
+        pub async fn fetch_native(config: FetchConfig) -> Result<()> {
             tarball::fetch(config).await
         }
     } else if #[cfg(windows)] {
@@ -106,7 +106,7 @@ cfg_if::cfg_if! {
         ///
         /// On Windows, the preferred format is zip. On Unixes, the preferred format
         /// is tarball.
-        pub async fn fetch_native(config: FetchConfig<'_>) -> Result<()> {
+        pub async fn fetch_native(config: FetchConfig) -> Result<String> {
             zip::fetch(config).await
         }
     } else {

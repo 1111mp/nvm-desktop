@@ -17,5 +17,5 @@ export function installedList(fetch: boolean = false) {
 }
 
 export function installNode() {
-	return invoke('install_node', { version: '22.3.0' });
+	return invoke<string>('install_node', { version: '22.3.0' });
 }

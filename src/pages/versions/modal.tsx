@@ -27,6 +27,8 @@ import {
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { useTranslation } from 'react-i18next';
+import { getCurrent } from '@/services/api';
+import { installNode } from '@/services/cmds';
 
 export type Ref = {
 	show: (data: Nvmd.Version) => void;
@@ -42,12 +44,14 @@ export const Modal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
 	const [open, setOpen] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [path, setPath] = useState<string>();
-	const [progress, setProgress] = useState<Nvmd.ProgressData>();
+	// const [progress, setProgress] = useState<Nvmd.ProgressData>();
+	const [, updater] = useState<number>(0);
 
 	const record = useRef<Nvmd.Version>();
 	const arch = useRef<HTMLSpanElement>(null);
 	const archOption = useRef<string[]>(archs);
 	const uuid = useRef<string>();
+	const progress = useRef<Nvmd.ProgressData>();
 
 	const { t } = useTranslation();
 
@@ -57,11 +61,39 @@ export const Modal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
 		show: onShow,
 	}));
 
+	// onProgress of the download node
 	useEffect(() => {
 		// window.Context.onRegistProgress((id, progress) => {
 		// 	if (!uuid.current || uuid.current !== id) return;
 		// 	setProgress(progress);
 		// });
+		const unlisten = getCurrent().listen<Nvmd.ProgressData>(
+			'on-node-progress',
+			({ payload }) => {
+				console.log('payload', payload);
+				const { source, transferred, total } = payload;
+				if (source === 'download') {
+					progress.current = {
+						source,
+						transferred,
+						total,
+					};
+				}
+
+				if (source === 'unzip' && progress.current?.source !== 'unzip') {
+					progress.current = {
+						...progress.current!,
+						transferred: progress.current!.total,
+					};
+				}
+
+				updater((pre) => pre + 1);
+			}
+		);
+
+		return () => {
+			unlisten.then((fn) => fn());
+		};
 	}, []);
 
 	const onShow: Ref['show'] = (data) => {
@@ -82,6 +114,22 @@ export const Modal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
 	};
 
 	const onStart = async () => {
+		console.log(111111);
+		setLoading(true);
+		setPath(undefined);
+		// setProgress(undefined);
+		progress.current = undefined;
+		try {
+			const path = await installNode();
+
+			setPath(path);
+		} catch (err) {
+			toast.error(err);
+			setPath('error');
+		} finally {
+			setLoading(false);
+		}
+
 		// uuid.current = uuidv4();
 		// setLoading(true);
 		// setPath(undefined);
@@ -137,13 +185,20 @@ export const Modal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
 								</p>
 							</div>
 							<div className="flex items-center h-5">
-								{progress ? (
+								{progress.current ? (
 									<div className="flex flex-1 items-center space-x-2">
 										<Progress
-											value={progress.percent * 100}
+											value={
+												(progress.current.transferred /
+													progress.current.total) *
+												100
+											}
 											className="max-w-60"
 										/>
-										<Label>{`${progress.transferred} / ${progress.total} B`}</Label>
+										{progress.current.source === 'unzip' ? (
+											<Label>解压中...</Label>
+										) : null}
+										<Label>{`${progress.current.transferred} / ${progress.current.total} B`}</Label>
 									</div>
 								) : (
 									<p className="flex-1">{t('Install-Tip')}</p>
@@ -201,8 +256,9 @@ export const Modal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
 									setTimeout(() => {
 										record.current = undefined;
 										uuid.current = undefined;
+										progress.current = undefined;
 										setPath(undefined);
-										setProgress(undefined);
+										// setProgress(undefined);
 									}, 0);
 								}}
 							>

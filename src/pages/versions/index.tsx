@@ -35,7 +35,7 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import { useAppContext } from '@/app-context';
 import { useTranslation } from 'react-i18next';
 import { checkSupportive } from '@/lib/utils';
-import { vCurrent, installedList, versionList, installNode } from '@/services/cmds';
+import { vCurrent, installedList, versionList } from '@/services/cmds';
 
 dayjs.extend(localizedFormat);
 
@@ -396,9 +396,6 @@ const Versions: React.FC = () => {
 	}, [installedVersions.length]);
 
 	const onPageReload = async () => {
-		console.log(111111)
-		await installNode();
-		return;
 		seLocaltLoading(true);
 		try {
 			const [currentVersion, versions, installeds] = await Promise.all([

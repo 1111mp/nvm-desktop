@@ -15,14 +15,14 @@ import { getSystemCurrentTheme } from '@/services/api';
  * The delay is always within `15ms` (in development)
  */
 (async () => {
-	const [settings, sysTheme] = await Promise.all([
-		getSettings(),
-		getSystemCurrentTheme(),
-	]);
+  const [settings, sysTheme] = await Promise.all([
+    getSettings(),
+    getSystemCurrentTheme(),
+  ]);
 
-	createRoot(document.getElementById('root') as HTMLElement).render(
-		<React.StrictMode>
-			<App settings={settings} sysTheme={sysTheme} />
-		</React.StrictMode>
-	);
+  createRoot(document.getElementById('root') as HTMLElement).render(
+    // <React.StrictMode>
+    <App settings={settings} sysTheme={sysTheme} />
+    // </React.StrictMode>
+  );
 })();

@@ -16,6 +16,7 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
     let FetchConfig {
         dest,
         mirror,
+        arch,
         version,
         proxy,
         no_proxy,
@@ -24,7 +25,7 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
         on_progress,
     } = config;
 
-    let (name, full_name) = Node::archive_filename(&Version::parse(&version)?);
+    let (name, full_name) = Node::archive_filename(&Version::parse(&version)?, arch);
     let url = format!("{}/v{}/{}", mirror, &version, &full_name);
     // timeout default value is `20s`
     let timeout = timeout.unwrap_or(Duration::from_millis(20000));

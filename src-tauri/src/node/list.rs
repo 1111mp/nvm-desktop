@@ -65,6 +65,7 @@ pub async fn get_installed_list(fetch: Option<bool>) -> Result<Option<Vec<String
     }
 
     // update installed
+    Config::node().apply();
     Config::node().data().update_installed(&versions)?;
 
     Ok(Some(versions))

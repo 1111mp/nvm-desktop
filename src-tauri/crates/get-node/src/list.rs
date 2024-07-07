@@ -11,7 +11,7 @@ pub struct ListConfig {
     /// disable proxy
     pub no_proxy: Option<bool>,
 
-    /// proxy host & ip
+    /// proxy ip & port
     pub proxy: Option<Proxy>,
 
     /// timeout

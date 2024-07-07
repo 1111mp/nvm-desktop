@@ -105,6 +105,12 @@ impl INode {
         self.installed.clone()
     }
 
+    /// update current
+    pub fn update_current(&mut self, version: Option<String>) -> Result<()> {
+        self.current = version;
+        Ok(())
+    }
+
     /// update version list
     pub fn update_list(&mut self, list: &Vec<NVersion>) -> Result<()> {
         self.list = Some(list.clone());

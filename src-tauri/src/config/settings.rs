@@ -91,9 +91,24 @@ impl ISettings {
     }
 
     /// update settings config
-    pub fn update_config(&mut self, update: ISettings) -> Result<()> {
-        self.directory = update.directory.or(self.directory.clone());
-        self.mirror = update.mirror.or(self.mirror.clone());
+    /// save to file
+    pub fn patch_settings(&mut self, patch: ISettings) -> Result<()> {
+        macro_rules! patch {
+            ($key: tt) => {
+                if patch.$key.is_some() {
+                    self.$key = patch.$key;
+                }
+            };
+        }
+
+        patch!(closer);
+        patch!(directory);
+        patch!(enable_silent_start);
+        patch!(locale);
+        patch!(mirror);
+        patch!(proxy);
+        patch!(no_proxy);
+        patch!(theme);
 
         self.save_file()
     }

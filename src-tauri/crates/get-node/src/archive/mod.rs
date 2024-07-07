@@ -21,7 +21,10 @@ pub struct FetchConfig {
     /// node version
     pub version: String,
 
-    /// proxy host & ip
+    // system arch
+    pub arch: Option<String>,
+
+    /// proxy ip & port
     pub proxy: Option<Proxy>,
 
     /// disable proxy
@@ -97,7 +100,7 @@ cfg_if::cfg_if! {
         ///
         /// On Windows, the preferred format is zip. On Unixes, the preferred format
         /// is tarball.
-        pub async fn fetch_native(config: FetchConfig) -> Result<()> {
+        pub async fn fetch_native(config: FetchConfig) -> Result<String> {
             tarball::fetch(config).await
         }
     } else if #[cfg(windows)] {

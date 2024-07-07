@@ -5,7 +5,7 @@ use std::{
 
 use crate::{
     config::{Config, ISettings, NVersion},
-    node::*,
+    node::{self, ProgressData},
     ret_err, wrap_err,
 };
 
@@ -18,31 +18,50 @@ type CmdResult<T = ()> = Result<T, String>;
 
 /// get current version
 #[tauri::command]
-pub fn current() -> CmdResult<Option<String>> {
-    wrap_err!(get_current())
+pub fn current(fetch: Option<bool>) -> CmdResult<Option<String>> {
+    wrap_err!(node::get_current(fetch))
+}
+
+/// set current version
+#[tauri::command]
+pub async fn set_current(version: Option<String>) -> CmdResult<()> {
+    wrap_err!(node::set_current(version).await)
 }
 
 /// fetch node version list
 #[tauri::command]
 pub async fn version_list(fetch: Option<bool>) -> CmdResult<Option<Vec<NVersion>>> {
-    wrap_err!(get_version_list(fetch).await)
+    wrap_err!(node::get_version_list(fetch).await)
 }
 
 /// read node installed version list
 #[tauri::command]
 pub async fn installed_list(fetch: Option<bool>) -> CmdResult<Option<Vec<String>>> {
-    wrap_err!(get_installed_list(fetch).await)
+    wrap_err!(node::get_installed_list(fetch).await)
 }
 
-/// read settings data
+/// read settings
 #[tauri::command]
 pub async fn read_settings() -> CmdResult<ISettings> {
     Ok(Config::settings().data().clone())
 }
 
+/// update settings
+#[tauri::command]
+pub async fn update_settings(settings: ISettings) -> CmdResult<()> {
+    Config::settings().apply();
+    wrap_err!({ Config::settings().data().patch_settings(settings) })?;
+
+    Ok(())
+}
+
 /// install node
 #[tauri::command]
-pub async fn install_node(window: tauri::Window, version: Option<String>) -> CmdResult<String> {
+pub async fn install_node(
+    window: tauri::Window,
+    version: Option<String>,
+    arch: Option<String>,
+) -> CmdResult<String> {
     if version.is_none() {
         ret_err!("version should not be null");
     }
@@ -57,6 +76,7 @@ pub async fn install_node(window: tauri::Window, version: Option<String>) -> Cmd
     let config = FetchConfig {
         dest: directory,
         mirror: mirror,
+        arch,
         version: version,
         no_proxy: settings.no_proxy,
         proxy: settings.proxy,
@@ -69,11 +89,11 @@ pub async fn install_node(window: tauri::Window, version: Option<String>) -> Cmd
                 if now.duration_since(*last_emit_time) >= Duration::from_millis(300) {
                     *last_emit_time = now;
                     println!("Source: {}, Progress: {}/{}", source, transferred, total);
-                    let source: String = source.to_string();
+                    // let source: String = source.to_string();
                     let _ = window.emit(
                         "on-node-progress",
                         ProgressData {
-                            source: &source,
+                            source,
                             transferred,
                             total,
                         },
@@ -84,6 +104,17 @@ pub async fn install_node(window: tauri::Window, version: Option<String>) -> Cmd
     };
 
     wrap_err!(fetch_native(config).await)
+}
+
+/// uninstall node
+#[tauri::command]
+pub async fn uninstall_node(version: Option<String>, current: Option<bool>) -> CmdResult<()> {
+    if version.is_none() {
+        ret_err!("version should not be null");
+    }
+
+    let version = version.unwrap();
+    wrap_err!(node::uninstall_node(version, current).await)
 }
 
 /// exit app

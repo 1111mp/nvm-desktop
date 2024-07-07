@@ -1,3 +1,5 @@
+use core::arch;
+
 use cfg_if::cfg_if;
 use node_semver::Version;
 
@@ -109,44 +111,52 @@ impl Node {
         all(target_os = "macos", target_arch = "aarch64"),
         all(target_os = "windows", target_arch = "aarch64")
     )))]
-    pub fn archive_basename(version: &Version) -> String {
-        format!("node-v{}-{}-{}", version, NODE_DISTRO_OS, NODE_DISTRO_ARCH)
+    pub fn archive_basename(version: &Version, arch: Option<String>) -> String {
+        let arch = match arch {
+            Some(arch) => arch,
+            None => NODE_DISTRO_ARCH.to_string(),
+        };
+        format!("node-v{}-{}-{}", version, NODE_DISTRO_OS, arch)
     }
 
     #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
-    pub fn archive_basename(version: &Version) -> String {
+    pub fn archive_basename(version: &Version, arch: Option<String>) -> String {
         // Note: Node began shipping pre-built binaries for Apple Silicon with Major version 16
         // Prior to that, we need to fall back on the x64 binaries
-        format!(
-            "node-v{}-{}-{}",
-            version,
-            NODE_DISTRO_OS,
-            if version.major >= 16 {
-                NODE_DISTRO_ARCH
-            } else {
-                NODE_DISTRO_ARCH_FALLBACK
+        let arch = match arch {
+            Some(arch) => arch,
+            None => {
+                if version.major >= 16 {
+                    NODE_DISTRO_ARCH
+                } else {
+                    NODE_DISTRO_ARCH_FALLBACK
+                }
             }
-        )
+            .to_string(),
+        };
+        format!("node-v{}-{}-{}", version, NODE_DISTRO_OS, arch)
     }
 
     #[cfg(all(target_os = "windows", target_arch = "aarch64"))]
-    pub fn archive_basename(version: &Version) -> String {
+    pub fn archive_basename(version: &Version, arch: Option<String>) -> String {
         // Note: Node began shipping pre-built binaries for Windows ARM with Major version 20
         // Prior to that, we need to fall back on the x64 binaries
-        format!(
-            "node-v{}-{}-{}",
-            version,
-            NODE_DISTRO_OS,
-            if version.major >= 20 {
-                NODE_DISTRO_ARCH
-            } else {
-                NODE_DISTRO_ARCH_FALLBACK
+        let arch = match arch {
+            Some(arch) => arch,
+            None => {
+                if version.major >= 20 {
+                    NODE_DISTRO_ARCH
+                } else {
+                    NODE_DISTRO_ARCH_FALLBACK
+                }
             }
-        )
+            .to_string(),
+        };
+        format!("node-v{}-{}-{}", version, NODE_DISTRO_OS, arch)
     }
 
-    pub fn archive_filename(version: &Version) -> (String, String) {
-        let name = Node::archive_basename(version);
+    pub fn archive_filename(version: &Version, arch: Option<String>) -> (String, String) {
+        let name = Node::archive_basename(version, arch);
         let full_name = format!("{}.{}", name, NODE_DISTRO_EXTENSION);
         (name, full_name)
     }
@@ -159,14 +169,14 @@ mod tests {
     #[test]
     fn test_node_archive_basename() {
         assert_eq!(
-            Node::archive_basename(&Version::parse("20.2.3").unwrap()),
+            Node::archive_basename(&Version::parse("20.2.3").unwrap(), None),
             format!("node-v20.2.3-{}-{}", NODE_DISTRO_OS, NODE_DISTRO_ARCH)
         );
     }
 
     #[test]
     fn test_node_archive_filename() {
-        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap());
+        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap(), None);
         assert_eq!(
             full_name,
             format!(
@@ -179,7 +189,7 @@ mod tests {
     #[test]
     #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
     fn test_fallback_node_archive_basename() {
-        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap());
+        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap(), None);
         assert_eq!(
             full_name,
             format!(
@@ -192,7 +202,7 @@ mod tests {
     #[test]
     #[cfg(all(target_os = "windows", target_arch = "aarch64"))]
     fn test_fallback_node_archive_basename() {
-        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap());
+        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap(), None);
         assert_eq!(
             full_name,
             format!(
@@ -205,7 +215,7 @@ mod tests {
     #[test]
     #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
     fn test_fallback_node_archive_filename() {
-        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap());
+        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap(), None);
         assert_eq!(
             full_name,
             format!(
@@ -218,7 +228,7 @@ mod tests {
     #[test]
     #[cfg(all(target_os = "windows", target_arch = "aarch64"))]
     fn test_fallback_node_archive_filename() {
-        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap());
+        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap(), None);
         assert_eq!(
             full_name,
             format!(

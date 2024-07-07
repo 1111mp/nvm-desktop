@@ -11,10 +11,11 @@ use tokio_tar::Archive;
 
 use super::{create_client, node::*, send, FetchConfig};
 
-pub async fn fetch(config: FetchConfig) -> Result<()> {
+pub async fn fetch(config: FetchConfig) -> Result<String> {
     let FetchConfig {
         dest,
         mirror,
+        arch,
         version,
         proxy,
         no_proxy,
@@ -23,7 +24,7 @@ pub async fn fetch(config: FetchConfig) -> Result<()> {
         on_progress,
     } = config;
 
-    let (name, full_name) = Node::archive_filename(&Version::parse(&version)?);
+    let (name, full_name) = Node::archive_filename(&Version::parse(&version)?, arch);
     let url = format!("{}/v{}/{}", mirror, &version, &full_name);
     // timeout default value is `20s`
     let timeout = timeout.unwrap_or(Duration::from_millis(20000));
@@ -108,5 +109,6 @@ pub async fn fetch(config: FetchConfig) -> Result<()> {
         remove_file(temp_file_path)
     );
 
-    Ok(())
+    let path = dest.join(&version).to_string_lossy().to_string();
+    Ok(path)
 }

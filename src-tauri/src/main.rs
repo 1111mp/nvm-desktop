@@ -15,13 +15,19 @@ fn main() -> tauri::Result<()> {
             resolve::resolve_setup(app)?;
             Ok(())
         })
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
-            cmds::current,
-            cmds::version_list,
+            // settings
             cmds::read_settings,
+            cmds::update_settings,
+            // node
+            cmds::current,
+            cmds::set_current,
+            cmds::version_list,
             cmds::installed_list,
-            cmds::install_node
+            cmds::install_node,
+            cmds::uninstall_node
         ]);
 
     let app = builder.build(tauri::generate_context!())?;

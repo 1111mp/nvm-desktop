@@ -25,6 +25,7 @@ tauri = { version = "2.0.0-beta", features = [
 	"tray-icon",
 	"devtools",
 ] }
+tauri-plugin-dialog = "2.0.0-beta"
 tauri-plugin-shell = "2.0.0-beta"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }

@@ -7,6 +7,12 @@ pub fn read_string(path: &PathBuf) -> Result<String> {
         .with_context(|| format!("failed to read the file \"{}\"", path.display()))
 }
 
+pub async fn async_read_string(path: &PathBuf) -> Result<String> {
+    tokio::fs::read_to_string(path)
+        .await
+        .with_context(|| format!("failed to read the file \"{}\"", path.display()))
+}
+
 /// read data from json as struct T
 pub fn read_json<T: DeserializeOwned>(path: &PathBuf) -> Result<T> {
     if !path.exists() {
@@ -14,6 +20,24 @@ pub fn read_json<T: DeserializeOwned>(path: &PathBuf) -> Result<T> {
     }
 
     let json_str = fs::read_to_string(path)
+        .with_context(|| format!("failed to read the file \"{}\"", path.display()))?;
+
+    serde_json::from_str::<T>(&json_str).with_context(|| {
+        format!(
+            "failed to read the file with json format \"{}\"",
+            path.display()
+        )
+    })
+}
+
+/// async read data from json as struct T
+pub async fn async_read_json<T: DeserializeOwned>(path: &PathBuf) -> Result<T> {
+    if !path.exists() {
+        bail!("file not found \"{}\"", path.display());
+    }
+
+    let json_str = tokio::fs::read_to_string(path)
+        .await
         .with_context(|| format!("failed to read the file \"{}\"", path.display()))?;
 
     serde_json::from_str::<T>(&json_str).with_context(|| {

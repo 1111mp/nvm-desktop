@@ -1,18 +1,10 @@
-use std::{
-    sync::{Arc, Mutex},
-    time::Duration,
-};
-
 use crate::{
-    config::{Config, ISettings, NVersion},
-    node::{self, ProgressData},
+    config::{Config, Group, ISettings, NVersion, Project},
+    core::{group, node, project},
     ret_err, wrap_err,
 };
 
 use anyhow::Result;
-use get_node::archive::{fetch_native, FetchConfig};
-use tauri::Manager;
-use tokio::time::Instant;
 
 type CmdResult<T = ()> = Result<T, String>;
 
@@ -62,48 +54,13 @@ pub async fn install_node(
     version: Option<String>,
     arch: Option<String>,
 ) -> CmdResult<String> {
-    if version.is_none() {
-        ret_err!("version should not be null");
-    }
+    wrap_err!(node::install_node(window, version, arch).await)
+}
 
-    let version: String = version.unwrap();
-    let settings = Config::settings().latest().clone();
-    let mirror = settings.mirror.unwrap();
-    let directory = settings.directory.unwrap();
-
-    let last_emit_time = Arc::new(Mutex::new(Instant::now()));
-
-    let config = FetchConfig {
-        dest: directory,
-        mirror: mirror,
-        arch,
-        version: version,
-        no_proxy: settings.no_proxy,
-        proxy: settings.proxy,
-        cancel_signal: None,
-        timeout: None,
-        on_progress: Box::new({
-            move |source: &str, transferred: usize, total: usize| {
-                let mut last_emit_time = last_emit_time.lock().unwrap();
-                let now = Instant::now();
-                if now.duration_since(*last_emit_time) >= Duration::from_millis(300) {
-                    *last_emit_time = now;
-                    println!("Source: {}, Progress: {}/{}", source, transferred, total);
-                    // let source: String = source.to_string();
-                    let _ = window.emit(
-                        "on-node-progress",
-                        ProgressData {
-                            source,
-                            transferred,
-                            total,
-                        },
-                    );
-                }
-            }
-        }),
-    };
-
-    wrap_err!(fetch_native(config).await)
+/// install node
+#[tauri::command]
+pub async fn install_node_cancel() -> CmdResult<()> {
+    wrap_err!(node::install_node_cancel().await)
 }
 
 /// uninstall node
@@ -115,6 +72,24 @@ pub async fn uninstall_node(version: Option<String>, current: Option<bool>) -> C
 
     let version = version.unwrap();
     wrap_err!(node::uninstall_node(version, current).await)
+}
+
+/// get project list
+#[tauri::command]
+pub async fn project_list(fetch: Option<bool>) -> CmdResult<Option<Vec<Project>>> {
+    wrap_err!(project::project_list(fetch).await)
+}
+
+/// add projects
+#[tauri::command]
+pub async fn add_projects(app_handle: tauri::AppHandle) -> CmdResult<Option<Vec<project::PInfo>>> {
+    wrap_err!(project::add_projects(app_handle).await)
+}
+
+/// get group list
+#[tauri::command]
+pub async fn group_list(fetch: Option<bool>) -> CmdResult<Option<Vec<Group>>> {
+    wrap_err!(group::group_list(fetch).await)
 }
 
 /// exit app

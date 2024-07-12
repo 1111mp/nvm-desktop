@@ -5,7 +5,7 @@ use async_zip::tokio::read::seek::ZipFileReader;
 use futures_util::StreamExt;
 use node_semver::Version;
 use tokio::{
-    fs::{create_dir_all, remove_file, rename, File, OpenOptions},
+    fs::{create_dir_all, remove_dir_all, remove_file, rename, File, OpenOptions},
     io::{AsyncWriteExt, BufReader},
 };
 use tokio_util::compat::TokioAsyncWriteCompatExt;
@@ -54,6 +54,7 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
                     chunk
                 },
                 _ = cancel_receiver.changed() => {
+                    let _ = remove_file(temp_file_path).await;
                     bail!("Download was cancelled");
                 }
             }
@@ -65,6 +66,7 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
         temp_file.write_all(&chunk).await?;
         (on_progress)("download", downloaded_size as usize, total_size as usize);
     }
+
     temp_file.sync_all().await?;
     drop(temp_file);
 
@@ -76,11 +78,14 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
     let mut zip = ZipFileReader::with_tokio(&mut reader).await?;
     // Unpack the tarball to the destination directory and report progress
     let total_entries = zip.file().entries().len();
+
+    let mut is_cancel = false;
     for index in 0..total_entries {
         // Check for cancel signal
         if let Some(cancel_receiver) = cancel_signal.as_mut() {
-            if cancel_receiver.changed().await.is_ok() {
-                bail!("Unzipping was cancelled");
+            if *cancel_receiver.borrow() {
+                is_cancel = true;
+                break;
             }
         }
 
@@ -112,6 +117,16 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
         }
 
         on_progress("unzip", index + 1, total_entries);
+    }
+
+    if is_cancel {
+        let (r_download, r_unzip) = tokio::join!(
+            remove_file(temp_file_path),
+            remove_dir_all(dest.join(&name))
+        );
+        r_download?;
+        r_unzip?;
+        bail!("Unzipping was cancelled");
     }
 
     let (_rename_future, _remove_future) = tokio::join!(

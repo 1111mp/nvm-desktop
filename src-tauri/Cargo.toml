@@ -1,8 +1,8 @@
 [package]
 name = "nvm-desktop"
 version = "0.0.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "Node Version Manager Desktop - A desktop application to manage multiple active node.js versions."
+authors = ["The1111mp@outlook.com"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

@@ -1,4 +1,4 @@
-use super::{INode, ISettings};
+use super::{IGroups, INode, IProjects, ISettings};
 use parking_lot::{MappedMutexGuard, Mutex, MutexGuard};
 use std::sync::Arc;
 
@@ -65,8 +65,10 @@ macro_rules! draft_define {
 }
 
 // draft_define!(IClash);
-draft_define!(ISettings);
+draft_define!(IGroups);
 draft_define!(INode);
+draft_define!(IProjects);
+draft_define!(ISettings);
 // draft_define!(IProfiles);
 // draft_define!(IRuntime);
 // draft_define!(IVerge);

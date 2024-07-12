@@ -4,7 +4,7 @@ use futures_util::StreamExt;
 use node_semver::Version;
 use std::{path::PathBuf, time::Duration};
 use tokio::{
-    fs::{remove_file, rename, File},
+    fs::{remove_dir_all, remove_file, rename, File},
     io::{AsyncWriteExt, BufReader},
 };
 use tokio_tar::Archive;
@@ -55,6 +55,7 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
                     chunk
                 },
                 _ = cancel_receiver.changed() => {
+                    let _ = remove_file(temp_file_path).await;
                     bail!("Download was cancelled");
                 }
             }
@@ -89,6 +90,9 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
                     entry
                 },
                 _ = cancel_receiver.changed() => {
+                    let (r_download, r_unzip) = tokio::join!(remove_file(temp_file_path), remove_dir_all(dest.join(&name)));
+                    r_download?;
+                    r_unzip?;
                     bail!("Unzipping was cancelled");
                 }
             }

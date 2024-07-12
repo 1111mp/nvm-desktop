@@ -11,9 +11,19 @@ pub fn app_home_dir() -> Result<PathBuf> {
         .join(APP_ID))
 }
 
-/// get the setting path
+/// get the `settings.json` path
 pub fn settings_path() -> Result<PathBuf> {
     Ok(app_home_dir()?.join("setting.json"))
+}
+
+/// get the `projects.json` file path
+pub fn projects_path() -> Result<PathBuf> {
+    Ok(app_home_dir()?.join("projects.json"))
+}
+
+/// get the `groups.json` file path
+pub fn groups_path() -> Result<PathBuf> {
+    Ok(app_home_dir()?.join("groups.json"))
 }
 
 /// get the default version path

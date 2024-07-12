@@ -3,7 +3,7 @@
 
 mod cmds;
 mod config;
-mod node;
+mod core;
 mod utils;
 
 use config::Config;
@@ -27,7 +27,12 @@ fn main() -> tauri::Result<()> {
             cmds::version_list,
             cmds::installed_list,
             cmds::install_node,
-            cmds::uninstall_node
+            cmds::uninstall_node,
+            cmds::install_node_cancel,
+            // projects
+            cmds::project_list,
+            // groups
+            cmds::group_list,
         ]);
 
     let app = builder.build(tauri::generate_context!())?;

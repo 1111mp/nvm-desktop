@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::{
     config::{Config, Group, ISettings, NVersion, Project},
     core::{group, node, project},
@@ -86,10 +88,28 @@ pub async fn add_projects(app_handle: tauri::AppHandle) -> CmdResult<Option<Vec<
     wrap_err!(project::add_projects(app_handle).await)
 }
 
+/// update projects
+#[tauri::command]
+pub async fn update_projects(list: Vec<Project>, path: Option<PathBuf>) -> CmdResult<()> {
+    wrap_err!(project::update_projects(list, path).await)
+}
+
+/// update project version
+#[tauri::command]
+pub async fn update_project_version(path: PathBuf, version: String) -> CmdResult<i32> {
+    wrap_err!(project::update_project_version(path, version).await)
+}
+
 /// get group list
 #[tauri::command]
 pub async fn group_list(fetch: Option<bool>) -> CmdResult<Option<Vec<Group>>> {
     wrap_err!(group::group_list(fetch).await)
+}
+
+/// update groups
+#[tauri::command]
+pub async fn update_groups(list: Vec<Group>) -> CmdResult<()> {
+    wrap_err!(group::update_groups(list).await)
 }
 
 /// exit app

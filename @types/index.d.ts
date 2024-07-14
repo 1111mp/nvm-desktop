@@ -79,6 +79,11 @@ declare global {
       updateAt: string;
     }
 
+    interface PInfo {
+      path: string;
+      version?: string;
+    }
+
     interface Group {
       name: string;
       desc?: string;

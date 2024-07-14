@@ -23,15 +23,15 @@ const routes: RouteObject[] = [
         errorElement: <ErrorBoundary />,
       },
       {
-      	path: 'projects',
-      	lazy: () => import('./pages/projects'),
-      	errorElement: <ErrorBoundary />,
+        path: 'projects',
+        lazy: () => import('./pages/projects'),
+        errorElement: <ErrorBoundary />,
       },
-      // {
-      // 	path: 'groups',
-      // 	lazy: () => import('./pages/groups'),
-      // 	errorElement: <ErrorBoundary />,
-      // },
+      {
+        path: 'groups',
+        lazy: () => import('./pages/groups'),
+        errorElement: <ErrorBoundary />,
+      },
     ],
   },
 ];

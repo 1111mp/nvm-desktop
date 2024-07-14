@@ -13,6 +13,12 @@ pub async fn async_read_string(path: &PathBuf) -> Result<String> {
         .with_context(|| format!("failed to read the file \"{}\"", path.display()))
 }
 
+pub async fn save_string(path: &PathBuf, content: &String) -> Result<()> {
+    tokio::fs::write(path, content)
+        .await
+        .with_context(|| format!("failed to write the file \"{}\"", path.display()))
+}
+
 /// read data from json as struct T
 pub fn read_json<T: DeserializeOwned>(path: &PathBuf) -> Result<T> {
     if !path.exists() {
@@ -60,6 +66,26 @@ pub fn save_json<T: Serialize>(path: &PathBuf, data: &T, prefix: Option<&str>) -
 
     let path_str = path.as_os_str().to_string_lossy().to_string();
     fs::write(path, json_str.as_bytes())
+        .with_context(|| format!("failed to save file \"{path_str}\""))
+}
+
+/// save the data to the file
+/// can set `prefix` string to add some comments
+pub async fn async_save_json<T: Serialize>(
+    path: &PathBuf,
+    data: &T,
+    prefix: Option<&str>,
+) -> Result<()> {
+    let data_str = serde_json::to_string(data)?;
+
+    let json_str = match prefix {
+        Some(prefix) => format!("{prefix}\n\n{data_str}"),
+        None => data_str,
+    };
+
+    let path_str = path.as_os_str().to_string_lossy().to_string();
+    tokio::fs::write(path, json_str.as_bytes())
+        .await
         .with_context(|| format!("failed to save file \"{path_str}\""))
 }
 

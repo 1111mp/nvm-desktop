@@ -52,10 +52,9 @@ pub fn get_current(fetch: Option<bool>) -> Result<Option<String>> {
 
 /// Set the current node version
 pub async fn set_current(version: Option<String>) -> Result<()> {
-    let version = version.unwrap_or(String::new());
+    let version: String = version.unwrap_or(String::new());
     let default_path = dirs::default_version_path()?;
-    // fs::create_dir_all(&default_path).await?;
-    tokio::fs::write(&default_path, &version).await?;
+    help::save_string(&default_path, &version).await?;
 
     // update `current`
     Config::node().apply();

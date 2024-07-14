@@ -31,8 +31,12 @@ fn main() -> tauri::Result<()> {
             cmds::install_node_cancel,
             // projects
             cmds::project_list,
+            cmds::add_projects,
+            cmds::update_projects,
+            cmds::update_project_version,
             // groups
             cmds::group_list,
+            cmds::update_groups,
         ]);
 
     let app = builder.build(tauri::generate_context!())?;

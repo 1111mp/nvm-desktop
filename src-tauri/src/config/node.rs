@@ -86,7 +86,7 @@ impl INode {
     }
 
     /// save list to file
-    pub fn save_list_file(&self) -> Result<()> {
+    pub fn save_file(&self) -> Result<()> {
         help::save_json(&dirs::version_list_path()?, &self.list, None)
     }
 
@@ -114,7 +114,7 @@ impl INode {
     /// update version list
     pub fn update_list(&mut self, list: &Vec<NVersion>) -> Result<()> {
         self.list = Some(list.clone());
-        self.save_list_file()
+        self.save_file()
     }
 
     /// update installed

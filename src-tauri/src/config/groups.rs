@@ -8,14 +8,14 @@ pub struct Group {
     pub name: String,
 
     /// group desc
-    pub desc: String,
+    pub desc: Option<String>,
 
     /// the group contains projects
     #[serde(default = "default_projects")]
     pub projects: Vec<String>,
 
     /// the node version of group used
-    pub version: String,
+    pub version: Option<String>,
 }
 
 fn default_projects() -> Vec<String> {
@@ -44,9 +44,20 @@ impl IGroups {
         Self { list: Some(vec![]) }
     }
 
-    /// update project list
+    /// save group list to local file
+    pub fn save_file(&self) -> Result<()> {
+        help::save_json(&dirs::groups_path()?, &self.list, None)
+    }
+
+    /// update groups list
     pub fn update_list(&mut self, list: &Vec<Group>) -> Result<()> {
         self.list = Some(list.clone());
         Ok(())
+    }
+
+    /// update groups list & save to local file
+    pub fn update_groups(&mut self, list: Vec<Group>) -> Result<()> {
+        self.list = Some(list);
+        self.save_file()
     }
 }

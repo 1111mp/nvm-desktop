@@ -48,9 +48,20 @@ impl IProjects {
         Self { list: Some(vec![]) }
     }
 
+    /// save project list to local file
+    pub fn save_file(&self) -> Result<()> {
+        help::save_json(&dirs::projects_path()?, &self.list, None)
+    }
+
     /// update project list
     pub fn update_list(&mut self, list: &Vec<Project>) -> Result<()> {
         self.list = Some(list.clone());
         Ok(())
+    }
+
+    /// update & save project list
+    pub fn update_and_save_list(&mut self, list: Vec<Project>) -> Result<()> {
+        self.list = Some(list);
+        self.save_file()
     }
 }

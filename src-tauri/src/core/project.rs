@@ -5,6 +5,7 @@ use crate::{
     utils::{dirs, help},
 };
 use anyhow::Result;
+use futures::{stream, StreamExt};
 use serde::{Deserialize, Serialize};
 use tauri_plugin_dialog::DialogExt;
 
@@ -80,4 +81,25 @@ pub async fn update_project_version(path: PathBuf, version: String) -> Result<i3
     help::save_string(&path, &version).await?;
 
     Ok(200)
+}
+
+/// batch update project version
+pub async fn batch_update_project_version(paths: Vec<PathBuf>, version: String) -> Result<()> {
+    let result = stream::iter(paths.into_iter())
+        .map(|path| {
+            let version = version.clone();
+            async move {
+                let path = path.join(".nvmdrc");
+                help::save_string(&path, &version).await
+            }
+        })
+        .buffer_unordered(3)
+        .collect::<Vec<_>>()
+        .await;
+
+    for ret in result {
+        ret?;
+    }
+
+    Ok(())
 }

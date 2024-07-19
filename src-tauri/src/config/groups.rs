@@ -49,6 +49,11 @@ impl IGroups {
         help::save_json(&dirs::groups_path()?, &self.list, None)
     }
 
+    /// get list
+    pub fn get_list(&self) -> Option<Vec<Group>> {
+        self.list.clone()
+    }
+
     /// update groups list
     pub fn update_list(&mut self, list: &Vec<Group>) -> Result<()> {
         self.list = Some(list.clone());

@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use anyhow::Result;
 use tauri::{App, AppHandle, Manager};
 

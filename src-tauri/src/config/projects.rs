@@ -48,6 +48,11 @@ impl IProjects {
         Self { list: Some(vec![]) }
     }
 
+    /// get list
+    pub fn get_list(&self) -> Option<Vec<Project>> {
+        self.list.clone()
+    }
+
     /// save project list to local file
     pub fn save_file(&self) -> Result<()> {
         help::save_json(&dirs::projects_path()?, &self.list, None)

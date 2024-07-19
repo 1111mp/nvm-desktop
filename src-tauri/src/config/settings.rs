@@ -66,8 +66,8 @@ impl ISettings {
     }
 
     /// get the value of `directory`
-    pub fn get_closer(&self) -> Option<&String> {
-        self.closer.as_ref()
+    pub fn get_closer(&self) -> Option<String> {
+        self.closer.clone()
     }
 
     /// get the value of `directory`

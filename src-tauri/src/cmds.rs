@@ -1,3 +1,4 @@
+use anyhow::Result;
 use std::path::PathBuf;
 
 use crate::{
@@ -5,8 +6,6 @@ use crate::{
     core::{group, node, project},
     ret_err, wrap_err,
 };
-
-use anyhow::Result;
 
 type CmdResult<T = ()> = Result<T, String>;
 
@@ -44,9 +43,7 @@ pub async fn read_settings() -> CmdResult<ISettings> {
 #[tauri::command]
 pub async fn update_settings(settings: ISettings) -> CmdResult<()> {
     Config::settings().apply();
-    wrap_err!({ Config::settings().data().patch_settings(settings) })?;
-
-    Ok(())
+    wrap_err!({ Config::settings().data().patch_settings(settings) })
 }
 
 /// install node
@@ -98,6 +95,12 @@ pub async fn update_projects(list: Vec<Project>, path: Option<PathBuf>) -> CmdRe
 #[tauri::command]
 pub async fn update_project_version(path: PathBuf, version: String) -> CmdResult<i32> {
     wrap_err!(project::update_project_version(path, version).await)
+}
+
+/// batch update project version
+#[tauri::command]
+pub async fn batch_update_project_version(paths: Vec<PathBuf>, version: String) -> CmdResult<()> {
+    wrap_err!(project::batch_update_project_version(paths, version).await)
 }
 
 /// get group list

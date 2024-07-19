@@ -34,6 +34,7 @@ fn main() -> tauri::Result<()> {
             cmds::add_projects,
             cmds::update_projects,
             cmds::update_project_version,
+            cmds::batch_update_project_version,
             // groups
             cmds::group_list,
             cmds::update_groups,
@@ -45,8 +46,7 @@ fn main() -> tauri::Result<()> {
         tauri::RunEvent::ExitRequested { api, .. } => {
             let closer = Config::settings()
                 .data()
-                .closer
-                .clone()
+                .get_closer()
                 .unwrap_or("minimize".to_string());
 
             if closer == "minimize" {

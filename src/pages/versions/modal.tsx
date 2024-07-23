@@ -60,7 +60,7 @@ export const Modal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
 
 	// onProgress of the download node
 	useEffect(() => {
-		const unlisten = getCurrent().listen<Nvmd.ProgressData>(
+		const unlisted = getCurrent().listen<Nvmd.ProgressData>(
 			'on-node-progress',
 			({ payload }) => {
 				const { source, transferred, total } = payload;
@@ -85,7 +85,7 @@ export const Modal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
 		);
 
 		return () => {
-			unlisten.then((fn) => fn());
+			unlisted.then((fn) => fn());
 		};
 	}, []);
 

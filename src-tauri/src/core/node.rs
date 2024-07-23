@@ -11,7 +11,7 @@ use get_node::{
 };
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 use tokio::{sync::watch, time::Instant};
 
 use crate::{

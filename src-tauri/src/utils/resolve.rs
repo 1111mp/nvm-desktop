@@ -1,14 +1,13 @@
-use std::time::Instant;
-
 use anyhow::Result;
 use tauri::{App, AppHandle, Manager};
 
-use crate::{config::Config, log_err, trace_err, utils::tray};
+use crate::{config::Config, core::handle, log_err, trace_err, utils::tray};
 
 /// handle something when start app
 pub fn resolve_setup(app: &mut App) -> Result<()> {
     #[cfg(target_os = "macos")]
     app.set_activation_policy(tauri::ActivationPolicy::Regular);
+    handle::Handle::global().init(app.app_handle().clone());
 
     log_err!(tray::Tray::update_systray(&app.app_handle()));
 
@@ -42,12 +41,12 @@ pub fn create_window(app_handle: &AppHandle) -> Result<()> {
     .center();
 
     #[cfg(target_os = "windows")]
-    let window = builder
-        .decorations(false)
-        .additional_browser_args("--enable-features=msWebView2EnableDraggableRegions --disable-features=OverscrollHistoryNavigation,msExperimentalScrolling")
-        .transparent(true)
-        .visible(false)
-        .build()?;
+	let window = builder
+		.decorations(false)
+		.additional_browser_args("--enable-features=msWebView2EnableDraggableRegions --disable-features=OverscrollHistoryNavigation,msExperimentalScrolling")
+		.transparent(true)
+		.visible(false)
+		.build()?;
     #[cfg(target_os = "macos")]
     let window = builder
         .decorations(true)

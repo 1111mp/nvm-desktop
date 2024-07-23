@@ -40,6 +40,7 @@ import {
   updateProjects,
   updateProjectVersion,
 } from '@/services/cmds';
+import { getCurrent } from '@/services/api';
 import type { ColumnDef } from '@tanstack/react-table';
 
 export async function loader() {
@@ -71,15 +72,23 @@ export const Component: React.FC = () => {
   const { directory, locale } = settings;
 
   useEffect(() => {
-    // window.Context.onRegistProjectUpdate(({ projects, groups, version }) => {
-    // 	setProjects(projects);
-    // 	groups && setGroups(groups);
-    // 	version &&
-    // 		toast.success(t('Restart-Terminal', { version: `v${version}` }));
-    // });
-    // return () => {
-    // 	window.Context.onRegistProjectUpdate(null);
-    // };
+    const unlisted = getCurrent().listen<string>(
+      'call-projects-update',
+      async ({ payload }) => {
+        const [projects, groups] = await Promise.all([
+          projectList(),
+          groupList(),
+        ]);
+        setProjects(projects);
+        setGroups(groups);
+        payload &&
+          toast.success(t('Restart-Terminal', { version: `v${payload}` }));
+      }
+    );
+
+    return () => {
+      unlisted.then((fn) => fn());
+    };
   }, []);
 
   useEffect(() => {

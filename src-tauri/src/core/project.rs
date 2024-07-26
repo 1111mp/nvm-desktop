@@ -2,14 +2,12 @@ use std::path::PathBuf;
 
 use crate::{
     config::{Config, Project},
-    core::group::update_groups,
     log_err,
     utils::{dirs, help},
 };
-use anyhow::{Ok, Result};
+use anyhow::{anyhow, Result};
 use futures::{stream, StreamExt};
 use serde::{Deserialize, Serialize};
-use tauri::http::version;
 use tauri_plugin_dialog::DialogExt;
 
 use super::handle;
@@ -25,8 +23,8 @@ pub async fn project_list(fetch: Option<bool>) -> Result<Option<Vec<Project>>> {
     let list = help::async_read_json::<Vec<Project>>(&path).await?;
 
     // update projects
+    Config::projects().latest().update_list(&list)?;
     Config::projects().apply();
-    Config::projects().data().update_list(&list)?;
 
     Ok(Some(list))
 }
@@ -76,8 +74,8 @@ pub async fn update_projects(list: Vec<Project>, path: Option<PathBuf>) -> Resul
     Ok(())
 }
 
-/// update project version
-pub async fn update_project_version(path: PathBuf, version: &String) -> Result<i32> {
+/// sync project version to `.nvmdrc`
+pub async fn sync_project_version(path: PathBuf, version: &String) -> Result<i32> {
     if !path.exists() {
         return Ok(404);
     }
@@ -111,98 +109,71 @@ pub async fn batch_update_project_version(paths: Vec<PathBuf>, version: String) 
 
 /// change project with version from menu
 pub async fn change_with_version(name: String, version: String) -> Result<()> {
-    let projects = { Config::projects().latest().get_list() };
-    let mut projects = match projects {
-        Some(projects) => projects,
-        None => return Ok(()),
+    let ret = {
+        let project_path = Config::projects()
+            .latest()
+            .update_version(&name, &version)?;
+        let need_update_groups = Config::groups().latest().update_projects(&project_path)?;
+
+        sync_project_version(PathBuf::from(&project_path), &version).await?;
+
+        log_err!(handle::Handle::update_systray_part(version));
+
+        <Result<bool>>::Ok(need_update_groups)
     };
 
-    let mut project_path: Option<String> = None;
-    for project in &mut projects {
-        if project.name == name {
-            project_path = Some(project.path.clone());
-            project.version = Some(version.clone());
-            update_project_version(PathBuf::from(&project.path), &version).await?;
+    match ret {
+        Ok(need_update_groups) => {
+            Config::projects().apply();
+            Config::projects().data().save_file()?;
+
+            if need_update_groups {
+                Config::groups().apply();
+                Config::groups().data().save_file()?;
+            }
+
+            Ok(())
+        }
+        Err(err) => {
+            Config::projects().discard();
+            Config::groups().discard();
+            Err(err)
         }
     }
-
-    if let Some(project_path) = project_path {
-        let groups = { Config::groups().latest().get_list() };
-        if let Some(mut groups) = groups {
-            let mut need_update = false;
-            for group in &mut groups {
-                if group.projects.contains(&project_path) {
-                    need_update = true;
-                    group.projects.retain(|x| x != &project_path);
-                }
-            }
-            if need_update {
-                update_groups(groups).await?;
-            }
-        }
-    }
-
-    update_projects(projects, None).await?;
-    log_err!(handle::Handle::update_systray_part(version));
-
-    Ok(())
 }
 
 /// change project with group from menu
 pub async fn change_with_group(name: String, group_name: String) -> Result<()> {
-    let projects = { Config::projects().latest().get_list() };
-    let groups = { Config::groups().latest().get_list() };
-    let mut projects = match projects {
-        Some(projects) => projects,
-        None => return Ok(()),
-    };
-    let mut groups = match groups {
-        Some(groups) => groups,
-        None => return Ok(()),
-    };
-    let mut project_path: Option<String> = None;
-    let mut version: Option<String> = None;
+    let ret = {
+        let project_path = Config::projects()
+            .latest()
+            .update_version(&name, &group_name)?;
+        let version = Config::groups()
+            .latest()
+            .update_projects_version(&project_path, &group_name)?
+            .ok_or_else(|| anyhow!("failed to find the group version \"name:{}\"", &group_name))?;
 
-    for project in &mut projects {
-        if project.name == name {
-            project_path = Some(project.path.clone());
-            project.version = Some(group_name.clone());
-            break;
+        sync_project_version(PathBuf::from(&project_path), &version).await?;
+
+        log_err!(handle::Handle::update_systray_part(version));
+
+        <Result<()>>::Ok(())
+    };
+
+    match ret {
+        Ok(()) => {
+            Config::projects().apply();
+            Config::projects().data().save_file()?;
+
+            Config::groups().apply();
+            Config::groups().data().save_file()?;
+
+            Ok(())
+        }
+        Err(err) => {
+            Config::projects().discard();
+            Config::groups().discard();
+            Err(err)
         }
     }
-
-    let project_path = match project_path {
-        Some(path) => path,
-        None => return Ok(()),
-    };
-
-    for group in &mut groups {
-        if group.projects.contains(&project_path) {
-            group.projects.retain(|x| x != &project_path);
-        }
-
-        if group.name == group_name {
-            version = group.version.clone();
-            group.projects.push(project_path.clone());
-        }
-    }
-
-    let version = match version {
-        Some(version) => version,
-        None => return Ok(()),
-    };
-
-    let update_version_future = update_project_version(PathBuf::from(&project_path), &version);
-    let update_groups_future = update_groups(groups);
-    let update_projects_future = update_projects(projects, None);
-
-    tokio::try_join!(
-        update_version_future,
-        update_groups_future,
-        update_projects_future
-    )?;
-
-    log_err!(handle::Handle::update_systray_part(version));
-
-    Ok(())
 }

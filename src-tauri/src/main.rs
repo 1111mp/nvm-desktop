@@ -33,7 +33,7 @@ fn main() -> tauri::Result<()> {
             cmds::project_list,
             cmds::add_projects,
             cmds::update_projects,
-            cmds::update_project_version,
+            cmds::sync_project_version,
             cmds::batch_update_project_version,
             // groups
             cmds::group_list,

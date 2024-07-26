@@ -1,16 +1,15 @@
 use super::resolve;
-use crate::config::Project;
 use crate::core::project;
 use crate::{cmds, config::Config, log_err};
 use anyhow::{bail, Ok, Result};
-use serde::{Deserialize, Serialize};
 use tauri::menu::AboutMetadataBuilder;
+use tauri::tray::{MouseButton, TrayIconEvent};
 use tauri::{
     async_runtime::spawn,
     image::Image,
     menu::{
-        CheckMenuItem, CheckMenuItemBuilder, IsMenuItem, Menu, MenuBuilder, MenuEvent,
-        MenuItemBuilder, PredefinedMenuItem, Submenu, SubmenuBuilder,
+        CheckMenuItemBuilder, IsMenuItem, Menu, MenuBuilder, MenuEvent, MenuItemBuilder,
+        PredefinedMenuItem, Submenu, SubmenuBuilder,
     },
     tray::TrayIconBuilder,
     AppHandle, Emitter, Manager, Wry,

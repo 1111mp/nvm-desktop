@@ -1,5 +1,5 @@
 use crate::utils::{dirs, help};
-use anyhow::Result;
+use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
@@ -18,10 +18,10 @@ pub struct Project {
     pub version: Option<String>,
 
     /// create date
-    pub create_at: String,
+    pub create_at: Option<String>,
 
     /// update date
-    pub update_at: String,
+    pub update_at: Option<String>,
 }
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
@@ -68,5 +68,22 @@ impl IProjects {
     pub fn update_and_save_list(&mut self, list: Vec<Project>) -> Result<()> {
         self.list = Some(list);
         self.save_file()
+    }
+
+    /// update project version for system tray menu
+    pub fn update_version(&mut self, name: &String, version: &String) -> Result<String> {
+        let mut list = self.list.take().unwrap_or_default();
+
+        for each in list.iter_mut() {
+            if &each.name == name {
+                each.version = Some(version.clone());
+                let path = each.path.clone();
+                self.list = Some(list);
+                return Ok(path);
+            }
+        }
+
+        self.list = Some(list);
+        bail!("failed to find the project item \"name:{name}\"");
     }
 }

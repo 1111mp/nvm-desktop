@@ -26,3 +26,4 @@ dist-ssr
 *.sw?
 
 .nvmdrc
+2.0.0-beta.*

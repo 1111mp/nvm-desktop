@@ -23,6 +23,7 @@ pub async fn group_list(fetch: Option<bool>) -> Result<Option<Vec<Group>>> {
 
 /// update groups & save
 pub async fn update_groups(list: Vec<Group>) -> Result<()> {
+    Config::groups().latest().update_groups(list)?;
     Config::groups().apply();
-    Config::groups().data().update_groups(list)
+    Ok(())
 }

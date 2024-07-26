@@ -93,8 +93,8 @@ pub async fn update_projects(list: Vec<Project>, path: Option<PathBuf>) -> CmdRe
 
 /// update project version
 #[tauri::command]
-pub async fn update_project_version(path: PathBuf, version: String) -> CmdResult<i32> {
-    wrap_err!(project::update_project_version(path, &version).await)
+pub async fn sync_project_version(path: PathBuf, version: String) -> CmdResult<i32> {
+    wrap_err!(project::sync_project_version(path, &version).await)
 }
 
 /// batch update project version

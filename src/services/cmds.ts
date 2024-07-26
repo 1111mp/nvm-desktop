@@ -113,8 +113,8 @@ export function updateProjects(list: Nvmd.Project[], path?: string) {
  * @param {string} version node version
  * @return {Promise<200 | 404>}
  */
-export function updateProjectVersion(path: string, version: string) {
-	return invoke<200 | 404>('update_project_version', { path, version });
+export function syncProjectVersion(path: string, version: string) {
+	return invoke<200 | 404>('sync_project_version', { path, version });
 }
 
 /**

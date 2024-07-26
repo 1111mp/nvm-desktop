@@ -65,4 +65,47 @@ impl IGroups {
         self.list = Some(list);
         self.save_file()
     }
+
+    /// update the projects of group for system tray menu
+    pub fn update_projects(&mut self, path: &String) -> Result<bool> {
+        let mut list = self.list.take().unwrap_or_default();
+
+        for each in list.iter_mut() {
+            if each.projects.contains(path) {
+                each.projects.retain(|p| p != path);
+
+                self.list = Some(list);
+                return Ok(true);
+            }
+        }
+
+        self.list = Some(list);
+        Ok(false)
+    }
+
+    /// update the projects of group for system tray menu
+    /// remove from old group
+    /// add to new group
+    pub fn update_projects_version(
+        &mut self,
+        path: &String,
+        name: &String,
+    ) -> Result<Option<String>> {
+        let mut list = self.list.take().unwrap_or_default();
+        let mut version: Option<String> = None;
+
+        for each in list.iter_mut() {
+            if each.projects.contains(path) {
+                each.projects.retain(|p| p != path);
+            }
+
+            if &each.name == name {
+                version = each.version.clone();
+                each.projects.push(path.to_string());
+            }
+        }
+
+        self.list = Some(list);
+        Ok(version)
+    }
 }

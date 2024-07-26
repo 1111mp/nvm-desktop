@@ -38,7 +38,7 @@ import {
   projectList,
   updateGroups,
   updateProjects,
-  updateProjectVersion,
+  syncProjectVersion,
 } from '@/services/cmds';
 import { getCurrent } from '@/services/api';
 import type { ColumnDef } from '@tanstack/react-table';
@@ -150,7 +150,7 @@ export const Component: React.FC = () => {
                   const targetVersion = toGroup
                     ? toGroup.version
                     : newVersion || '';
-                  const code = await updateProjectVersion(path, targetVersion);
+                  const code = await syncProjectVersion(path, targetVersion);
 
                   const updateProjectsPromise = async () => {
                     const newProjects = projects.map((project) =>

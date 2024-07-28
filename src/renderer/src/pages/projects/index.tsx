@@ -100,7 +100,7 @@ export const Component: React.FC = () => {
           <span className="flex items-center gap-1">
             <LabelCopyable
               asChild
-              className={cn("max-w-[360px] leading-6 inline-block truncate", {
+              className={cn("max-w-[330px] leading-6 inline-block truncate", {
                 "line-through": !row.original.active
               })}
               title={row.original.path}

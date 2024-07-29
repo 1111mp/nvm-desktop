@@ -13,7 +13,12 @@ pub async fn async_read_string(path: &PathBuf) -> Result<String> {
         .with_context(|| format!("failed to read the file \"{}\"", path.display()))
 }
 
-pub async fn save_string(path: &PathBuf, content: &String) -> Result<()> {
+pub fn save_string(path: &PathBuf, content: &str) -> Result<()> {
+    fs::write(path, content)
+        .with_context(|| format!("failed to write the file \"{}\"", path.display()))
+}
+
+pub async fn async_save_string(path: &PathBuf, content: &str) -> Result<()> {
     tokio::fs::write(path, content)
         .await
         .with_context(|| format!("failed to write the file \"{}\"", path.display()))

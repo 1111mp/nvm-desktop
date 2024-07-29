@@ -33,12 +33,12 @@ impl Handle {
     }
 
     /// update the system tray state
-    pub fn update_systray_part(version: String) -> Result<()> {
+    pub fn update_systray_part(event: &str, version: &str) -> Result<()> {
         let app_handle = Self::global().app_handle.lock();
         if app_handle.is_none() {
             bail!("update_systray unhandled error");
         }
-        Tray::update_part(app_handle.as_ref().unwrap(), version)?;
+        Tray::update_part(app_handle.as_ref().unwrap(), event, version)?;
         Ok(())
     }
 }

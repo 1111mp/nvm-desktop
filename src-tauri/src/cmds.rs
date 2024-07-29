@@ -81,8 +81,10 @@ pub async fn project_list(fetch: Option<bool>) -> CmdResult<Option<Vec<Project>>
 
 /// add projects
 #[tauri::command]
-pub async fn add_projects(app_handle: tauri::AppHandle) -> CmdResult<Option<Vec<project::PInfo>>> {
-    wrap_err!(project::add_projects(app_handle).await)
+pub async fn select_projects(
+    app_handle: tauri::AppHandle,
+) -> CmdResult<Option<Vec<project::PInfo>>> {
+    wrap_err!(project::select_projects(app_handle).await)
 }
 
 /// update projects
@@ -113,6 +115,11 @@ pub async fn group_list(fetch: Option<bool>) -> CmdResult<Option<Vec<Group>>> {
 #[tauri::command]
 pub async fn update_groups(list: Vec<Group>) -> CmdResult<()> {
     wrap_err!(group::update_groups(list).await)
+}
+
+#[tauri::command]
+pub async fn update_group_version(name: String, version: String) -> CmdResult<()> {
+    wrap_err!(group::update_group_version(name, version).await)
 }
 
 /// exit app

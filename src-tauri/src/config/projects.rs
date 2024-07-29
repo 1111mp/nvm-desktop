@@ -71,12 +71,12 @@ impl IProjects {
     }
 
     /// update project version for system tray menu
-    pub fn update_version(&mut self, name: &String, version: &String) -> Result<String> {
+    pub fn update_version(&mut self, name: &str, version: &str) -> Result<String> {
         let mut list = self.list.take().unwrap_or_default();
 
         for each in list.iter_mut() {
-            if &each.name == name {
-                each.version = Some(version.clone());
+            if each.name == name {
+                each.version = Some(version.to_string());
                 let path = each.path.clone();
                 self.list = Some(list);
                 return Ok(path);

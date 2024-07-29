@@ -46,6 +46,7 @@ import {
   updateGroups,
   updateProjects,
   batchUpdateProjectVersion,
+  updateGroupVersion,
 } from '@/services/cmds';
 import type { ColumnDef } from '@tanstack/react-table';
 import { compareArray } from '@/lib/utils';
@@ -97,14 +98,6 @@ export const Component: React.FC = () => {
     return () => {
       unlisted.then((fn) => fn());
     };
-    // window.Context.onRegistProjectUpdate(({ projects, groups, version }) => {
-    //   setProjects(projects);
-    //   groups && setGroups(groups);
-    //   version && toast.success(t('Restart-Terminal', [`v${version}`]));
-    // });
-    // return () => {
-    //   window.Context.onRegistProjectUpdate(null);
-    // };
   }, []);
 
   useEffect(() => {
@@ -148,7 +141,7 @@ export const Component: React.FC = () => {
         header: t('Version'),
         maxSize: 170,
         cell: ({ row }) => {
-          const { projects, version } = row.original;
+          const { projects, name, version } = row.original;
           return (
             <Select
               defaultValue={version}
@@ -157,7 +150,7 @@ export const Component: React.FC = () => {
                   const newGroups = [...groups];
                   newGroups[row.index].version = newVersion;
                   await Promise.all([
-                    updateGroups(newGroups),
+                    updateGroupVersion(name, newVersion),
                     batchUpdateProjectVersion(projects, newVersion),
                   ]);
 

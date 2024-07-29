@@ -1,4 +1,5 @@
 use std::{
+    cmp::Ordering,
     path::PathBuf,
     sync::{Arc, Mutex},
     time::Duration,
@@ -11,12 +12,15 @@ use get_node::{
 };
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
-use tauri::{Emitter, Manager};
+use tauri::Emitter;
 use tokio::{sync::watch, time::Instant};
+use version_compare::{compare, Cmp};
 
 use crate::{
     config::{Config, NVersion},
-    utils::{dirs, help},
+    core::handle,
+    utils::dirs,
+    wrap_err,
 };
 
 static CANCEL_SENDER: Lazy<Arc<Mutex<Option<watch::Sender<bool>>>>> =
@@ -36,31 +40,49 @@ pub fn get_current(fetch: Option<bool>) -> Result<Option<String>> {
         return Ok(Config::node().latest().get_current());
     }
 
-    let current = dirs::default_version_path()
-        .and_then(|path| help::read_string(&path))
-        .map(Some)
-        .unwrap_or_else(|err| {
-            log::error!(target: "app", "{err}");
-            None
-        });
-
+    // sync from `default`
+    Config::node().latest().sync_current()?;
     Config::node().apply();
-    Config::node().data().update_current(current.clone())?;
 
-    Ok(current)
+    Ok(Config::node().data().get_current())
 }
 
 /// Set the current node version
 pub async fn set_current(version: Option<String>) -> Result<()> {
-    let version: String = version.unwrap_or(String::new());
-    let default_path = dirs::default_version_path()?;
-    help::save_string(&default_path, &version).await?;
+    let version = version.as_deref().unwrap_or("");
+    Config::node().latest().update_current(version)?;
 
-    // update `current`
     Config::node().apply();
-    Config::node().data().update_current(Some(version))?;
+    Config::node().data().save_current()?;
 
     Ok(())
+}
+
+/// update current from menu
+pub async fn update_current_from_menu(current: String) -> Result<()> {
+    let ret = {
+        Config::node().latest().update_current(&current)?;
+
+        wrap_err!(handle::Handle::update_systray_part(
+            "call-current-update",
+            &current
+        ));
+
+        <Result<()>>::Ok(())
+    };
+
+    match ret {
+        Ok(()) => {
+            Config::node().apply();
+            Config::node().data().save_current()?;
+
+            Ok(())
+        }
+        Err(err) => {
+            Config::node().discard();
+            Err(err)
+        }
+    }
 }
 
 /// fetch version list data from remote or local
@@ -98,12 +120,12 @@ pub async fn get_installed_list(fetch: Option<bool>) -> Result<Option<Vec<String
         return Ok(Config::node().latest().get_installed());
     }
 
-    let directory: Option<String> = Config::settings().data().get_directory();
-    if directory.is_none() {
-        bail!("directory should not be null");
-    }
+    let directory = Config::settings()
+        .latest()
+        .get_directory()
+        .unwrap_or_default();
 
-    let directory = PathBuf::from(directory.unwrap());
+    let directory = PathBuf::from(directory);
     if !directory.exists() {
         return Ok(Some(vec![]));
     }
@@ -121,10 +143,16 @@ pub async fn get_installed_list(fetch: Option<bool>) -> Result<Option<Vec<String
             versions.push(version);
         }
     }
+    versions.sort_by(|a, b| match compare(b, a) {
+        Ok(Cmp::Lt) => Ordering::Less,
+        Ok(Cmp::Eq) => Ordering::Equal,
+        Ok(Cmp::Gt) => Ordering::Greater,
+        _ => unreachable!(),
+    });
 
     // update installed
+    Config::node().latest().update_installed(&versions)?;
     Config::node().apply();
-    Config::node().data().update_installed(&versions)?;
 
     Ok(Some(versions))
 }
@@ -197,7 +225,7 @@ pub async fn install_node_cancel() -> Result<()> {
 
 /// uninstall node
 pub async fn uninstall_node(version: String, current: Option<bool>) -> Result<()> {
-    let directory: Option<String> = Config::settings().data().get_directory();
+    let directory = Config::settings().data().get_directory();
     if let Some(directory) = directory {
         let current = current.unwrap_or(false);
         let directory = PathBuf::from(directory).join(&version);

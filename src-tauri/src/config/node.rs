@@ -1,8 +1,11 @@
+use std::cmp::Ordering;
+
 use crate::utils::{dirs, help};
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use version_compare::{compare, Cmp};
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct NVersion {
@@ -60,19 +63,25 @@ impl INode {
                 Some(vec![])
             });
 
-        let installed = directory
+        let mut installed = directory
             .map(|path| {
-                Some(help::read_installed(&path).unwrap_or_else(|err| {
+                help::read_installed(&path).unwrap_or_else(|err| {
                     log::error!(target: "app", "{err}");
                     vec![]
-                }))
+                })
             })
-            .unwrap_or(Some(vec![]));
+            .unwrap_or(vec![]);
+        installed.sort_by(|a, b| match compare(b, a) {
+            Ok(Cmp::Lt) => Ordering::Less,
+            Ok(Cmp::Eq) => Ordering::Equal,
+            Ok(Cmp::Gt) => Ordering::Greater,
+            _ => unreachable!(),
+        });
 
         Self {
             current,
             list,
-            installed,
+            installed: Some(installed),
         }
     }
 
@@ -88,6 +97,25 @@ impl INode {
     /// save list to file
     pub fn save_file(&self) -> Result<()> {
         help::save_json(&dirs::version_list_path()?, &self.list, None)
+    }
+
+    /// save current to `default` file
+    pub fn save_current(&self) -> Result<()> {
+        let content = self.current.as_deref().unwrap_or("");
+        help::save_string(&dirs::default_version_path()?, content)
+    }
+
+    /// sync current version from `default`
+    pub fn sync_current(&mut self) -> Result<()> {
+        let current = dirs::default_version_path()
+            .and_then(|path| help::read_string(&path))
+            .map(Some)
+            .unwrap_or_else(|err| {
+                log::error!(target: "app", "{err}");
+                None
+            });
+        self.current = current;
+        Ok(())
     }
 
     /// get current version
@@ -106,8 +134,8 @@ impl INode {
     }
 
     /// update current
-    pub fn update_current(&mut self, version: Option<String>) -> Result<()> {
-        self.current = version;
+    pub fn update_current(&mut self, current: &str) -> Result<()> {
+        self.current = Some(current.to_string());
         Ok(())
     }
 

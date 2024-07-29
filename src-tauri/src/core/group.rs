@@ -27,3 +27,11 @@ pub async fn update_groups(list: Vec<Group>) -> Result<()> {
     Config::groups().apply();
     Ok(())
 }
+
+/// update group version
+pub async fn update_group_version(name: String, version: String) -> Result<()> {
+    Config::groups().latest().update_version(name, version)?;
+
+    Config::groups().apply();
+    Config::groups().data().save_file()
+}

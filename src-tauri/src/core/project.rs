@@ -39,7 +39,7 @@ pub struct PInfo {
 }
 
 /// add projects
-pub async fn add_projects(app_handle: tauri::AppHandle) -> Result<Option<Vec<PInfo>>> {
+pub async fn select_projects(app_handle: tauri::AppHandle) -> Result<Option<Vec<PInfo>>> {
     let file_paths = app_handle.dialog().file().blocking_pick_folders();
     if file_paths.is_none() {
         return Ok(None);
@@ -75,13 +75,13 @@ pub async fn update_projects(list: Vec<Project>, path: Option<PathBuf>) -> Resul
 }
 
 /// sync project version to `.nvmdrc`
-pub async fn sync_project_version(path: PathBuf, version: &String) -> Result<i32> {
+pub async fn sync_project_version(path: PathBuf, version: &str) -> Result<i32> {
     if !path.exists() {
         return Ok(404);
     }
 
     let path = path.join(".nvmdrc");
-    help::save_string(&path, version).await?;
+    help::async_save_string(&path, version).await?;
 
     Ok(200)
 }
@@ -93,7 +93,7 @@ pub async fn batch_update_project_version(paths: Vec<PathBuf>, version: String) 
             let version = version.clone();
             async move {
                 let path = path.join(".nvmdrc");
-                help::save_string(&path, &version).await
+                help::async_save_string(&path, &version).await
             }
         })
         .buffer_unordered(3)
@@ -117,7 +117,10 @@ pub async fn change_with_version(name: String, version: String) -> Result<()> {
 
         sync_project_version(PathBuf::from(&project_path), &version).await?;
 
-        log_err!(handle::Handle::update_systray_part(version));
+        log_err!(handle::Handle::update_systray_part(
+            "call-projects-update",
+            &version
+        ));
 
         <Result<bool>>::Ok(need_update_groups)
     };
@@ -155,7 +158,10 @@ pub async fn change_with_group(name: String, group_name: String) -> Result<()> {
 
         sync_project_version(PathBuf::from(&project_path), &version).await?;
 
-        log_err!(handle::Handle::update_systray_part(version));
+        log_err!(handle::Handle::update_systray_part(
+            "call-projects-update",
+            &version
+        ));
 
         <Result<()>>::Ok(())
     };

@@ -1,8 +1,8 @@
 use super::resolve;
-use crate::core::project;
+use crate::core::{node, project};
 use crate::{cmds, config::Config, log_err};
 use anyhow::{bail, Ok, Result};
-use tauri::menu::AboutMetadataBuilder;
+use tauri::menu::{AboutMetadataBuilder, CheckMenuItem};
 use tauri::tray::{MouseButton, TrayIconEvent};
 use tauri::{
     async_runtime::spawn,
@@ -17,6 +17,25 @@ use tauri::{
 
 pub struct Tray {}
 
+pub fn gen_check_menu_items(
+    app_handle: &AppHandle,
+    versions: &[String],
+    name: &str,
+    current: &str,
+) -> Result<Vec<CheckMenuItem<Wry>>> {
+    versions
+        .iter()
+        .map(|version| {
+            Ok(CheckMenuItemBuilder::with_id(
+                format!("{}_version_{}", name, version),
+                format!("v{}", version),
+            )
+            .checked(current == version)
+            .build(app_handle)?)
+        })
+        .collect()
+}
+
 impl Tray {
     pub fn tray_menu(app_handle: &AppHandle) -> Result<Menu<Wry>> {
         let zh = { Config::settings().latest().locale == Some("zh-CN".into()) };
@@ -26,13 +45,12 @@ impl Tray {
         // groups
         let groups = Config::groups();
         let groups = groups.latest();
-        let default_groups = vec![];
-        let groups = groups.list.as_ref().unwrap_or(&default_groups);
+        let groups = groups.list.as_deref().unwrap_or(&[]);
         // installed versions
         let node = Config::node();
         let node = node.latest();
-        let default_installed = vec![];
-        let installed = node.installed.as_ref().unwrap_or(&default_installed);
+        let installed = node.installed.as_deref().unwrap_or(&[]);
+        let global_current = node.current.as_deref().unwrap_or_default();
 
         macro_rules! t {
             ($en: expr, $zh: expr) => {
@@ -48,17 +66,8 @@ impl Tray {
             .iter()
             .map(|project| {
                 let project_version = project.version.as_deref().unwrap_or("");
-                let version_items = installed
-                    .iter()
-                    .map(|version| {
-                        Ok(CheckMenuItemBuilder::with_id(
-                            format!("{}_version_{}", &project.name, version),
-                            format!("v{}", version),
-                        )
-                        .checked(project_version == version)
-                        .build(app_handle)?)
-                    })
-                    .collect::<Result<Vec<_>>>()?;
+                let version_items =
+                    gen_check_menu_items(app_handle, &installed, &project.name, project_version)?;
                 let group_items = groups
                     .iter()
                     .map(|group| {
@@ -91,12 +100,24 @@ impl Tray {
             .map(|item| item as &dyn IsMenuItem<Wry>)
             .collect();
 
+        let global_menu_items =
+            gen_check_menu_items(app_handle, &installed, "global", global_current)?;
+        let global_menu_items_ref: Vec<&dyn IsMenuItem<Wry>> = global_menu_items
+            .iter()
+            .map(|item| item as &dyn IsMenuItem<Wry>)
+            .collect();
+
         Ok(MenuBuilder::with_id(app_handle, "tray_menu")
             .item(
                 &MenuItemBuilder::with_id("open_window", t!("NVM-Desktop", "NVM-Desktop"))
                     .build(app_handle)?,
             )
             .separator()
+            .item(
+                &SubmenuBuilder::with_id(app_handle, "global", "Global (defaule)")
+                    .items(&global_menu_items_ref)
+                    .build()?,
+            )
             .items(&sub_items_refs)
             .separator()
             .items(&[
@@ -145,19 +166,16 @@ impl Tray {
         Ok(())
     }
 
-    pub fn update_part(app_handle: &AppHandle, version: String) -> Result<()> {
-        let tray = app_handle.tray_by_id("main");
-        if tray.is_none() {
-            bail!("The system tray menu has not been initialized");
+    pub fn update_part(app_handle: &AppHandle, event: &str, version: &str) -> Result<()> {
+        if let Some(tray) = app_handle.tray_by_id("main") {
+            tray.set_menu(Some(Tray::tray_menu(app_handle)?))?;
+            if let Some(window) = app_handle.get_webview_window("main") {
+                window.emit(event, version)?;
+            }
+            Ok(())
+        } else {
+            bail!("The system tray menu has not been initialized")
         }
-        let tray = tray.unwrap();
-        tray.set_menu(Some(Tray::tray_menu(app_handle)?))?;
-
-        if let Some(window) = app_handle.get_webview_window("main") {
-            window.emit("call-projects-update", version)?;
-        }
-
-        Ok(())
     }
 
     pub fn on_menu_event(app_handle: &AppHandle, event: MenuEvent) {
@@ -166,28 +184,37 @@ impl Tray {
                 let _ = resolve::create_window(app_handle);
             }
             "quit" => cmds::exit_app(app_handle.clone()),
-            id if id.contains("_version_") => {
-                let info = id.split("_version_").collect::<Vec<_>>();
-                if info.len() == 2 {
-                    let name = info[0].to_string();
-                    let version = info[1].to_string();
-
-                    spawn(async move {
-                        log_err!(project::change_with_version(name, version).await);
-                    });
-                }
-            }
-            id if id.contains("_group_") => {
-                let info = id.split("_group_").collect::<Vec<_>>();
-                if info.len() == 2 {
-                    let name = info[0].to_string();
-                    let group_name = info[1].to_string();
-                    spawn(async move {
-                        log_err!(project::change_with_group(name, group_name).await);
-                    });
-                }
-            }
+            id if id.contains("_version_") => Tray::handle_version_change(id),
+            id if id.contains("_group_") => Tray::handle_group_change(id),
             _ => {}
+        }
+    }
+
+    fn handle_version_change(id: &str) {
+        let info = id.split("_version_").collect::<Vec<_>>();
+        if info.len() == 2 {
+            let name = info[0].to_owned();
+            let version = info[1].to_owned();
+            if name == "global" {
+                spawn(async move {
+                    log_err!(node::update_current_from_menu(version).await);
+                });
+            } else {
+                spawn(async move {
+                    log_err!(project::change_with_version(name, version).await);
+                });
+            }
+        }
+    }
+
+    fn handle_group_change(id: &str) {
+        let info = id.split("_group_").collect::<Vec<_>>();
+        if info.len() == 2 {
+            let name = info[0].to_owned();
+            let group_name = info[1].to_owned();
+            spawn(async move {
+                log_err!(project::change_with_group(name, group_name).await);
+            });
         }
     }
 }

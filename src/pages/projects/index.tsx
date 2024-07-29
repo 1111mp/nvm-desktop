@@ -32,7 +32,7 @@ import { cn } from '@/lib/utils';
 import { useAppContext } from '@/app-context';
 import { useTranslation } from 'react-i18next';
 import {
-  addProjects,
+  selectProjects,
   groupList,
   installedList,
   projectList,
@@ -312,7 +312,7 @@ export const Component: React.FC = () => {
 
   // add project (multiple)
   const onAddProject = async () => {
-    const pInfo = await addProjects();
+    const pInfo = await selectProjects();
     if (!pInfo) return;
 
     const addedProjects: Nvmd.Project[] = [];

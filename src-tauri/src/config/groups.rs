@@ -1,5 +1,5 @@
 use crate::utils::{dirs, help};
-use anyhow::Result;
+use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
@@ -66,6 +66,24 @@ impl IGroups {
         self.save_file()
     }
 
+    /// update group version
+    pub fn update_version(&mut self, name: String, version: String) -> Result<()> {
+        let mut list = self.list.take().unwrap_or_default();
+
+        for each in list.iter_mut() {
+            if each.name == name {
+                each.version = Some(version.clone());
+
+                self.list = Some(list);
+
+                return Ok(());
+            }
+        }
+
+        self.list = Some(list);
+        bail!("failed to find the group item \"name:{name}\"");
+    }
+
     /// update the projects of group for system tray menu
     pub fn update_projects(&mut self, path: &String) -> Result<bool> {
         let mut list = self.list.take().unwrap_or_default();
@@ -86,16 +104,12 @@ impl IGroups {
     /// update the projects of group for system tray menu
     /// remove from old group
     /// add to new group
-    pub fn update_projects_version(
-        &mut self,
-        path: &String,
-        name: &String,
-    ) -> Result<Option<String>> {
+    pub fn update_projects_version(&mut self, path: &str, name: &str) -> Result<Option<String>> {
         let mut list = self.list.take().unwrap_or_default();
         let mut version: Option<String> = None;
 
         for each in list.iter_mut() {
-            if each.projects.contains(path) {
+            if each.projects.contains(&path.to_string()) {
                 each.projects.retain(|p| p != path);
             }
 

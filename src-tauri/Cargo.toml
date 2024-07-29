@@ -31,6 +31,7 @@ tauri-plugin-shell = "2.0.0-beta"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+version-compare = "0.2"
 
 [profile.release]
 codegen-units = 1 # Allows LLVM to perform better optimization.

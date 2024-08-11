@@ -1,4 +1,4 @@
-import { getCurrent as getCurrentWindow } from '@tauri-apps/api/webviewWindow';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 
 import { SystemTheme } from '@/types';
 
@@ -8,7 +8,7 @@ import { SystemTheme } from '@/types';
  * @since tauri 2.0.0
  */
 export function getCurrent() {
-  return getCurrentWindow();
+  return getCurrentWebviewWindow();
 }
 
 /**

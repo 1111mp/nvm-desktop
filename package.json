@@ -37,12 +37,12 @@
     "package:mac": "pnpm build && pnpm clean && electron-builder build --publish never --mac",
     "package:linux": "pnpm build && pnpm clean && electron-builder build --publish never --linux",
     "package:win": "pnpm build && pnpm clean && electron-builder build --publish never --win",
-    "package:debug": "DEBUG_PROD=true pnpm build && pnpm clean && electron-builder build --publish never",
-    "package:test": "TEST=true pnpm build && pnpm clean && electron-builder build --publish never",
+    "package:debug": "cross-env DEBUG_PROD=true pnpm build && pnpm clean && electron-builder build --publish never",
+    "package:test": "cross-env TEST=true pnpm build && pnpm clean && electron-builder build --publish never",
     "publish": "pnpm build && pnpm clean && electron-builder build --publish always",
     "publish:all": "pnpm build && pnpm clean && electron-builder build --publish always -mwl",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
-    "test": "TS_NODE_PROJECT=tsconfig.test.json wdio run ./wdio.conf.ts"
+    "test": "cross-env TS_NODE_PROJECT=tsconfig.test.json wdio run ./wdio.conf.ts"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
@@ -61,6 +61,7 @@
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-switch": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
     "@tanstack/react-table": "^8.19.3",
     "@tanstack/react-virtual": "^3.8.3",
@@ -106,6 +107,7 @@
     "@wdio/mocha-framework": "^8.39.0",
     "@wdio/spec-reporter": "^8.39.0",
     "autoprefixer": "^10.4.19",
+    "cross-env": "^7.0.3",
     "electron": "^31.3.0",
     "electron-builder": "^24.13.3",
     "electron-debug": "github:1111mp/electron-debug",

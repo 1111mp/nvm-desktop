@@ -20,7 +20,11 @@ import {
   SheetTrigger,
   Tooltip,
   TooltipContent,
-  TooltipTrigger
+  TooltipTrigger,
+  IpInput,
+  Input,
+  Switch,
+  SheetDescription
 } from "@renderer/components/ui";
 import { GearIcon, InfoCircledIcon, Pencil2Icon } from "@radix-ui/react-icons";
 import {
@@ -49,7 +53,30 @@ const formSchema = z.object({
   theme: z.nativeEnum(Themes),
   closer: z.nativeEnum(Closer),
   directory: z.string().min(1),
-  mirror: z.string().url({ message: "Invalid mirror url" })
+  mirror: z.string().url({ message: "Invalid mirror url" }),
+  proxy: z
+    .object({
+      enabled: z.boolean().default(false),
+      ip: z.string().ip({ message: "Invalid ip" }).optional().or(z.literal("")),
+      port: z.string().regex(/^\d+$/, "Invalid port").optional().or(z.literal(""))
+    })
+    .superRefine((val, ctx) => {
+      if (val.enabled && (val.ip === "" || val.ip === void 0)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["ip"],
+          message: "Invalid ip"
+        });
+      }
+
+      if (val.enabled && (val.port === "" || val.port === void 0)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["port"],
+          message: "Invalid port"
+        });
+      }
+    })
 });
 
 export const Setting: React.FC<Props> = memo(() => {
@@ -70,13 +97,20 @@ export const Setting: React.FC<Props> = memo(() => {
       theme,
       closer,
       directory,
-      mirror
+      mirror,
+      proxy: {
+        enabled: false,
+        ip: "127.0.0.1",
+        port: "8080"
+      }
     }
   });
 
   const i18n = useI18n();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    console.log("values", values);
+    return;
     setLoading(true);
     const {
       locale: newLocale,
@@ -129,7 +163,18 @@ export const Setting: React.FC<Props> = memo(() => {
     <Sheet
       open={open}
       onOpenChange={(open) => {
-        form.reset({ locale, theme, closer, directory, mirror });
+        form.reset({
+          locale,
+          theme,
+          closer,
+          directory,
+          mirror,
+          proxy: {
+            enabled: false,
+            ip: "127.0.0.1",
+            port: "8080"
+          }
+        });
         setOpen(open);
       }}
     >
@@ -146,6 +191,7 @@ export const Setting: React.FC<Props> = memo(() => {
       <SheetContent className="flex flex-col">
         <SheetHeader>
           <SheetTitle>{i18n("Setting")}</SheetTitle>
+          <SheetDescription></SheetDescription>
         </SheetHeader>
         <div className="flex-1 space-y-6">
           <Form {...form}>
@@ -293,6 +339,65 @@ export const Setting: React.FC<Props> = memo(() => {
                   <FormMessage />
                 </FormItem>
               )}
+            />
+            <FormField
+              control={form.control}
+              name="proxy"
+              render={({ field }) => {
+                const { enabled } = field.value;
+                return (
+                  <FormItem>
+                    <FormLabel className="text-muted-foreground">Proxy</FormLabel>
+                    <div className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="proxy.enabled"
+                        render={({ field }) => (
+                          <FormItem className="flex items-center gap-3">
+                            <FormControl>
+                              <Switch checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <FormDescription className="!mt-0">
+                              {field.value ? "Enabled" : "Disabled"}
+                            </FormDescription>
+                          </FormItem>
+                        )}
+                      />
+                      <div className="flex items-center gap-2">
+                        <FormField
+                          control={form.control}
+                          name="proxy.ip"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <IpInput disabled={!enabled} {...field} />
+                              </FormControl>
+                              <FormMessage className="absolute !mt-1" />
+                            </FormItem>
+                          )}
+                        />
+                        <span>:</span>
+                        <FormField
+                          control={form.control}
+                          name="proxy.port"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  className="w-[72px] h-8 text-center"
+                                  disabled={!enabled}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage className="absolute !mt-1" />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </FormItem>
+                );
+              }}
             />
             <FormField
               control={form.control}

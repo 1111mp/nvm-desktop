@@ -1,9 +1,9 @@
 import { forwardRef } from "react";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@renderer/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
 
 const Sheet = SheetPrimitive.Root;
 
@@ -72,7 +72,7 @@ const SheetContent = forwardRef<React.ElementRef<typeof SheetPrimitive.Content>,
 SheetContent.displayName = SheetPrimitive.Content.displayName;
 
 const SheetHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col space-y-2 text-center sm:text-left", className)} {...props} />
+  <div className={cn("flex flex-col text-center sm:text-left", className)} {...props} />
 );
 SheetHeader.displayName = "SheetHeader";
 

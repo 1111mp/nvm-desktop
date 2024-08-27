@@ -1,7 +1,7 @@
 {
 	"productName": "nvm-desktop",
-	"version": "0.0.0",
-	"identifier": "com.tauri.dev",
+	"version": "1.0.0",
+	"identifier": "com.nvmd.dev",
 	"build": {
 		"beforeDevCommand": "pnpm ui:dev",
 		"devUrl": "http://localhost:1420",
@@ -26,6 +26,10 @@
 	"bundle": {
 		"active": true,
 		"targets": "all",
+		"resources": [
+			"icons/icon.png",
+			"icons/icon-template.png"
+		],
 		"icon": [
 			"icons/32x32.png",
 			"icons/128x128.png",

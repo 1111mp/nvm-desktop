@@ -20,12 +20,19 @@ declare global {
       total: number;
     }
 
+    interface Proxy {
+      enabled: boolean;
+      ip?: string;
+      port?: string;
+    }
+
     interface Setting {
       locale: string;
       theme: Themes;
       closer: Closer;
       directory: string;
       mirror: string;
+      proxy: Proxy;
     }
 
     type UpdateInfo = ElectronUpdateInfo | "update-not-available";

@@ -43,6 +43,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppContext, useI18n } from "@src/renderer/src/app-context";
 import { Closer, Themes } from "@src/types";
+import { compareObject } from "../../util";
 
 type Options = NonNullable<AutoCompleteProps["options"]>;
 
@@ -69,7 +70,7 @@ const formSchema = z.object({
         });
       }
 
-      if (val.enabled && (val.port === "" || val.port === void 0)) {
+      if (val.enabled && (val.port === "" || val.port === "0" || val.port === void 0)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["port"],
@@ -88,7 +89,7 @@ export const Setting: React.FC<Props> = memo(() => {
     return optStr ? optStr.split("__") : [];
   });
 
-  const { locale, theme, closer, directory, mirror, onUpdateSetting } = useAppContext();
+  const { locale, theme, closer, directory, mirror, proxy, onUpdateSetting } = useAppContext();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -98,33 +99,29 @@ export const Setting: React.FC<Props> = memo(() => {
       closer,
       directory,
       mirror,
-      proxy: {
-        enabled: false,
-        ip: "127.0.0.1",
-        port: "8080"
-      }
+      proxy
     }
   });
 
   const i18n = useI18n();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log("values", values);
-    return;
     setLoading(true);
     const {
       locale: newLocale,
       theme: newTheme,
       closer: newCloser,
       directory: newDirectory,
-      mirror: newMirror
+      mirror: newMirror,
+      proxy: newProxy
     } = values;
     if (
       locale === newLocale &&
       theme === newTheme &&
       closer === newCloser &&
       directory === newDirectory &&
-      mirror === newMirror
+      mirror === newMirror &&
+      compareObject(proxy, newProxy)
     ) {
       setLoading(false);
       setOpen(false);
@@ -151,7 +148,8 @@ export const Setting: React.FC<Props> = memo(() => {
         theme: newTheme,
         closer: newCloser,
         directory: newDirectory,
-        mirror: newMirror
+        mirror: newMirror,
+        proxy: newProxy
       });
     } finally {
       setLoading(false);
@@ -169,11 +167,7 @@ export const Setting: React.FC<Props> = memo(() => {
           closer,
           directory,
           mirror,
-          proxy: {
-            enabled: false,
-            ip: "127.0.0.1",
-            port: "8080"
-          }
+          proxy
         });
         setOpen(open);
       }}

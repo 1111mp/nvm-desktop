@@ -18,6 +18,7 @@ type AppContextType = {
   closer: Closer;
   directory: string;
   mirror: string;
+  proxy: Nvmd.Proxy;
   setColor: (color: string) => void;
   getMessage: I18nFn;
   onUpdateSetting: (setting: Nvmd.Setting) => Promise<void>;
@@ -30,6 +31,7 @@ type StateType = {
   directory: string; // node installation directory
   sysTheme: Themes; // system real theme
   mirror: string;
+  proxy: Nvmd.Proxy;
   messages: I18n.Message;
 };
 
@@ -55,7 +57,7 @@ export type I18nFn = (
 export const AppProviderContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ defaultColor = "orange", storageKey = "nvmd-ui-theme", children }) {
-  const { locale, theme, closer, directory, mirror, localeMessages } =
+  const { locale, theme, closer, directory, mirror, proxy, localeMessages } =
     window.Context.getSettingData();
 
   const [color, setColor] = useState<string>(
@@ -82,6 +84,7 @@ export function AppProvider({ defaultColor = "orange", storageKey = "nvmd-ui-the
       directory,
       sysTheme: window.Context.getSystemTheme() as Themes,
       mirror,
+      proxy,
       messages: localeMessages
     }
   );
@@ -140,7 +143,7 @@ export function AppProvider({ defaultColor = "orange", storageKey = "nvmd-ui-the
         payload: { ...state, ...setting, messages }
       });
     },
-    [state.locale, state.theme, state.directory, state.mirror]
+    [state.locale, state.theme, state.directory, state.mirror, state.proxy]
   );
 
   const setColorHandler = useMemo(
@@ -213,6 +216,7 @@ export function AppProvider({ defaultColor = "orange", storageKey = "nvmd-ui-the
         closer: state.closer,
         directory: state.directory,
         mirror: state.mirror,
+        proxy: state.proxy,
         color,
         setColor: setColorHandler,
         getMessage,

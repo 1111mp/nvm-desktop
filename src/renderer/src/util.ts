@@ -28,3 +28,15 @@ export function compareVersion(version1: string, version2: string): number {
 
   return semver.gt(version2, version1) ? -1 : 1;
 }
+
+type Obj = Record<string, any>;
+
+export function compareObject(obj1: Obj, obj2: Obj) {
+  let ret = true;
+  for (let key in obj1) {
+    if (obj1[key] !== obj2[key]) {
+      ret = false;
+    }
+  }
+  return ret;
+}

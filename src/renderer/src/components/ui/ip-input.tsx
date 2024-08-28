@@ -24,21 +24,21 @@ const IpInput: React.FC<IpInputProps> = memo(
       };
 
       const onchangeHandle = (evt: React.ChangeEvent<HTMLInputElement>, index: number) => {
-        let val = parseInt(evt.target.value);
-        if (evt.target.value !== "" && isNaN(val)) {
+        let val = evt.target.value;
+        if (evt.target.value !== "" && isNaN(parseInt(val))) {
           return evt.preventDefault();
         }
 
-        if (evt.target.value !== "" && !isValidIPItemValue(val)) {
-          val = 255;
+        if (evt.target.value !== "" && !isValidIPItemValue(parseInt(val))) {
+          val = "255";
         }
 
         let dValue = [...value];
-        dValue[index] = evt.target.value;
+        dValue[index] = val;
         setValue(dValue);
         onValueChange(dValue);
 
-        if (!isNaN(val) && String(val).length === 3 && index < 3) {
+        if (!isNaN(parseInt(val)) && val.length === 3 && index < 3) {
           inputs.current[index + 1]?.focus();
         }
       };

@@ -464,6 +464,7 @@ Promise.resolve().then(() => {
       try {
         result = await allNodeVersions({
           mirror: setting.mirror,
+          proxy: setting.proxy,
           signal: abortController.signal,
           fetch,
           timeout: {
@@ -515,6 +516,7 @@ Promise.resolve().then(() => {
           arch,
           output: setting.directory,
           mirror: setting.mirror,
+          proxy: setting.proxy,
           signal: abortController.signal,
           onProgress: (data) => {
             mainWindow?.webContents.send("get-node:progress", id, data);

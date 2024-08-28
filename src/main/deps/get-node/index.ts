@@ -2,11 +2,11 @@
  * https://github.com/ehmicky/get-node
  */
 
-import { download } from './download';
-import { getOpts } from './options';
-import { checkVersion } from './version';
+import { download } from "./download";
+import { getOpts } from "./options";
+import { checkVersion } from "./version";
 
-import type { Options } from './options';
+import type { Options } from "./options";
 
 // Download the Node.js binary for a specific `versionRange`
 /**
@@ -63,7 +63,7 @@ const getNode = async (version: string, opts: Options = {}) => {
     output,
     arch,
     fetchOpts,
-    onProgress,
+    onProgress
   });
   return { version, path: nodePath };
 };

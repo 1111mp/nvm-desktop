@@ -74,6 +74,8 @@
     "electron-updater": "^6.2.1",
     "framer-motion": "^11.3.19",
     "got": "^14.4.2",
+    "http-proxy-agent": "^7.0.2",
+    "https-proxy-agent": "^7.0.5",
     "intro.js": "^7.2.0",
     "intro.js-react": "^1.0.0",
     "is-plain-obj": "^4.1.0",
@@ -215,5 +217,6 @@
   },
   "devEngines": {
     "node": ">=18.19"
-  }
+  },
+  "packageManager": "pnpm@9.9.0+sha512.60c18acd138bff695d339be6ad13f7e936eea6745660d4cc4a776d5247c540d0edee1a563695c183a66eb917ef88f2b4feb1fc25f32a7adcadc7aaf3438e99c1"
 }

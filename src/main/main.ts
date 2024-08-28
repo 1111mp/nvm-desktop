@@ -185,31 +185,50 @@ app.on("window-all-closed", () => {
   }
 });
 
-app
-  .whenReady()
-  .then(async () => {
-    const [code, settingFromCache] = await Promise.all([updateSchema(), getSetting()]);
-    const iVersions = await allInstalledNodeVersions({
-      path: settingFromCache.directory
-    });
-
-    if (!setting) setting = settingFromCache;
-    if (!installedVersions)
-      installedVersions = iVersions.sort((version1, version2) => (gt(version2, version1) ? 1 : -1));
-
-    if (!locale) {
-      const appLocale = setting.locale;
-      locale = loadLocale({ appLocale });
+/**
+ * Prevent multiple instances from starting
+ * https://www.electronjs.org/zh/docs/latest/api/app#apprequestsingleinstancelockadditionaldata
+ */
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on("second-instance", () => {
+    /// Make the window take focus when trying to run a second instance
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
     }
+  });
 
-    mainWindow === null && createWindow(code);
-    app.on("activate", () => {
-      // On macOS it's common to re-create a window in the app when the
-      // dock icon is clicked and there are no other windows open.
-      if (mainWindow === null) createWindow();
-    });
-  })
-  .catch(console.log);
+  app
+    .whenReady()
+    .then(async () => {
+      const [code, settingFromCache] = await Promise.all([updateSchema(), getSetting()]);
+      const iVersions = await allInstalledNodeVersions({
+        path: settingFromCache.directory
+      });
+
+      if (!setting) setting = settingFromCache;
+      if (!installedVersions)
+        installedVersions = iVersions.sort((version1, version2) =>
+          gt(version2, version1) ? 1 : -1
+        );
+
+      if (!locale) {
+        const appLocale = setting.locale;
+        locale = loadLocale({ appLocale });
+      }
+
+      mainWindow === null && createWindow(code);
+      app.on("activate", () => {
+        // On macOS it's common to re-create a window in the app when the
+        // dock icon is clicked and there are no other windows open.
+        if (mainWindow === null) createWindow();
+      });
+    })
+    .catch(console.log);
+}
 
 function createTray() {
   if (tray) return;

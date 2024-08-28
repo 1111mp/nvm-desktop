@@ -1,7 +1,16 @@
 import { exec } from "node:child_process";
 import { platform, arch } from "node:process";
 import { join } from "node:path";
-import { pathExists, copy, readFile, readdir, writeFile, symlink, remove } from "fs-extra";
+import {
+  pathExists,
+  copy,
+  copySync,
+  readFile,
+  readdir,
+  writeFile,
+  symlink,
+  remove
+} from "fs-extra";
 import { app } from "electron";
 
 import { APPDIR, BIN_DIR, MIRRATION_FILE } from "../constants";
@@ -29,24 +38,19 @@ async function updateToSchemaVersionDefault(version: number) {
 
     const exeSourceFile = app.isPackaged
       ? join(process.resourcesPath, "assets", "sources", `${arch}.exe`)
-      : join(__dirname, "../../..", "assets", "sources", `${arch}.exe`);
+      : join(__dirname, "../../", "assets", "sources", `${arch}.exe`);
     const cmdSourceFile = app.isPackaged
       ? join(process.resourcesPath, "assets", "sources", "temp.cmd")
-      : join(__dirname, "../../..", "assets", "sources", "temp.cmd");
+      : join(__dirname, "../../", "assets", "sources", "temp.cmd");
 
-    const promises: Array<Promise<void>> = [];
+    await copy(exeSourceFile, join(BIN_DIR, "nvmd.exe"));
 
-    promises.push(copy(exeSourceFile, join(BIN_DIR, "nvmd.exe")).catch((_err) => {}));
-
-    ["node", "npm", "npx", "corepack"].forEach((name) => {
-      promises.push(copy(exeSourceFile, join(BIN_DIR, `${name}.exe`)).catch((_err) => {}));
-
+    for (const name of ["node", "npm", "npx", "corepack"]) {
+      await copy(exeSourceFile, join(BIN_DIR, `${name}.exe`));
       if (name !== "node") {
-        promises.push(copy(cmdSourceFile, join(BIN_DIR, `${name}.cmd`)).catch((_err) => {}));
+        await copy(cmdSourceFile, join(BIN_DIR, `${name}.cmd`));
       }
-    });
-
-    await Promise.all(promises);
+    }
 
     setSchemaVersion(CURRENT_MIGRATION_VERSION);
     return;
@@ -67,7 +71,7 @@ async function updateToSchemaVersionDefault(version: number) {
 
   const sourceFile = app.isPackaged
     ? join(process.resourcesPath, "assets", "sources", "nvmd")
-    : join(__dirname, "../../..", "assets", "sources", "nvmd");
+    : join(__dirname, "../../", "assets", "sources", "nvmd");
 
   await copy(sourceFile, targetFile).catch((_err) => {});
 
@@ -90,7 +94,7 @@ async function updateToSchemaVersionLast(version: number) {
 
     const sourceFile = app.isPackaged
       ? join(process.resourcesPath, "assets", "sources", "nvmd")
-      : join(__dirname, "../../..", "assets", "sources", "nvmd");
+      : join(__dirname, "../../", "assets", "sources", "nvmd");
     await copy(sourceFile, targetFile).catch((_err) => {});
 
     setSchemaVersion(CURRENT_MIGRATION_VERSION);
@@ -100,18 +104,13 @@ async function updateToSchemaVersionLast(version: number) {
   // Windows
   const sourceFile = app.isPackaged
     ? join(process.resourcesPath, "assets", "sources", `${arch}.exe`)
-    : join(__dirname, "../../..", "assets", "sources", `${arch}.exe`);
-  await copy(sourceFile, join(BIN_DIR, "nvmd.exe")).catch((_err) => {});
-
-  async function updateFile(fileName: string) {
-    await copy(sourceFile, join(BIN_DIR, fileName)).catch((_err) => {});
-    return;
-  }
+    : join(__dirname, "../../", "assets", "sources", `${arch}.exe`);
+  await copy(sourceFile, join(BIN_DIR, "nvmd.exe"));
 
   const files = await readdir(BIN_DIR);
-  await Promise.all(
-    files.filter((name) => name.endsWith(".exe")).map((fileName) => updateFile(fileName))
-  );
+  for (const name of files.filter((name) => name.endsWith(".exe"))) {
+    await copy(sourceFile, join(BIN_DIR, name));
+  }
 
   setSchemaVersion(CURRENT_MIGRATION_VERSION);
   return;

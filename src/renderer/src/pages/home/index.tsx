@@ -33,7 +33,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     window.Context.onRegistMigrationError(() => {
-      toast.warning(i18n("Migration-error"), { duration: 5000 });
+      toast.error(i18n("Migration-error"), { duration: 8000 });
     });
   }, []);
 

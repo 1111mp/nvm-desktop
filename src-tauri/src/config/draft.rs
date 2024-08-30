@@ -64,67 +64,46 @@ macro_rules! draft_define {
     };
 }
 
-// draft_define!(IClash);
 draft_define!(IGroups);
 draft_define!(INode);
 draft_define!(IProjects);
 draft_define!(ISettings);
-// draft_define!(IProfiles);
-// draft_define!(IRuntime);
-// draft_define!(IVerge);
 
-// #[test]
-// fn test_draft() {
-//     let verge = IVerge {
-//         enable_auto_launch: Some(true),
-//         enable_tun_mode: Some(false),
-//         ..IVerge::default()
-//     };
+#[test]
+fn test_draft() {
+    let settings = ISettings {
+        enable_silent_start: Some(true),
+        no_proxy: Some(false),
+        ..ISettings::default()
+    };
 
-//     let draft = Draft::from(verge);
+    println!("{:?}", settings);
 
-//     assert_eq!(draft.data().enable_auto_launch, Some(true));
-//     assert_eq!(draft.data().enable_tun_mode, Some(false));
+    let draft = Draft::from(settings);
 
-//     assert_eq!(draft.draft().enable_auto_launch, Some(true));
-//     assert_eq!(draft.draft().enable_tun_mode, Some(false));
+    assert_eq!(draft.data().enable_silent_start, Some(true));
+    assert_eq!(draft.data().no_proxy, Some(false));
 
-//     let mut d = draft.draft();
-//     d.enable_auto_launch = Some(false);
-//     d.enable_tun_mode = Some(true);
-//     drop(d);
+    let mut d = draft.draft();
+    d.enable_silent_start = Some(false);
+    d.no_proxy = Some(true);
+    drop(d);
 
-//     assert_eq!(draft.data().enable_auto_launch, Some(true));
-//     assert_eq!(draft.data().enable_tun_mode, Some(false));
+    assert_eq!(draft.data().enable_silent_start, Some(true));
+    assert_eq!(draft.data().no_proxy, Some(false));
 
-//     assert_eq!(draft.draft().enable_auto_launch, Some(false));
-//     assert_eq!(draft.draft().enable_tun_mode, Some(true));
+    assert_eq!(draft.draft().enable_silent_start, Some(false));
+    assert_eq!(draft.draft().no_proxy, Some(true));
 
-//     assert_eq!(draft.latest().enable_auto_launch, Some(false));
-//     assert_eq!(draft.latest().enable_tun_mode, Some(true));
+    assert_eq!(draft.latest().enable_silent_start, Some(false));
+    assert_eq!(draft.latest().no_proxy, Some(true));
 
-//     assert!(draft.apply().is_some());
-//     assert!(draft.apply().is_none());
+    assert!(draft.apply().is_some());
+    assert!(draft.apply().is_none());
 
-//     assert_eq!(draft.data().enable_auto_launch, Some(false));
-//     assert_eq!(draft.data().enable_tun_mode, Some(true));
+    assert_eq!(draft.data().enable_silent_start, Some(false));
+    assert_eq!(draft.data().no_proxy, Some(true));
 
-//     assert_eq!(draft.draft().enable_auto_launch, Some(false));
-//     assert_eq!(draft.draft().enable_tun_mode, Some(true));
-
-//     let mut d = draft.draft();
-//     d.enable_auto_launch = Some(true);
-//     drop(d);
-
-//     assert_eq!(draft.data().enable_auto_launch, Some(false));
-
-//     assert_eq!(draft.draft().enable_auto_launch, Some(true));
-
-//     assert!(draft.discard().is_some());
-
-//     assert_eq!(draft.data().enable_auto_launch, Some(false));
-
-//     assert!(draft.discard().is_none());
-
-//     assert_eq!(draft.draft().enable_auto_launch, Some(false));
-// }
+    assert_eq!(draft.draft().enable_silent_start, Some(false));
+    assert_eq!(draft.draft().no_proxy, Some(true));
+}

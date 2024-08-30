@@ -45,32 +45,28 @@ fn create_client(
     no_proxy: Option<bool>,
     timeout: Duration,
 ) -> Result<reqwest::Client> {
-    let builder = match no_proxy {
-        // disabled proxy
-        // it's not work when `TUN` proxy mode on
-        Some(_) => reqwest::ClientBuilder::new().use_rustls_tls().no_proxy(),
-        None => match proxy {
-            // proxy by user set
-            // need with proxy
-            Some(proxy) => {
-                let mut builder = reqwest::ClientBuilder::new().use_rustls_tls().no_proxy();
-                let proxy_scheme = format!("http://{}:{}", proxy.ip, proxy.port);
-                if let Ok(proxy) = reqwest::Proxy::http(&proxy_scheme) {
-                    builder = builder.proxy(proxy);
-                }
-                if let Ok(proxy) = reqwest::Proxy::https(&proxy_scheme) {
-                    builder = builder.proxy(proxy);
-                }
-                if let Ok(proxy) = reqwest::Proxy::all(&proxy_scheme) {
-                    builder = builder.proxy(proxy);
-                }
-                builder
+    let mut builder = reqwest::ClientBuilder::new()
+        .use_rustls_tls()
+        .timeout(timeout);
+    if let Some(true) = no_proxy {
+        builder = builder.no_proxy();
+    } else if let Some(proxy) = proxy {
+        if proxy.enabled {
+            builder = builder.no_proxy();
+            let proxy_scheme = format!("http://{}:{}", proxy.ip, proxy.port);
+            if let Ok(proxy) = reqwest::Proxy::http(&proxy_scheme) {
+                builder = builder.proxy(proxy);
             }
-            // system proxy will be work
-            None => reqwest::ClientBuilder::new().use_rustls_tls(),
-        },
-    };
-    Ok(builder.timeout(timeout).build()?)
+            if let Ok(proxy) = reqwest::Proxy::https(&proxy_scheme) {
+                builder = builder.proxy(proxy);
+            }
+            if let Ok(proxy) = reqwest::Proxy::all(&proxy_scheme) {
+                builder = builder.proxy(proxy);
+            }
+        }
+    }
+
+    Ok(builder.build()?)
 }
 
 async fn send(

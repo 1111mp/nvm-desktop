@@ -24,6 +24,7 @@ import {
 	SheetDescription,
 	Input,
 	IpInput,
+	Switch,
 } from '@/components/ui';
 import { GearIcon, InfoCircledIcon, Pencil2Icon } from '@radix-ui/react-icons';
 import {
@@ -43,7 +44,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppContext } from '@/app-context';
-import { shallowEqual } from '@/lib/utils';
+import { compareObject } from '@/lib/utils';
 import { Closer, Themes } from '@/types';
 
 type Options = NonNullable<AutoCompleteProps['options']>;
@@ -56,10 +57,36 @@ const formSchema = z.object({
 	closer: z.nativeEnum(Closer),
 	directory: z.string().min(1),
 	mirror: z.string().url({ message: 'Invalid mirror url' }),
-	proxy: z.object({
-		ip: z.string().ip({ message: 'Invalid ip' }),
-		port: z.string().regex(/^\d+$/, 'Invalid port'),
-	}),
+	proxy: z
+		.object({
+			enabled: z.boolean().default(false),
+			ip: z.string().ip({ message: 'Invalid ip' }).optional().or(z.literal('')),
+			port: z
+				.string()
+				.regex(/^\d+$/, 'Invalid port')
+				.optional()
+				.or(z.literal('')),
+		})
+		.superRefine((val, ctx) => {
+			if (val.enabled && (val.ip === '' || val.ip === void 0)) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					path: ['ip'],
+					message: 'Invalid ip',
+				});
+			}
+
+			if (
+				val.enabled &&
+				(val.port === '' || val.port === '0' || val.port === void 0)
+			) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					path: ['port'],
+					message: 'Invalid port',
+				});
+			}
+		}),
 });
 
 const Setting: React.FC<Props> = memo(() => {
@@ -77,10 +104,6 @@ const Setting: React.FC<Props> = memo(() => {
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			...settings,
-			proxy: {
-				ip: '127.0.0.1',
-				port: '8080',
-			},
 		},
 	});
 
@@ -94,31 +117,16 @@ const Setting: React.FC<Props> = memo(() => {
 			closer: newCloser,
 			directory: newDirectory,
 			mirror: newMirror,
-			proxy,
+			proxy: newProxy,
 		} = values;
-		console.log('values', values);
-		console.log('settings', {
-			...settings,
-			proxy: {
-				ip: '127.0.0.1',
-				port: '8080',
-			},
-		});
-		console.log(
-			'shallowEqual(settings, values)',
-			shallowEqual(
-				{
-					...settings,
-					proxy: {
-						ip: '127.0.0.1',
-						port: '8080',
-					},
-				},
-				values
-			)
-		);
-		return;
-		if (shallowEqual(settings, values)) {
+		if (
+			settings.locale === newLocale &&
+			settings.theme === newTheme &&
+			settings.closer === newCloser &&
+			settings.directory === newDirectory &&
+			settings.mirror === newMirror &&
+			compareObject(settings.proxy, newProxy)
+		) {
 			setLoading(false);
 			setOpen(false);
 			return;
@@ -145,6 +153,7 @@ const Setting: React.FC<Props> = memo(() => {
 				closer: newCloser,
 				directory: newDirectory,
 				mirror: newMirror,
+				proxy: newProxy,
 			});
 		} finally {
 			setLoading(false);
@@ -156,7 +165,7 @@ const Setting: React.FC<Props> = memo(() => {
 		<Sheet
 			open={open}
 			onOpenChange={(open) => {
-				// form.reset({ ...settings });
+				form.reset({ ...settings });
 				setOpen(open);
 			}}
 		>
@@ -347,41 +356,67 @@ const Setting: React.FC<Props> = memo(() => {
 						<FormField
 							control={form.control}
 							name="proxy"
-							render={() => (
-								<FormItem>
-									<FormLabel className="text-muted-foreground">Proxy</FormLabel>
-									<div className="flex items-center gap-2">
-										<FormField
-											control={form.control}
-											name="proxy.ip"
-											render={({ field }) => (
-												<FormItem>
-													<FormControl>
-														<IpInput {...field} />
-													</FormControl>
-													<FormMessage className="absolute !mt-1" />
-												</FormItem>
-											)}
-										/>
-										<span>:</span>
-										<FormField
-											control={form.control}
-											name="proxy.port"
-											render={({ field }) => (
-												<FormItem>
-													<FormControl>
-														<Input
-															className="w-[72px] h-8 text-center"
-															{...field}
-														/>
-													</FormControl>
-													<FormMessage className="absolute !mt-1" />
-												</FormItem>
-											)}
-										/>
-									</div>
-								</FormItem>
-							)}
+							render={({ field }) => {
+								const { enabled } = field.value;
+
+								return (
+									<FormItem>
+										<FormLabel className="text-muted-foreground">
+											Proxy
+										</FormLabel>
+										<div className="space-y-4">
+											<FormField
+												control={form.control}
+												name="proxy.enabled"
+												render={({ field }) => (
+													<FormItem className="flex items-center gap-3">
+														<FormControl>
+															<Switch
+																checked={field.value}
+																onCheckedChange={field.onChange}
+															/>
+														</FormControl>
+														<FormDescription className="!mt-0">
+															{field.value ? 'Enabled' : 'Disabled'}
+														</FormDescription>
+													</FormItem>
+												)}
+											/>
+											<div className="flex items-center gap-2">
+												<FormField
+													control={form.control}
+													name="proxy.ip"
+													render={({ field }) => (
+														<FormItem>
+															<FormControl>
+																<IpInput disabled={!enabled} {...field} />
+															</FormControl>
+															<FormMessage className="absolute !mt-1" />
+														</FormItem>
+													)}
+												/>
+												<span>:</span>
+												<FormField
+													control={form.control}
+													name="proxy.port"
+													render={({ field }) => (
+														<FormItem>
+															<FormControl>
+																<Input
+																	className="w-[72px] h-8 text-center"
+																	disabled={!enabled}
+																	{...field}
+																/>
+															</FormControl>
+															<FormMessage className="absolute !mt-1" />
+														</FormItem>
+													)}
+												/>
+											</div>
+										</div>
+									</FormItem>
+								);
+							}}
 						/>
 						<FormField
 							control={form.control}

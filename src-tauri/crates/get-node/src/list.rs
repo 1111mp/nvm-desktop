@@ -36,36 +36,30 @@ where
     let mirror = mirror.unwrap();
     // timeout default value is `20s`
     let timeout = timeout.unwrap_or(Duration::from_millis(20000));
-    let builder = match no_proxy {
-        // disabled proxy
-        // it's not work when `TUN` proxy mode on
-        Some(_) => reqwest::ClientBuilder::new().use_rustls_tls().no_proxy(),
-        None => match proxy {
-            // proxy by user set
-            // need with proxy
-            Some(proxy) => {
-                let mut builder = reqwest::ClientBuilder::new().use_rustls_tls().no_proxy();
-                let proxy_scheme = format!("http://{}:{}", proxy.ip, proxy.port);
-                if let Ok(proxy) = reqwest::Proxy::http(&proxy_scheme) {
-                    builder = builder.proxy(proxy);
-                }
-                if let Ok(proxy) = reqwest::Proxy::https(&proxy_scheme) {
-                    builder = builder.proxy(proxy);
-                }
-                if let Ok(proxy) = reqwest::Proxy::all(&proxy_scheme) {
-                    builder = builder.proxy(proxy);
-                }
-                builder
+
+    let mut builder = reqwest::ClientBuilder::new().use_rustls_tls();
+    if let Some(true) = no_proxy {
+        builder = builder.no_proxy();
+    } else if let Some(proxy) = proxy {
+        if proxy.enabled {
+            builder = builder.no_proxy();
+            let proxy_scheme = format!("http://{}:{}", proxy.ip, proxy.port);
+            if let Ok(proxy) = reqwest::Proxy::http(&proxy_scheme) {
+                builder = builder.proxy(proxy);
             }
-            // system proxy will be work
-            None => reqwest::ClientBuilder::new().use_rustls_tls(),
-        },
-    };
+            if let Ok(proxy) = reqwest::Proxy::https(&proxy_scheme) {
+                builder = builder.proxy(proxy);
+            }
+            if let Ok(proxy) = reqwest::Proxy::all(&proxy_scheme) {
+                builder = builder.proxy(proxy);
+            }
+        }
+    }
 
     let list = builder
         .timeout(timeout)
         .build()?
-        .get(format!("{}/index.json", &mirror))
+        .get(format!("{}/index.json", &mirror.trim_end_matches("/")))
         .send()
         .await?
         .json::<T>()

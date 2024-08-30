@@ -61,7 +61,7 @@ pub async fn set_current(version: Option<String>) -> Result<()> {
 /// update current from menu
 pub async fn update_current_from_menu(current: String) -> Result<()> {
     let ret = {
-        Config::node().latest().update_current(&current)?;
+        Config::node().draft().update_current(&current)?;
 
         wrap_err!(handle::Handle::update_systray_part(
             "call-current-update",

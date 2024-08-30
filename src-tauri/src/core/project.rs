@@ -110,10 +110,8 @@ pub async fn batch_update_project_version(paths: Vec<PathBuf>, version: String) 
 /// change project with version from menu
 pub async fn change_with_version(name: String, version: String) -> Result<()> {
     let ret = {
-        let project_path = Config::projects()
-            .latest()
-            .update_version(&name, &version)?;
-        let need_update_groups = Config::groups().latest().update_projects(&project_path)?;
+        let project_path = Config::projects().draft().update_version(&name, &version)?;
+        let need_update_groups = Config::groups().draft().update_projects(&project_path)?;
 
         sync_project_version(PathBuf::from(&project_path), &version).await?;
 
@@ -149,10 +147,10 @@ pub async fn change_with_version(name: String, version: String) -> Result<()> {
 pub async fn change_with_group(name: String, group_name: String) -> Result<()> {
     let ret = {
         let project_path = Config::projects()
-            .latest()
+            .draft()
             .update_version(&name, &group_name)?;
         let version = Config::groups()
-            .latest()
+            .draft()
             .update_projects_version(&project_path, &group_name)?
             .ok_or_else(|| anyhow!("failed to find the group version \"name:{}\"", &group_name))?;
 

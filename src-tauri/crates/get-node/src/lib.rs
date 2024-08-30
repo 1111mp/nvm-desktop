@@ -6,6 +6,7 @@ mod node;
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
 pub struct Proxy {
+    pub enabled: bool,
     pub ip: String,
     pub port: String,
 }

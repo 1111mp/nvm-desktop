@@ -1,5 +1,5 @@
-import type { Delays } from 'got';
-import type { Options as FetchNodeWebsiteOptions } from '../fetch-node-website';
+import type { Delays } from "got";
+import type { Options as FetchNodeWebsiteOptions } from "../fetch-node-website";
 
 export interface Options {
   /**
@@ -11,12 +11,12 @@ export interface Options {
    *
    * @default 'https://nodejs.org/dist'
    */
-  mirror?: FetchNodeWebsiteOptions['mirror'];
+  mirror?: FetchNodeWebsiteOptions["mirror"];
 
   /**
    * Cancels the release download when the signal is aborted.
    */
-  signal?: FetchNodeWebsiteOptions['signal'];
+  signal?: FetchNodeWebsiteOptions["signal"];
 
   /**
    * The list of available Node.js versions is cached for one hour by default.
@@ -32,6 +32,11 @@ export interface Options {
    * Milliseconds to wait for the server to end the response before aborting the request with `got.TimeoutError` error (a.k.a. `request` property).
    */
   timeout?: Delays;
+
+	/**
+   * Proxy server configuration
+   */
+  proxy?: Nvmd.Proxy;
 
   /**
    * Progress event callback.

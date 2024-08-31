@@ -1,11 +1,11 @@
-import { arch as processArch } from 'node:process';
+import { arch as processArch } from "node:process";
 
-import isPlainObj from 'is-plain-obj';
+import isPlainObj from "is-plain-obj";
 
-import { validateArch } from './arch';
-import { getDefaultOutput, validateOutput } from './output';
+import { validateArch } from "./arch";
+import { getDefaultOutput, validateOutput } from "./output";
 
-import type { Arch } from './archive/types';
+import type { Arch } from "./archive/types";
 
 export interface NodeBinary {
   /**
@@ -71,6 +71,11 @@ export type Options = Partial<{
    * @default `process.arch`
    */
   arch?: Arch;
+
+  /**
+   * Proxy server configuration
+   */
+  proxy?: Nvmd.Proxy;
 }>;
 
 // Validate input parameters and assign default values.
@@ -82,22 +87,23 @@ export const getOpts = async (opts: Options = {}) => {
 
   const {
     output = await getDefaultOutput(),
-    arch = processArch,
+    arch = processArch as Arch,
     mirror = DEFAULT_MIRROR,
+    proxy = undefined,
     signal,
-    onProgress,
+    onProgress
   } = opts;
 
   validateOutput(output);
   validateArch(arch);
 
-  const fetchOpts = { mirror, signal };
+  const fetchOpts = { mirror, signal, proxy };
   return {
     output,
     arch,
     fetchOpts,
-    onProgress,
+    onProgress
   };
 };
 
-const DEFAULT_MIRROR = 'https://nodejs.org/dist';
+const DEFAULT_MIRROR = "https://nodejs.org/dist";

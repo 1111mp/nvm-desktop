@@ -33,7 +33,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     window.Context.onRegistMigrationError(() => {
-      toast.warning(i18n("Migration-error"), { duration: 5000 });
+      toast.error(i18n("Migration-error"), { duration: 8000 });
     });
   }, []);
 
@@ -396,24 +396,6 @@ const Home: React.FC = () => {
       ) : (
         <header className="flex items-center pt-2 px-3 justify-between select-none [-webkit-app-region:drag]">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 [-webkit-app-region:no-drag]">
-              <Button
-                size="sm"
-                variant="secondary"
-                icon={<Cross2Icon />}
-                onClick={() => {
-                  window.Context.windowClose();
-                }}
-              ></Button>
-              <Button
-                size="sm"
-                variant="secondary"
-                icon={<MinusIcon />}
-                onClick={() => {
-                  window.Context.windowMinimize();
-                }}
-              />
-            </div>
             <NavigationMenu>
               <NavigationMenuList className="[-webkit-app-region:no-drag]">
                 <NavigationMenuItem>
@@ -455,12 +437,32 @@ const Home: React.FC = () => {
               </NavigationMenuList>
             </NavigationMenu>
           </div>
-          <div className="flex items-center [-webkit-app-region:no-drag]">
-            {platform === "win32" && <Updater />}
-            <ThemeCustomizer />
-            <Tip />
-            <Configration />
-            <Setting />
+          <div className="flex items-center gap-4 [-webkit-app-region:no-drag]">
+            <div className="flex items-center [-webkit-app-region:no-drag]">
+              {platform === "win32" && <Updater />}
+              <ThemeCustomizer />
+              <Tip />
+              <Configration />
+              <Setting />
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                icon={<MinusIcon />}
+                onClick={() => {
+                  window.Context.windowMinimize();
+                }}
+              />
+              <Button
+                size="sm"
+                variant="secondary"
+                icon={<Cross2Icon />}
+                onClick={() => {
+                  window.Context.windowClose();
+                }}
+              />
+            </div>
           </div>
         </header>
       )}

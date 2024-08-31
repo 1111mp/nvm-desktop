@@ -20,7 +20,11 @@ import {
   SheetTrigger,
   Tooltip,
   TooltipContent,
-  TooltipTrigger
+  TooltipTrigger,
+  IpInput,
+  Input,
+  Switch,
+  SheetDescription
 } from "@renderer/components/ui";
 import { GearIcon, InfoCircledIcon, Pencil2Icon } from "@radix-ui/react-icons";
 import {
@@ -39,6 +43,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppContext, useI18n } from "@src/renderer/src/app-context";
 import { Closer, Themes } from "@src/types";
+import { compareObject } from "../../util";
 
 type Options = NonNullable<AutoCompleteProps["options"]>;
 
@@ -49,7 +54,30 @@ const formSchema = z.object({
   theme: z.nativeEnum(Themes),
   closer: z.nativeEnum(Closer),
   directory: z.string().min(1),
-  mirror: z.string().url({ message: "Invalid mirror url" })
+  mirror: z.string().url({ message: "Invalid mirror url" }),
+  proxy: z
+    .object({
+      enabled: z.boolean().default(false),
+      ip: z.string().ip({ message: "Invalid ip" }).optional().or(z.literal("")),
+      port: z.string().regex(/^\d+$/, "Invalid port").optional().or(z.literal(""))
+    })
+    .superRefine((val, ctx) => {
+      if (val.enabled && (val.ip === "" || val.ip === void 0)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["ip"],
+          message: "Invalid ip"
+        });
+      }
+
+      if (val.enabled && (val.port === "" || val.port === "0" || val.port === void 0)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["port"],
+          message: "Invalid port"
+        });
+      }
+    })
 });
 
 export const Setting: React.FC<Props> = memo(() => {
@@ -61,7 +89,7 @@ export const Setting: React.FC<Props> = memo(() => {
     return optStr ? optStr.split("__") : [];
   });
 
-  const { locale, theme, closer, directory, mirror, onUpdateSetting } = useAppContext();
+  const { locale, theme, closer, directory, mirror, proxy, onUpdateSetting } = useAppContext();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -70,7 +98,8 @@ export const Setting: React.FC<Props> = memo(() => {
       theme,
       closer,
       directory,
-      mirror
+      mirror,
+      proxy
     }
   });
 
@@ -83,14 +112,16 @@ export const Setting: React.FC<Props> = memo(() => {
       theme: newTheme,
       closer: newCloser,
       directory: newDirectory,
-      mirror: newMirror
+      mirror: newMirror,
+      proxy: newProxy
     } = values;
     if (
       locale === newLocale &&
       theme === newTheme &&
       closer === newCloser &&
       directory === newDirectory &&
-      mirror === newMirror
+      mirror === newMirror &&
+      compareObject(proxy, newProxy)
     ) {
       setLoading(false);
       setOpen(false);
@@ -117,7 +148,8 @@ export const Setting: React.FC<Props> = memo(() => {
         theme: newTheme,
         closer: newCloser,
         directory: newDirectory,
-        mirror: newMirror
+        mirror: newMirror,
+        proxy: newProxy
       });
     } finally {
       setLoading(false);
@@ -129,7 +161,14 @@ export const Setting: React.FC<Props> = memo(() => {
     <Sheet
       open={open}
       onOpenChange={(open) => {
-        form.reset({ locale, theme, closer, directory, mirror });
+        form.reset({
+          locale,
+          theme,
+          closer,
+          directory,
+          mirror,
+          proxy
+        });
         setOpen(open);
       }}
     >
@@ -146,6 +185,7 @@ export const Setting: React.FC<Props> = memo(() => {
       <SheetContent className="flex flex-col">
         <SheetHeader>
           <SheetTitle>{i18n("Setting")}</SheetTitle>
+          <SheetDescription></SheetDescription>
         </SheetHeader>
         <div className="flex-1 space-y-6">
           <Form {...form}>
@@ -293,6 +333,65 @@ export const Setting: React.FC<Props> = memo(() => {
                   <FormMessage />
                 </FormItem>
               )}
+            />
+            <FormField
+              control={form.control}
+              name="proxy"
+              render={({ field }) => {
+                const { enabled } = field.value;
+                return (
+                  <FormItem>
+                    <FormLabel className="text-muted-foreground">{i18n("Proxy")}</FormLabel>
+                    <div className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="proxy.enabled"
+                        render={({ field }) => (
+                          <FormItem className="flex items-center gap-3">
+                            <FormControl>
+                              <Switch checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <FormDescription className="!mt-0">
+                              {i18n(field.value ? "Enabled" : "Disabled")}
+                            </FormDescription>
+                          </FormItem>
+                        )}
+                      />
+                      <div className="flex items-center gap-2">
+                        <FormField
+                          control={form.control}
+                          name="proxy.ip"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <IpInput disabled={!enabled} {...field} />
+                              </FormControl>
+                              <FormMessage className="absolute !mt-1" />
+                            </FormItem>
+                          )}
+                        />
+                        <span>:</span>
+                        <FormField
+                          control={form.control}
+                          name="proxy.port"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  className="w-[72px] h-8 text-center"
+                                  disabled={!enabled}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage className="absolute !mt-1" />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </FormItem>
+                );
+              }}
             />
             <FormField
               control={form.control}

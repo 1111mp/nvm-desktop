@@ -2,10 +2,12 @@
  * https://github.com/ehmicky/fetch-node-website
  */
 
-import { got } from 'got';
-import { getDefaultMirror } from './mirror';
+import { got } from "got";
+import { HttpProxyAgent } from "http-proxy-agent";
+import { HttpsProxyAgent } from "https-proxy-agent";
+import { getDefaultMirror } from "./mirror";
 
-import type { Request, Delays } from 'got';
+import type { Request, Delays } from "got";
 
 const LEADING_SLASH_REGEXP = /^\//u;
 
@@ -30,6 +32,11 @@ export interface Options {
    * Milliseconds to wait for the server to end the response before aborting the request with `got.TimeoutError` error (a.k.a. `request` property).
    */
   timeout?: Delays;
+
+  /**
+   * Proxy server configuration
+   */
+  proxy?: Nvmd.Proxy;
 }
 
 /**
@@ -50,17 +57,25 @@ export interface Options {
  * )
  * ```
  */
-export const fetchNodeWebsite = async (
-  path: string,
-  opts?: Options,
-): Promise<Request> => {
-  const { mirror = getDefaultMirror(), signal, timeout = {} } = opts || {};
+export const fetchNodeWebsite = async (path: string, opts?: Options): Promise<Request> => {
+  const { mirror = getDefaultMirror(), signal, timeout = {}, proxy } = opts || {};
 
-  const pathA = path.replace(LEADING_SLASH_REGEXP, '');
+  const pathA = path.replace(LEADING_SLASH_REGEXP, "");
+  // Configure proxy if provided
+  let agent;
+  if (proxy?.enabled) {
+    const proxyOptions = `http://${proxy.ip}:${proxy.port}`;
+    agent = {
+      http: new HttpProxyAgent(proxyOptions),
+      https: new HttpsProxyAgent(proxyOptions)
+    };
+  }
+
   const response = got.stream(pathA, {
     prefixUrl: mirror,
     signal,
     timeout,
+    agent
   });
 
   return response;

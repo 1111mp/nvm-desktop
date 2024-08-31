@@ -37,12 +37,12 @@
     "package:mac": "pnpm build && pnpm clean && electron-builder build --publish never --mac",
     "package:linux": "pnpm build && pnpm clean && electron-builder build --publish never --linux",
     "package:win": "pnpm build && pnpm clean && electron-builder build --publish never --win",
-    "package:debug": "DEBUG_PROD=true pnpm build && pnpm clean && electron-builder build --publish never",
-    "package:test": "TEST=true pnpm build && pnpm clean && electron-builder build --publish never",
+    "package:debug": "cross-env DEBUG_PROD=true pnpm build && pnpm clean && electron-builder build --publish never",
+    "package:test": "cross-env TEST=true pnpm build && pnpm clean && electron-builder build --publish never",
     "publish": "pnpm build && pnpm clean && electron-builder build --publish always",
     "publish:all": "pnpm build && pnpm clean && electron-builder build --publish always -mwl",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
-    "test": "TS_NODE_PROJECT=tsconfig.test.json wdio run ./wdio.conf.ts"
+    "test": "cross-env TS_NODE_PROJECT=tsconfig.test.json wdio run ./wdio.conf.ts"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
@@ -61,6 +61,7 @@
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-switch": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
     "@tanstack/react-table": "^8.19.3",
     "@tanstack/react-virtual": "^3.8.3",
@@ -73,6 +74,8 @@
     "electron-updater": "^6.2.1",
     "framer-motion": "^11.3.19",
     "got": "^14.4.2",
+    "http-proxy-agent": "^7.0.2",
+    "https-proxy-agent": "^7.0.5",
     "intro.js": "^7.2.0",
     "intro.js-react": "^1.0.0",
     "is-plain-obj": "^4.1.0",
@@ -106,6 +109,7 @@
     "@wdio/mocha-framework": "^8.39.0",
     "@wdio/spec-reporter": "^8.39.0",
     "autoprefixer": "^10.4.19",
+    "cross-env": "^7.0.3",
     "electron": "^31.3.0",
     "electron-builder": "^24.13.3",
     "electron-debug": "github:1111mp/electron-debug",
@@ -213,5 +217,6 @@
   },
   "devEngines": {
     "node": ">=18.19"
-  }
+  },
+  "packageManager": "pnpm@9.9.0+sha512.60c18acd138bff695d339be6ad13f7e936eea6745660d4cc4a776d5247c540d0edee1a563695c183a66eb917ef88f2b4feb1fc25f32a7adcadc7aaf3438e99c1"
 }

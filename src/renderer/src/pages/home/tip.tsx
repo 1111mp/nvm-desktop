@@ -4,6 +4,7 @@ import {
   Separator,
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger
@@ -32,6 +33,7 @@ export function Tip() {
       <SheetContent className="flex flex-col overflow-hidden px-0">
         <SheetHeader className="px-4">
           <SheetTitle>{i18n("Tip")}</SheetTitle>
+					<SheetDescription></SheetDescription>
         </SheetHeader>
         <div className="flex flex-1 flex-col px-4 gap-4 [overflow:overlay]">
           <div className="space-y-2">

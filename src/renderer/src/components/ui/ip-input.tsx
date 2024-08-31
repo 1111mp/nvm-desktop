@@ -12,7 +12,7 @@ const IpInput: React.FC<IpInputProps> = memo(
   forwardRef<HTMLDivElement, IpInputProps>(
     ({ className, disabled = false, value: propValue = "...", onChange }, ref) => {
       const [value, setValue] = useState<string[]>(() =>
-        (propValue === null ? "..." : propValue)?.split(".")
+        (!propValue ? "..." : propValue)?.split(".")
       );
       const [focus, setFocus] = useState<boolean>(false);
 

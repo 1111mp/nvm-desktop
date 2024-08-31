@@ -341,7 +341,7 @@ export const Setting: React.FC<Props> = memo(() => {
                 const { enabled } = field.value;
                 return (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground">Proxy</FormLabel>
+                    <FormLabel className="text-muted-foreground">{i18n("Proxy")}</FormLabel>
                     <div className="space-y-4">
                       <FormField
                         control={form.control}
@@ -352,7 +352,7 @@ export const Setting: React.FC<Props> = memo(() => {
                               <Switch checked={field.value} onCheckedChange={field.onChange} />
                             </FormControl>
                             <FormDescription className="!mt-0">
-                              {field.value ? "Enabled" : "Disabled"}
+                              {i18n(field.value ? "Enabled" : "Disabled")}
                             </FormDescription>
                           </FormItem>
                         )}

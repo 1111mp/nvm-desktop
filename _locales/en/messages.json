@@ -526,5 +526,17 @@
   "Input-To-Search": {
     "message": "input to search",
     "description": "The text of the Input-To-Search"
+  },
+  "Proxy": {
+    "message": "Proxy",
+    "description": "The text of the Proxy"
+  },
+  "Enabled": {
+    "message": "Enabled",
+    "description": "The text of the Enabled"
+  },
+  "Disabled": {
+    "message": "Disabled",
+    "description": "The text of the Disabled"
   }
 }

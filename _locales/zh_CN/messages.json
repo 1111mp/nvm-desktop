@@ -526,5 +526,17 @@
   "Input-To-Search": {
     "message": "输入以搜索",
     "description": "The text of the Input-To-Search"
+  },
+  "Proxy": {
+    "message": "代理",
+    "description": "The text of the Proxy"
+  },
+  "Enabled": {
+    "message": "启用",
+    "description": "The text of the Enabled"
+  },
+  "Disabled": {
+    "message": "禁用",
+    "description": "The text of the Disabled"
   }
 }

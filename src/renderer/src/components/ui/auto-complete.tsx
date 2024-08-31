@@ -80,7 +80,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = memo(
           onBlur={() => setOpen(false)}
           onValueChange={onValueChange}
         />
-        <div className="relative mt-1">
+        <div className="relative mt-1 z-50">
           <div className="w-full absolute top-0 overflow-hidden">
             <CommandList>
               <AnimatePresence>

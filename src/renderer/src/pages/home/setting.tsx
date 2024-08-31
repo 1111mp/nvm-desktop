@@ -336,6 +336,26 @@ export const Setting: React.FC<Props> = memo(() => {
             />
             <FormField
               control={form.control}
+              name="mirror"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-muted-foreground">{i18n("Mirror-Url")}</FormLabel>
+                  <FormControl>
+                    <AutoComplete
+                      value={field.value}
+                      shouldFilter={false}
+                      placeholder="mirror url"
+                      options={options}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormDescription>{i18n("Mirror-Tip")}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="proxy"
               render={({ field }) => {
                 const { enabled } = field.value;
@@ -392,26 +412,6 @@ export const Setting: React.FC<Props> = memo(() => {
                   </FormItem>
                 );
               }}
-            />
-            <FormField
-              control={form.control}
-              name="mirror"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-muted-foreground">{i18n("Mirror-Url")}</FormLabel>
-                  <FormControl>
-                    <AutoComplete
-                      value={field.value}
-                      shouldFilter={false}
-                      placeholder="mirror url"
-                      options={options}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormDescription>{i18n("Mirror-Tip")}</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
             />
           </Form>
         </div>

@@ -1,7 +1,11 @@
 use anyhow::Result;
 use tauri::{App, AppHandle, Manager};
 
-use crate::{config::Config, core::handle, log_err, trace_err, utils::tray};
+use crate::{
+    config::Config,
+    core::{handle, tray},
+    log_err, trace_err, utils::migrate,
+};
 
 /// handle something when start app
 pub fn resolve_setup(app: &mut App) -> Result<()> {
@@ -9,6 +13,7 @@ pub fn resolve_setup(app: &mut App) -> Result<()> {
     app.set_activation_policy(tauri::ActivationPolicy::Regular);
     handle::Handle::global().init(app.app_handle().clone());
 
+    log_err!(migrate::init());
     log_err!(tray::Tray::update_systray(&app.app_handle()));
 
     let silent_start = { Config::settings().data().enable_silent_start };

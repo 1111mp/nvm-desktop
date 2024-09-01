@@ -1,5 +1,5 @@
-use super::resolve;
 use crate::core::{node, project};
+use crate::utils::resolve;
 use crate::{cmds, config::Config, log_err};
 use anyhow::{bail, Ok, Result};
 use tauri::menu::{AboutMetadataBuilder, CheckMenuItem};
@@ -17,7 +17,7 @@ use tauri::{
 
 pub struct Tray {}
 
-pub fn gen_check_menu_items(
+fn gen_check_menu_items(
     app_handle: &AppHandle,
     versions: &[String],
     name: &str,

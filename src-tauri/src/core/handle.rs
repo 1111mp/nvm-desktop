@@ -1,4 +1,4 @@
-use crate::utils::tray::Tray;
+use super::tray::Tray;
 use anyhow::{bail, Result};
 use once_cell::sync::OnceCell;
 use parking_lot::Mutex;

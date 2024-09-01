@@ -15,7 +15,7 @@ const IpInput: React.FC<IpInputProps> = memo(
 			ref
 		) => {
 			const [value, setValue] = useState<string[]>(() =>
-				(propValue === null ? '...' : propValue)?.split('.')
+				(!propValue ? '...' : propValue)?.split('.')
 			);
 			const [focus, setFocus] = useState<boolean>(false);
 

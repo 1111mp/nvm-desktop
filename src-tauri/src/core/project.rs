@@ -8,7 +8,7 @@ use crate::{
 use anyhow::{anyhow, Result};
 use futures::{stream, StreamExt};
 use serde::{Deserialize, Serialize};
-use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_dialog::{DialogExt, FilePath};
 
 use super::handle;
 
@@ -40,27 +40,23 @@ pub struct PInfo {
 
 /// add projects
 pub async fn select_projects(app_handle: tauri::AppHandle) -> Result<Option<Vec<PInfo>>> {
-    let file_paths = app_handle.dialog().file().blocking_pick_folders();
-    if file_paths.is_none() {
-        return Ok(None);
+    if let Some(file_paths) = app_handle.dialog().file().blocking_pick_folders() {
+        let mut p_info = Vec::new();
+        for file_path in file_paths {
+            if let FilePath::Path(path) = file_path {
+                let nvmdrc_path = path.join(".nvmdrc");
+                let version = if nvmdrc_path.exists() {
+                    Some(help::async_read_string(&nvmdrc_path).await?)
+                } else {
+                    None
+                };
+                p_info.push(PInfo { path, version });
+            }
+        }
+        Ok(Some(p_info))
+    } else {
+        Ok(None)
     }
-
-    let file_paths = file_paths.unwrap();
-    let mut p_info = vec![];
-    for file_path in file_paths {
-        let nvmdrc_path = file_path.join(".nvmdrc");
-        let version = if nvmdrc_path.exists() {
-            Some(help::async_read_string(&nvmdrc_path).await?)
-        } else {
-            None
-        };
-        p_info.push(PInfo {
-            path: file_path,
-            version,
-        });
-    }
-
-    Ok(Some(p_info))
 }
 
 /// update projects

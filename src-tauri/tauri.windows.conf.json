@@ -1,0 +1,33 @@
+{
+	"$schema": "../node_modules/@tauri-apps/cli/schema.json",
+	"app": {
+		"trayIcon": {
+			"id": "main",
+			"iconPath": "icons/icon.png"
+		}
+	},
+	"bundle": {
+		"targets": [
+			"nsis"
+		],
+		"windows": {
+			"certificateThumbprint": null,
+			"digestAlgorithm": "sha256",
+			"timestampUrl": "",
+			"webviewInstallMode": {
+				"silent": true,
+				"type": "embedBootstrapper"
+			},
+			"nsis": {
+				"displayLanguageSelector": true,
+				"languages": [
+					"SimpChinese",
+					"English"
+				],
+				"installerIcon": "icons/icon.ico",
+				"installMode": "perMachine",
+				"installerHooks": "./templates/nsis-hooks.nsh"
+			}
+		}
+	}
+}

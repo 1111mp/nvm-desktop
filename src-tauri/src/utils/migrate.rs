@@ -1,5 +1,5 @@
 use anyhow::Result;
-use std::{fs, os::unix::fs::symlink, thread, time::Duration};
+use std::{fs, thread, time::Duration};
 use tauri::{Emitter, Manager};
 
 use super::{dirs, help};
@@ -73,6 +73,8 @@ fn update_schema_from_basic() -> Result<()> {
 
 #[cfg(unix)]
 fn update_schema_from_basic() -> Result<()> {
+    use std::os::unix::fs::symlink;
+
     let res_dir = dirs::app_resources_dir()?;
     let bin_path = ensure_bin_path_exists()?;
     let nvmd_exe_path = bin_path.join("nvmd");

@@ -1,34 +1,45 @@
 {
-  "productName": "nvm-desktop",
-  "version": "1.0.0",
-  "identifier": "com.nvmd.dev",
-  "build": {
-    "beforeDevCommand": "pnpm ui:dev",
-    "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "pnpm ui:build",
-    "frontendDist": "../dist"
-  },
-  "app": {
-    "macOSPrivateApi": true,
-    "windows": [],
-    "security": {
-      "csp": null,
-      "assetProtocol": {
-        "enable": true,
-        "scope": ["$APPDATA/**", "$RESOURCE/../**", "**"]
-      }
-    }
-  },
-  "bundle": {
-    "active": true,
-    "targets": "all",
-    "resources": ["resources", "icons/icon.png", "icons/icon-template.png"],
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
-    ]
-  }
+	"$schema": "../node_modules/@tauri-apps/cli/schema.json",
+	"productName": "NVM Desktop",
+	"version": "1.0.0",
+	"identifier": "io.github.1111mp.nvm-desktop",
+	"build": {
+		"beforeDevCommand": "pnpm ui:dev",
+		"devUrl": "http://localhost:1420",
+		"beforeBuildCommand": "pnpm ui:build",
+		"frontendDist": "../dist"
+	},
+	"app": {
+		"macOSPrivateApi": true,
+		"windows": [],
+		"security": {
+			"csp": "default-src blob: data: filesystem: ws: wss: http: https: tauri: asset: 'unsafe-eval' 'unsafe-inline' 'self';",
+			"assetProtocol": {
+				"enable": true,
+				"scope": [
+					"$APPDATA/**",
+					"$RESOURCE/../**",
+					"**"
+				]
+			}
+		}
+	},
+	"bundle": {
+		"active": true,
+		"targets": "all",
+		"icon": [
+			"icons/32x32.png",
+			"icons/128x128.png",
+			"icons/128x128@2x.png",
+			"icons/icon.icns",
+			"icons/icon.ico"
+		],
+		"resources": [
+			"resources"
+		],
+		"licenseFile": "../LICENSE",
+		"category": "DeveloperTool",
+		"shortDescription": "Node Version Manager Desktop",
+		"longDescription": "Node Version Manager Desktop - A desktop application to manage multiple active node.js versions."
+	}
 }

@@ -7,16 +7,44 @@ mod core;
 mod utils;
 
 use config::Config;
+use tauri::Manager;
+use tauri_plugin_log::{Target, TargetKind};
 use utils::resolve;
 
 fn main() -> tauri::Result<()> {
+    #[cfg(target_os = "linux")]
+    std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+
     let builder = tauri::Builder::default()
         .setup(|app| {
+            #[cfg(desktop)]
+            app.handle()
+                .plugin(tauri_plugin_updater::Builder::new().build())?;
+
             resolve::resolve_setup(app)?;
             Ok(())
         })
+        .plugin(
+            tauri_plugin_log::Builder::default()
+                .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepAll)
+                .targets([
+                    Target::new(TargetKind::Stdout),
+                    Target::new(TargetKind::LogDir { file_name: None }),
+                    // Target::new(TargetKind::Webview),
+                ])
+                .build(),
+        )
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
+        // Ensure single instance operation
+        .plugin(tauri_plugin_single_instance::init(
+            |app_handle, _argc, _cwd| {
+                let windows = app_handle.webview_windows();
+                if let Some(windows) = windows.values().next() {
+                    let _ = windows.set_focus();
+                }
+            },
+        ))
         .invoke_handler(tauri::generate_handler![
             // settings
             cmds::read_settings,

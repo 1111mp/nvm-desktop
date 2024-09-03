@@ -4,13 +4,15 @@ use tauri::{App, AppHandle, Manager};
 use crate::{
     config::Config,
     core::{handle, tray},
-    log_err, trace_err, utils::migrate,
+    log_err, trace_err,
+    utils::migrate,
 };
 
 /// handle something when start app
 pub fn resolve_setup(app: &mut App) -> Result<()> {
     #[cfg(target_os = "macos")]
     app.set_activation_policy(tauri::ActivationPolicy::Regular);
+
     handle::Handle::global().init(app.app_handle().clone());
 
     log_err!(migrate::init());
@@ -20,7 +22,7 @@ pub fn resolve_setup(app: &mut App) -> Result<()> {
     if !silent_start.unwrap_or(false) {
         create_window(&app.app_handle())?;
     }
-
+		
     Ok(())
 }
 

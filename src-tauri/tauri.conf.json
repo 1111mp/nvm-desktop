@@ -40,6 +40,15 @@
 		"licenseFile": "../LICENSE",
 		"category": "DeveloperTool",
 		"shortDescription": "Node Version Manager Desktop",
-		"longDescription": "Node Version Manager Desktop - A desktop application to manage multiple active node.js versions."
+		"longDescription": "Node Version Manager Desktop - A desktop application to manage multiple active node.js versions.",
+		"createUpdaterArtifacts": true
+	},
+	"plugins": {
+		"updater": {
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJERDQ4RjMyREY1RDhDMjQKUldRa2pGM2ZNby9Vdlk3NXdqcnZmOVcwSDZSU2FFVTRxbzRWbUptSTltQ3czeXlCc1VzM2ZTWHQK",
+			"endpoints": [
+				"https://github.com/1111mp/nvm-desktop/releases/latest/download/latest.json"
+			]
+		}
 	}
 }

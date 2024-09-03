@@ -1,24 +1,30 @@
 {
-  "$schema": "../gen/schemas/desktop-schema.json",
-  "identifier": "default",
-  "description": "Capability for the main window",
-  "windows": ["main"],
-  "permissions": [
-    "dialog:allow-open",
-    "core:path:default",
-    "core:event:default",
-    "core:window:default",
-    "core:window:allow-close",
-    "core:window:allow-start-dragging",
-    "core:window:allow-minimize",
-    "core:window:allow-unminimize",
-    "core:window:allow-show",
-    "core:window:allow-set-focus",
-    "core:app:default",
-    "core:image:default",
-    "core:resources:default",
-    "core:menu:default",
-    "core:tray:default",
-    "shell:allow-open"
-  ]
+	"$schema": "../gen/schemas/desktop-schema.json",
+	"identifier": "default",
+	"description": "Capability for the main window",
+	"windows": [
+		"main"
+	],
+	"permissions": [
+		"dialog:allow-open",
+		"core:path:default",
+		"core:event:default",
+		"core:window:default",
+		"core:window:allow-close",
+		"core:window:allow-start-dragging",
+		"core:window:allow-minimize",
+		"core:window:allow-unminimize",
+		"core:window:allow-show",
+		"core:window:allow-set-focus",
+		"core:app:default",
+		"core:image:default",
+		"core:resources:default",
+		"core:menu:default",
+		"core:tray:default",
+		"shell:allow-open",
+		"updater:allow-check",
+		"updater:allow-download",
+		"updater:allow-install",
+		"updater:allow-download-and-install"
+	]
 }

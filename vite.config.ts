@@ -29,6 +29,11 @@ export default defineConfig(async () => ({
 		},
 	},
 
+	build: {
+		outDir: '../dist',
+		emptyOutDir: true,
+	},
+
 	define: {
 		OS_ARCH: `"${process.arch}"`,
 		OS_PLATFORM: `"${process.platform}"`,

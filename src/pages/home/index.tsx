@@ -13,6 +13,7 @@ import {
 import {
 	Cross2Icon,
 	FaceIcon,
+	GlobeIcon,
 	HeartIcon,
 	MinusIcon,
 	RocketIcon,
@@ -25,6 +26,7 @@ import { getSystem } from '@/lib/utils';
 import { useAppContext } from '@/app-context';
 import { useTranslation } from 'react-i18next';
 import { getCurrent, windowClose, windowMinimize } from '@/services/api';
+import { appCheckUpdate } from '@/services/cmds';
 
 const Tip = lazy(() => import('./tip'));
 const Configration = lazy(() => import('./configration'));
@@ -418,6 +420,10 @@ const Home: React.FC = () => {
 		[settings.locale]
 	);
 
+	const onCheckUpdate = () => {
+		appCheckUpdate();
+	};
+
 	const linkStyle = navigationMenuTriggerStyle();
 
 	return (
@@ -476,6 +482,14 @@ const Home: React.FC = () => {
 						</NavigationMenuList>
 					</NavigationMenu>
 					<div className="flex items-center [-webkit-app-region:no-drag]">
+						<Button
+							size="sm"
+							variant="ghost"
+							title={t('Check-Update')}
+							className="module-home-btn"
+							icon={<GlobeIcon />}
+							onClick={onCheckUpdate}
+						/>
 						<ThemeCustomizer />
 						<Tip />
 						<Configration />
@@ -536,7 +550,14 @@ const Home: React.FC = () => {
 					</div>
 					<div className="flex items-center gap-4 [-webkit-app-region:no-drag]">
 						<div className="flex items-center [-webkit-app-region:no-drag]">
-							{/* {platform === 'win32' && <Updater />} */}
+							<Button
+								size="sm"
+								variant="ghost"
+								title={t('Check-Update')}
+								className="module-home-btn"
+								icon={<GlobeIcon />}
+								onClick={onCheckUpdate}
+							/>
 							<ThemeCustomizer />
 							<Tip />
 							<Configration />

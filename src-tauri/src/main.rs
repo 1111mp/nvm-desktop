@@ -67,6 +67,8 @@ fn main() -> tauri::Result<()> {
             cmds::group_list,
             cmds::update_groups,
             cmds::update_group_version,
+            // check update
+            cmds::app_check_update,
         ]);
 
     let app = builder.build(tauri::generate_context!())?;

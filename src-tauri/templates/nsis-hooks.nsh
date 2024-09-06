@@ -40,13 +40,14 @@ ${UnStrRep}
   ; Read the system-wide PATH environment variable
   ReadRegStr $2 HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "PATH"
 
+  ; Ensure $2 is not empty
+  StrCmp $2 "" done
+
   ; Check if the directory is in your PATH
   ${UnStrStr} $3 "$2" "$1"
 
   ; Confirm the check results and remove the directory
-  StrCmp $3 "" 0 +3
-  ; Skip removal
-  Goto done
+  StrCmp $3 "" done
 
   ; If the directory is in PATH, remove
   ; Remove the middle path

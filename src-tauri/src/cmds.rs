@@ -1,9 +1,10 @@
 use anyhow::Result;
 use std::path::PathBuf;
+use tauri_plugin_updater::UpdaterExt;
 
 use crate::{
     config::{Config, Group, ISettings, NVersion, Project},
-    core::{group, node, project},
+    core::{group, node, project, update},
     ret_err, wrap_err,
 };
 
@@ -117,9 +118,16 @@ pub async fn update_groups(list: Vec<Group>) -> CmdResult<()> {
     wrap_err!(group::update_groups(list).await)
 }
 
+/// update group version
 #[tauri::command]
 pub async fn update_group_version(name: String, version: String) -> CmdResult<()> {
     wrap_err!(group::update_group_version(name, version).await)
+}
+
+/// check app update
+#[tauri::command]
+pub async fn app_check_update(app_handle: tauri::AppHandle) -> CmdResult<()> {
+    wrap_err!(update::app_check_update(&app_handle).await)
 }
 
 /// exit app

@@ -38,6 +38,9 @@ fn gen_check_menu_items(
 
 impl Tray {
     pub fn tray_menu(app_handle: &AppHandle) -> Result<Menu<Wry>> {
+        let package_info = app_handle.package_info();
+        let version = package_info.version.to_string();
+        let app_name: String = package_info.name.to_string();
         let zh = { Config::settings().latest().locale == Some("zh-CN".into()) };
         // projects (keep max length 5)
         let mut projects = { Config::projects().latest().get_list() }.unwrap_or(vec![]);
@@ -51,6 +54,8 @@ impl Tray {
         let node = node.latest();
         let installed = node.installed.as_deref().unwrap_or(&[]);
         let global_current = node.current.as_deref().unwrap_or_default();
+
+        let icon_path = app_handle.path().resource_dir()?.join("icons/icon.png");
 
         macro_rules! t {
             ($en: expr, $zh: expr) => {
@@ -126,7 +131,9 @@ impl Tray {
                     Some(t!("About NVM-Desktop", "关于 NVM-Desktop")),
                     Some(
                         AboutMetadataBuilder::new()
-                            .icon(Some(Image::from_path("icons/icon.png")?))
+                            .version(Some(version))
+                            .name(Some(app_name))
+                            .icon(Some(Image::from_path(icon_path)?))
                             .build(),
                     ),
                 )?,

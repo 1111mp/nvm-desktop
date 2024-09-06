@@ -1,0 +1,41 @@
+{
+	"$schema": "../node_modules/@tauri-apps/cli/schema.json",
+	"app": {
+		"trayIcon": {
+			"id": "main",
+			"iconPath": "icons/icon.png"
+		}
+	},
+	"bundle": {
+		"targets": [
+			"nsis"
+		],
+		"windows": {
+			"certificateThumbprint": null,
+			"digestAlgorithm": "sha256",
+			"timestampUrl": "",
+			"webviewInstallMode": {
+				"type": "fixedRuntime",
+				"path": "./Microsoft.WebView2.FixedVersionRuntime.127.0.2651.105.x64/"
+			},
+			"nsis": {
+				"displayLanguageSelector": true,
+				"languages": [
+					"SimpChinese",
+					"English"
+				],
+				"installerIcon": "icons/icon.ico",
+				"installMode": "perMachine",
+				"installerHooks": "./templates/nsis-hooks.nsh"
+			}
+		}
+	},
+	"plugins": {
+		"updater": {
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJERDQ4RjMyREY1RDhDMjQKUldRa2pGM2ZNby9Vdlk3NXdqcnZmOVcwSDZSU2FFVTRxbzRWbUptSTltQ3czeXlCc1VzM2ZTWHQK",
+			"endpoints": [
+				"https://github.com/1111mp/nvm-desktop/releases/download/updater/update-fixed-webview2.json"
+			]
+		}
+	}
+}

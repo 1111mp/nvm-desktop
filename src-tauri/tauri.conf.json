@@ -35,7 +35,8 @@
 			"icons/icon.ico"
 		],
 		"resources": [
-			"resources"
+			"resources",
+			"icons/icon.png"
 		],
 		"licenseFile": "../LICENSE",
 		"category": "DeveloperTool",
@@ -47,7 +48,7 @@
 		"updater": {
 			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJERDQ4RjMyREY1RDhDMjQKUldRa2pGM2ZNby9Vdlk3NXdqcnZmOVcwSDZSU2FFVTRxbzRWbUptSTltQ3czeXlCc1VzM2ZTWHQK",
 			"endpoints": [
-				"https://github.com/1111mp/nvm-desktop/releases/latest/download/latest.json"
+				"https://github.com/1111mp/nvm-desktop/releases/download/updater/update.json"
 			]
 		}
 	}

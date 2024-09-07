@@ -364,7 +364,7 @@ const Setting: React.FC<Props> = memo(() => {
                 return (
                   <FormItem>
                     <FormLabel className='text-muted-foreground'>
-                      Proxy
+                      {t('Proxy')}
                     </FormLabel>
                     <div className='space-y-4'>
                       <FormField
@@ -379,7 +379,7 @@ const Setting: React.FC<Props> = memo(() => {
                               />
                             </FormControl>
                             <FormDescription className='!mt-0'>
-                              {field.value ? 'Enabled' : 'Disabled'}
+                              {t(field.value ? 'Enabled' : 'Disabled')}
                             </FormDescription>
                           </FormItem>
                         )}

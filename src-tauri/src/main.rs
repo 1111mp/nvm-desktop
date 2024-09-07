@@ -17,13 +17,10 @@ fn main() -> tauri::Result<()> {
 
     let builder = tauri::Builder::default()
         .setup(|app| {
-            #[cfg(desktop)]
-            app.handle()
-                .plugin(tauri_plugin_updater::Builder::new().build())?;
-
             resolve::resolve_setup(app)?;
             Ok(())
         })
+        .plugin(tauri_plugin_updater::Builder::default().build())
         .plugin(
             tauri_plugin_log::Builder::default()
                 .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepAll)
@@ -67,8 +64,8 @@ fn main() -> tauri::Result<()> {
             cmds::group_list,
             cmds::update_groups,
             cmds::update_group_version,
-            // check update
-            cmds::app_check_update,
+            // app
+            cmds::restart,
         ]);
 
     let app = builder.build(tauri::generate_context!())?;

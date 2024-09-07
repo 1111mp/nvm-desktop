@@ -3,4 +3,3 @@ pub mod handle;
 pub mod node;
 pub mod project;
 pub mod tray;
-pub mod update;

@@ -41,7 +41,7 @@ jobs:
           workspaces: src-tauri
           cache-all-crates: true
 
-      - name: install dependencies (ubuntu only)
+      - name: Install dependencies (ubuntu only)
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update

@@ -39,6 +39,7 @@ const { platform, arch } = target
   : process;
 
 const NVMD_RELEASE_URL =
+  process.env.NVMD_RELEASE_URL ||
   'https://github.com/1111mp/nvmd-command/releases/latest/download';
 
 const NVMD_LATEST_MAP = {

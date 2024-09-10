@@ -58,6 +58,8 @@ jobs:
           run_install: false
 
       - name: Pnpm install and check
+        env:
+          NVMD_RELEASE_URL: 'https://github.com/1111mp/nvmd-command/releases/download/alpha'
         run: |
           pnpm i
           pnpm check ${{ matrix.target }}
@@ -113,6 +115,8 @@ jobs:
           run_install: false
 
       - name: Pnpm install and check
+        env:
+          NVMD_RELEASE_URL: 'https://github.com/1111mp/nvmd-command/releases/download/alpha'
         run: |
           pnpm i
           pnpm check ${{ matrix.target }}
@@ -240,6 +244,8 @@ jobs:
           run_install: false
 
       - name: Pnpm install and check
+        env:
+          NVMD_RELEASE_URL: 'https://github.com/1111mp/nvmd-command/releases/download/alpha'
         run: |
           pnpm i
           pnpm check ${{ matrix.target }}

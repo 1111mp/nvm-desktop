@@ -112,6 +112,7 @@
   "Configration-export": "配置导出",
   "Configration-export-tip": "请选择您要导出的配置：",
   "Configration-export-setting": "（语言、安装目录、镜像地址等。）",
+  "Configration-export-projects": "（包括分组）",
   "Configration-export-success": "导出已完成，请在 {{filename}} 文件中查看",
   "Configration-import": "配置导入",
   "Configration-import-tip": "导入项目数据时是否自动同步 nodejs 版本（.nvmdrc）？",

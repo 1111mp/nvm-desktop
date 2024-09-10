@@ -65,7 +65,12 @@ impl ISettings {
         help::save_json(&dirs::settings_path()?, self, None)
     }
 
-    /// get the value of `directory`
+    /// get the value of `locale`
+    pub fn get_locale(&self) -> Option<String> {
+        self.locale.clone()
+    }
+
+    /// get the value of `closer`
     pub fn get_closer(&self) -> Option<String> {
         self.closer.clone()
     }

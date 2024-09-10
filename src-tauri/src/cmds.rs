@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 use crate::{
     config::{Config, Group, ISettings, NVersion, Project},
-    core::{group, node, project},
+    core::{configration, group, handle, node, project},
     ret_err, wrap_err,
 };
 
@@ -42,8 +42,22 @@ pub async fn read_settings() -> CmdResult<ISettings> {
 /// update settings
 #[tauri::command]
 pub async fn update_settings(settings: ISettings) -> CmdResult<()> {
+    let locale = Config::settings().latest().get_locale();
+    let directory = Config::settings().latest().get_directory();
+
     Config::settings().apply();
-    wrap_err!({ Config::settings().data().patch_settings(settings) })
+    wrap_err!({ Config::settings().data().patch_settings(settings.clone()) });
+
+    // refresh data when directory changes
+    if directory != settings.directory {
+        wrap_err!(node::get_installed_list(Some(true)).await);
+    }
+    // update system tray
+    if locale != settings.locale {
+        wrap_err!(handle::Handle::update_systray_part());
+    }
+
+    Ok(())
 }
 
 /// install node
@@ -121,6 +135,24 @@ pub async fn update_groups(list: Vec<Group>) -> CmdResult<()> {
 #[tauri::command]
 pub async fn update_group_version(name: String, version: String) -> CmdResult<()> {
     wrap_err!(group::update_group_version(name, version).await)
+}
+
+/// configration export
+#[tauri::command]
+pub async fn configration_export(
+    output_path: PathBuf,
+    configration: configration::ConfigrationExport,
+) -> CmdResult<()> {
+    wrap_err!(configration::configration_export(output_path, configration).await)
+}
+
+/// configration import
+#[tauri::command]
+pub async fn configration_import(
+    app_handle: tauri::AppHandle,
+    sync: bool,
+) -> CmdResult<Option<configration::ConfigrationImport>> {
+    wrap_err!(configration::configration_import(&app_handle, sync).await)
 }
 
 /// restart app

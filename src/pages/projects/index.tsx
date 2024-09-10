@@ -93,7 +93,7 @@ export const Component: React.FC = () => {
 
   useEffect(() => {
     const fetcher = async () => {
-      const iVersions = await installedList(true);
+      const iVersions = await installedList(false);
       setInstalledVersions(iVersions);
     };
 

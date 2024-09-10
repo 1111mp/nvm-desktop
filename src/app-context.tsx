@@ -122,7 +122,6 @@ export function AppProvider({
 	const onUpdateSetting = useMemo(
 		() => async (setting: Nvmd.Setting) => {
 			updateSettings(setting);
-			// await window.Context.updateSettingData(setting);
 
 			dispatch({
 				type: Actions.UpdateSetting,
@@ -132,6 +131,7 @@ export function AppProvider({
 		[
 			settings.locale,
 			settings.theme,
+			settings.closer,
 			settings.directory,
 			settings.mirror,
 			settings.proxy,

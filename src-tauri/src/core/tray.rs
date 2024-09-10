@@ -11,7 +11,6 @@ use tauri::{
         CheckMenuItemBuilder, IsMenuItem, Menu, MenuBuilder, MenuEvent, MenuItemBuilder,
         PredefinedMenuItem, Submenu, SubmenuBuilder,
     },
-    tray::TrayIconBuilder,
     AppHandle, Emitter, Manager, Wry,
 };
 
@@ -163,7 +162,16 @@ impl Tray {
         Ok(())
     }
 
-    pub fn update_part(app_handle: &AppHandle, event: &str, version: &str) -> Result<()> {
+    pub fn update_part(app_handle: &AppHandle) -> Result<()> {
+        if let Some(tray) = app_handle.tray_by_id("main") {
+            tray.set_menu(Some(Tray::tray_menu(app_handle)?))?;
+            Ok(())
+        } else {
+            bail!("The system tray menu has not been initialized")
+        }
+    }
+
+    pub fn update_part_with_emit(app_handle: &AppHandle, event: &str, version: &str) -> Result<()> {
         if let Some(tray) = app_handle.tray_by_id("main") {
             tray.set_menu(Some(Tray::tray_menu(app_handle)?))?;
             if let Some(window) = app_handle.get_webview_window("main") {

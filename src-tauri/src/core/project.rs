@@ -67,6 +67,9 @@ pub async fn update_projects(list: Vec<Project>, path: Option<PathBuf>) -> Resul
 
     Config::projects().apply();
     Config::projects().data().update_and_save_list(list)?;
+
+    handle::Handle::update_systray_part()?;
+
     Ok(())
 }
 
@@ -111,7 +114,7 @@ pub async fn change_with_version(name: String, version: String) -> Result<()> {
 
         sync_project_version(PathBuf::from(&project_path), &version).await?;
 
-        log_err!(handle::Handle::update_systray_part(
+        log_err!(handle::Handle::update_systray_part_with_emit(
             "call-projects-update",
             &version
         ));
@@ -152,7 +155,7 @@ pub async fn change_with_group(name: String, group_name: String) -> Result<()> {
 
         sync_project_version(PathBuf::from(&project_path), &version).await?;
 
-        log_err!(handle::Handle::update_systray_part(
+        log_err!(handle::Handle::update_systray_part_with_emit(
             "call-projects-update",
             &version
         ));

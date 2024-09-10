@@ -9,7 +9,7 @@
 		"build:verbose": "tauri build --verbose",
 		"tauri": "tauri",
 		"ui:dev": "vite",
-		"ui:build": "vite build",
+		"ui:build": "tsc && vite build",
 		"ui:preview": "vite preview",
 		"check": "node scripts/check.mjs",
 		"updater": "node scripts/updater.mjs",
@@ -84,5 +84,5 @@
 		"typescript": "^5.5.4",
 		"vite": "^5.4.2"
 	},
-	"packageManager": "pnpm@9.7.0"
+	"packageManager": "pnpm@9.9.0"
 }

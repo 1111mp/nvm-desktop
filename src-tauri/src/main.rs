@@ -64,6 +64,9 @@ fn main() -> tauri::Result<()> {
             cmds::group_list,
             cmds::update_groups,
             cmds::update_group_version,
+            // configration
+            cmds::configration_export,
+            cmds::configration_import,
             // app
             cmds::restart,
         ]);

@@ -50,10 +50,12 @@ pub fn get_current(fetch: Option<bool>) -> Result<Option<String>> {
 /// Set the current node version
 pub async fn set_current(version: Option<String>) -> Result<()> {
     let version = version.as_deref().unwrap_or("");
-    Config::node().latest().update_current(version)?;
 
     Config::node().apply();
+    Config::node().data().update_current(version)?;
     Config::node().data().save_current()?;
+
+    handle::Handle::update_systray_part()?;
 
     Ok(())
 }
@@ -63,7 +65,7 @@ pub async fn update_current_from_menu(current: String) -> Result<()> {
     let ret = {
         Config::node().draft().update_current(&current)?;
 
-        wrap_err!(handle::Handle::update_systray_part(
+        wrap_err!(handle::Handle::update_systray_part_with_emit(
             "call-current-update",
             &current
         ));
@@ -124,11 +126,12 @@ pub async fn get_installed_list(fetch: Option<bool>) -> Result<Option<Vec<String
         .latest()
         .get_directory()
         .unwrap_or_default();
-
     let directory = PathBuf::from(directory);
     if !directory.exists() {
         return Ok(Some(vec![]));
     }
+
+    let list = Config::node().latest().get_installed().unwrap_or_default();
 
     let mut versions = vec![];
     let mut entries = tokio::fs::read_dir(&directory).await?;
@@ -151,8 +154,13 @@ pub async fn get_installed_list(fetch: Option<bool>) -> Result<Option<Vec<String
     });
 
     // update installed
-    Config::node().latest().update_installed(&versions)?;
     Config::node().apply();
+    Config::node().data().update_installed(&versions)?;
+
+    // update system tray
+    if list.len() != versions.len() {
+        handle::Handle::update_systray_part()?;
+    }
 
     Ok(Some(versions))
 }
@@ -225,7 +233,7 @@ pub async fn install_node_cancel() -> Result<()> {
 
 /// uninstall node
 pub async fn uninstall_node(version: String, current: Option<bool>) -> Result<()> {
-    let directory = Config::settings().data().get_directory();
+    let directory = Config::settings().latest().get_directory();
     if let Some(directory) = directory {
         let current = current.unwrap_or(false);
         let directory = PathBuf::from(directory).join(&version);

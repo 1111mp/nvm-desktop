@@ -94,18 +94,15 @@ declare global {
 
 		interface ConfigrationExport {
 			color?: string;
-			mirrors?: string | null;
-			path: string;
+			mirrors?: string;
 			projects?: boolean;
 			setting?: boolean;
 		}
 
-		interface Configration {
+		interface ConfigrationImport {
 			color?: string;
 			mirrors?: string;
 			setting?: Setting;
-			projects?: Project[];
-			groups?: Group[];
 		}
 	}
 }

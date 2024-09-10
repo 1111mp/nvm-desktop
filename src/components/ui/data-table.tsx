@@ -10,7 +10,6 @@ import {
 	type ColumnFiltersState,
 	type VisibilityState,
 	getFacetedRowModel,
-	Row,
 	getFacetedUniqueValues,
 } from '@tanstack/react-table';
 import {

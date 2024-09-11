@@ -2702,7 +2702,7 @@ dependencies = [
 
 [[package]]
 name = "nvm-desktop"
-version = "1.0.0"
+version = "4.0.0"
 dependencies = [
  "anyhow",
  "dirs",

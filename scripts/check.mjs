@@ -6,7 +6,6 @@
 
 import fs from 'fs-extra';
 import path from 'node:path';
-import AdmZip from 'adm-zip';
 import fetch from 'node-fetch';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
@@ -42,8 +41,8 @@ const { platform, arch } = target
 const NVMD_RELEASE_URL =
 	process.env.NVMD_RELEASE_URL ||
 	'https://github.com/1111mp/nvmd-command/releases/latest/download';
-const PATH_ED_URL =
-	'https://github.com/awaescher/PathEd/releases/download/1.0/PathEd.zip';
+const ENV_PATH_URL =
+	'https://github.com/1111mp/envpath/releases/latest/download';
 
 const NVMD_LATEST_MAP = {
 	'win32-x64': 'nvmd_windows-x64.exe',
@@ -105,25 +104,19 @@ async function downlloadCmd(targetPath) {
 	console.log(`[INFO]: "temp.cmd" move finished`);
 }
 
-/// download `PathEd.exe` on windows platform
-async function downlloadPathEd(targetPath) {
+/// download `envpath.exe` on windows platform
+async function downlloadEnvPath(targetPath) {
 	const tempDir = TEMP_DIR;
-	const tempZip = path.join(tempDir, 'PathEd.zip');
-	const tempExe = path.join(tempDir, 'PathEd.exe');
+	const downloadURL = `${ENV_PATH_URL}/envpath_${arch}.exe`;
+	const tempExe = path.join(tempDir, 'envpath.exe');
 
-	if (!(await fs.pathExists(tempZip))) {
-		await downloadFile(PATH_ED_URL, tempZip);
+	if (!(await fs.pathExists(tempExe))) {
+		await downloadFile(downloadURL, tempExe);
 	}
-
-	const zip = new AdmZip(tempZip);
-	zip.getEntries().forEach((entry) => {
-		console.log(`[DEBUG]: "PathEd.zip" entry name`, entry.entryName);
-	});
-
-	zip.extractAllTo(tempDir, true);
+	
 	await fs.rename(tempExe, targetPath);
 
-	console.log(`[INFO]: "PathEd.exe" unzip finished`);
+	console.log(`[INFO]: "envpath.exe" move finished`);
 }
 
 async function run() {
@@ -155,8 +148,8 @@ async function run() {
 			await Promise.all([
 				// download `temp.cmd` file
 				downlloadCmd(path.join(resDir, 'temp.cmd')),
-				// download `PathEd.exe` file
-				downlloadPathEd(path.join(resDir, 'PathEd.exe')),
+				// download `envpath.exe` file
+				downlloadEnvPath(path.join(resDir, 'envpath.exe')),
 			]);
 		}
 	} catch (err) {

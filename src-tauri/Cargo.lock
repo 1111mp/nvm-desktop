@@ -2711,6 +2711,7 @@ dependencies = [
  "get-node",
  "log",
  "once_cell",
+ "open",
  "openssl",
  "parking_lot",
  "serde",

@@ -127,5 +127,8 @@
 	"Input-To-Search": "input to search",
 	"Proxy": "Proxy",
 	"Enabled": "Enabled",
-	"Disabled": "Disabled"
+	"Disabled": "Disabled",
+	"Filter": "Filter",
+	"View": "View",
+	"Toggle-Columns": "Toggle Columns"
 }

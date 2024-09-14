@@ -125,6 +125,14 @@ impl Tray {
             .items(&sub_items_refs)
             .separator()
             .items(&[
+                &SubmenuBuilder::with_id(app_handle, "open_dirs", t!("Open Dir", "打开目录"))
+                    .items(&[
+                        &MenuItemBuilder::with_id("open_data_dir", t!("Data Dir", "数据目录"))
+                            .build(app_handle)?,
+                        &MenuItemBuilder::with_id("open_logs_dir", t!("Logs Dir", "日志目录"))
+                            .build(app_handle)?,
+                    ])
+                    .build()?,
                 &PredefinedMenuItem::about(
                     app_handle,
                     Some(t!("About NVM-Desktop", "关于 NVM-Desktop")),
@@ -189,6 +197,8 @@ impl Tray {
                 let _ = resolve::create_window(app_handle);
             }
             "quit" => cmds::exit_app(app_handle.clone()),
+            "open_data_dir" => crate::log_err!(cmds::open_data_dir()),
+            "open_logs_dir" => crate::log_err!(cmds::open_logs_dir()),
             id if id.contains("_version_") => Tray::handle_version_change(id),
             id if id.contains("_group_") => Tray::handle_group_change(id),
             _ => {}

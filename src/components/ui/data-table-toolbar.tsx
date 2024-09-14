@@ -18,9 +18,15 @@ interface DataTableToolbarProps<TData> {
 	options?: Options;
 }
 
+const FILTER_NAME_FIELD: Record<string, string> = {
+	Version: 'version',
+	'Project-Name': 'name',
+	'Group-Name': 'name',
+};
+
 export function DataTableToolbar<TData>({
 	table,
-	filterName = 'version',
+	filterName = 'Version',
 	status = true,
 	options = [],
 }: DataTableToolbarProps<TData>) {
@@ -32,12 +38,16 @@ export function DataTableToolbar<TData>({
 		<div className="flex flex-1 items-center justify-between p-[1px]">
 			<div className="flex flex-1 items-center space-x-2">
 				<Input
-					placeholder={`Filter ${filterName}...`}
+					placeholder={`${t('Filter')} ${t(filterName)}`}
 					value={
-						(table.getColumn(filterName)?.getFilterValue() as string) ?? ''
+						(table
+							.getColumn(FILTER_NAME_FIELD[filterName])
+							?.getFilterValue() as string) ?? ''
 					}
 					onChange={(event) =>
-						table.getColumn(filterName)?.setFilterValue(event.target.value)
+						table
+							.getColumn(FILTER_NAME_FIELD[filterName])
+							?.setFilterValue(event.target.value)
 					}
 					className="h-7 w-[180px]"
 				/>

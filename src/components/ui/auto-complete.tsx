@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
 	Command,
 	CommandInput,
@@ -34,8 +34,10 @@ const AutoComplete: React.FC<AutoCompleteProps> = memo(
 	}) => {
 		const [open, setOpen] = useState<boolean>(false);
 		const [value, setValue] = useState<string>(valueProp);
+		const [position, setPosition] = useState<'top' | 'bottom'>('bottom');
 
 		const input = useRef<HTMLInputElement>(null);
+		const dropdown = useRef<HTMLDivElement>(null);
 		const { t } = useTranslation();
 
 		const onKeyDown = useCallback(
@@ -80,6 +82,30 @@ const AutoComplete: React.FC<AutoCompleteProps> = memo(
 			[onChange]
 		);
 
+		const updatePosition = useCallback(() => {
+			if (input.current && dropdown.current) {
+				const inputRect = input.current.getBoundingClientRect();
+				const dropdownRect = dropdown.current.getBoundingClientRect();
+				const windowHeight = window.innerHeight;
+				const spaceBelow = windowHeight - inputRect.bottom;
+				const spaceAbove = inputRect.top;
+
+				if (spaceBelow < dropdownRect.height && spaceAbove > spaceBelow) {
+					setPosition('top');
+				} else {
+					setPosition('bottom');
+				}
+			}
+		}, []);
+
+		useEffect(() => {
+			if (open) {
+				setTimeout(() => {
+					updatePosition();
+				});
+			}
+		}, [open, updatePosition]);
+
 		return (
 			<Command
 				shouldFilter={shouldFilter}
@@ -96,16 +122,25 @@ const AutoComplete: React.FC<AutoCompleteProps> = memo(
 					onValueChange={onValueChange}
 				/>
 				<div className="relative mt-1">
-					<div className="w-full absolute top-0 overflow-hidden">
+					<div
+						ref={dropdown}
+						className={`w-full absolute ${
+							position === 'bottom' ? 'top-0' : 'bottom-11'
+						} `}
+					>
 						<CommandList>
 							<AnimatePresence>
 								{open && (
 									<motion.div
 										key="auto-complete-content"
-										className="w-full max-h-56 rounded-md border bg-popover text-popover-foreground [overflow:overlay] shadow-md"
-										initial={{ opacity: 0, translateY: -8 }}
-										animate={{ opacity: 1, translateY: 0 }}
-										exit={{ opacity: 0, translateY: -8 }}
+										className="w-full max-h-56 rounded-md border bg-popover text-popover-foreground [overflow:overlay] shadow-lg"
+										initial={{
+											opacity: 0,
+										}}
+										animate={{ opacity: 1 }}
+										exit={{
+											opacity: 0,
+										}}
 										transition={{ duration: 0.3 }}
 									>
 										<CommandEmpty>No results found.</CommandEmpty>

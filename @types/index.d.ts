@@ -1,5 +1,4 @@
 import { Closer, Themes } from 'types';
-// import type { UpdateInfo as ElectronUpdateInfo } from "electron-updater";
 
 type Platform =
 	| 'aix'

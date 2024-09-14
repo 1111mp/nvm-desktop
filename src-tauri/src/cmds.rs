@@ -4,7 +4,9 @@ use std::path::PathBuf;
 use crate::{
     config::{Config, Group, ISettings, NVersion, Project},
     core::{configration, group, handle, node, project},
-    ret_err, wrap_err,
+    ret_err,
+    utils::dirs,
+    wrap_err,
 };
 
 type CmdResult<T = ()> = Result<T, String>;
@@ -153,6 +155,26 @@ pub async fn configration_import(
     sync: bool,
 ) -> CmdResult<Option<configration::ConfigrationImport>> {
     wrap_err!(configration::configration_import(&app_handle, sync).await)
+}
+
+/// open data dir `.nvmd`
+#[tauri::command]
+pub fn open_data_dir() -> CmdResult<()> {
+    let data_dir: PathBuf = wrap_err!(dirs::nvmd_home_dir())?;
+    wrap_err!(open::that(data_dir))
+}
+
+/// open logs dir
+#[tauri::command]
+pub fn open_logs_dir() -> CmdResult<()> {
+    let logs_dir: PathBuf = wrap_err!(dirs::app_logs_dir())?;
+    wrap_err!(open::that(logs_dir))
+}
+
+/// open project dir with the File Explorer
+#[tauri::command]
+pub fn open_dir(dir: String) -> CmdResult<()> {
+    wrap_err!(open::that(dir))
 }
 
 /// restart app

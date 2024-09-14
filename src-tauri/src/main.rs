@@ -60,6 +60,7 @@ fn main() -> tauri::Result<()> {
             cmds::update_projects,
             cmds::sync_project_version,
             cmds::batch_update_project_version,
+						cmds::open_dir,
             // groups
             cmds::group_list,
             cmds::update_groups,

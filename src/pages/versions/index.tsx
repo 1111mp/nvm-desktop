@@ -48,55 +48,20 @@ dayjs.extend(localizedFormat);
 
 type VersionsResult = [string, Nvmd.Versions, Array<string>];
 
-export async function loader(): Promise<unknown> {
-	try {
-		const versions = Promise.all([
-			vCurrent(),
-			versionList(),
-			installedList(),
-		]).catch((_err) => {
-			return [[], [], ''];
-		});
+export async function loader() {
+	const versions = await Promise.all([
+		vCurrent(),
+		versionList(),
+		installedList(),
+	]).catch((_err) => {
+		return [[], [], ''];
+	});
 
-		return defer({ versions: versions });
-	} catch (err) {
-		return defer({ versions: ['', [], []] });
-	}
+	return versions;
 }
 
-export function VersionsRoute() {
-	const data = useLoaderData() as { versions: VersionsResult };
-
-	return (
-		<Suspense
-			fallback={
-				<div className="space-y-2">
-					<div className="flex items-center justify-between">
-						<Skeleton className="h-8 w-40" />
-						<div className="flex items-center gap-2">
-							<Skeleton className="h-8 w-40" />
-							<Skeleton className="h-8 w-40" />
-						</div>
-					</div>
-					<div className="space-y-2">
-						<Skeleton className="h-6 w-full" />
-						<Skeleton className="h-6 w-full" />
-						<Skeleton className="h-6 w-full" />
-						<Skeleton className="h-6 w-[400px]" />
-					</div>
-				</div>
-			}
-		>
-			<Await resolve={data.versions}>
-				<Versions />
-			</Await>
-		</Suspense>
-	);
-}
-
-const Versions: React.FC = () => {
-	const versionsData = useAsyncValue() as VersionsResult;
-
+export const Versions: React.FC = () => {
+	const versionsData = useLoaderData() as VersionsResult;
 	const [currentVersion, allVersions, allInstalledVersions] = versionsData;
 
 	const [current, setCurrent] = useState<string>(() => currentVersion);
@@ -110,7 +75,7 @@ const Versions: React.FC = () => {
 	const modal = useRef<ModalRef>(null);
 
 	const { settings } = useAppContext();
-	const { directory, locale } = settings;
+	const { directory } = settings;
 	const { t } = useTranslation();
 
 	useEffect(() => {
@@ -198,6 +163,9 @@ const Versions: React.FC = () => {
 						title={`V8 ${t('Version')}`}
 					/>
 				),
+				meta: {
+					label: `V8 ${t('Version')}`,
+				},
 				enableSorting: false,
 			},
 			{
@@ -208,6 +176,9 @@ const Versions: React.FC = () => {
 						title={`NPM ${t('Version')}`}
 					/>
 				),
+				meta: {
+					label: `NPM ${t('Version')}`,
+				},
 				enableSorting: false,
 			},
 			{
@@ -218,11 +189,17 @@ const Versions: React.FC = () => {
 						title={t('Release-Date')}
 					/>
 				),
+				meta: {
+					label: t('Release-Date'),
+				},
 				cell: ({ row }) => dayjs(row.original.date).format('ll'),
 			},
 			{
 				accessorKey: 'status',
 				header: t('Status'),
+				meta: {
+					label: t('Status'),
+				},
 				enableSorting: false,
 				filterFn: (row, _columnId, filterValue: string[]) => {
 					const { version, files } = row.original;
@@ -342,7 +319,7 @@ const Versions: React.FC = () => {
 				},
 			},
 		];
-	}, [locale, current, installedVersions.length, versions.length]);
+	}, [t, current, installedVersions.length, versions.length]);
 
 	const statuses = useMemo(
 		() => [
@@ -362,7 +339,7 @@ const Versions: React.FC = () => {
 				icon: CrossCircledIcon,
 			},
 		],
-		[locale]
+		[t]
 	);
 
 	const getFacetedUniqueValues: () => (

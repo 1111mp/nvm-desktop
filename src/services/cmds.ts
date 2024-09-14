@@ -168,10 +168,24 @@ export function configrationExport(
 	return invoke<void>('configration_export', { outputPath, configration });
 }
 
+/**
+ * @description: Import configration data.
+ * @param {boolean} sync Is need to sync `.nvmdrc` file content for projects
+ * @returns {Promise<Nvmd.ConfigrationImport | undefined>}
+ */
 export function configrationImport(sync: boolean = false) {
 	return invoke<Nvmd.ConfigrationImport | undefined>('configration_import', {
 		sync,
 	});
+}
+
+/**
+ * @description: Open dir with the File Explorer.
+ * @param {string} dir
+ * @returns {Promise<void>}
+ */
+export function openDir(dir: string) {
+	return invoke<void>('open_dir', { dir });
 }
 
 /**

@@ -1,6 +1,6 @@
 use anyhow::Result;
 use dirs::home_dir;
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
 use tauri::Manager;
 
 use crate::core::handle;
@@ -52,7 +52,13 @@ pub fn version_list_path() -> Result<PathBuf> {
 /// get the default install directory
 pub fn default_install_dir() -> PathBuf {
     match nvmd_home_dir() {
-        Ok(home_dir) => home_dir.join("versions"),
+        Ok(home_dir) => {
+            let install_dir = home_dir.join("versions");
+            if !install_dir.exists() {
+                let _ = fs::create_dir_all(&install_dir);
+            }
+            install_dir
+        }
         Err(_) => PathBuf::from(""),
     }
 }

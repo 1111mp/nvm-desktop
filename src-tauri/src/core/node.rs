@@ -41,10 +41,10 @@ pub fn get_current(fetch: Option<bool>) -> Result<Option<String>> {
     }
 
     // sync from `default`
-    Config::node().latest().sync_current()?;
+    Config::node().draft().sync_current()?;
     Config::node().apply();
 
-    Ok(Config::node().data().get_current())
+    Ok(Config::node().latest().get_current())
 }
 
 /// Set the current node version
@@ -154,8 +154,8 @@ pub async fn get_installed_list(fetch: Option<bool>) -> Result<Option<Vec<String
     });
 
     // update installed
+    Config::node().draft().update_installed(&versions)?;
     Config::node().apply();
-    Config::node().data().update_installed(&versions)?;
 
     // update system tray
     if list.len() != versions.len() {

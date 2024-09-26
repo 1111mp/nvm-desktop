@@ -4,7 +4,7 @@
 
 # Node Version Manager Desktop
 
-`nvm-desktop` 是一个以可视化界面操作方式管理多个 Node 版本的桌面应用，使用 Electron 构建（支持 Macos 和 Windows 系统）。通过该应用，您可以快速安装和使用不同版本的 Node。
+`nvm-desktop` 是一个以可视化界面操作方式管理多个 Node 版本的桌面应用，使用 [Tauri](https://v2.tauri.app/) 构建（支持 `macOS`、`Windows` 以及 `Linux` 系统）。通过该应用，您可以快速安装、管理和使用不同版本的 Node。
 
 完美支持为不同的项目单独设置和切换 Node 版本，不依赖操作系统的任何特定功能和 shell。
 
@@ -25,7 +25,6 @@
 - [开发和构建](#开发和构建)
   - [开发](#开发)
   - [构建生产包](#构建生产包)
-  - [自动化测试](#自动化测试)
 - [管理您的项目](#管理您的项目)
 - [功能](#功能)
 - [MacOS 启动应用的问题: "File/App is damaged and cannot be opened. You should move it to Trash."](#MacOS启动应用的问题)
@@ -185,7 +184,7 @@ Please download new version of Node.js in nvm-desktop.
 
 - [nvmd-desktop 下载页面 (GitHub release)](https://github.com/1111mp/nvm-desktop/releases)
 
-应用程序的自动检查更新功能目前仅支持 Windows 平台。如果您是 Macos 用户，请务必检查[最新版本](https://github.com/1111mp/nvm-desktop/releases)以获得最佳体验。
+应用程序的自动检查更新功能从 `v4.0.0` 版本开始已支持全平台。
 
 ## 卸载
 
@@ -209,11 +208,11 @@ Please download new version of Node.js in nvm-desktop.
 
 - 卸载 `nvm-desktop` 应用程序
 - 删除 `%HOMEPATH%\.nvmd` 文件
-- 移除系统环境变量：`%HOMEPATH%\.nvmd\bin`
+- 移除系统环境变量：`%HOMEPATH%\.nvmd\bin`（从 `v4.0.0` 开始卸载时会自动移除）
 
 ## 开发和构建
 
-`nvm-desktop` 依赖 `nvmd-command` 提供智能识别正确 Node 引擎版本的功能，所以你需要在本地提前为 `nvm-desktop` 构建一个可执行文件。关于如何构建 `nvmd-command` 的可执行文件，请查看此文档： [build-nvmd-command](https://github.com/1111mp/nvmd-command#build-nvmd-command).
+`nvm-desktop` 依赖 `nvmd-command` 提供智能识别正确 Node 引擎版本的功能，所以你需要在本地提前为 `nvm-desktop` 构建一个可执行文件。关于如何构建 `nvmd-command` 的可执行文件，请查看此文档： [build-nvmd-command](https://github.com/1111mp/nvmd-command#build-nvmd-command)。
 
 - 首先提前为 `nvm-desktop` 构建一个可执行文件
 - 将这个可执行文件复制到 `nvm-desktop` 的指定目录下：
@@ -228,32 +227,23 @@ Please download new version of Node.js in nvm-desktop.
 
 然后你就可以开始在本地运行和构建 `nvm-desktop` 了。
 
+从 `v4.0.0` 版本开始，已经迁移到 `tauri`，所以已经不需要上述操作了，直接运行 `pnpm check` 命令即可。
+
 ### 开发
 
-- 确保你本地已经安装过 [Node.js](https://nodejs.org/) 了
-- 去到项目的根目录，然后在终端运行：`npm install` 或者 `yarn install` 命令为项目安装依赖
+- 首先，你应该在本地安装 `Rust` 运行环境。请阅读官方指南：[rust get started](https://www.rust-lang.org/learn/get-started)
+- 其次，确保你本地已经安装过 [Node.js](https://nodejs.org/) 了
+- 去到项目的根目录，然后在终端运行：`pnpm install` 命令为项目安装依赖
 
 有两种方式启动开发服务器：
 
-- 使用 `npm run start` 或者 `yarn start` 命令
+- 使用 `pnpm dev` 命令
 - `F5` 按键一键启动（Debug 模式）
 
 ### 构建生产包
 
-- 项目使用的是 [electron-builder](https://www.electron.build/index.html) 构建生产包
 - 去到项目根目录
-- 执行 `npm run package` 或者 `yarn run package` 命令， 如果一切工作都正常运行的话，你可以在 `./release/build` 目录下找到构建好的包文件
-
-> 请检查 `.yarnrc` 文件， 将其更改为适合你所在区域的镜像地址
-
-### 自动化测试
-
-1. 首先，您应该通过 `npm run package:test` 或 `yarn package:test` 命令构建二进制启动文件以进行测试
-2. 然后执行 `npm run test` 或者 `yarn test` 命令开始自动化测试
-
-项目使用的自动化测试的库： [WebdriverIO](https://webdriver.io/)
-
-关于 Electron 中的自动化测试文档请查看：[wdio-electron-service](https://webdriver.io/docs/desktop-testing/electron)
+- 执行 `pnpm build` 命令， 如果一切工作都正常运行的话，你可以在 `./src-tauri/target/release/bundle` 目录下找到构建好的包文件
 
 ## 管理您的项目
 
@@ -273,8 +263,7 @@ Please download new version of Node.js in nvm-desktop.
 - [x] 管理Node的命令行工具
 - [x] 支持英文和简体中文
 - [x] 支持自定义下载镜像地址 (默认是 https://nodejs.org/dist)
-- [x] Windows 平台支持自动检查更新
-- [x] 完整的自动化测试
+- [x] 自动检查更新
 
 ### MacOS启动应用的问题
 

@@ -4,7 +4,7 @@
 
 # Node Version Manager Desktop
 
-`nvm-desktop` is a desktop application to manage multiple active Node.js versions. With this applications, you can quickly install and use different versions of Node.js.
+`nvm-desktop` is a desktop application that manages multiple Node versions in a visual interface. It is built with [Tauri](https://v2.tauri.app/) (supports `macOS`, `Windows` and `Linux` platform). With this application, you can quickly install, manage and use different versions of Node.
 
 **Now you can set the Node.js version for your project individually**.
 
@@ -25,7 +25,6 @@ English | [简体中文](https://github.com/1111mp/nvm-desktop/blob/main/README-
 - [Develop and Build](#develop-and-build)
   - [Development](#development)
   - [Build and Package](#build-and-package)
-  - [Automated Test](#automated-test)
 - [Managing your project](#managing-your-project)
 - [Features](#features)
 - [MacOS issues: "File/App is damaged and cannot be opened. You should move it to Trash."](#macos-issues)
@@ -185,7 +184,7 @@ You can download the source code and build it yourself, or download the built ve
 
 - [nvmd-desktop Download Page (GitHub release)](https://github.com/1111mp/nvm-desktop/releases)
 
-The automatic update function of the application is currently only supported on the Windows platform. If you are a macOS user please always check the [latest version](https://github.com/1111mp/nvm-desktop/releases) for the best experience.
+The automatic check for updates feature of the application has supported all platforms since version `v4.0.0`.
 
 ## Uninstall
 
@@ -211,7 +210,7 @@ The automatic update function of the application is currently only supported on 
 
 - Uninstall `nvm-desktop` application
 - Remove `%HOMEPATH%\.nvmd` folder
-- Remove environment variables from your system: `%HOMEPATH%\.nvmd\bin`
+- Remove environment variables from your system: `%HOMEPATH%\.nvmd\bin` (will be automatically removed when uninstalling from `v4.0.0`)
 
 ## Develop and Build
 
@@ -230,32 +229,23 @@ The automatic update function of the application is currently only supported on 
 
 Then you can start running and building `nvm-desktop` locally.
 
+Since version `v4.0.0`, we have migrated to `tauri`, so the above operation is no longer necessary. You can directly run the `pnpm check` command.
+
 ### Development
 
-- Make sure your computer has [Node.js](https://nodejs.org/) installed
-- Change to the folder ./, run `npm install` or `yarn install` to install dependented libraries
+- First, you should have a Rust runtime installed locally. Please read the official guide: [rust get started](https://www.rust-lang.org/learn/get-started)
+- Then, make sure your computer has [Node.js](https://nodejs.org/) installed
+- Change to the `"./"` folder, run `pnpm install` to install dependented libraries
 
 There are two ways to start the development server:
 
-- run `npm run start` or `yarn start`
+- run `pnpm dev`
 - `F5` one-button start (debug mode)
 
 ### Build and Package
 
-- It is recommended to use [electron-builder](https://www.electron.build/index.html) for packaging
 - Go to the ./ folder
-- Run `npm run package` or `yarn run package`, if everything goes well, the packaged files will be in the ./release/build folder.
-
-> Please check `.yarnrc` file for the correct mirror address of the installation dependencies
-
-### Automated Test
-
-1. First you should build the binary startup files for testing via `npm run package:test` or `yarn package:test`
-2. Then run `npm run test` or `yarn test` to start automated testing
-
-Automated testing framework: [WebdriverIO](https://webdriver.io/)
-
-About the Electron Testing can view documents: [wdio-electron-service](https://webdriver.io/docs/desktop-testing/electron)
+- Run `pnpm build`, if everything goes well, the packaged files will be in the `./src-tauri/target/release/bundle` folder.
 
 ## Managing your project
 
@@ -269,24 +259,13 @@ For more details, please check the [nvmd-command](https://github.com/1111mp/nvmd
 
 A file will be added to the root of the project: `.nvmdrc`, the content is the version number of Node you choose. `nvm-desktop` detects this file to identify the Node version for your project.
 
-If you are using `VS Code` and launch your project with `Debug`, then you should set `outputCapture` to `std` to see more log information in the `launch.json` file:
-
-```json
-{
-  // ...
-
-  "outputCapture": "std"
-},
-```
-
 ## Features
 
 - [x] Supports setting the Node engine version separately for the project.
 - [x] Command tools for manage the version of Node.
 - [x] Support English & Simplified Chinese
 - [x] Support for custom download mirrors (default is https://nodejs.org/dist)
-- [x] Support automatic update on Windows.
-- [x] Complete automated testing.
+- [x] Support automatic update.
 
 ### MacOS issues
 

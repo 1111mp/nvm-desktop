@@ -64,7 +64,8 @@ const getChecksumLines = async (version: string, fetchOpts: CheckOptions["fetchO
 
   const response = await fetchNodeWebsite(`v${version}/SHASUMS256.txt`, {
     mirror: fetchOpts.mirror,
-    signal: new AbortController().signal
+    signal: new AbortController().signal,
+    proxy: fetchOpts.proxy
   });
   response.once("error", (_err) => {
     // console.log(err);

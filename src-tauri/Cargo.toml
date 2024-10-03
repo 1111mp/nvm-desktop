@@ -12,7 +12,7 @@ tauri-build = { version = "2.0.0-rc", features = [] }
 
 [dependencies]
 anyhow = "1.0"
-dotenvy = "0.15.7"
+dotenvy = "0.15"
 dirs = "5.0"
 futures = "0.3"
 get-node = { path = "crates/get-node" }

@@ -47,15 +47,15 @@ pub async fn update_settings(settings: ISettings) -> CmdResult<()> {
     let locale = Config::settings().latest().get_locale();
     let directory = Config::settings().latest().get_directory();
 
+    wrap_err!({ Config::settings().latest().patch_settings(settings.clone()) });
     Config::settings().apply();
-    wrap_err!({ Config::settings().data().patch_settings(settings.clone()) });
 
     // refresh data when directory changes
     if directory != settings.directory {
         wrap_err!(node::get_installed_list(Some(true)).await);
     }
     // update system tray
-    if locale != settings.locale {
+    if locale != settings.locale || directory != settings.directory {
         wrap_err!(handle::Handle::update_systray_part());
     }
 

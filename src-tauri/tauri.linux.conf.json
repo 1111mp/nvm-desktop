@@ -1,47 +1,28 @@
 {
-	"$schema": "../node_modules/@tauri-apps/cli/schema.json",
-	"app": {
-		"trayIcon": {
-			"id": "main",
-			"iconPath": "icons/icon.png"
-		}
-	},
-	"bundle": {
-		"targets": [
-			"deb",
-			"rpm"
-		],
-		"linux": {
-			"deb": {
-				"depends": [
-					"openssl"
-				],
-				"desktopTemplate": "./templates/nvm-desktop.desktop",
-				"provides": [
-					"nvm-desktop"
-				],
-				"conflicts": [
-					"nvm-desktop"
-				],
-				"replaces": [
-					"nvm-desktop"
-				]
-			},
-			"rpm": {
-				"depends": [
-					"openssl"
-				],
-				"desktopTemplate": "./templates/nvm-desktop.desktop",
-				"provides": [
-					"nvm-desktop"
-				],
-				"conflicts": [
-					"nvm-desktop"
-				],
-				"obsoletes": [
-					"nvm-desktop"
-				]
-			}
-		}
-	}
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "app": {
+    "trayIcon": {
+      "id": "main",
+      "iconPath": "icons/icon.png"
+    }
+  },
+  "bundle": {
+    "targets": ["deb", "rpm"],
+    "linux": {
+      "deb": {
+        "depends": ["openssl"],
+        "desktopTemplate": "./templates/nvm-desktop.desktop",
+        "provides": ["nvm-desktop"],
+        "conflicts": ["nvm-desktop"],
+        "replaces": ["nvm-desktop"]
+      },
+      "rpm": {
+        "depends": ["openssl"],
+        "desktopTemplate": "./templates/nvm-desktop.desktop",
+        "provides": ["nvm-desktop"],
+        "conflicts": ["nvm-desktop"],
+        "obsoletes": ["nvm-desktop"]
+      }
+    }
+  }
 }

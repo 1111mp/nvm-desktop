@@ -31,9 +31,9 @@ English | [简体中文](https://github.com/1111mp/nvm-desktop/blob/main/README-
 
 ## Screenshot
 
-<img width="1036" alt="Screenshot 2024-02-02 at 23 17 57" src="https://github.com/1111mp/nvm-desktop/assets/31227919/b98e048b-c919-4ad6-9e37-bff06ba75c2f">
+<img width="1029" alt="Screenshot 2024-10-05 at 10 09 27" src="https://github.com/user-attachments/assets/1103871f-5e47-4f96-b71c-3805fdfd694f">
 
-<img width="1035" alt="Screenshot 2024-02-02 at 23 17 39" src="https://github.com/1111mp/nvm-desktop/assets/31227919/bcbedf11-bdf0-44e6-bad6-683b613caa17">
+<img width="1030" alt="Screenshot 2024-10-05 at 10 08 31" src="https://github.com/user-attachments/assets/d8005347-a671-4c25-a776-658b258fe06e">
 
 ## Maybe somethings you need to know
 

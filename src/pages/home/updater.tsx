@@ -125,7 +125,7 @@ export const Updater: React.FC = () => {
 	return (
 		<>
 			{percentage === void 0 ? (
-				<div className="relative">
+				<div className="relative flex">
 					<Button
 						size="sm"
 						variant="ghost"

@@ -133,6 +133,8 @@ impl Tray {
                             .build(app_handle)?,
                     ])
                     .build()?,
+                &MenuItemBuilder::with_id("open_dev_tools", t!("Open Dev Tools", "开发者工具"))
+                    .build(app_handle)?,
                 &PredefinedMenuItem::about(
                     app_handle,
                     Some(t!("About NVM-Desktop", "关于 NVM-Desktop")),
@@ -199,6 +201,11 @@ impl Tray {
             "quit" => cmds::exit_app(app_handle.clone()),
             "open_data_dir" => crate::log_err!(cmds::open_data_dir()),
             "open_logs_dir" => crate::log_err!(cmds::open_logs_dir()),
+            "open_dev_tools" => {
+                if let Some(window) = app_handle.get_webview_window("main") {
+                    window.open_devtools();
+                }
+            }
             id if id.contains("_version_") => Tray::handle_version_change(id),
             id if id.contains("_group_") => Tray::handle_group_change(id),
             _ => {}

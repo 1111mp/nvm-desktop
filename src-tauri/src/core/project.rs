@@ -23,7 +23,7 @@ pub async fn project_list(fetch: Option<bool>) -> Result<Option<Vec<Project>>> {
     let list = help::async_read_json::<Vec<Project>>(&path).await?;
 
     // update projects
-    Config::projects().latest().update_list(&list)?;
+    Config::projects().draft().update_list(&list)?;
     Config::projects().apply();
 
     Ok(Some(list))
@@ -65,8 +65,9 @@ pub async fn update_projects(list: Vec<Project>, path: Option<PathBuf>) -> Resul
         tokio::fs::remove_file(&path.join(".nvmdrc")).await?;
     }
 
+    Config::projects().draft().update_list(&list)?;
     Config::projects().apply();
-    Config::projects().data().update_and_save_list(list)?;
+    Config::projects().data().save_file()?;
 
     handle::Handle::update_systray_part()?;
 

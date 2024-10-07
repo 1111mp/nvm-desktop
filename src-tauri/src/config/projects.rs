@@ -64,12 +64,6 @@ impl IProjects {
         Ok(())
     }
 
-    /// update & save project list
-    pub fn update_and_save_list(&mut self, list: Vec<Project>) -> Result<()> {
-        self.list = Some(list);
-        self.save_file()
-    }
-
     /// update project version for system tray menu
     pub fn update_version(&mut self, name: &str, version: &str) -> Result<String> {
         let mut list = self.list.take().unwrap_or_default();

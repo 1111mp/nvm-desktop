@@ -129,13 +129,15 @@ pub async fn configration_import(
         let need_update_groups = !groups.is_empty();
         // update projects data
         if need_update_projects {
+            Config::projects().draft().update_list(&projects)?;
             Config::projects().apply();
-            Config::projects().data().update_and_save_list(projects)?;
+            Config::projects().data().save_file()?;
         }
         // update groups data
         if need_update_groups {
+            Config::groups().draft().update_list(&groups)?;
             Config::groups().apply();
-            Config::groups().data().update_groups(groups)?;
+            Config::groups().data().save_file()?;
         }
         // update system tray & notification page refresh data
         if need_update_projects || need_update_groups {

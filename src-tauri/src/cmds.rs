@@ -47,7 +47,7 @@ pub async fn update_settings(settings: ISettings) -> CmdResult<()> {
     let locale = Config::settings().latest().get_locale();
     let directory = Config::settings().latest().get_directory();
 
-    wrap_err!({ Config::settings().latest().patch_settings(settings.clone()) });
+    wrap_err!({ Config::settings().draft().patch_settings(settings.clone()) });
     Config::settings().apply();
 
     // refresh data when directory changes

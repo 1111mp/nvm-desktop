@@ -51,8 +51,8 @@ pub fn get_current(fetch: Option<bool>) -> Result<Option<String>> {
 pub async fn set_current(version: Option<String>) -> Result<()> {
     let version = version.as_deref().unwrap_or("");
 
+    Config::node().draft().update_current(version)?;
     Config::node().apply();
-    Config::node().data().update_current(version)?;
     Config::node().data().save_current()?;
 
     handle::Handle::update_systray_part()?;
@@ -109,8 +109,8 @@ pub async fn get_version_list(fetch: Option<bool>) -> Result<Option<Vec<NVersion
     .await?;
 
     // update list
+    Config::node().draft().update_list(&list)?;
     Config::node().apply();
-    Config::node().data().update_list(&list)?;
 
     Ok(Some(list))
 }

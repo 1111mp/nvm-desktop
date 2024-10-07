@@ -60,12 +60,6 @@ impl IGroups {
         Ok(())
     }
 
-    /// update groups list & save to local file
-    pub fn update_groups(&mut self, list: Vec<Group>) -> Result<()> {
-        self.list = Some(list);
-        self.save_file()
-    }
-
     /// update group version
     pub fn update_version(&mut self, name: String, version: String) -> Result<()> {
         let mut list = self.list.take().unwrap_or_default();

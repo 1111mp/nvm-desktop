@@ -17,16 +17,17 @@ pub async fn group_list(fetch: Option<bool>) -> Result<Option<Vec<Group>>> {
     let list = help::async_read_json::<Vec<Group>>(&path).await?;
 
     // update projects
+    Config::groups().draft().update_list(&list)?;
     Config::groups().apply();
-    Config::groups().data().update_list(&list)?;
 
     Ok(Some(list))
 }
 
 /// update groups & save
 pub async fn update_groups(list: Vec<Group>) -> Result<()> {
+    Config::groups().draft().update_list(&list)?;
     Config::groups().apply();
-    Config::groups().data().update_groups(list)?;
+    Config::groups().data().save_file()?;
 
     handle::Handle::update_systray_part()?;
 
@@ -35,7 +36,9 @@ pub async fn update_groups(list: Vec<Group>) -> Result<()> {
 
 /// update group version
 pub async fn update_group_version(name: String, version: String) -> Result<()> {
+    Config::groups().draft().update_version(name, version)?;
     Config::groups().apply();
-    Config::groups().data().update_version(name, version)?;
-    Config::groups().data().save_file()
+    Config::groups().data().save_file()?;
+
+    Ok(())
 }

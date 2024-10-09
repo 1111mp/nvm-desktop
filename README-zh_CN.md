@@ -27,13 +27,13 @@
   - [构建生产包](#构建生产包)
 - [管理您的项目](#管理您的项目)
 - [功能](#功能)
-- [MacOS 启动应用的问题: "File/App is damaged and cannot be opened. You should move it to Trash."](#MacOS启动应用的问题)
+- [MacOS 常见问题](#MacOS常见问题)
 
 ## 截图
 
-<img width="1036" alt="Screenshot 2024-02-02 at 23 17 57" src="https://github.com/1111mp/nvm-desktop/assets/31227919/b98e048b-c919-4ad6-9e37-bff06ba75c2f">
+<img width="1029" alt="Screenshot 2024-10-05 at 10 09 27" src="https://github.com/user-attachments/assets/1103871f-5e47-4f96-b71c-3805fdfd694f">
 
-<img width="1035" alt="Screenshot 2024-02-02 at 23 17 39" src="https://github.com/1111mp/nvm-desktop/assets/31227919/bcbedf11-bdf0-44e6-bad6-683b613caa17">
+<img width="1030" alt="Screenshot 2024-10-05 at 10 08 31" src="https://github.com/user-attachments/assets/d8005347-a671-4c25-a776-658b258fe06e">
 
 ## 一些或许你需要知道的事情
 
@@ -265,68 +265,18 @@ Please download new version of Node.js in nvm-desktop.
 - [x] 支持自定义下载镜像地址 (默认是 https://nodejs.org/dist)
 - [x] 自动检查更新
 
-### MacOS启动应用的问题
-
-由于没有Apple开发者帐户，因此无法在macOS平台上使用自动更新。 请始终检查[最新版本](https://github.com/1111mp/nvm-desktop/releases)以获得最佳体验。
+### MacOS常见问题
 
 > "File/App is damaged and cannot be opened. You should move it to Trash."
 
 > “文件/应用程序已损坏，无法打开。您应该将其移至废纸篓。”
 
-可查看这篇文章解决：[Fix 'File/App is damaged and cannot be opened' on Mac](https://iboysoft.com/news/app-is-damaged-and-cannot-be-opened.html#:~:text=If%20you%27re%20certain%20the%20file%20or%20app%20is,and%20selecting%20Open%20twice.%204%20Restart%20your%20Mac.)
+- 问题原因: 由于应用没有签名，所以可能会显示开发者无法验证或应用已损坏，需要授予开发者Apple Developer Program 会员资格。
+- 解决方案: 点击 `取消` 按钮，然后去 `系统偏好设置 -> 安全性与隐私` 页面，点击 `仍要打开` 按钮，然后在弹出窗口里点击 `打开` 按钮即可。如果你的系统版本较高，可能在 `安全性与隐私` 页面中找不到以上选项，或启动时提示文件损坏。打开终端，并执行下列命令进行授权。
+	```shell
+	sudo xattr -d com.apple.quarantine /Applications/NVM Desktop.app
+	```
 
-这是一个 Mac 错误，可能会发生在各种 Macos 版本上，例如 Macos Ventura/Monterey/Big Sur/Catalina，尤其是在 M1 Mac 上。 它通常发生在从网络下载的应用程序或文件上，但在打开从 App Store 下载的应用程序时也可能发生。
+> Apple 无法检查 App 是否包含恶意软件
 
-要修复 Ventura 或其他 macOS 版本上的“文件/应用程序已损坏且无法打开”，您需要决定是否要保留有问题的文件或应用程序。
-
-如果您在 macOS Ventura 上遇到“应用程序已损坏且无法打开”的情况，请执行以下步骤来修复它：
-
-1. 打开苹果菜单 > 系统设置
-2. 选择隐私和安全 > 开发者工具
-3. 单击 (+) 按钮并导航到损坏的应用程序所在的文件夹
-   ![WeChat68ceaf51af50a705d1cf9536d07cd2d3](https://github.com/1111mp/nvm-desktop/assets/31227919/612caeda-0ef8-4454-a742-4bb37220b975)
-4. 选择该应用程序并单击“打开”。
-
-如果您在 Big Sur/Monterey/Catalina 上打开应用程序时遇到“应用程序已损坏且无法打开”的情况，请尝试以下步骤：
-
-1. 打开苹果菜单 > 系统偏好设置
-2. 选择安全和隐私
-3. 点击黄色锁并输入密码以解锁首选项窗格
-4. 单击“仍然打开”
-   ![image](https://github.com/1111mp/nvm-desktop/assets/31227919/41ee3a65-bf34-437d-beea-03900704147b)
-
-#### 暂时禁用防火墙
-
-由于“应用程序/文件已损坏且无法打开”错误是由Mac的安全措施发送的，您可以暂时关闭Gatekeeper来修复它。 但建议在使用该软件后重新启用它来保护您的 Mac。
-
-以下是在 Mac 上打开损坏的应用程序的方法：
-
-1. 从应用程序文件夹启动终端
-2. 将以下命令复制并粘贴到终端中，然后按 Enter 键
-   ```
-   sudo spctl –master-disable
-   ```
-3. 输入您的管理员密码并按 Enter 键（密码不会出现在屏幕上）
-4. 输入以下命令并按 Enter 键，检查 Gatekeeper 的状态
-
-```
-spctl --status
-```
-
-5. 打开损坏的应用程序
-
-如果您想再次启用 Gatekeeper，可以重复上述过程，但将步骤 2 中的命令替换为 `sudo spctl –master-enable`。
-
-#### 删除损坏的文件或应用程序的扩展属性
-
-在 M1 或 Intel Mac 上修复“应用程序/文件已损坏且无法打开”的另一种方法是删除签署到您打开问题的文件或应用程序的隔离属性。
-
-1. 从应用程序文件夹中打开终端
-2. 输入以下命令并按 Enter 键
-
-```
-xattr -d com.apple.quarantine file_path
-```
-
-要执行此命令，请首先将 `xattr -d com.apple.quarantine` 复制并粘贴到终端，然后将文件或应用程序拖放到终端并按 Enter 键。
-![WeChatae77aab16d6d535b0b106128de0736f3](https://github.com/1111mp/nvm-desktop/assets/31227919/b9f804ca-1c8e-4bb2-9f6f-f43810c9ab70)
+- 解决方案: 详见 [macOS 使用手册](https://support.apple.com/zh-cn/guide/mac-help/mchleab3a043/mac)，并选择对应 mac 版本的文档。

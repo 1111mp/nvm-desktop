@@ -115,7 +115,7 @@ export const Modal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
 		setPath(undefined);
 		progress.current = undefined;
 		try {
-			const path = await installNode(record.current!.version.slice(1));
+			const path = await installNode(record.current!.version.slice(1), arch.current!.innerText);
 
 			progress.current = {
 				...progress.current!,

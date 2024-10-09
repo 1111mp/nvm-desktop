@@ -274,7 +274,7 @@ Please download new version of Node.js in nvm-desktop.
 - 问题原因: 由于应用没有签名，所以可能会显示开发者无法验证或应用已损坏，需要授予开发者Apple Developer Program 会员资格。
 - 解决方案: 点击 `取消` 按钮，然后去 `系统偏好设置 -> 安全性与隐私` 页面，点击 `仍要打开` 按钮，然后在弹出窗口里点击 `打开` 按钮即可。如果你的系统版本较高，可能在 `安全性与隐私` 页面中找不到以上选项，或启动时提示文件损坏。打开终端，并执行下列命令进行授权。
 	```shell
-	sudo xattr -d com.apple.quarantine /Applications/NVM Desktop.app
+	sudo xattr -d com.apple.quarantine /Applications/NVM\ Desktop.app
 	```
 
 > Apple 无法检查 App 是否包含恶意软件

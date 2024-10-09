@@ -274,7 +274,7 @@ A file will be added to the root of the project: `.nvmdrc`, the content is the v
 - Cause of the problem: Since the app is not signed, it may show that the developer cannot be verified or the app is damaged, and the developer needs to be granted Apple Developer Program membership.
 - Solution: Click the `Cancel` button, then go to the `System Preferences -> Security & Privacy` page, click the `Open Anyway` button, and then click the `Open` button in the pop-up window. If your system version is higher, you may not find the above options in the `Security & Privacy` page, or it may prompt that the file is damaged when you start it. Open the terminal and execute the following command to authorize.
 	```shell
-	sudo xattr -d com.apple.quarantine /Applications/NVM Desktop.app
+	sudo xattr -d com.apple.quarantine /Applications/NVM\ Desktop.app
 	```
 
 > Apple can’t check app for malicious software

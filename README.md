@@ -10,7 +10,7 @@
 
 The ability to intelligently identify the correct Node.js version is powered by [nvmd-command](https://github.com/1111mp/nvmd-command). It’s a single, fast native executable, with no external dependencies, build with Rust.
 
-English | [简体中文](https://github.com/1111mp/nvm-desktop/blob/main/README-zh_CN.md)
+English | [简体中文](https://github.com/1111mp/nvm-desktop/blob/tauri/README-zh_CN.md)
 
 ## Table of Contents
 

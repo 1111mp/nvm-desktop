@@ -10,7 +10,7 @@
 
 智能（快速）识别正确 Node 引擎版本的功能由另一个项目：[nvmd-command](https://github.com/1111mp/nvmd-command) 提供支持，它是一个单一、快速的本机可执行文件，没有外部依赖项，使用 Rust 构建。
 
-[English](https://github.com/1111mp/nvm-desktop/blob/main/README.md) | 简体中文
+[English](https://github.com/1111mp/nvm-desktop/blob/tauri/README.md) | 简体中文
 
 ## 目录
 

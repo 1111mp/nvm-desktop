@@ -72,8 +72,8 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: v__VERSION__-alpha
-          releaseName: 'NVM Desktop v__VERSION__-alpha'
+          tagName: alpha
+          releaseName: 'NVM Desktop Alpha'
           releaseBody: 'More new features are now supported.'
           releaseDraft: false
           prerelease: true
@@ -199,8 +199,8 @@ jobs:
       - name: Upload Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{env.VERSION}}-alpha
-          name: 'NVM Desktop v${{env.VERSION}}-alpha'
+          tag_name: alpha
+          name: 'NVM Desktop Alpha'
           body: 'More new features are now supported.'
           draft: false
           prerelease: true
@@ -277,8 +277,8 @@ jobs:
       - name: Upload Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{steps.build.outputs.appVersion}}-alpha
-          name: 'NVM Desktop v${{steps.build.outputs.appVersion}}-alpha'
+          tag_name: alpha
+          name: 'NVM Desktop Alpha'
           body: 'More new features are now supported.'
           draft: false
           prerelease: true
@@ -307,7 +307,7 @@ jobs:
       - name: Update Tag
         uses: richardsimko/update-tag@v1
         with:
-          tag_name: v${{ env.VERSION }}-alpha
+          tag_name: alpha
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -357,8 +357,8 @@ jobs:
       - name: Upload Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.VERSION }}-alpha
-          name: 'NVM Desktop v${{env.VERSION}}-alpha'
+          tag_name: alpha
+          name: 'NVM Desktop Alpha'
           body_path: release.txt
           draft: false
           prerelease: true

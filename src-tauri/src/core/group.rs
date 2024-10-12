@@ -1,6 +1,5 @@
 use crate::{
-    config::{Config, Group},
-    utils::{dirs, help},
+    config::{Config, Group}, log_err, utils::{dirs, help}
 };
 use anyhow::Result;
 
@@ -29,7 +28,7 @@ pub async fn update_groups(list: Vec<Group>) -> Result<()> {
     Config::groups().apply();
     Config::groups().data().save_file()?;
 
-    handle::Handle::update_systray_part()?;
+    log_err!(handle::Handle::update_systray_part());
 
     Ok(())
 }

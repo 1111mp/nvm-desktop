@@ -19,8 +19,8 @@ use version_compare::{compare, Cmp};
 use crate::{
     config::{Config, NVersion},
     core::handle,
+    log_err,
     utils::dirs,
-    wrap_err,
 };
 
 static CANCEL_SENDER: Lazy<Arc<Mutex<Option<watch::Sender<bool>>>>> =
@@ -55,7 +55,7 @@ pub async fn set_current(version: Option<String>) -> Result<()> {
     Config::node().apply();
     Config::node().data().save_current()?;
 
-    handle::Handle::update_systray_part()?;
+    log_err!(handle::Handle::update_systray_part());
 
     Ok(())
 }
@@ -64,12 +64,10 @@ pub async fn set_current(version: Option<String>) -> Result<()> {
 pub async fn update_current_from_menu(current: String) -> Result<()> {
     let ret = {
         Config::node().draft().update_current(&current)?;
-
-        wrap_err!(handle::Handle::update_systray_part_with_emit(
+        log_err!(handle::Handle::update_systray_part_with_emit(
             "call-current-update",
             &current
         ));
-
         <Result<()>>::Ok(())
     };
 
@@ -159,7 +157,7 @@ pub async fn get_installed_list(fetch: Option<bool>) -> Result<Option<Vec<String
 
     // update system tray
     if list.len() != versions.len() {
-        handle::Handle::update_systray_part()?;
+        log_err!(handle::Handle::update_systray_part());
     }
 
     Ok(Some(versions))

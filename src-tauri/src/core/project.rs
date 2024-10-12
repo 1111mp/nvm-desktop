@@ -69,7 +69,7 @@ pub async fn update_projects(list: Vec<Project>, path: Option<PathBuf>) -> Resul
     Config::projects().apply();
     Config::projects().data().save_file()?;
 
-    handle::Handle::update_systray_part()?;
+    log_err!(handle::Handle::update_systray_part());
 
     Ok(())
 }

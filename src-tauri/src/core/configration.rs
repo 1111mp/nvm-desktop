@@ -1,5 +1,5 @@
 use super::{handle, project::sync_project_version};
-use crate::config::{Config, Group, ISettings, Project};
+use crate::{config::{Config, Group, ISettings, Project}, log_err};
 use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
@@ -141,7 +141,7 @@ pub async fn configration_import(
         }
         // update system tray & notification page refresh data
         if need_update_projects || need_update_groups {
-            handle::Handle::update_systray_part()?;
+            log_err!(handle::Handle::update_systray_part());
             if let Some(window) = app_handle.get_webview_window("main") {
                 window.emit("call-projects-update", ())?;
             }

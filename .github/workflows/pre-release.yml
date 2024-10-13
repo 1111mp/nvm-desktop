@@ -21,7 +21,7 @@ jobs:
             target: aarch64-apple-darwin
           - os: macos-15
             target: x86_64-apple-darwin
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
 
     runs-on: ${{ matrix.os }}
@@ -42,7 +42,7 @@ jobs:
           cache-all-crates: true
 
       - name: Install dependencies (ubuntu only)
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
@@ -85,7 +85,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             target: aarch64-unknown-linux-gnu
     runs-on: ${{ matrix.os }}
     steps:
@@ -283,7 +283,7 @@ jobs:
 
   update_alpha_notes:
     name: Update alpha notes
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [alpha, alpha-for-linux-arm64, alpha-for-fixed-webview2]
     steps:
       - name: Checkout repository

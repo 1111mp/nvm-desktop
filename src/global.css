@@ -12,10 +12,11 @@ a {
 	-webkit-user-drag: none;
 }
 
-
 @layer base {
 	html {
-		font-family: sans-serif;
+		font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC',
+			'Hiragino Sans GB', 'Heiti SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
+			sans-serif;
 		font-weight: 300;
 		overflow: hidden;
 	}

@@ -43,8 +43,7 @@ tr.introjs-showElement > th {
   box-sizing: content-box;
 }
 .introjs-tooltipReferenceLayer {
-  font-family: "Helvetica Neue", Inter, ui-sans-serif, "Apple Color Emoji", Helvetica, Arial,
-    sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif; 
   box-sizing: content-box;
   position: absolute;
   visibility: hidden;
@@ -53,12 +52,10 @@ tr.introjs-showElement > th {
   transition: all 0.3s ease-out;
 }
 .introjs-tooltipReferenceLayer * {
-  font-family: "Helvetica Neue", Inter, ui-sans-serif, "Apple Color Emoji", Helvetica, Arial,
-    sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
 }
 .introjs-helperNumberLayer {
-  font-family: "Helvetica Neue", Inter, ui-sans-serif, "Apple Color Emoji", Helvetica, Arial,
-    sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
   color: #9e9e9e;
   text-align: center;
   padding-top: 10px;

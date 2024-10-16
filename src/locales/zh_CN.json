@@ -131,5 +131,6 @@
   "Filter": "过滤",
   "View": "视图",
   "Toggle-Columns": "切换列",
-  "Invalid-project-path": "无效的项目路径"
+  "Invalid-project-path": "无效的项目路径",
+	"Error-500": "抱歉，出了点问题。"
 }

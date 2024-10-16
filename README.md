@@ -27,7 +27,6 @@ English | [简体中文](https://github.com/1111mp/nvm-desktop/blob/tauri/README
   - [Build and Package](#build-and-package)
 - [Managing your project](#managing-your-project)
 - [Features](#features)
-- [MacOS issues](#macos-issues)
 
 ## Screenshot
 
@@ -267,16 +266,3 @@ A file will be added to the root of the project: `.nvmdrc`, the content is the v
 - [x] Support for custom download mirrors (default is https://nodejs.org/dist)
 - [x] Support automatic update.
 
-### MacOS issues
-
-> "File/App is damaged and cannot be opened. You should move it to Trash."
-
-- Cause of the problem: Since the app is not signed, it may show that the developer cannot be verified or the app is damaged, and the developer needs to be granted Apple Developer Program membership.
-- Solution: Click the `Cancel` button, then go to the `System Preferences -> Security & Privacy` page, click the `Open Anyway` button, and then click the `Open` button in the pop-up window. If your system version is higher, you may not find the above options in the `Security & Privacy` page, or it may prompt that the file is damaged when you start it. Open the terminal and execute the following command to authorize.
-	```shell
-	sudo xattr -d com.apple.quarantine /Applications/NVM\ Desktop.app
-	```
-
-> Apple can’t check app for malicious software
-
-- Solution: See the [macOS User Guide](https://support.apple.com/guide/mac-help/apple-cant-check-app-for-malicious-software-mchleab3a043/mac) for details and select the document corresponding to your Mac version.

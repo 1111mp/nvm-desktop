@@ -38,8 +38,8 @@ Label.displayName = LabelPrimitive.Root.displayName;
 
 const LabelCopyable = forwardRef<
 	React.ElementRef<typeof LabelPrimitive.Root>,
-	LabelProps
->(({ asChild, className, children, ...props }, ref) => {
+	LabelProps & { rootClassName?: string; title?: string }
+>(({ asChild, className, children, rootClassName, title, ...props }, ref) => {
 	const [open, setOpen] = useState<boolean>(false);
 	const [did, setDid] = useState<boolean>(false);
 
@@ -56,7 +56,9 @@ const LabelCopyable = forwardRef<
 	const Component = asChild ? Slot : 'span';
 
 	return (
-		<Component className="inline-block items-center space-x-1">
+		<Component
+			className={cn('inline-block items-center space-x-1', rootClassName)}
+		>
 			<>
 				<LabelPrimitive.Root
 					ref={ref}
@@ -68,10 +70,10 @@ const LabelCopyable = forwardRef<
 				<Tooltip open={open}>
 					<TooltipTrigger asChild>
 						<CopyIcon
-							className="inline-block text-primary cursor-pointer hover:opacity-70 active:opacity-80"
+							className='inline-block text-primary cursor-pointer hover:opacity-70 active:opacity-80'
 							onClick={(evt) => {
 								evt.stopPropagation();
-								copy(children as unknown as string);
+								copy((children as unknown as string) || title || '');
 								setDid(true);
 
 								timer.current && clearTimeout(timer.current);
@@ -88,7 +90,7 @@ const LabelCopyable = forwardRef<
 						/>
 					</TooltipTrigger>
 					<TooltipPortal>
-						<TooltipContent className="text-accent-foreground bg-accent">
+						<TooltipContent className='text-accent-foreground bg-accent'>
 							{did ? 'Copied' : 'Copy'}
 						</TooltipContent>
 					</TooltipPortal>

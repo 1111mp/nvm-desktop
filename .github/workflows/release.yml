@@ -349,7 +349,7 @@ jobs:
           cat > release.txt << 'EOF'
           ## Which version should I download?
 
-          ### MacOS (Prompts that the file is damaged or the developer cannot verify it. Please check [MacOS issues](https://github.com/1111mp/nvm-desktop?tab=readme-ov-file#macos-issues))
+          ### MacOS (Prompts that the file is damaged or the developer cannot verify it. Please check [FAQ](https://github.com/1111mp/nvm-desktop/issues/126))
           - MacOS Intel chip: x64.dmg
           - MacOS apple M chip: aarch64.dmg
 
@@ -369,7 +369,7 @@ jobs:
 
           ## 我应该下载哪个版本？
 
-          ### MacOS (提示文件损坏或开发者无法验证请查看 [MacOS issues](https://github.com/1111mp/nvm-desktop/blob/tauri/README-zh_CN.md#MacOS%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98))
+          ### MacOS (提示文件损坏或开发者无法验证请查看 [FAQ](https://github.com/1111mp/nvm-desktop/issues/126))
           - MacOS intel芯片: x64.dmg
           - MacOS apple M芯片: aarch64.dmg
 

@@ -147,7 +147,6 @@ export const Modal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
 
 	const onFinish = async () => {
 		if (asDefault) {
-			console.log(record.current!.version.slice(1));
 			await vSetCurrent(record.current!.version.slice(1));
 		}
 		onRefrresh();

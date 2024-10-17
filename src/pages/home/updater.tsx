@@ -49,7 +49,6 @@ export const Updater: React.FC = () => {
 		const checkUpdate = async () => {
 			try {
 				const update = await check();
-				console.log(update);
 				if (update) {
 					setUpdateInfo(update);
 				}

@@ -10,28 +10,39 @@ import { getCurrent } from '@/services/api';
 import { SystemTheme } from '@/types';
 
 export default function App({
-  settings,
-  sysTheme,
+	settings,
+	sysTheme,
 }: {
-  settings: Nvmd.Setting;
-  sysTheme: SystemTheme;
+	settings: Nvmd.Setting;
+	sysTheme: SystemTheme;
 }) {
-  useEffect(() => {
-    // open main webview window
-    setTimeout(() => {
-      const webviewWindow = getCurrent();
-      webviewWindow.unminimize();
-      webviewWindow.show();
-      webviewWindow.setFocus();
-    });
-  }, []);
+	useEffect(() => {
+		// open main webview window
+		setTimeout(() => {
+			const webviewWindow = getCurrent();
+			webviewWindow.unminimize();
+			webviewWindow.show();
+			webviewWindow.setFocus();
+		});
+	}, []);
 
-  return (
-    <AppProvider settings={settings} sysTheme={sysTheme}>
-      <TooltipProvider delayDuration={200}>
-        <RouterProvider router={router} />
-      </TooltipProvider>
-      <Toaster />
-    </AppProvider>
-  );
+	/// Disable right-click context menu
+	useEffect(() => {
+		const handleContextMenu = (e: MouseEvent) => {
+			e.preventDefault();
+		};
+		document.addEventListener('contextmenu', handleContextMenu);
+		return () => {
+			document.removeEventListener('contextmenu', handleContextMenu);
+		};
+	}, []);
+
+	return (
+		<AppProvider settings={settings} sysTheme={sysTheme}>
+			<TooltipProvider delayDuration={200}>
+				<RouterProvider router={router} />
+			</TooltipProvider>
+			<Toaster />
+		</AppProvider>
+	);
 }

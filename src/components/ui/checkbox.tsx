@@ -17,7 +17,7 @@ const Checkbox = forwardRef<
 		{...props}
 	>
 		<Indicator className={cn('flex items-center justify-center text-current')}>
-			<CheckIcon className="h-4 w-4" />
+			<CheckIcon className='h-3 w-4' />
 		</Indicator>
 	</Root>
 ));

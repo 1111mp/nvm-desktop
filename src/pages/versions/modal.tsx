@@ -13,6 +13,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 	Button,
+	Checkbox,
 	Label,
 	LabelCopyable,
 	Progress,
@@ -27,7 +28,7 @@ import {
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { getCurrent } from '@/services/api';
-import { installNode, installNodeCancel } from '@/services/cmds';
+import { installNode, installNodeCancel, vSetCurrent } from '@/services/cmds';
 
 export type Ref = {
 	show: (data: Nvmd.Version) => void;
@@ -41,6 +42,7 @@ const archs = ['arm64', 'x64', 'x86'];
 
 export const Modal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
 	const [open, setOpen] = useState<boolean>(false);
+	const [asDefault, setAsDefault] = useState<boolean>(true);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [path, setPath] = useState<string>();
 	const [, updater] = useState<number>(0);
@@ -115,7 +117,10 @@ export const Modal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
 		setPath(undefined);
 		progress.current = undefined;
 		try {
-			const path = await installNode(record.current!.version.slice(1), arch.current!.innerText);
+			const path = await installNode(
+				record.current!.version.slice(1),
+				arch.current!.innerText
+			);
 
 			progress.current = {
 				...progress.current!,
@@ -140,59 +145,72 @@ export const Modal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
 		}
 	};
 
+	const onFinish = async () => {
+		if (asDefault) {
+			console.log(record.current!.version.slice(1));
+			await vSetCurrent(record.current!.version.slice(1));
+		}
+		onRefrresh();
+		setOpen(false);
+		setTimeout(() => {
+			reset();
+		});
+	};
+
 	const reset = () => {
 		record.current = undefined;
 		progress.current = undefined;
 		archOption.current = archs;
 		setPath(undefined);
+		setAsDefault(true);
 	};
 
 	return (
 		<AlertDialog open={open}>
-			<AlertDialogContent className="top-1/3">
+			<AlertDialogContent className='top-1/3'>
 				<AlertDialogHeader>
 					<AlertDialogTitle>{t('Version-Manager')}</AlertDialogTitle>
 					<AlertDialogDescription asChild>
-						<div className="space-y-2">
-							<div className="columns-2">
-								<p className="space-x-2">
+						<div className='space-y-2'>
+							<div className='columns-2'>
+								<p className='space-x-2'>
 									<Label>{t('Version')}</Label>
-									<Label className="text-foreground">
+									<Label className='text-foreground'>
 										{record.current?.version}
 									</Label>
 								</p>
-								<p className="space-x-2">
+								<p className='space-x-2'>
 									<Label>{`NPM ${t('Version')}`}</Label>
-									<Label className="text-foreground">
+									<Label className='text-foreground'>
 										{record.current?.npm}
 									</Label>
 								</p>
 							</div>
-							<div className="flex items-center h-5">
+							<div className='flex items-center h-5'>
 								{progress.current ? (
-									<div className="flex flex-1 items-center space-x-2">
+									<div className='flex flex-1 items-center space-x-2'>
 										<Progress
 											value={
 												(progress.current.transferred /
 													progress.current.total) *
 												100
 											}
-											className="max-w-60"
+											className='max-w-60'
 										/>
 										{progress.current.source === 'unzip' ? (
-											<Label>解压中...</Label>
+											<Label>{t('Unzipping')}...</Label>
 										) : (
 											<Label>{`${progress.current.transferred} / ${progress.current.total} B`}</Label>
 										)}
 									</div>
 								) : (
-									<p className="flex-1">{t('Install-Tip')}</p>
+									<p className='flex-1'>{t('Install-Tip')}</p>
 								)}
 							</div>
 							{path && path !== 'error' ? (
-								<div className="flex items-center gap-2">
-									<Label>Installation Directory</Label>
-									<LabelCopyable className="text-foreground">
+								<div className='flex items-center gap-2'>
+									<Label>{t('Installation-Directory')}</Label>
+									<LabelCopyable className='text-foreground'>
 										{path}
 									</LabelCopyable>
 								</div>
@@ -200,10 +218,10 @@ export const Modal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
 						</div>
 					</AlertDialogDescription>
 				</AlertDialogHeader>
-				<AlertDialogFooter className="sm:justify-between">
-					<p className="flex items-center space-x-2">
+				<AlertDialogFooter className='sm:justify-between items-end'>
+					<div className='flex flex-col gap-3'>
 						<Select disabled={loading} defaultValue={systemArch}>
-							<SelectTrigger className="w-24 h-6">
+							<SelectTrigger className='w-24 h-6'>
 								<SelectValue ref={arch} />
 							</SelectTrigger>
 							<SelectContent>
@@ -216,15 +234,32 @@ export const Modal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
 								</SelectGroup>
 							</SelectContent>
 						</Select>
-					</p>
-					<div className="flex items-center space-x-2">
+						<div className='h-6 items-top flex items-center space-x-2'>
+							<Checkbox
+								id='as-default'
+								checked={asDefault}
+								onCheckedChange={(checked) => {
+									setAsDefault(checked as boolean);
+								}}
+							/>
+							<div className='grid gap-1.5 leading-none'>
+								<label
+									htmlFor='as-default'
+									className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
+								>
+									{t("Set-as-default")}
+								</label>
+							</div>
+						</div>
+					</div>
+					<div className='flex items-center space-x-2'>
 						{path && path !== 'error' ? null : loading ? (
-							<Button variant="destructive" onClick={onAbort}>
+							<Button variant='destructive' onClick={onAbort}>
 								{t('Cancel')}
 							</Button>
 						) : (
 							<Button
-								variant="secondary"
+								variant='secondary'
 								onClick={() => {
 									setOpen(false);
 									setTimeout(() => {
@@ -236,16 +271,7 @@ export const Modal = forwardRef<Ref, Props>(({ onRefrresh }, ref) => {
 							</Button>
 						)}
 						{path && path !== 'error' ? (
-							<Button
-								loading={loading}
-								onClick={() => {
-									onRefrresh();
-									setOpen(false);
-									setTimeout(() => {
-										reset();
-									});
-								}}
-							>
+							<Button loading={loading} onClick={onFinish}>
 								{t('OK')}
 							</Button>
 						) : (

@@ -132,5 +132,7 @@
   "View": "视图",
   "Toggle-Columns": "切换列",
   "Invalid-project-path": "无效的项目路径",
-	"Error-500": "抱歉，出了点问题。"
+	"Error-500": "抱歉，出了点问题。",
+	"Unzipping": "解压中",
+	"Set-as-default": "设置为默认版本"
 }

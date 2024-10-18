@@ -277,7 +277,7 @@ export const Component: React.FC = () => {
                   {t('Remove')}
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className='top-1/3'>
                 <AlertDialogHeader>
                   <AlertDialogTitle>{name}</AlertDialogTitle>
                   <AlertDialogDescription>

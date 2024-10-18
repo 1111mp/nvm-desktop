@@ -130,7 +130,7 @@ export const Component: React.FC = () => {
 				cell: ({ getValue }) => {
 					const desc = getValue() as string;
 					return (
-						<span className="max-w-52 inline-block truncate" title={desc}>
+						<span className='max-w-52 inline-block truncate' title={desc}>
 							{desc}
 						</span>
 					);
@@ -166,7 +166,7 @@ export const Component: React.FC = () => {
 								}
 							}}
 						>
-							<SelectTrigger className="h-6">
+							<SelectTrigger className='h-6'>
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
@@ -255,7 +255,7 @@ export const Component: React.FC = () => {
 								setGroups(newGroups);
 							}}
 						>
-							<MultiSelectTrigger className="h-6">
+							<MultiSelectTrigger className='h-6'>
 								<MultiSelectValue maxDisplay={2} maxItemLength={5} />
 							</MultiSelectTrigger>
 							<MultiSelectContent>
@@ -284,12 +284,12 @@ export const Component: React.FC = () => {
 					return (
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<Button size="sm" variant="tag">
+								<Button size='sm' variant='tag'>
 									<TrashIcon />
 									{t('Remove')}
 								</Button>
 							</AlertDialogTrigger>
-							<AlertDialogContent>
+							<AlertDialogContent className='top-1/3'>
 								<AlertDialogHeader>
 									<AlertDialogTitle>{name}</AlertDialogTitle>
 									<AlertDialogDescription>
@@ -431,24 +431,24 @@ export const Component: React.FC = () => {
 
 	return (
 		<DndProvider backend={HTML5Backend}>
-			<div className="h-full flex flex-col space-y-2">
+			<div className='h-full flex flex-col space-y-2'>
 				<DataDndTable
-					key="page-groups-table"
+					key='page-groups-table'
 					columns={columns}
 					data={groups}
 					loading={loading}
 					toolbar={(table) => (
-						<div className="flex items-center gap-2">
+						<div className='flex items-center gap-2'>
 							<DataTableToolbar
-								key="page-groups-table-tool"
+								key='page-groups-table-tool'
 								table={table}
-								filterName="Group-Name"
+								filterName='Group-Name'
 								status={false}
 							/>
-							<div className="flex items-center gap-2">
+							<div className='flex items-center gap-2'>
 								<Button
-									size="sm"
-									className="h-7 text-sm"
+									size='sm'
+									className='h-7 text-sm'
 									loading={loading}
 									icon={<ReloadIcon />}
 									onClick={onPageReload}

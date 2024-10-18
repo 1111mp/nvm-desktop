@@ -124,27 +124,27 @@ export const Updater: React.FC = () => {
 	return (
 		<>
 			{percentage === void 0 ? (
-				<div className="relative flex">
+				<div className='relative flex'>
 					<Button
-						size="sm"
-						variant="ghost"
+						size='sm'
+						variant='ghost'
 						loading={loading}
 						title={t('Check-Update')}
-						className="module-home-btn"
+						className='module-home-btn'
 						icon={<GlobeIcon />}
 						onClick={onCheckUpdates}
 					/>
 					{updateInfo?.available && (
-						<span className="inline-block absolute top-1 left-1 w-1.5 h-1.5 rounded bg-red-500" />
+						<span className='inline-block absolute top-1 left-1 w-1.5 h-1.5 rounded bg-red-500' />
 					)}
 				</div>
 			) : (
 				<Popover open={pop} onOpenChange={(open) => setPop(open)}>
 					<PopoverTrigger asChild>
 						<Button
-							size="sm"
-							variant="ghost"
-							className="w-[31px] h-6"
+							size='sm'
+							variant='ghost'
+							className='w-[31px] h-6'
 							icon={<CircularProgressbar value={percentage} />}
 							onClick={() => {
 								percentage >= 100 &&
@@ -155,69 +155,69 @@ export const Updater: React.FC = () => {
 							}}
 						/>
 					</PopoverTrigger>
-					<PopoverContent align="end" className="p-2">
-						<p className="text-sm font-normal">{t('Download-Progress')}</p>
-						<div className="flex items-center gap-2">
-							<Progress value={percentage} className="my-2" />
-							<span className="text-xs">{percentage}%</span>
+					<PopoverContent align='end' className='p-2'>
+						<p className='text-sm font-normal'>{t('Download-Progress')}</p>
+						<div className='flex items-center gap-2'>
+							<Progress value={percentage} className='my-2' />
+							<span className='text-xs'>{percentage}%</span>
 						</div>
 					</PopoverContent>
 				</Popover>
 			)}
 
 			<AlertDialog open={open.visible}>
-				<AlertDialogContent className="top-1/3">
-					<AlertDialogHeader className="space-y-0">
+				<AlertDialogContent className='top-72'>
+					<AlertDialogHeader className='space-y-0'>
 						<AlertDialogTitle>{t('Update-Info')}</AlertDialogTitle>
-						<AlertDialogDescription className="my-0"></AlertDialogDescription>
+						<AlertDialogDescription className='my-0'></AlertDialogDescription>
 					</AlertDialogHeader>
 					<div>
 						{open.type === ModalType.Check && updateInfo ? (
 							<>
-								<div className="columns-2">
-									<p className="space-x-4 mb-3">
+								<div className='columns-2'>
+									<p className='space-x-4 mb-3'>
 										<Label>{t('Current-Version')} :</Label>
-										<span className="text-popover-foreground">
-											{updateInfo.currentVersion}
+										<span className='text-popover-foreground'>
+											{updateInfo?.currentVersion}
 										</span>
 									</p>
-									<p className="space-x-4 mb-3">
+									<p className='space-x-4 mb-3'>
 										<Label>{t('New-Version')} :</Label>
-										<span className="text-popover-foreground">
-											{updateInfo.version}
+										<span className='text-popover-foreground'>
+											{updateInfo?.version}
 										</span>
 									</p>
 								</div>
-								<p className="space-x-4">
+								<p className='space-x-4'>
 									<Label>{t('Release-Notes')} :</Label>
 								</p>
 								<Markdown
-									className="mt-2 p-3 bg-secondary text-secondary-foreground rounded-sm"
+									className='max-h-60 mt-2 p-3 overflow-auto bg-secondary text-secondary-foreground rounded-sm'
 									components={{
 										a: ({ children, ...props }) => {
 											return (
 												<a
-													className="text-primary underline"
+													className='text-primary underline'
 													{...props}
-													target="_blank"
+													target='_blank'
 												>
 													{children}
 												</a>
 											);
 										},
 										h3: ({ children }) => (
-											<h3 className="text-base font-bold">{children}</h3>
+											<h3 className='text-base font-bold'>{children}</h3>
 										),
 										ul: ({ children }) => (
-											<ul className="px-6 py-2">{children}</ul>
+											<ul className='px-6 py-2'>{children}</ul>
 										),
 										li: ({ children }) => (
-											<li className="text-sm leading-6 list-disc">
+											<li className='text-sm leading-6 list-disc'>
 												{children}
 											</li>
 										),
 										code: ({ children }) => (
-											<code className="px-1.5 text-card-foreground bg-card rounded-sm">
+											<code className='px-1.5 text-card-foreground bg-card rounded-sm'>
 												{children}
 											</code>
 										),

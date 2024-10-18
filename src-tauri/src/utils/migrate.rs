@@ -5,7 +5,7 @@ use tauri::{Emitter, Manager};
 use super::{dirs, help};
 use crate::core::handle;
 
-const CURRENT_MIGRATION_VERSION: i16 = 15;
+const CURRENT_MIGRATION_VERSION: i16 = 16;
 const NODE_DEFAULT_EXECUTE: [&str; 4] = ["node", "npm", "npx", "corepack"];
 
 pub fn init() -> Result<()> {

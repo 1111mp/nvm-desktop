@@ -1,3 +1,17 @@
+## v4.0.2
+
+### Features
+
+- add a checkbox in the download pop-up box to "set as the default version" [#128](https://github.com/1111mp/nvm-desktop/issues/128)
+- redesign the error-boundary component to show more information
+
+### Bug Fixes
+
+- disable right-click context menu
+- `font-family` adapted to different platforms
+- `nvmd use {version} --project` throws an error when `".nvmd/projects.json"` does not exist [#130](https://github.com/1111mp/nvm-desktop/issues/130)
+- give more friendly error messages [#128](https://github.com/1111mp/nvm-desktop/issues/128)
+
 ## v4.0.1
 
 ### Features

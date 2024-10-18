@@ -1,7 +1,7 @@
 {
 	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
 	"productName": "NVM Desktop",
-	"version": "4.0.1",
+	"version": "4.0.2",
 	"identifier": "io.github.1111mp.nvm-desktop",
 	"build": {
 		"beforeDevCommand": "pnpm ui:dev",

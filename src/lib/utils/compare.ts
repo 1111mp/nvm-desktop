@@ -1,92 +1,90 @@
 import semver from 'semver';
 
 export function checkSupportive(files: string[]): boolean {
-	const name =
-		OS_PLATFORM === 'darwin'
-			? `osx-${OS_ARCH}`
-			: OS_PLATFORM === 'win32'
-			? `win-${OS_ARCH}`
-			: `${OS_PLATFORM}-${OS_ARCH}`;
+  const name =
+    OS_PLATFORM === 'darwin'
+      ? `osx-${OS_ARCH}`
+      : OS_PLATFORM === 'win32'
+        ? `win-${OS_ARCH}`
+        : `${OS_PLATFORM}-${OS_ARCH}`;
 
-	return !!files.find((file) => file.includes(name));
+  return !!files.find((file) => file.includes(name));
 }
 
 export function compareVersion(version1: string, version2: string): number {
-	version1 = version1.slice(1);
-	version2 = version2.slice(1);
+  version1 = version1.slice(1);
+  version2 = version2.slice(1);
 
-	return semver.gt(version2, version1) ? -1 : 1;
+  return semver.gt(version2, version1) ? -1 : 1;
 }
 
 export function compareArray(a: string[], b: string[]) {
-	const setA = new Set(a);
-	const setB = new Set(b);
+  const setA = new Set(a);
+  const setB = new Set(b);
 
-	const added = b.filter((item) => !setA.has(item));
-	const removed = a.filter((item) => !setB.has(item));
-	const unchanged = a.filter((item) => setB.has(item));
+  const added = b.filter((item) => !setA.has(item));
+  const removed = a.filter((item) => !setB.has(item));
+  const unchanged = a.filter((item) => setB.has(item));
 
-	return {
-		added,
-		removed,
-		unchanged,
-	};
+  return {
+    added,
+    removed,
+    unchanged,
+  };
 }
 
-type CompareObj = {
-	[key: string]: any;
-};
+type CompareObj = Record<string, any>;
 export function shallowEqual(obj1: CompareObj, obj2: CompareObj) {
-	const keys1 = Object.keys(obj1);
-	const keys2 = Object.keys(obj2);
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
 
-	if (keys1.length !== keys2.length) {
-		return false;
-	}
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
 
-	for (let key of keys1) {
-		const val1 = obj1[key];
-		const val2 = obj2[key];
+  for (const key of keys1) {
+    const val1 = obj1[key];
+    const val2 = obj2[key];
 
-		const areObjects = isObject(val1) && isObject(val2);
+    const areObjects = isObject(val1) && isObject(val2);
 
-		if (
-			(areObjects && !shallowEqual(val1, val2)) ||
-			(!areObjects && val1 !== val2)
-		) {
-			return false;
-		}
-	}
+    if (
+      (areObjects && !shallowEqual(val1, val2)) ||
+      (!areObjects && val1 !== val2)
+    ) {
+      return false;
+    }
+  }
 
-	return true;
+  return true;
 }
 
-function isObject(obj: any): boolean {
-	return obj !== null && typeof obj === 'object';
+function isObject(obj: unknown): boolean {
+  return obj !== null && typeof obj === 'object';
 }
 
 type Obj = Record<string, any>;
 export function compareObject(obj1?: Obj, obj2?: Obj): boolean {
-	if (obj1 === obj2) return true;
-	if (obj1 == null || obj2 == null) return false;
+  if (obj1 === obj2) return true;
+  if (obj1 == null || obj2 == null) return false;
 
-	const keys1 = Object.keys(obj1);
-	const keys2 = Object.keys(obj2);
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
 
-	if (keys1.length !== keys2.length) return false;
+  if (keys1.length !== keys2.length) return false;
 
-	for (let key of keys1) {
-		const val1 = obj1[key];
-		const val2 = obj2[key];
+  for (const key of keys1) {
+    const val1 = obj1[key];
+    const val2 = obj2[key];
 
-		const areObjects = isObject(val1) && isObject(val2);
-		if (
-			(areObjects && !compareObject(val1, val2)) ||
-			(!areObjects && val1 !== val2)
-		) {
-			return false;
-		}
-	}
+    const areObjects = isObject(val1) && isObject(val2);
+    if (
+      (areObjects && !compareObject(val1, val2)) ||
+      (!areObjects && val1 !== val2)
+    ) {
+      return false;
+    }
+  }
 
-	return true;
+  return true;
 }

@@ -43,7 +43,9 @@ tr.introjs-showElement > th {
   box-sizing: content-box;
 }
 .introjs-tooltipReferenceLayer {
-  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif; 
+  font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC',
+    'Hiragino Sans GB', 'Heiti SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
+    sans-serif;
   box-sizing: content-box;
   position: absolute;
   visibility: visible !important;
@@ -52,10 +54,14 @@ tr.introjs-showElement > th {
   transition: all 0.3s ease-out;
 }
 .introjs-tooltipReferenceLayer * {
-  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC',
+    'Hiragino Sans GB', 'Heiti SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
+    sans-serif;
 }
 .introjs-helperNumberLayer {
-  font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC',
+    'Hiragino Sans GB', 'Heiti SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
+    sans-serif;
   color: #9e9e9e;
   text-align: center;
   padding-top: 10px;
@@ -63,7 +69,7 @@ tr.introjs-showElement > th {
 }
 .introjs-arrow {
   border: 5px solid transparent;
-  content: "";
+  content: '';
   position: absolute;
 }
 .introjs-arrow.top {
@@ -178,7 +184,7 @@ tr.introjs-showElement > th {
   white-space: nowrap;
 }
 .introjs-tooltipbuttons:after {
-  content: "";
+  content: '';
   visibility: hidden;
   display: block;
   height: 0;

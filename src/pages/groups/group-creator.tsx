@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   Button,
   Dialog,
@@ -54,23 +54,19 @@ export const GroupCreator: React.FC<Props> = ({
 
   const { t } = useTranslation();
 
-  const formSchema = useMemo(
-    () =>
-      z.object({
-        name: z
-          .string()
-          .min(1, 'group name is invalid')
-          .max(16, 'group name is invalid')
-          .trim()
-          .refine((val) => !groupsProp.find(({ name }) => name === val), {
-            message: 'group name already exists',
-          }),
-        desc: z.string(),
-        version: z.string().min(1, { message: 'please select a version' }),
-        projects: z.array(z.string()),
+  const formSchema = z.object({
+    name: z
+      .string()
+      .min(1, 'group name is invalid')
+      .max(16, 'group name is invalid')
+      .trim()
+      .refine((val) => !groupsProp.find(({ name }) => name === val), {
+        message: 'group name already exists',
       }),
-    [groupsProp.length]
-  );
+    desc: z.string(),
+    version: z.string().min(1, { message: 'please select a version' }),
+    projects: z.array(z.string()),
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -193,8 +189,16 @@ export const GroupCreator: React.FC<Props> = ({
                   </FormLabel>
                   <FormControl>
                     <MultiSelect
-                      onValueChange={field.onChange}
                       defaultValue={field.value}
+                      filter={(keyword, current) => {
+                        if (keyword.includes(current)) return 1;
+                        return 0;
+                      }}
+                      defaultCache={projectsProp.map(({ name, path }) => ({
+                        value: path,
+                        label: name,
+                      }))}
+                      onValueChange={field.onChange}
                     >
                       <MultiSelectTrigger>
                         <MultiSelectValue

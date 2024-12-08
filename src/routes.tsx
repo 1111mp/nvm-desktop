@@ -8,7 +8,7 @@ const routes: RouteObject[] = [
   {
     path: '/',
     element: <Home />,
-		hydrateFallbackElement: <div />,
+    hydrateFallbackElement: <div />,
     children: [
       {
         path: 'versions',
@@ -36,7 +36,7 @@ const routes: RouteObject[] = [
 ];
 
 const router = createMemoryRouter(routes, {
-	initialEntries: ['/versions'],
+  initialEntries: ['/versions'],
 });
 
 export { router };

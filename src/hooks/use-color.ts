@@ -1,40 +1,37 @@
-import { startTransition, useEffect, useMemo, useState } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 
 export function useColor({
-	defaultColor = 'orange',
-	storageKey = 'nvmd-ui-theme',
+  defaultColor = 'orange',
+  storageKey = 'nvmd-ui-theme',
 }: {
-	defaultColor?: string;
-	storageKey?: string;
+  defaultColor?: string;
+  storageKey?: string;
 } = {}) {
-	const [color, setColor] = useState<string>(
-		() => localStorage.getItem(storageKey) || defaultColor
-	);
+  const [color, setColor] = useState<string>(
+    () => localStorage.getItem(storageKey) || defaultColor,
+  );
 
-	useEffect(() => {
-		document.body.classList.forEach((className) => {
-			if (className.match(/^theme.*/)) {
-				document.body.classList.remove(className);
-			}
-		});
+  useEffect(() => {
+    document.body.classList.forEach((className) => {
+      if (className.match(/^theme.*/)) {
+        document.body.classList.remove(className);
+      }
+    });
 
-		if (color) {
-			return document.body.classList.add(`theme-${color}`);
-		}
-	}, [color]);
+    if (color) {
+      return document.body.classList.add(`theme-${color}`);
+    }
+  }, [color]);
 
-	const updateColor = useMemo(
-		() => (newColor: string) => {
-			localStorage.setItem(storageKey, newColor);
-			startTransition(() => {
-				setColor(newColor);
-			});
-		},
-		[]
-	);
+  const updateColor = (newColor: string) => {
+    localStorage.setItem(storageKey, newColor);
+    startTransition(() => {
+      setColor(newColor);
+    });
+  };
 
-	return {
-		color,
-		updateColor,
-	};
+  return {
+    color,
+    updateColor,
+  };
 }

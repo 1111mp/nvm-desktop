@@ -5,7 +5,7 @@ import { invoke } from '@tauri-apps/api/core';
  * @return {Promise<Nvmd.Setting>} Promise-Nvmd.Setting
  */
 export async function getSettings() {
-	return invoke<Nvmd.Setting>('read_settings');
+  return invoke<Nvmd.Setting>('read_settings');
 }
 
 /**
@@ -14,7 +14,7 @@ export async function getSettings() {
  * @return {Promise<void>} Promise-void
  */
 export async function updateSettings(settings: Nvmd.Setting) {
-	return invoke<void>('update_settings', { settings });
+  return invoke<void>('update_settings', { settings });
 }
 
 /**
@@ -23,7 +23,7 @@ export async function updateSettings(settings: Nvmd.Setting) {
  * @return {Promise<string>} node version
  */
 export function vCurrent(fetch: boolean = false) {
-	return invoke<string>('current', { fetch });
+  return invoke<string>('current', { fetch });
 }
 
 /**
@@ -32,7 +32,7 @@ export function vCurrent(fetch: boolean = false) {
  * @return {Promise<void>}	Promise-void
  */
 export function vSetCurrent(version: string) {
-	return invoke<void>('set_current', { version });
+  return invoke<void>('set_current', { version });
 }
 
 /**
@@ -41,7 +41,7 @@ export function vSetCurrent(version: string) {
  * @return {Promise<Nvmd.Versions>}	List of all officially released versions of node
  */
 export function versionList(fetch: boolean = false) {
-	return invoke<Nvmd.Versions>('version_list', { fetch });
+  return invoke<Nvmd.Versions>('version_list', { fetch });
 }
 
 /**
@@ -50,7 +50,7 @@ export function versionList(fetch: boolean = false) {
  * @return {Promise<Array<string>>} An array containing the node version number
  */
 export function installedList(fetch: boolean = false) {
-	return invoke<Array<string>>('installed_list', { fetch });
+  return invoke<Array<string>>('installed_list', { fetch });
 }
 
 /**
@@ -60,7 +60,7 @@ export function installedList(fetch: boolean = false) {
  * @return {Promise<string>}	The file path where the downloaded node is saved
  */
 export function installNode(version: string, arch?: string) {
-	return invoke<string>('install_node', { version, arch });
+  return invoke<string>('install_node', { version, arch });
 }
 
 /**
@@ -68,7 +68,7 @@ export function installNode(version: string, arch?: string) {
  * @return {Promise<void>} Promise-void
  */
 export function installNodeCancel() {
-	return invoke<void>('install_node_cancel');
+  return invoke<void>('install_node_cancel');
 }
 
 /**
@@ -77,7 +77,7 @@ export function installNodeCancel() {
  * @returns {Promise<void>} Promise<void>
  */
 export function uninstallNode(version: string) {
-	return invoke<void>('uninstall_node', { version });
+  return invoke<void>('uninstall_node', { version });
 }
 
 /**
@@ -86,7 +86,7 @@ export function uninstallNode(version: string) {
  * @return {Promise<Nvmd.Project[]>}
  */
 export function projectList(fetch: boolean = false) {
-	return invoke<Nvmd.Project[]>('project_list', { fetch });
+  return invoke<Nvmd.Project[]>('project_list', { fetch });
 }
 
 /**
@@ -94,7 +94,7 @@ export function projectList(fetch: boolean = false) {
  * @return {Promise<Array<Nvmd.PInfo>>}
  */
 export function selectProjects() {
-	return invoke<Array<Nvmd.PInfo>>('select_projects');
+  return invoke<Array<Nvmd.PInfo>>('select_projects');
 }
 
 /**
@@ -103,7 +103,7 @@ export function selectProjects() {
  * @return {Promise<void>}
  */
 export function updateProjects(list: Nvmd.Project[], path?: string) {
-	return invoke<void>('update_projects', { list, path });
+  return invoke<void>('update_projects', { list, path });
 }
 
 /**
@@ -113,7 +113,7 @@ export function updateProjects(list: Nvmd.Project[], path?: string) {
  * @return {Promise<200 | 404>}
  */
 export function syncProjectVersion(path: string, version: string) {
-	return invoke<200 | 404>('sync_project_version', { path, version });
+  return invoke<200 | 404>('sync_project_version', { path, version });
 }
 
 /**
@@ -123,7 +123,7 @@ export function syncProjectVersion(path: string, version: string) {
  * @return {Promise<void>}
  */
 export function batchUpdateProjectVersion(paths: string[], version: string) {
-	return invoke<void>('batch_update_project_version', { paths, version });
+  return invoke<void>('batch_update_project_version', { paths, version });
 }
 
 /**
@@ -132,7 +132,7 @@ export function batchUpdateProjectVersion(paths: string[], version: string) {
  * @return {Promise<Nvmd.Group[]>}
  */
 export function groupList(fetch: boolean = false) {
-	return invoke<Nvmd.Group[]>('group_list', { fetch });
+  return invoke<Nvmd.Group[]>('group_list', { fetch });
 }
 
 /**
@@ -141,7 +141,7 @@ export function groupList(fetch: boolean = false) {
  * @return {Promise<void>}
  */
 export function updateGroups(list: Nvmd.Group[]) {
-	return invoke<void>('update_groups', { list });
+  return invoke<void>('update_groups', { list });
 }
 
 /**
@@ -151,7 +151,7 @@ export function updateGroups(list: Nvmd.Group[]) {
  * @return {Promise<void>}
  */
 export function updateGroupVersion(name: string, version: string) {
-	return invoke<void>('update_group_version', { name, version });
+  return invoke<void>('update_group_version', { name, version });
 }
 
 /**
@@ -161,10 +161,10 @@ export function updateGroupVersion(name: string, version: string) {
  * @returns {Promise<void>}
  */
 export function configrationExport(
-	outputPath: string,
-	configration: Nvmd.ConfigrationExport
+  outputPath: string,
+  configration: Nvmd.ConfigrationExport,
 ) {
-	return invoke<void>('configration_export', { outputPath, configration });
+  return invoke<void>('configration_export', { outputPath, configration });
 }
 
 /**
@@ -173,9 +173,9 @@ export function configrationExport(
  * @returns {Promise<Nvmd.ConfigrationImport | undefined>}
  */
 export function configrationImport(sync: boolean = false) {
-	return invoke<Nvmd.ConfigrationImport | undefined>('configration_import', {
-		sync,
-	});
+  return invoke<Nvmd.ConfigrationImport | undefined>('configration_import', {
+    sync,
+  });
 }
 
 /**
@@ -184,7 +184,7 @@ export function configrationImport(sync: boolean = false) {
  * @returns {Promise<void>}
  */
 export function openWithVSCode(path: string) {
-	return invoke<void>('open_with_vscode', { path });
+  return invoke<void>('open_with_vscode', { path });
 }
 
 /**
@@ -193,7 +193,7 @@ export function openWithVSCode(path: string) {
  * @returns {Promise<void>}
  */
 export function openDir(dir: string) {
-	return invoke<void>('open_dir', { dir });
+  return invoke<void>('open_dir', { dir });
 }
 
 /**
@@ -201,5 +201,5 @@ export function openDir(dir: string) {
  * @returns {Promise<void>}
  */
 export function relaunch() {
-	return invoke<void>('restart');
+  return invoke<void>('restart');
 }

@@ -40,7 +40,7 @@ function Tip() {
         <div className='flex flex-1 flex-col px-4 gap-4 [overflow:overlay]'>
           <div className='space-y-2'>
             <p className='text-muted-foreground text-base font-medium'>{`${t(
-              'Install'
+              'Install',
             )} Node`}</p>
             <div className='font-normal text-sm space-y-4'>
               {locale === 'zh-CN' ? (
@@ -282,7 +282,7 @@ function Tip() {
                     <span>
                       有时候或许你需要重启你的终端。 在终端输入 &nbsp;
                       <span className='text-muted-foreground'>
-                        "node --version"
+                        “node --version”
                       </span>{' '}
                       以检查是否生效。
                     </span>
@@ -308,7 +308,7 @@ function Tip() {
                       You might need to restart your terminal instance. Enter
                       &nbsp;
                       <span className='text-muted-foreground'>
-                        "node --version"
+                        &quot;node --version&quot;
                       </span>{' '}
                       in the terminal to check if it works.
                     </span>

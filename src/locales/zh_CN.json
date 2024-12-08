@@ -132,11 +132,11 @@
   "View": "视图",
   "Toggle-Columns": "切换列",
   "Invalid-project-path": "无效的项目路径",
-	"Error-500": "抱歉，出了点问题。",
-	"Unzipping": "解压中",
-	"Set-as-default": "设置为默认版本",
-	"open-with-vscode": "使用 VsCode 打开",
+  "Error-500": "抱歉，出了点问题。",
+  "Unzipping": "解压中",
+  "Set-as-default": "设置为默认版本",
+  "open-with-vscode": "使用 VsCode 打开",
   "VSCode-Code-Command": "VSCode Code 命令",
-	"VSCode-Code-Command-tip": "绝大部分情况该值为默认的'code'即可。但是在 MacOS 上你必须填完整的路径，比如：‘/usr/local/bin/code’（可以通过运行‘where code’获得）",
+  "VSCode-Code-Command-tip": "绝大部分情况该值为默认的'code'即可。但是在 MacOS 上你必须填完整的路径，比如：‘/usr/local/bin/code’（可以通过运行‘where code’获得）",
   "VSCode-code-command-not-found": "未找到 VSCode 的‘code’命令"
 }

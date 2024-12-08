@@ -1,15 +1,15 @@
 export enum Themes {
-	System = 'system',
-	Light = 'light',
-	Dark = 'dark',
+  System = 'system',
+  Light = 'light',
+  Dark = 'dark',
 }
 
 export enum SystemTheme {
-	Light = 'light',
-	Dark = 'dark',
+  Light = 'light',
+  Dark = 'dark',
 }
 
 export enum Closer {
-	Minimize = 'minimize',
-	Close = 'close',
+  Minimize = 'minimize',
+  Close = 'close',
 }

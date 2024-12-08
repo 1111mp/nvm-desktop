@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { useState } from 'react';
 import {
   DefMirrors,
   AutoComplete,
@@ -49,7 +49,7 @@ import { Closer, Themes } from '@/types';
 
 type Options = NonNullable<AutoCompleteProps['options']>;
 
-type Props = {};
+type Props = unknown;
 
 const formSchema = z.object({
   locale: z.string(),
@@ -90,7 +90,7 @@ const formSchema = z.object({
     }),
 });
 
-const Setting: React.FC<Props> = memo(() => {
+const Setting: React.FC<Props> = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -386,7 +386,7 @@ const Setting: React.FC<Props> = memo(() => {
               control={form.control}
               name='proxy'
               render={({ field }) => {
-                const { enabled } = field?.value;
+                const { enabled } = field.value;
 
                 return (
                   <FormItem>
@@ -486,6 +486,8 @@ const Setting: React.FC<Props> = memo(() => {
       </SheetContent>
     </Sheet>
   );
-});
+};
+
+Setting.displayName = 'Setting';
 
 export default Setting;

@@ -5,7 +5,9 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NVM-Desktop</title>
+    <% if (NODE_ENV === "development") { %>
     <script src="http://localhost:8097"></script>
+    <% } %>
   </head>
 
   <body>

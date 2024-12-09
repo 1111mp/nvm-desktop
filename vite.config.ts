@@ -1,20 +1,24 @@
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-
-const ReactCompilerConfig = {
-  target: '19',
-};
+import { createHtmlPlugin } from 'vite-plugin-html';
 
 // https://vitejs.dev/config/
-export default defineConfig(async () => ({
+export default defineConfig(async ({ mode }) => ({
   root: 'src',
   publicDir: '../public',
 
   plugins: [
     react({
       babel: {
-        plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]],
+        plugins: [['babel-plugin-react-compiler', { target: '19' }]],
+      },
+    }),
+    createHtmlPlugin({
+      inject: {
+        data: {
+          NODE_ENV: mode,
+        },
       },
     }),
   ],

@@ -51,12 +51,12 @@ pub fn create_window() -> Result<()> {
     .center();
 
     #[cfg(target_os = "windows")]
-		let window = builder
-				.decorations(false)
-				.additional_browser_args("--enable-features=msWebView2EnableDraggableRegions --disable-features=OverscrollHistoryNavigation,msExperimentalScrolling")
-				.transparent(true)
-				.visible(false)
-				.build()?;
+    let window = builder
+		.decorations(false)
+		.additional_browser_args("--enable-features=msWebView2EnableDraggableRegions --disable-features=OverscrollHistoryNavigation,msExperimentalScrolling")
+		.transparent(true)
+		.visible(false)
+		.build()?;
     #[cfg(target_os = "macos")]
     let window = builder
         .decorations(true)

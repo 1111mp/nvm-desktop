@@ -227,7 +227,7 @@ export function DataDndTable<TData, TValue>({
                         colSpan={header.colSpan}
                         style={
                           maxSize !== Number.MAX_SAFE_INTEGER
-                            ? { maxWidth: `${maxSize}px` }
+                            ? { maxWidth: maxSize }
                             : undefined
                         }
                       >

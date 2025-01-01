@@ -140,7 +140,9 @@ export const Component: React.FC = () => {
                 </a>
               </TooltipTrigger>
               <TooltipPortal>
-                <TooltipContent>{t('Whats-new')}</TooltipContent>
+                <TooltipContent className='bg-primary'>
+                  {t('Whats-new')}
+                </TooltipContent>
               </TooltipPortal>
             </Tooltip>
             {lts ? (

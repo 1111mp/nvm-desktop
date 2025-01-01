@@ -413,7 +413,7 @@ const Home: React.FC = () => {
   const linkStyle = navigationMenuTriggerStyle();
 
   return (
-    <Suspense>
+    <>
       {platform === 'macos' ? (
         <header
           data-tauri-drag-region
@@ -468,11 +468,13 @@ const Home: React.FC = () => {
             </NavigationMenuList>
           </NavigationMenu>
           <div className='flex items-center'>
-            <Updater />
-            <ThemeCustomizer />
-            <Tip />
-            <Configration />
-            <Setting />
+            <Suspense>
+              <Updater />
+              <ThemeCustomizer />
+              <Tip />
+              <Configration />
+              <Setting />
+            </Suspense>
           </div>
         </header>
       ) : (
@@ -532,11 +534,13 @@ const Home: React.FC = () => {
           </div>
           <div className='flex items-center gap-4'>
             <div className='flex items-center'>
-              <Updater />
-              <ThemeCustomizer />
-              <Tip />
-              <Configration />
-              <Setting />
+              <Suspense>
+                <Updater />
+                <ThemeCustomizer />
+                <Tip />
+                <Configration />
+                <Setting />
+              </Suspense>
             </div>
             <div className='flex items-center gap-1'>
               <Button
@@ -580,7 +584,7 @@ const Home: React.FC = () => {
           setEnabled(false);
         }}
       />
-    </Suspense>
+    </>
   );
 };
 

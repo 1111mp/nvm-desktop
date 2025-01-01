@@ -131,7 +131,7 @@ export function DataTable<TData, TValue>({
                       key={header.id}
                       style={
                         maxSize !== Number.MAX_SAFE_INTEGER
-                          ? { maxWidth: `${maxSize}px` }
+                          ? { maxWidth: maxSize }
                           : undefined
                       }
                     >

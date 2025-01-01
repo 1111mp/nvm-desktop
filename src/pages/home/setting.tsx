@@ -185,12 +185,12 @@ const Setting: React.FC<Props> = () => {
           icon={<GearIcon />}
         />
       </SheetTrigger>
-      <SheetContent className='flex flex-col [overflow-y:overlay]'>
-        <SheetHeader>
+      <SheetContent className='flex flex-col p-0'>
+        <SheetHeader className='pt-6 px-6'>
           <SheetTitle>{t('Setting')}</SheetTitle>
           <SheetDescription></SheetDescription>
         </SheetHeader>
-        <div className='flex-1 space-y-6'>
+        <div className='flex-1 px-6 space-y-6 [overflow-y:overlay]'>
           <Form {...form}>
             <FormField
               control={form.control}
@@ -471,7 +471,7 @@ const Setting: React.FC<Props> = () => {
             />
           </Form>
         </div>
-        <SheetFooter>
+        <SheetFooter className='px-6 pb-6'>
           <SheetClose asChild>
             <Button variant='secondary'>{t('Cancel')}</Button>
           </SheetClose>

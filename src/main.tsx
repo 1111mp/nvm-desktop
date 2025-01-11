@@ -1,6 +1,6 @@
 import '@/services/i18n';
 
-import React from 'react';
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './app';
 
@@ -21,8 +21,8 @@ import { getSystemCurrentTheme } from '@/services/api';
   ]);
 
   createRoot(document.getElementById('root') as HTMLElement).render(
-    <React.StrictMode>
+    <StrictMode>
       <App settings={settings} sysTheme={sysTheme} />
-    </React.StrictMode>,
+    </StrictMode>,
   );
 })();

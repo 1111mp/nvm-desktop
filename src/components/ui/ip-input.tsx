@@ -114,7 +114,7 @@ const IpInput: React.FC<IpInputProps> = ({
     <div
       ref={ref}
       className={cn(
-        'flex h-8 rounded-md border border-input bg-transparent px-2 py-1 text-sm shadow-sm transition-colors ring-1 ring-transparent',
+        'flex h-8 rounded-md border border-input bg-transparent px-2 py-1 text-sm shadow-xs transition-colors ring-1 ring-transparent',
         focus && 'ring-ring',
         className,
       )}
@@ -128,7 +128,7 @@ const IpInput: React.FC<IpInputProps> = ({
               inputs.current[i] = ref;
             }}
             value={isNaN(parseInt(val)) ? '' : val}
-            className='w-8 border-none outline-none bg-transparent focus:border-none focus:outline-none text-center disabled:cursor-not-allowed disabled:opacity-50'
+            className='w-8 border-none outline-hidden bg-transparent focus:border-none focus:outline-hidden text-center disabled:cursor-not-allowed disabled:opacity-50'
             onFocus={() => setFocus(true)}
             onBlur={() => setFocus(false)}
             onChange={(evt) => onchangeHandle(evt, i)}

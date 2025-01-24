@@ -183,7 +183,7 @@ const MultiSelectTrigger: React.FC<MultiSelectTriggerProps> = ({
         data-disabled={disabled}
         {...props}
         className={cn(
-          'flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background focus:outline-none focus:ring-1 focus:ring-ring [&>span]:line-clamp-1',
+          'flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs ring-offset-background focus:outline-hidden focus:ring-1 focus:ring-ring [&>span]:line-clamp-1',
           disabled ? 'cursor-not-allowed opacity-50' : 'cursor-text',
           className,
         )}
@@ -277,7 +277,7 @@ const MultiSelectValue: React.FC<MultiSelectValueProps> = ({
             return (
               <Tooltip key={value}>
                 <TooltipTrigger className='inline-flex'>{el}</TooltipTrigger>
-                <TooltipContent side='bottom' align='start' className='z-[51]'>
+                <TooltipContent side='bottom' align='start' className='z-51'>
                   {content}
                 </TooltipContent>
               </Tooltip>
@@ -340,7 +340,7 @@ const MultiSelectContent: React.FC<MultiSelectContentProps> = ({
         sideOffset={4}
         collisionPadding={10}
         className={cn(
-          'z-50 w-full rounded-md border bg-popover p-0 text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+          'z-50 w-full rounded-md border bg-popover p-0 text-popover-foreground shadow-md outline-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
         )}
         style={
           {

@@ -574,7 +574,7 @@ const Home: React.FC = () => {
           disableInteraction: true,
           overlayOpacity: 0.6,
           buttonClass:
-            'inline-flex items-center bg-primary text-primary-foreground outline-none h-6 rounded-md px-2 text-xs shadow hover:bg-primary/90',
+            'inline-flex items-center bg-primary text-primary-foreground outline-hidden h-6 rounded-md px-2 text-xs shadow-sm hover:bg-primary/90',
           exitOnOverlayClick: false,
           exitOnEsc: false,
         }}

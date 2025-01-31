@@ -114,7 +114,7 @@ export function ThemeCustomizer() {
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          className='theme-customizer'
+          id='theme-customizer'
           size='sm'
           title={t('Theme color')}
           variant='ghost'

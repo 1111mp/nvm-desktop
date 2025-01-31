@@ -1,17 +1,24 @@
 use anyhow::Result;
 use dirs::home_dir;
-use std::{fs, path::PathBuf};
+use std::{env, fs, path::PathBuf};
 use tauri::Manager;
 
 use crate::core::handle;
 
-static APP_ID: &str = ".nvmd";
-
 /// get the nvmd home dir
 pub fn nvmd_home_dir() -> Result<PathBuf> {
+    let home_dir = match env::var_os("NVMD_HOME") {
+        Some(home) => PathBuf::from(home),
+        None => defaul_home_dir()?,
+    };
+    Ok(home_dir)
+}
+
+/// the default nvmd home dir
+pub fn defaul_home_dir() -> Result<PathBuf> {
     Ok(home_dir()
         .ok_or(anyhow::anyhow!("failed to get app home dir"))?
-        .join(APP_ID))
+        .join(".nvmd"))
 }
 
 /// get the `settings.json` path

@@ -1,5 +1,3 @@
-@tailwind utilities;
-
 @theme inline {
   --zoom-0: 0;
   --zoom-50: 0.5;
@@ -71,44 +69,32 @@
   @keyframes enter {
     from {
       opacity: var(--tw-enter-opacity, 1);
-      transform: translate3d(
-          var(--tw-enter-translate-x, 0),
+      transform: translate3d(var(--tw-enter-translate-x, 0),
           var(--tw-enter-translate-y, 0),
-          0
-        )
-        scale3d(
+          0) scale3d(var(--tw-enter-scale, 1),
           var(--tw-enter-scale, 1),
-          var(--tw-enter-scale, 1),
-          var(--tw-enter-scale, 1)
-        )
-        rotate(var(--tw-enter-rotate, 0));
+          var(--tw-enter-scale, 1)) rotate(var(--tw-enter-rotate, 0));
     }
   }
 
   @keyframes exit {
     to {
       opacity: var(--tw-exit-opacity, 1);
-      transform: translate3d(
-          var(--tw-exit-translate-x, 0),
+      transform: translate3d(var(--tw-exit-translate-x, 0),
           var(--tw-exit-translate-y, 0),
-          0
-        )
-        scale3d(
+          0) scale3d(var(--tw-exit-scale, 1),
           var(--tw-exit-scale, 1),
-          var(--tw-exit-scale, 1),
-          var(--tw-exit-scale, 1)
-        )
-        rotate(var(--tw-exit-rotate, 0));
+          var(--tw-exit-scale, 1)) rotate(var(--tw-exit-rotate, 0));
     }
   }
 }
 
 @utility repeat-* {
-  animation-iteration-count: --value(--animation-repeat- *, integer);
+  animation-iteration-count: --value(--animation-repeat-*, integer);
 }
 
 @utility fill-mode-* {
-  animation-fill-mode: --value(--animation-fill-mode- *);
+  animation-fill-mode: --value(--animation-fill-mode-*);
 }
 
 @utility running {
@@ -124,8 +110,8 @@
 }
 
 @utility fade-in-* {
-  --tw-enter-opacity: --value(--fade- *);
-  --tw-enter-opacity: --value(integer) %;
+  --tw-enter-opacity: --value(--fade-*);
+  --tw-enter-opacity: --value(integer)%;
 }
 
 @utility fade-out {
@@ -133,8 +119,8 @@
 }
 
 @utility fade-out-* {
-  --tw-exit-opacity: --value(--fade- *) %;
-  --tw-exit-opacity: --value(integer) %;
+  --tw-exit-opacity: --value(--fade-*)%;
+  --tw-exit-opacity: --value(integer)%;
 }
 
 @utility zoom-in {
@@ -142,8 +128,8 @@
 }
 
 @utility zoom-in-* {
-  --tw-enter-scale: --value(--zoom- *);
-  --tw-enter-scale: --value(integer) %;
+  --tw-enter-scale: --value(--zoom-*);
+  --tw-enter-scale: --value(integer)%;
 }
 
 @utility zoom-out {
@@ -151,8 +137,8 @@
 }
 
 @utility zoom-out-* {
-  --tw-exit-scale: --value(--zoom- *);
-  --tw-exit-scale: --value(integer) %;
+  --tw-exit-scale: --value(--zoom-*);
+  --tw-exit-scale: --value(integer)%;
 }
 
 @utility spin-in {
@@ -160,8 +146,8 @@
 }
 
 @utility spin-in-* {
-  --tw-enter-rotate: --value(--spin- *);
-  --tw-enter-rotate: --value(integer) deg;
+  --tw-enter-rotate: --value(--spin-*);
+  --tw-enter-rotate: --value(integer)deg;
 }
 
 @utility spin-out {
@@ -169,8 +155,8 @@
 }
 
 @utility spin-out-* {
-  --tw-exit-rotate: --value(--spin- *);
-  --tw-exit-rotate: --value(integer) deg;
+  --tw-exit-rotate: --value(--spin-*);
+  --tw-exit-rotate: --value(integer)deg;
 }
 
 @utility slide-in-from-top {

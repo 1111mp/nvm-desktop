@@ -142,7 +142,7 @@ export const Versions: React.FC = () => {
                 </a>
               </TooltipTrigger>
               <TooltipPortal>
-                <TooltipContent className='bg-primary'>
+                <TooltipContent className='bg-primary text-primary-foreground'>
                   {t('Whats-new')}
                 </TooltipContent>
               </TooltipPortal>

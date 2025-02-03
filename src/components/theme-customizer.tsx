@@ -114,7 +114,7 @@ export function ThemeCustomizer() {
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          className='theme-customizer'
+          id='theme-customizer'
           size='sm'
           title={t('Theme color')}
           variant='ghost'
@@ -153,7 +153,7 @@ export function ThemeCustomizer() {
                 >
                   <span
                     className={cn(
-                      'mr-1 flex h-5 w-5 shrink-0 -translate-x-1 items-center justify-center rounded-full bg-[--theme-primary]',
+                      'mr-1 flex h-5 w-5 shrink-0 -translate-x-1 items-center justify-center rounded-full bg-(--theme-primary)',
                     )}
                   >
                     {isActive && <CheckIcon className='h-4 w-4 text-white' />}

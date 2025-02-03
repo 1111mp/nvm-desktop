@@ -405,7 +405,7 @@ const Setting: React.FC<Props> = () => {
                                 onCheckedChange={field.onChange}
                               />
                             </FormControl>
-                            <FormDescription className='!mt-0'>
+                            <FormDescription className='mt-0!'>
                               {t(field.value ? 'Enabled' : 'Disabled')}
                             </FormDescription>
                           </FormItem>
@@ -420,7 +420,7 @@ const Setting: React.FC<Props> = () => {
                               <FormControl>
                                 <IpInput disabled={!enabled} {...field} />
                               </FormControl>
-                              <FormMessage className='absolute !mt-1' />
+                              <FormMessage className='absolute mt-1!' />
                             </FormItem>
                           )}
                         />
@@ -437,7 +437,7 @@ const Setting: React.FC<Props> = () => {
                                   {...field}
                                 />
                               </FormControl>
-                              <FormMessage className='absolute !mt-1' />
+                              <FormMessage className='absolute mt-1!' />
                             </FormItem>
                           )}
                         />

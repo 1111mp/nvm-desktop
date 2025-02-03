@@ -1,6 +1,6 @@
 import './intro.css';
 
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
 import {
   Button,
@@ -70,7 +70,7 @@ const Home: React.FC = () => {
       ),
     },
     {
-      element: '.theme-customizer',
+      element: '#theme-customizer',
       title: t('Theme color'),
       intro: (
         <p className='flex items-center gap-2'>
@@ -468,13 +468,11 @@ const Home: React.FC = () => {
             </NavigationMenuList>
           </NavigationMenu>
           <div className='flex items-center'>
-            <Suspense>
-              <Updater />
-              <ThemeCustomizer />
-              <Tip />
-              <Configration />
-              <Setting />
-            </Suspense>
+            <Updater />
+            <ThemeCustomizer />
+            <Tip />
+            <Configration />
+            <Setting />
           </div>
         </header>
       ) : (
@@ -534,13 +532,11 @@ const Home: React.FC = () => {
           </div>
           <div className='flex items-center gap-4'>
             <div className='flex items-center'>
-              <Suspense>
-                <Updater />
-                <ThemeCustomizer />
-                <Tip />
-                <Configration />
-                <Setting />
-              </Suspense>
+              <Updater />
+              <ThemeCustomizer />
+              <Tip />
+              <Configration />
+              <Setting />
             </div>
             <div className='flex items-center gap-1'>
               <Button
@@ -574,7 +570,7 @@ const Home: React.FC = () => {
           disableInteraction: true,
           overlayOpacity: 0.6,
           buttonClass:
-            'inline-flex items-center bg-primary text-primary-foreground outline-none h-6 rounded-md px-2 text-xs shadow hover:bg-primary/90',
+            'inline-flex items-center bg-primary text-primary-foreground outline-hidden h-6 rounded-md px-2 text-xs shadow-sm hover:bg-primary/90',
           exitOnOverlayClick: false,
           exitOnEsc: false,
         }}

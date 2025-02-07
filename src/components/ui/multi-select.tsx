@@ -312,7 +312,7 @@ const MultiSelectList: React.FC<React.ComponentProps<typeof CommandList>> = ({
   return (
     <CommandList
       ref={ref}
-      className={cn('py-1 px-0 max-h-[unset]', className)}
+      className={cn('py-1 px-0 max-h-64 [overflow:overlay]', className)}
       {...props}
     />
   );
@@ -359,7 +359,7 @@ const MultiSelectContent: React.FC<MultiSelectContentProps> = ({
       >
         <Command
           className={cn(
-            'pt-1 px-1 max-h-96 w-full min-w-[var(--radix-select-trigger-width)]',
+            'pt-1 px-1 w-full min-w-[var(--radix-select-trigger-width)]',
             className,
           )}
           filter={filter}

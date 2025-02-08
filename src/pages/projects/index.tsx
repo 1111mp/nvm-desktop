@@ -24,7 +24,7 @@ import {
   SelectValue,
   Tooltip,
   TooltipContent,
-  TooltipPortal,
+  // TooltipPortal,
   TooltipTrigger,
 } from '@/components/ui';
 import { VsCodeLogo } from '@/components/vscode-logo';
@@ -150,11 +150,9 @@ export const Component: React.FC = () => {
                   }}
                 />
               </TooltipTrigger>
-              <TooltipPortal>
-                <TooltipContent className='text-accent-foreground bg-accent'>
-                  {t('open-with-vscode')}
-                </TooltipContent>
-              </TooltipPortal>
+              <TooltipContent className='text-accent-foreground bg-accent'>
+                {t('open-with-vscode')}
+              </TooltipContent>
             </Tooltip>
           </div>
         );

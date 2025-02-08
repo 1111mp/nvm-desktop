@@ -32,7 +32,7 @@ function Tip() {
           icon={<InfoCircledIcon />}
         />
       </SheetTrigger>
-      <SheetContent className='flex flex-col overflow-hidden px-0'>
+      <SheetContent className='overflow-hidden px-0'>
         <SheetHeader className='px-4'>
           <SheetTitle>{t('Tip')}</SheetTitle>
           <SheetDescription></SheetDescription>

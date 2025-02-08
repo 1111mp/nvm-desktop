@@ -9,7 +9,7 @@ import {
 } from './command';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
-import { CheckIcon } from '@radix-ui/react-icons';
+import { Check } from 'lucide-react';
 
 type AutoCompleteProps = {
   value?: string;
@@ -77,7 +77,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
       const inputRect = input.current.getBoundingClientRect();
       const dropdownRect = dropdown.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
-      const spaceBelow = windowHeight - inputRect.bottom;
+      const spaceBelow = windowHeight - inputRect.bottom - 72;
       const spaceAbove = inputRect.top;
 
       if (spaceBelow < dropdownRect.height && spaceAbove > spaceBelow) {
@@ -99,7 +99,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
   return (
     <Command
       shouldFilter={shouldFilter}
-      className='overflow-visible'
+      className='overflow-visible bg-transparent'
       onKeyDown={onKeyDown}
     >
       <CommandInput
@@ -145,7 +145,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
                           onSelect={onSelect}
                         >
                           <span className='flex-1 truncate'>{optValue}</span>
-                          {optValue === value ? <CheckIcon /> : null}
+                          {optValue === value ? <Check /> : null}
                         </CommandItem>
                       ))}
                     </CommandGroup>
@@ -160,7 +160,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
                         onSelect={onSelect}
                       >
                         <span className='flex-1 truncate'>{optValue}</span>
-                        {optValue === value ? <CheckIcon /> : null}
+                        {optValue === value ? <Check /> : null}
                       </CommandItem>
                     ))}
                   </CommandGroup>

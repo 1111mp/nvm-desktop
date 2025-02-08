@@ -2,36 +2,69 @@ import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
 import { cn } from '@/lib/utils';
 
-const TooltipProvider = TooltipPrimitive.Provider;
+function TooltipProvider({
+  delayDuration = 0,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
+  return (
+    <TooltipPrimitive.Provider
+      data-slot='tooltip-provider'
+      delayDuration={delayDuration}
+      {...props}
+    />
+  );
+}
 
-const Tooltip = TooltipPrimitive.Root;
+function Tooltip({
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Root>) {
+  return (
+    <TooltipProvider>
+      <TooltipPrimitive.Root data-slot='tooltip' {...props} />
+    </TooltipProvider>
+  );
+}
 
-const TooltipTrigger = TooltipPrimitive.Trigger;
+function TooltipTrigger({
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
+  return <TooltipPrimitive.Trigger data-slot='tooltip-trigger' {...props} />;
+}
 
-const TooltipPortal = TooltipPrimitive.TooltipPortal;
-
-const TooltipArrow = TooltipPrimitive.TooltipArrow;
-
-const TooltipContent: React.FC<
-  React.ComponentProps<typeof TooltipPrimitive.Content>
-> = ({ ref, className, sideOffset = 4, ...props }) => (
-  <TooltipPrimitive.Content
-    ref={ref}
-    sideOffset={sideOffset}
-    className={cn(
-      'z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-      className,
-    )}
-    {...props}
-  />
-);
+function TooltipContent({
+  className,
+  sideOffset = 4,
+  children,
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+  return (
+    <TooltipPrimitive.Portal>
+      <TooltipPrimitive.Content
+        data-slot='tooltip-content'
+        sideOffset={sideOffset}
+        className={cn(
+          'bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-w-sm rounded-md px-3 py-1.5 text-sm',
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </TooltipPrimitive.Content>
+    </TooltipPrimitive.Portal>
+  );
+}
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
+
+function TooltipArrow({
+  ...props
+}: React.ComponentProps<typeof TooltipPrimitive.TooltipArrow>) {
+  return <TooltipPrimitive.TooltipArrow data-slot='tooltip-arrow' {...props} />;
+}
 
 export {
   Tooltip,
   TooltipTrigger,
-  TooltipArrow,
-  TooltipPortal,
   TooltipContent,
   TooltipProvider,
+  TooltipArrow,
 };

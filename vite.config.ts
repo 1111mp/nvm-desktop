@@ -1,4 +1,4 @@
-import { resolve } from 'path';
+import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { createHtmlPlugin } from 'vite-plugin-html';
@@ -27,7 +27,7 @@ export default defineConfig(async ({ mode }) => ({
 
   resolve: {
     alias: {
-      '@': resolve('src'),
+      '@': resolve(__dirname, './src'),
     },
   },
 

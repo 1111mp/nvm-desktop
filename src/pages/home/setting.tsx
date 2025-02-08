@@ -185,7 +185,7 @@ const Setting: React.FC<Props> = () => {
           icon={<GearIcon />}
         />
       </SheetTrigger>
-      <SheetContent className='flex flex-col p-0'>
+      <SheetContent className='p-0'>
         <SheetHeader className='pt-6 px-6'>
           <SheetTitle>{t('Setting')}</SheetTitle>
           <SheetDescription></SheetDescription>
@@ -401,6 +401,7 @@ const Setting: React.FC<Props> = () => {
                           <FormItem className='flex items-center gap-3'>
                             <FormControl>
                               <Switch
+                                className='mb-0'
                                 checked={field.value}
                                 onCheckedChange={field.onChange}
                               />

@@ -14,7 +14,7 @@ import {
   Tag,
   Tooltip,
   TooltipContent,
-  TooltipPortal,
+  // TooltipPortal,
   TooltipTrigger,
 } from '@/components/ui';
 import { type ColumnDef, type Table, memo } from '@tanstack/react-table';
@@ -139,11 +139,9 @@ export const Component: React.FC = () => {
                   {version}
                 </a>
               </TooltipTrigger>
-              <TooltipPortal>
-                <TooltipContent className='bg-primary'>
-                  {t('Whats-new')}
-                </TooltipContent>
-              </TooltipPortal>
+              <TooltipContent className='bg-primary'>
+                {t('Whats-new')}
+              </TooltipContent>
             </Tooltip>
             {lts ? (
               <span className='text-foreground-foreground'>({lts})</span>

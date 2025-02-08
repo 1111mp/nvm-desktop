@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import { Column } from '@tanstack/react-table';
-import { MagnifyingGlassIcon, CrossCircledIcon } from '@radix-ui/react-icons';
+import { Search, CircleX } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from './button';
 import { Input } from './input';
@@ -40,7 +40,7 @@ export function DataTableColumnFilterHeader<TData, TValue>({
             className='text-sm font-light -translate-x-[7px] hover:bg-secondary-hover data-[state=open]:bg-secondary-hover'
           >
             <span>{title}</span>
-            <MagnifyingGlassIcon className='ml-2 h-4 w-4' />
+            <Search className='ml-2 size-4' />
           </Button>
         </PopoverTrigger>
         <PopoverContent align='start' className='w-fit p-2'>
@@ -66,7 +66,7 @@ export function DataTableColumnFilterHeader<TData, TValue>({
                     column.setFilterValue('');
                   }}
                 >
-                  <CrossCircledIcon />
+                  <CircleX className='size-4' />
                 </motion.span>
               )}
             </AnimatePresence>

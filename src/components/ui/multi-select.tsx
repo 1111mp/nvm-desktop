@@ -7,7 +7,7 @@ import {
   useState,
 } from 'react';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
-import { CaretSortIcon, CheckIcon, Cross2Icon } from '@radix-ui/react-icons';
+import { Check, ChevronsUpDown, X } from 'lucide-react';
 import { Primitive } from '@radix-ui/react-primitive';
 
 import { Badge } from './badge';
@@ -20,12 +20,7 @@ import {
   CommandList,
   CommandSeparator,
 } from './command';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from './tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
 
 import { cn } from '@/lib/utils';
 import { useControllableState } from '@radix-ui/react-use-controllable-state';
@@ -191,7 +186,7 @@ const MultiSelectTrigger: React.FC<MultiSelectTriggerProps> = ({
         onTouchStart={disabled ? PreventClick : props.onTouchStart}
       >
         {children}
-        <CaretSortIcon aria-hidden className='h-4 w-4 opacity-50 shrink-0' />
+        <ChevronsUpDown aria-hidden className='size-4 opacity-50 shrink-0' />
       </div>
     </PopoverPrimitive.Trigger>
   );
@@ -234,65 +229,64 @@ const MultiSelectValue: React.FC<MultiSelectValueProps> = ({
   }
 
   return (
-    <TooltipProvider delayDuration={300}>
-      <div
-        className={cn(
-          'flex flex-1 overflow-x-hidden flex-wrap items-center gap-1.5',
-          className,
-        )}
-        {...props}
-        ref={ref}
-      >
-        {renderItems.map((value) => {
-          const item = itemCache.current.get(value);
+    <div
+      className={cn(
+        'flex flex-1 overflow-x-hidden flex-wrap items-center gap-1.5',
+        className,
+      )}
+      {...props}
+      ref={ref}
+    >
+      {renderItems.map((value) => {
+        const item = itemCache.current.get(value);
 
-          const content = item?.label || value;
+        const content = item?.label || value;
 
-          const child =
-            maxItemLength &&
-            typeof content === 'string' &&
-            content.length > maxItemLength
-              ? `${content.slice(0, maxItemLength)}...`
-              : content;
+        const child =
+          maxItemLength &&
+          typeof content === 'string' &&
+          content.length > maxItemLength
+            ? `${content.slice(0, maxItemLength)}...`
+            : content;
 
-          const el = (
-            <Badge
-              variant='outline'
-              key={value}
-              className='px-2 py-0 leading-4 pr-1 group/multi-select-badge cursor-pointer rounded-full'
+        const el = (
+          <Badge
+            variant='outline'
+            key={value}
+            className='px-2 py-0 leading-4 pr-1 group/multi-select-badge cursor-pointer rounded-full'
+          >
+            <span>{child}</span>
+            <span
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onDeselect(value, item!);
+              }}
             >
-              <span>{child}</span>
-              <Cross2Icon
-                className='h-3 w-3 ml-1 text-muted-foreground group-hover/multi-select-badge:text-foreground'
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onDeselect(value, item!);
-                }}
-              />
-            </Badge>
+              <X className='size-3 ml-1 text-muted-foreground group-hover/multi-select-badge:text-foreground' />
+            </span>
+          </Badge>
+        );
+
+        if (child !== content) {
+          return (
+            <Tooltip key={value}>
+              <TooltipTrigger className='inline-flex'>{el}</TooltipTrigger>
+              <TooltipContent side='bottom' align='start' className='z-51'>
+                {content}
+              </TooltipContent>
+            </Tooltip>
           );
+        }
 
-          if (child !== content) {
-            return (
-              <Tooltip key={value}>
-                <TooltipTrigger className='inline-flex'>{el}</TooltipTrigger>
-                <TooltipContent side='bottom' align='start' className='z-51'>
-                  {content}
-                </TooltipContent>
-              </Tooltip>
-            );
-          }
-
-          return el;
-        })}
-        {renderRemain ? (
-          <span className='text-muted-foreground text-xs leading-4 py-.5'>
-            +{renderRemain}
-          </span>
-        ) : null}
-      </div>
-    </TooltipProvider>
+        return el;
+      })}
+      {renderRemain ? (
+        <span className='text-muted-foreground text-xs leading-4 py-.5'>
+          +{renderRemain}
+        </span>
+      ) : null}
+    </div>
   );
 };
 
@@ -441,7 +435,7 @@ const MultiSelectItem: React.FC<MultiSelectItemProps> = ({
       <span className='mr-2 whitespace-nowrap overflow-hidden text-ellipsis'>
         {children || label || value}
       </span>
-      {selected ? <CheckIcon className='h-4 w-4 ml-auto shrink-0' /> : null}
+      {selected ? <Check className='size-4 ml-auto shrink-0' /> : null}
     </CommandItem>
   );
 };

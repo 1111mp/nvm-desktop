@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui';
-import { FilePlusIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { FilePlusIcon } from '@radix-ui/react-icons';
 
 import { z } from 'zod';
 import { toast } from 'sonner';
@@ -208,10 +208,7 @@ export const GroupCreator: React.FC<Props> = ({
                         />
                       </MultiSelectTrigger>
                       <MultiSelectContent>
-                        <MultiSelectSearch
-                          icon={<MagnifyingGlassIcon />}
-                          placeholder={t('Input-To-Search')}
-                        />
+                        <MultiSelectSearch placeholder={t('Input-To-Search')} />
                         <MultiSelectList>
                           {projectsProp.map(({ name, path }) => (
                             <MultiSelectItem key={path} value={path}>

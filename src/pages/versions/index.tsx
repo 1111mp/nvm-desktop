@@ -13,7 +13,7 @@ import {
   Tag,
   Tooltip,
   TooltipContent,
-  TooltipPortal,
+  // TooltipPortal,
   TooltipTrigger,
 } from '@/components/ui';
 import {
@@ -141,11 +141,9 @@ export const Versions: React.FC = () => {
                   {version}
                 </a>
               </TooltipTrigger>
-              <TooltipPortal>
-                <TooltipContent className='bg-primary text-primary-foreground'>
-                  {t('Whats-new')}
-                </TooltipContent>
-              </TooltipPortal>
+              <TooltipContent className='bg-primary text-primary-foreground'>
+                {t('Whats-new')}
+              </TooltipContent>
             </Tooltip>
             {lts ? (
               <span className='text-foreground-foreground'>({lts})</span>

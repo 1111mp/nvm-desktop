@@ -1,12 +1,11 @@
-import { ReactNode } from 'react';
 import { Slot } from '@radix-ui/react-slot';
-import { ReloadIcon } from '@radix-ui/react-icons';
+import { LoaderCircle } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 const buttonVariants = cva(
-  'cursor-pointer inline-flex items-center gap-1 justify-center whitespace-nowrap rounded-md text-sm font-medium transition duration-200 ease-out active:opacity-90 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
+  "cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[background-color,color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 focus-visible:ring-4 focus-visible:outline-1 aria-invalid:focus-visible:ring-0",
   {
     variants: {
       variant: {
@@ -26,7 +25,7 @@ const buttonVariants = cva(
         sm: 'h-6 rounded-md px-2 text-xs',
         md: 'h-8 px-3 py-2 text-xs',
         lg: 'h-10 rounded-md px-8',
-        icon: 'h-9 w-9',
+        icon: 'size-9',
       },
       animate: {
         true: 'active:scale-[0.97]',
@@ -41,17 +40,7 @@ const buttonVariants = cva(
   },
 );
 
-export interface ButtonProps
-  extends React.ComponentProps<'button'>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
-  disabled?: boolean;
-  loading?: boolean;
-  icon?: ReactNode;
-}
-
-const Button: React.FC<ButtonProps> = ({
-  ref,
+function Button({
   className,
   variant,
   animate = true,
@@ -62,21 +51,26 @@ const Button: React.FC<ButtonProps> = ({
   asChild = false,
   children,
   ...props
-}) => {
+}: React.ComponentProps<'button'> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+    loading?: boolean;
+    icon?: React.ReactNode;
+  }) {
   const Comp = asChild ? Slot : 'button';
 
   return (
     <Comp
+      data-slot='button'
       disabled={disabled || loading}
       className={cn(buttonVariants({ variant, animate, size, className }))}
-      ref={ref}
       {...props}
     >
-      {loading ? <ReloadIcon className='animate-spin' /> : icon}
+      {loading ? <LoaderCircle className='animate-spin' /> : icon}
       {children}
     </Comp>
   );
-};
+}
 Button.displayName = 'Button';
 
 export { Button, buttonVariants };

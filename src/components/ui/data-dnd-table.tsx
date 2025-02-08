@@ -26,7 +26,7 @@ import {
 } from './table';
 import { Bars } from './bars-icon';
 import { Button } from './button';
-import { HamburgerMenuIcon } from '@radix-ui/react-icons';
+import { GripVertical } from 'lucide-react';
 import {
   closestCenter,
   DndContext,
@@ -105,7 +105,7 @@ function DraggableRow<TData>({ row }: DraggableRowProps<TData>) {
           className='cursor-move'
           size='sm'
           variant='ghost'
-          icon={<HamburgerMenuIcon />}
+          icon={<GripVertical />}
           {...listeners}
         />
       </TableCell>

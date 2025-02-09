@@ -9,7 +9,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui';
-import { CookieIcon, InfoCircledIcon } from '@radix-ui/react-icons';
+import { SparklesIcon, InfoIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { useAppContext } from '@/app-context';
@@ -29,7 +29,7 @@ function Tip() {
           size='sm'
           title={t('Tip')}
           variant='ghost'
-          icon={<InfoCircledIcon />}
+          icon={<InfoIcon />}
         />
       </SheetTrigger>
       <SheetContent className='overflow-hidden px-0'>
@@ -339,7 +339,7 @@ function Tip() {
             <Button
               className='w-full'
               variant='tag'
-              icon={<CookieIcon />}
+              icon={<SparklesIcon />}
               onClick={() => {
                 localStorage.removeItem('nvmd-first');
                 toast.success(t('Tour-Tip'));

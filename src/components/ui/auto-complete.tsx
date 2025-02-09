@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { startTransition, useEffect, useRef, useState } from 'react';
 import {
   Command,
   CommandInput,
@@ -107,7 +107,11 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
         value={value}
         className='h-8'
         placeholder={placeholder}
-        onFocus={() => setOpen(true)}
+        onFocus={() =>
+          startTransition(() => {
+            setOpen(true);
+          })
+        }
         onBlur={() => setOpen(false)}
         onValueChange={onValueChange}
       />
@@ -116,7 +120,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
           ref={dropdown}
           className={`w-full absolute ${
             position === 'bottom' ? 'top-0' : 'bottom-11'
-          } `}
+          }`}
         >
           <CommandList>
             <AnimatePresence>

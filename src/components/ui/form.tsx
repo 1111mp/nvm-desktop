@@ -8,6 +8,7 @@ import {
   FieldValues,
   FormProvider,
   useFormContext,
+  useFormState,
 } from 'react-hook-form';
 import { Label } from '@/components/ui/label';
 
@@ -42,7 +43,8 @@ const FormField = <
 const useFormField = () => {
   const fieldContext = useContext(FormFieldContext);
   const itemContext = useContext(FormItemContext);
-  const { getFieldState, formState } = useFormContext();
+  const { getFieldState } = useFormContext();
+  const formState = useFormState({ name: fieldContext.name });
   const fieldState = getFieldState(fieldContext.name, formState);
 
   if (!fieldContext) {
@@ -140,9 +142,7 @@ function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
   const { error, formMessageId } = useFormField();
   const body = error ? String(error?.message) : props.children;
 
-  if (!body) {
-    return null;
-  }
+  if (!body) return null;
 
   return (
     <p

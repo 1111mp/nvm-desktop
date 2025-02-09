@@ -13,18 +13,19 @@ import {
   Tag,
   Tooltip,
   TooltipContent,
-  // TooltipPortal,
   TooltipTrigger,
 } from '@/components/ui';
 import {
-  CheckCircledIcon,
-  ChevronDownIcon,
-  CrossCircledIcon,
-  DownloadIcon,
-  MinusCircledIcon,
-  ReloadIcon,
-  UpdateIcon,
-} from '@radix-ui/react-icons';
+  CircleChevronDown,
+  CloudDownload,
+  Frown,
+  HardDrive,
+  MousePointerClick,
+  RefreshCw,
+  RotateCw,
+  ThumbsUp,
+  TrashIcon,
+} from 'lucide-react';
 import { memo, type ColumnDef, type Table } from '@tanstack/react-table';
 import { toast } from 'sonner';
 import { Modal, ModalRef } from './modal';
@@ -258,7 +259,7 @@ export const Versions: React.FC = () => {
                   size='sm'
                   variant='tag'
                   className='text-fuchsia-500 border-fuchsia-500 hover:text-fuchsia-500/80 hover:border-fuchsia-500/60 focus-visible:ring-1 focus-visible:ring-fuchsia-500/60'
-                  icon={<ChevronDownIcon />}
+                  icon={<CircleChevronDown />}
                 >
                   {t('More')}
                 </Button>
@@ -277,7 +278,7 @@ export const Versions: React.FC = () => {
                     }
                   }}
                 >
-                  <CheckCircledIcon />
+                  <MousePointerClick className='text-foreground' />
                   {t('Apply')}
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -297,7 +298,7 @@ export const Versions: React.FC = () => {
                     }
                   }}
                 >
-                  <CrossCircledIcon />
+                  <TrashIcon className='text-red-600' />
                   {t('Uninstall')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -308,7 +309,7 @@ export const Versions: React.FC = () => {
           <Button
             size='sm'
             variant='tag'
-            icon={<DownloadIcon />}
+            icon={<CloudDownload />}
             onClick={() => modal.current?.show(row.original)}
           >
             {t('Install')}
@@ -425,17 +426,17 @@ export const Versions: React.FC = () => {
                   {
                     label: t('Installed'),
                     value: 'Installed',
-                    icon: MinusCircledIcon,
+                    icon: HardDrive,
                   },
                   {
                     label: t('Supported'),
                     value: 'Supported',
-                    icon: CheckCircledIcon,
+                    icon: ThumbsUp,
                   },
                   {
                     label: t('Not-Supported'),
                     value: 'UnSupported',
-                    icon: CrossCircledIcon,
+                    icon: Frown,
                   },
                 ]}
               />
@@ -445,7 +446,7 @@ export const Versions: React.FC = () => {
                   disabled={loading}
                   className='h-7 text-sm'
                   loading={localLoading}
-                  icon={<ReloadIcon />}
+                  icon={<RotateCw />}
                   onClick={onPageReload}
                 >
                   {t('Page-Reload')}
@@ -454,7 +455,7 @@ export const Versions: React.FC = () => {
                   loading={loading}
                   size='sm'
                   className='h-7 text-sm'
-                  icon={<UpdateIcon />}
+                  icon={<RefreshCw />}
                   onClick={onDataUpdate}
                 >
                   {t('Data-Update')}

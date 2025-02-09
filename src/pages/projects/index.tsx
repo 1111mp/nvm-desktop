@@ -24,11 +24,10 @@ import {
   SelectValue,
   Tooltip,
   TooltipContent,
-  // TooltipPortal,
   TooltipTrigger,
 } from '@/components/ui';
 import { VsCodeLogo } from '@/components/vscode-logo';
-import { FilePlusIcon, ReloadIcon, TrashIcon } from '@radix-ui/react-icons';
+import { GitBranchPlusIcon, RotateCwIcon, TrashIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { cn } from '@/lib/utils';
@@ -421,7 +420,7 @@ export const Component: React.FC = () => {
                 size='sm'
                 className='h-7 text-sm'
                 loading={loading}
-                icon={<ReloadIcon />}
+                icon={<RotateCwIcon />}
                 onClick={onPageReload}
               >
                 {t('Page-Reload')}
@@ -429,7 +428,7 @@ export const Component: React.FC = () => {
               <Button
                 size='sm'
                 className='h-7 text-sm'
-                icon={<FilePlusIcon />}
+                icon={<GitBranchPlusIcon />}
                 onClick={onAddProject}
               >
                 {t('Add-Project')}

@@ -1,13 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import * as LabelPrimitive from '@radix-ui/react-label';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { CopyIcon } from '@radix-ui/react-icons';
-import {
-  Tooltip,
-  TooltipContent,
-  // TooltipPortal,
-  TooltipTrigger,
-} from './tooltip';
+import { CopyIcon } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
 
 import { useCopyToClipboard } from '@/hooks';
 import { cn } from '@/lib/utils';
@@ -64,7 +59,7 @@ function LabelCopyable({
         <Tooltip open={open}>
           <TooltipTrigger asChild>
             <CopyIcon
-              className='inline-block text-primary cursor-pointer hover:opacity-70 active:opacity-80'
+              className='inline-block size-4 text-primary cursor-pointer hover:opacity-70 active:opacity-80'
               onClick={(evt) => {
                 evt.stopPropagation();
                 copy((children as unknown as string) || title || '');

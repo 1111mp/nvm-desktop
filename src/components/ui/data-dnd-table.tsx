@@ -26,7 +26,7 @@ import {
 } from './table';
 import { Bars } from './bars-icon';
 import { Button } from './button';
-import { GripVertical } from 'lucide-react';
+import { GripVerticalIcon } from 'lucide-react';
 import {
   closestCenter,
   DndContext,
@@ -105,7 +105,7 @@ function DraggableRow<TData>({ row }: DraggableRowProps<TData>) {
           className='cursor-move'
           size='sm'
           variant='ghost'
-          icon={<GripVertical />}
+          icon={<GripVerticalIcon />}
           {...listeners}
         />
       </TableCell>

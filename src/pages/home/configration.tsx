@@ -24,7 +24,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui';
-import { Share1Icon } from '@radix-ui/react-icons';
+import { Share2Icon } from 'lucide-react';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
 
 import { z } from 'zod';
@@ -90,7 +90,7 @@ const Configration: React.FC = () => {
             size='sm'
             title={title}
             variant='ghost'
-            icon={<Share1Icon />}
+            icon={<Share2Icon />}
           />
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end' className='w-48'>

@@ -73,14 +73,12 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
     // Create a buffered reader for the compressed data
     let file = File::open(&temp_file_path).await?;
     let reader = BufReader::new(file);
-
     // Initialize the GzipDecoder
     let decoded = GzipDecoder::new(reader);
     // Initialize the tar archive with the decoded reader
     let mut tarball = Archive::new(decoded);
-
     // Unpack the tarball to the destination directory and report progress
-    let mut entries: tokio_tar::Entries<GzipDecoder<BufReader<File>>> = tarball.entries()?;
+    let mut entries = tarball.entries()?;
     let mut unpacked_size = 0;
 
     while let Some(entry) = match cancel_signal.as_mut() {

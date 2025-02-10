@@ -90,9 +90,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
 
   useEffect(() => {
     if (open) {
-      setTimeout(() => {
-        updatePosition();
-      });
+      updatePosition();
     }
   }, [open, updatePosition]);
 

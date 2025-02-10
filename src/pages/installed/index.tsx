@@ -19,8 +19,8 @@ import {
 import { type ColumnDef, type Table, memo } from '@tanstack/react-table';
 import {
   CircleChevronDownIcon,
-  FocusIcon,
   HardDriveIcon,
+  LightbulbIcon,
   MousePointerClick,
   RotateCwIcon,
   TrashIcon,
@@ -374,7 +374,7 @@ export const Component: React.FC = () => {
                 {
                   label: t('Current'),
                   value: 'Current',
-                  icon: FocusIcon,
+                  icon: LightbulbIcon,
                 },
                 {
                   label: t('Installed'),

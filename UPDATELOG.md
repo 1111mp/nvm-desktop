@@ -1,3 +1,18 @@
+## v4.0.7
+
+### Features
+
+- replace some icons
+- upgrade to tailwindcss v4
+
+### Bug Fixes
+
+- avoid repeated updates [#155](https://github.com/1111mp/nvm-desktop/issues/155)
+- the tooltip text color setting is incorrect [#157](https://github.com/1111mp/nvm-desktop/issues/157)
+- the multi-select component has no scrollbar [#160](https://github.com/1111mp/nvm-desktop/issues/160)
+
+---
+
 ## v4.0.6
 
 ### Features

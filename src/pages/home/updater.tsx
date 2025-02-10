@@ -18,7 +18,7 @@ import {
   Progress,
 } from '@/components/ui';
 import Markdown from 'react-markdown';
-import { GlobeIcon } from '@radix-ui/react-icons';
+import { GlobeIcon } from 'lucide-react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import { check, type Update } from '@tauri-apps/plugin-updater';
 

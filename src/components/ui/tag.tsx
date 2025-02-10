@@ -30,16 +30,19 @@ const labelVariants = cva('px-2 text-xs leading-5 rounded', {
   },
 });
 
-const Tag: React.FC<
-  React.ComponentProps<typeof LabelPrimitive.Root> &
-    VariantProps<typeof labelVariants>
-> = ({ ref, className, color, ...props }) => (
-  <LabelPrimitive.Root
-    ref={ref}
-    className={cn(labelVariants({ color }), className)}
-    {...props}
-  />
-);
+function Tag({
+  className,
+  color,
+  ...props
+}: React.ComponentProps<typeof LabelPrimitive.Root> &
+  VariantProps<typeof labelVariants>) {
+  return (
+    <LabelPrimitive.Root
+      className={cn(labelVariants({ color }), className)}
+      {...props}
+    />
+  );
+}
 Tag.displayName = 'Tag';
 
 export { Tag };

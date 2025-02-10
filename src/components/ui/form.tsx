@@ -8,8 +8,9 @@ import {
   FieldValues,
   FormProvider,
   useFormContext,
+  useFormState,
 } from 'react-hook-form';
-import { Label } from './label';
+import { Label } from '@/components/ui/label';
 
 import { cn } from '@/lib/utils';
 
@@ -42,8 +43,8 @@ const FormField = <
 const useFormField = () => {
   const fieldContext = useContext(FormFieldContext);
   const itemContext = useContext(FormItemContext);
-  const { getFieldState, formState } = useFormContext();
-
+  const { getFieldState } = useFormContext();
+  const formState = useFormState({ name: fieldContext.name });
   const fieldState = getFieldState(fieldContext.name, formState);
 
   if (!fieldContext) {
@@ -70,49 +71,46 @@ const FormItemContext = createContext<FormItemContextValue>(
   {} as FormItemContextValue,
 );
 
-const FormItem: React.FC<React.ComponentProps<'div'>> = ({
-  ref,
-  className,
-  ...props
-}) => {
+function FormItem({ className, ...props }: React.ComponentProps<'div'>) {
   const id = useId();
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div ref={ref} className={cn('space-y-2', className)} {...props} />
+      <div
+        data-slot='form-item'
+        className={cn('space-y-2', className)}
+        {...props}
+      />
     </FormItemContext.Provider>
   );
-};
+}
 FormItem.displayName = 'FormItem';
 
-const FormLabel: React.FC<React.ComponentProps<typeof LabelPrimitive.Root>> = ({
-  ref,
+function FormLabel({
   className,
   ...props
-}) => {
+}: React.ComponentProps<typeof LabelPrimitive.Root>) {
   const { error, formItemId } = useFormField();
 
   return (
     <Label
-      ref={ref}
-      className={cn(error && 'text-destructive', className)}
+      data-slot='form-label'
+      data-error={!!error}
+      className={cn('data-[error=true]:text-destructive', className)}
       htmlFor={formItemId}
       {...props}
     />
   );
-};
+}
 FormLabel.displayName = 'FormLabel';
 
-const FormControl: React.FC<React.ComponentProps<typeof Slot>> = ({
-  ref,
-  ...props
-}) => {
+function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {
   const { error, formItemId, formDescriptionId, formMessageId } =
     useFormField();
 
   return (
     <Slot
-      ref={ref}
+      data-slot='form-control'
       id={formItemId}
       aria-describedby={
         !error
@@ -123,51 +121,40 @@ const FormControl: React.FC<React.ComponentProps<typeof Slot>> = ({
       {...props}
     />
   );
-};
+}
 FormControl.displayName = 'FormControl';
 
-const FormDescription: React.FC<React.ComponentProps<'p'>> = ({
-  ref,
-  className,
-  ...props
-}) => {
+function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {
   const { formDescriptionId } = useFormField();
 
   return (
     <p
-      ref={ref}
+      data-slot='form-description'
       id={formDescriptionId}
-      className={cn('text-[0.8rem] text-muted-foreground', className)}
+      className={cn('text-muted-foreground text-sm', className)}
       {...props}
     />
   );
-};
+}
 FormDescription.displayName = 'FormDescription';
 
-const FormMessage: React.FC<React.ComponentProps<'p'>> = ({
-  ref,
-  className,
-  children,
-  ...props
-}) => {
+function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
   const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message) : children;
+  const body = error ? String(error?.message) : props.children;
 
-  if (!body) {
-    return null;
-  }
+  if (!body) return null;
 
   return (
     <p
-      ref={ref}
+      data-slot='form-message'
       id={formMessageId}
-      className={cn('text-[0.8rem] font-medium text-destructive', className)}
+      className={cn('text-destructive text-sm font-medium', className)}
       {...props}
     >
       {body}
     </p>
   );
-};
+}
 FormMessage.displayName = 'FormMessage';
 
 export {

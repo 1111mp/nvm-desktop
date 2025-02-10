@@ -1,5 +1,5 @@
 import { Button, Label, Popover, PopoverContent, PopoverTrigger } from './ui';
-import { CheckIcon, ColorWheelIcon } from '@radix-ui/react-icons';
+import { Check, Palette } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/lib/utils';
@@ -119,7 +119,7 @@ export function ThemeCustomizer() {
           title={t('Theme color')}
           variant='ghost'
         >
-          <ColorWheelIcon />
+          <Palette />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -156,7 +156,7 @@ export function ThemeCustomizer() {
                       'mr-1 flex h-5 w-5 shrink-0 -translate-x-1 items-center justify-center rounded-full bg-(--theme-primary)',
                     )}
                   >
-                    {isActive && <CheckIcon className='h-4 w-4 text-white' />}
+                    {isActive && <Check className='size-4 text-white' />}
                   </span>
                   {label}
                 </Button>

@@ -1,38 +1,38 @@
 import { useEffect, useRef, useState } from 'react';
 import * as LabelPrimitive from '@radix-ui/react-label';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { CopyIcon } from '@radix-ui/react-icons';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipPortal,
-  TooltipTrigger,
-} from './tooltip';
+import { CopyIcon } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
 
 import { useCopyToClipboard } from '@/hooks';
 import { cn } from '@/lib/utils';
 
 const labelVariants = cva(
-  'text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+  'text-sm leading-none font-normal select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
 );
 
 export type LabelProps = React.ComponentProps<typeof LabelPrimitive.Root> &
   VariantProps<typeof labelVariants>;
 
-const Label: React.FC<LabelProps> = ({ ref, className, ...props }) => {
+function Label({ className, ...props }: LabelProps) {
   return (
     <LabelPrimitive.Root
-      ref={ref}
+      data-slot='label'
       className={cn(labelVariants(), className)}
       {...props}
     />
   );
-};
+}
 Label.displayName = LabelPrimitive.Root.displayName;
 
-const LabelCopyable: React.FC<
-  LabelProps & { rootClassName?: string; title?: string }
-> = ({ ref, className, children, rootClassName, title, ...props }) => {
+function LabelCopyable({
+  ref,
+  className,
+  children,
+  rootClassName,
+  title,
+  ...props
+}: LabelProps & { rootClassName?: string; title?: string }) {
   const [open, setOpen] = useState<boolean>(false);
   const [did, setDid] = useState<boolean>(false);
 
@@ -59,7 +59,7 @@ const LabelCopyable: React.FC<
         <Tooltip open={open}>
           <TooltipTrigger asChild>
             <CopyIcon
-              className='inline-block text-primary cursor-pointer hover:opacity-70 active:opacity-80'
+              className='inline-block size-4 text-primary cursor-pointer hover:opacity-70 active:opacity-80'
               onClick={(evt) => {
                 evt.stopPropagation();
                 copy((children as unknown as string) || title || '');
@@ -78,17 +78,14 @@ const LabelCopyable: React.FC<
               }}
             />
           </TooltipTrigger>
-          <TooltipPortal>
-            <TooltipContent className='text-accent-foreground bg-accent'>
-              {did ? 'Copied' : 'Copy'}
-            </TooltipContent>
-          </TooltipPortal>
+          <TooltipContent className='text-accent-foreground bg-accent'>
+            {did ? 'Copied' : 'Copy'}
+          </TooltipContent>
         </Tooltip>
       </>
     </span>
   );
-};
-
+}
 LabelCopyable.displayName = 'LabelCopyable';
 
 export { Label, LabelCopyable };

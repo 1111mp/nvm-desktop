@@ -1,6 +1,6 @@
 'use no memo';
 
-import { Cross2Icon } from '@radix-ui/react-icons';
+import { CircleX } from 'lucide-react';
 import { Table } from '@tanstack/react-table';
 
 import { Button } from './button';
@@ -67,7 +67,7 @@ export function DataTableToolbar<TData>({
             className='h-7 px-2 lg:px-3 border-dashed'
           >
             {t('Reset')}
-            <Cross2Icon className='ml-2 h-4 w-4' />
+            <CircleX className='ml-1 size-4' />
           </Button>
         )}
       </div>

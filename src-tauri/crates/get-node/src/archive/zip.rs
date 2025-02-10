@@ -1,14 +1,14 @@
 use std::time::Duration;
 
 use anyhow::{bail, Result};
-use async_zip::tokio::read::seek::ZipFileReader;
+use async_zip::base::read::seek::ZipFileReader;
 use futures_util::StreamExt;
 use node_semver::Version;
 use tokio::{
     fs::{create_dir_all, remove_dir_all, remove_file, rename, File, OpenOptions},
     io::{AsyncWriteExt, BufReader},
 };
-use tokio_util::compat::TokioAsyncWriteCompatExt;
+use tokio_util::compat::{TokioAsyncReadCompatExt, TokioAsyncWriteCompatExt};
 
 use super::{create_client, node::*, send, FetchConfig, PathBuf};
 
@@ -72,13 +72,11 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
 
     // Create a buffered reader for the compressed data
     let file = File::open(&temp_file_path).await?;
-    let mut reader = BufReader::new(file);
-
+    let archive = BufReader::new(file).compat();
     // Initialize the GzipDecoder
-    let mut zip = ZipFileReader::with_tokio(&mut reader).await?;
+    let mut reader = ZipFileReader::new(archive).await?;
     // Unpack the tarball to the destination directory and report progress
-    let total_entries = zip.file().entries().len();
-
+    let total_entries = reader.file().entries().len();
     let mut is_cancel = false;
     for index in 0..total_entries {
         // Check for cancel signal
@@ -89,12 +87,12 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
             }
         }
 
-        let entry = zip.file().entries().get(index).unwrap();
+        let entry = reader.file().entries().get(index).unwrap();
         let path = dest.join(entry.filename().as_str()?);
         // If the filename of the entry ends with '/', it is treated as a directory.
         // This is implemented by previous versions of this crate and the Python Standard Library.
         let entry_is_dir = entry.dir()?;
-        let mut entry_reader = zip.reader_without_entry(index).await?;
+        let mut entry_reader = reader.reader_without_entry(index).await?;
 
         if entry_is_dir {
             // The directory may have been created if iteration is out of order.

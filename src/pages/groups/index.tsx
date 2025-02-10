@@ -28,11 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui';
 import { toast } from 'sonner';
-import {
-  MagnifyingGlassIcon,
-  ReloadIcon,
-  TrashIcon,
-} from '@radix-ui/react-icons';
+import { RotateCwIcon, SearchIcon, TrashIcon } from 'lucide-react';
 import { GroupCreator } from './group-creator';
 
 import { useTranslation } from 'react-i18next';
@@ -257,7 +253,7 @@ export const Component: React.FC = () => {
             </MultiSelectTrigger>
             <MultiSelectContent>
               <MultiSelectSearch
-                icon={<MagnifyingGlassIcon />}
+                icon={<SearchIcon className='size-4' />}
                 placeholder={t('Input-To-Search')}
               />
               <MultiSelectList>
@@ -447,7 +443,7 @@ export const Component: React.FC = () => {
                 size='sm'
                 className='h-7 text-sm'
                 loading={loading}
-                icon={<ReloadIcon />}
+                icon={<RotateCwIcon />}
                 onClick={onPageReload}
               >
                 {t('Page-Reload')}

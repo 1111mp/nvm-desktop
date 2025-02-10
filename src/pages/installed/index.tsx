@@ -14,17 +14,17 @@ import {
   Tag,
   Tooltip,
   TooltipContent,
-  TooltipPortal,
   TooltipTrigger,
 } from '@/components/ui';
 import { type ColumnDef, type Table, memo } from '@tanstack/react-table';
 import {
-  CheckCircledIcon,
-  ChevronDownIcon,
-  CrossCircledIcon,
-  MinusCircledIcon,
-  ReloadIcon,
-} from '@radix-ui/react-icons';
+  CircleChevronDownIcon,
+  HardDriveIcon,
+  LightbulbIcon,
+  MousePointerClick,
+  RotateCwIcon,
+  TrashIcon,
+} from 'lucide-react';
 
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
@@ -139,11 +139,9 @@ export const Component: React.FC = () => {
                   {version}
                 </a>
               </TooltipTrigger>
-              <TooltipPortal>
-                <TooltipContent className='bg-primary'>
-                  {t('Whats-new')}
-                </TooltipContent>
-              </TooltipPortal>
+              <TooltipContent className='bg-primary'>
+                {t('Whats-new')}
+              </TooltipContent>
             </Tooltip>
             {lts ? (
               <span className='text-foreground-foreground'>({lts})</span>
@@ -247,7 +245,7 @@ export const Component: React.FC = () => {
                 size='sm'
                 variant='tag'
                 className='text-fuchsia-500 border-fuchsia-500 hover:text-fuchsia-500/80 hover:border-fuchsia-500/60 focus-visible:ring-1 focus-visible:ring-fuchsia-500/60'
-                icon={<ChevronDownIcon />}
+                icon={<CircleChevronDownIcon />}
               >
                 {t('More')}
               </Button>
@@ -266,7 +264,7 @@ export const Component: React.FC = () => {
                   }
                 }}
               >
-                <CheckCircledIcon />
+                <MousePointerClick className='text-foreground' />
                 {t('Apply')}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -291,7 +289,7 @@ export const Component: React.FC = () => {
                   }
                 }}
               >
-                <CrossCircledIcon />
+                <TrashIcon className='text-red-600' />
                 {t('Uninstall')}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -376,12 +374,12 @@ export const Component: React.FC = () => {
                 {
                   label: t('Current'),
                   value: 'Current',
-                  icon: CheckCircledIcon,
+                  icon: LightbulbIcon,
                 },
                 {
                   label: t('Installed'),
                   value: 'Installed',
-                  icon: MinusCircledIcon,
+                  icon: HardDriveIcon,
                 },
               ]}
             />
@@ -389,7 +387,7 @@ export const Component: React.FC = () => {
               size='sm'
               className='h-7 text-sm'
               loading={loading}
-              icon={<ReloadIcon />}
+              icon={<RotateCwIcon />}
               onClick={onPageReload}
             >
               {t('Page-Reload')}

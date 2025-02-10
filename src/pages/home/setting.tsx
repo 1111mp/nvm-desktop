@@ -26,7 +26,7 @@ import {
   IpInput,
   Switch,
 } from '@/components/ui';
-import { GearIcon, InfoCircledIcon, Pencil2Icon } from '@radix-ui/react-icons';
+import { InfoIcon, SettingsIcon, SquarePenIcon } from 'lucide-react';
 import {
   Form,
   FormControl,
@@ -40,7 +40,7 @@ import {
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
 
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppContext } from '@/app-context';
@@ -182,10 +182,10 @@ const Setting: React.FC<Props> = () => {
           size='sm'
           title={t('Setting')}
           variant='ghost'
-          icon={<GearIcon />}
+          icon={<SettingsIcon />}
         />
       </SheetTrigger>
-      <SheetContent className='flex flex-col p-0'>
+      <SheetContent className='p-0'>
         <SheetHeader className='pt-6 px-6'>
           <SheetTitle>{t('Setting')}</SheetTitle>
           <SheetDescription></SheetDescription>
@@ -197,7 +197,7 @@ const Setting: React.FC<Props> = () => {
               name='locale'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className='text-muted-foreground'>
+                  <FormLabel className='inline-block text-muted-foreground'>
                     {t('Language')}
                   </FormLabel>
                   <FormControl>
@@ -234,8 +234,8 @@ const Setting: React.FC<Props> = () => {
               control={form.control}
               name='theme'
               render={({ field }) => (
-                <FormItem className='space-y-2'>
-                  <FormLabel className='text-muted-foreground'>
+                <FormItem>
+                  <FormLabel className='inline-block text-muted-foreground'>
                     {t('Themes')}
                   </FormLabel>
                   <FormControl>
@@ -278,8 +278,8 @@ const Setting: React.FC<Props> = () => {
               control={form.control}
               name='closer'
               render={({ field }) => (
-                <FormItem className='space-y-2'>
-                  <FormLabel className='text-muted-foreground'>
+                <FormItem>
+                  <FormLabel className='inline-block text-muted-foreground'>
                     {t('When-Closing')}
                   </FormLabel>
                   <FormControl>
@@ -319,7 +319,7 @@ const Setting: React.FC<Props> = () => {
                     {t('VSCode-Code-Command')}
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <InfoCircledIcon className='text-primary cursor-pointer' />
+                        <InfoIcon className='size-4 text-primary cursor-pointer' />
                       </TooltipTrigger>
                       <TooltipContent className='w-96 text-accent-foreground bg-accent'>
                         {t('VSCode-Code-Command-tip')}
@@ -342,7 +342,7 @@ const Setting: React.FC<Props> = () => {
                     {t('Installation-Directory')}
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <InfoCircledIcon className='text-primary cursor-pointer' />
+                        <InfoIcon className='size-4 text-primary cursor-pointer' />
                       </TooltipTrigger>
                       <TooltipContent className='w-96 text-accent-foreground bg-accent'>
                         {t('Installation-Directory-tip')}
@@ -364,7 +364,7 @@ const Setting: React.FC<Props> = () => {
                       <Button
                         variant='secondary'
                         size='sm'
-                        icon={<Pencil2Icon />}
+                        icon={<SquarePenIcon />}
                         onClick={async () => {
                           const path = await openDialog({
                             title: t('Directory-Select'),
@@ -385,50 +385,53 @@ const Setting: React.FC<Props> = () => {
             <FormField
               control={form.control}
               name='proxy'
-              render={({ field }) => {
-                const { enabled } = field.value;
-
-                return (
-                  <FormItem>
-                    <FormLabel className='text-muted-foreground'>
-                      {t('Proxy')}
-                    </FormLabel>
-                    <div className='space-y-4'>
+              render={() => (
+                <FormItem>
+                  <FormLabel className='inline-block text-muted-foreground'>
+                    {t('Proxy')}
+                  </FormLabel>
+                  <div className='space-y-4'>
+                    <FormField
+                      control={form.control}
+                      name='proxy.enabled'
+                      render={({ field }) => (
+                        <FormItem className='flex items-center gap-3'>
+                          <FormControl>
+                            <Switch
+                              className='mb-0'
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormDescription className='mt-0!'>
+                            {t(field.value ? 'Enabled' : 'Disabled')}
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                    <div className='flex items-center gap-2'>
                       <FormField
                         control={form.control}
-                        name='proxy.enabled'
-                        render={({ field }) => (
-                          <FormItem className='flex items-center gap-3'>
-                            <FormControl>
-                              <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormDescription className='mt-0!'>
-                              {t(field.value ? 'Enabled' : 'Disabled')}
-                            </FormDescription>
-                          </FormItem>
-                        )}
-                      />
-                      <div className='flex items-center gap-2'>
-                        <FormField
-                          control={form.control}
-                          name='proxy.ip'
-                          render={({ field }) => (
+                        name='proxy.ip'
+                        render={({ field }) => {
+                          const enabled = useWatch({ name: 'proxy.enabled' });
+                          return (
                             <FormItem>
                               <FormControl>
                                 <IpInput disabled={!enabled} {...field} />
                               </FormControl>
-                              <FormMessage className='absolute mt-1!' />
+                              <FormMessage />
                             </FormItem>
-                          )}
-                        />
-                        <span>:</span>
-                        <FormField
-                          control={form.control}
-                          name='proxy.port'
-                          render={({ field }) => (
+                          );
+                        }}
+                      />
+                      <span>:</span>
+                      <FormField
+                        control={form.control}
+                        name='proxy.port'
+                        render={({ field }) => {
+                          const enabled = useWatch({ name: 'proxy.enabled' });
+                          return (
                             <FormItem>
                               <FormControl>
                                 <Input
@@ -437,22 +440,22 @@ const Setting: React.FC<Props> = () => {
                                   {...field}
                                 />
                               </FormControl>
-                              <FormMessage className='absolute mt-1!' />
+                              <FormMessage />
                             </FormItem>
-                          )}
-                        />
-                      </div>
+                          );
+                        }}
+                      />
                     </div>
-                  </FormItem>
-                );
-              }}
+                  </div>
+                </FormItem>
+              )}
             />
             <FormField
               control={form.control}
               name='mirror'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className='text-muted-foreground'>
+                  <FormLabel className='inline-block text-muted-foreground'>
                     {t('Mirror-Url')}
                   </FormLabel>
                   <FormControl>

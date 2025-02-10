@@ -75,61 +75,61 @@ tr.introjs-showElement > th {
 .introjs-arrow.top {
   top: -10px;
   left: 10px;
-  border-bottom-color: hsl(var(--accent));
+  border-bottom-color: var(--accent);
 }
 .introjs-arrow.top-right {
   top: -10px;
   right: 10px;
-  border-bottom-color: hsl(var(--accent));
+  border-bottom-color: var(--accent);
 }
 .introjs-arrow.top-middle {
   top: -10px;
   left: 50%;
   margin-left: -5px;
-  border-bottom-color: hsl(var(--accent));
+  border-bottom-color: var(--accent);
 }
 .introjs-arrow.right {
   right: -10px;
   top: 10px;
-  border-left-color: hsl(var(--accent));
+  border-left-color: var(--accent);
 }
 .introjs-arrow.right-bottom {
   bottom: 10px;
   right: -10px;
-  border-left-color: hsl(var(--accent));
+  border-left-color: var(--accent);
 }
 .introjs-arrow.bottom {
   bottom: -10px;
   left: 10px;
-  border-top-color: hsl(var(--accent));
+  border-top-color: var(--accent);
 }
 .introjs-arrow.bottom-right {
   bottom: -10px;
   right: 10px;
-  border-top-color: hsl(var(--accent));
+  border-top-color: var(--accent);
 }
 .introjs-arrow.bottom-middle {
   bottom: -10px;
   left: 50%;
   margin-left: -5px;
-  border-top-color: hsl(var(--accent));
+  border-top-color: var(--accent);
 }
 .introjs-arrow.left {
   left: -10px;
   top: 10px;
-  border-right-color: hsl(var(--accent));
+  border-right-color: var(--accent);
 }
 .introjs-arrow.left-bottom {
   left: -10px;
   bottom: 10px;
-  border-right-color: hsl(var(--accent));
+  border-right-color: var(--accent);
 }
 .introjs-tooltip {
   box-sizing: content-box;
   position: absolute;
   visibility: visible;
-  color: hsl(var(--accent-foreground));
-  background-color: hsl(var(--accent));
+  color: var(--accent-foreground);
+  background-color: var(--accent);
   width: 520px;
   border-radius: 5px;
   box-shadow: 0 3px 30px rgba(33, 33, 33, 0.3);

@@ -11,12 +11,12 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui';
 import {
-  Cross2Icon,
-  FaceIcon,
   HeartIcon,
   MinusIcon,
   RocketIcon,
-} from '@radix-ui/react-icons';
+  SmileIcon,
+  XIcon,
+} from 'lucide-react';
 import { ThemeCustomizer } from '@/components/theme-customizer';
 import { Updater } from './updater';
 import { toast } from 'sonner';
@@ -63,7 +63,7 @@ const Home: React.FC = () => {
         <div>
           <p className='flex items-center gap-2 font-normal'>
             {t('Welcome-to')} nvm-desktop.
-            <RocketIcon className='text-primary' />
+            <RocketIcon className='size-4 text-primary' />
           </p>
           <p className='text-muted-foreground font-light'>{t('App-Desc')}</p>
         </div>
@@ -75,7 +75,7 @@ const Home: React.FC = () => {
       intro: (
         <p className='flex items-center gap-2'>
           {t('Color-Tip')}
-          <HeartIcon className='text-primary' />
+          <HeartIcon className='size-4 text-primary' />
         </p>
       ),
     },
@@ -403,7 +403,7 @@ const Home: React.FC = () => {
           </p>
           <p className='flex items-center gap-1'>
             <span>{t('Bles')}</span>
-            <FaceIcon className='text-primary' />
+            <SmileIcon className='size-4 text-primary' />
           </p>
         </div>
       ),
@@ -550,7 +550,7 @@ const Home: React.FC = () => {
               <Button
                 size='sm'
                 variant='secondary'
-                icon={<Cross2Icon />}
+                icon={<XIcon />}
                 onClick={() => {
                   windowClose();
                 }}

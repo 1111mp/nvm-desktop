@@ -2,7 +2,7 @@
 
 import { Table } from '@tanstack/react-table';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
-import { MixerHorizontalIcon } from '@radix-ui/react-icons';
+import { Waypoints } from 'lucide-react';
 import { Button } from './button';
 import {
   DropdownMenu,
@@ -30,7 +30,7 @@ export function DataTableViewOptions<TData>({
           size='sm'
           className='ml-auto hidden h-7 lg:flex'
         >
-          <MixerHorizontalIcon className='mr-2 h-4 w-4' />
+          <Waypoints className='mr-2 size-4' />
           {t('View')}
         </Button>
       </DropdownMenuTrigger>

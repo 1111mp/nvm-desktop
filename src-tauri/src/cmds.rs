@@ -162,7 +162,17 @@ pub async fn configration_import(
 #[tauri::command]
 pub async fn open_with_vscode(path: String) -> CmdResult<()> {
     let cmd = { Config::settings().latest().coder.clone() }.unwrap();
-    wrap_err!(Command::new(cmd).arg(&path).status())?;
+    let mut command = Command::new(cmd);
+    command.arg(&path);
+
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        use windows::Win32::System::Threading::CREATE_NO_WINDOW;
+        command.creation_flags(CREATE_NO_WINDOW.0);
+    }
+
+    wrap_err!(command.status())?;
     Ok(())
 }
 

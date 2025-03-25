@@ -7,7 +7,8 @@
 		"beforeDevCommand": "pnpm ui:dev",
 		"devUrl": "http://localhost:1420",
 		"beforeBuildCommand": "pnpm ui:build",
-		"frontendDist": "../dist"
+		"frontendDist": "../dist",
+		"removeUnusedCommands": true
 	},
 	"app": {
 		"macOSPrivateApi": true,

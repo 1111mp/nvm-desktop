@@ -97,7 +97,7 @@ fn main() -> tauri::Result<()> {
 
     let app = builder.build(tauri::generate_context!())?;
 
-    app.run(|_, err| match err {
+    app.run(|app_handle, err| match err {
         tauri::RunEvent::WindowEvent { label, event, .. } => {
             if label == "main" {
                 match event {
@@ -109,6 +109,12 @@ fn main() -> tauri::Result<()> {
                         if closer == "close" {
                             return;
                         }
+                        // TODO: replace with `app_handle.set_dock_visibility`
+                        // Waiting for PR to be merged: https://github.com/tauri-apps/tauri/pull/13185
+                        #[cfg(target_os = "macos")]
+                        let _ =
+                            app_handle.set_activation_policy(tauri::ActivationPolicy::Accessory);
+
                         // CloseRequested Event
                         api.prevent_close();
                         if let Some(window) = core::handle::Handle::global().get_window() {

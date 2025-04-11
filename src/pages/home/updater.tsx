@@ -196,40 +196,41 @@ export const Updater: React.FC = () => {
                 <p className='space-x-4'>
                   <Label>{t('Release-Notes')} :</Label>
                 </p>
-                <Markdown
-                  className='max-h-60 mt-2 p-3 overflow-auto bg-secondary text-secondary-foreground rounded-sm'
-                  components={{
-                    a: ({ children, ...props }) => {
-                      return (
-                        <a
-                          className='text-primary underline'
-                          {...props}
-                          target='_blank'
-                        >
+                <div className='max-h-60 mt-2 p-3 overflow-auto bg-secondary text-secondary-foreground rounded-sm'>
+                  <Markdown
+                    components={{
+                      a: ({ children, ...props }) => {
+                        return (
+                          <a
+                            className='text-primary underline'
+                            {...props}
+                            target='_blank'
+                          >
+                            {children}
+                          </a>
+                        );
+                      },
+                      h3: ({ children }) => (
+                        <h3 className='text-base font-bold'>{children}</h3>
+                      ),
+                      ul: ({ children }) => (
+                        <ul className='px-6 py-2'>{children}</ul>
+                      ),
+                      li: ({ children }) => (
+                        <li className='text-sm leading-6 list-disc'>
                           {children}
-                        </a>
-                      );
-                    },
-                    h3: ({ children }) => (
-                      <h3 className='text-base font-bold'>{children}</h3>
-                    ),
-                    ul: ({ children }) => (
-                      <ul className='px-6 py-2'>{children}</ul>
-                    ),
-                    li: ({ children }) => (
-                      <li className='text-sm leading-6 list-disc'>
-                        {children}
-                      </li>
-                    ),
-                    code: ({ children }) => (
-                      <code className='px-1.5 text-card-foreground bg-card rounded-sm'>
-                        {children}
-                      </code>
-                    ),
-                  }}
-                >
-                  {updateInfo.body}
-                </Markdown>
+                        </li>
+                      ),
+                      code: ({ children }) => (
+                        <code className='px-1.5 text-card-foreground bg-card rounded-sm'>
+                          {children}
+                        </code>
+                      ),
+                    }}
+                  >
+                    {updateInfo.body}
+                  </Markdown>
+                </div>
               </>
             ) : (
               <p>{t('Upgrade-Tip')}</p>

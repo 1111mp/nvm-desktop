@@ -105,7 +105,7 @@ const Setting: React.FC<Props> = () => {
     proxy: settings.proxy || { enabled: false, ip: '', port: '' },
   };
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: defaultSettings,
   });

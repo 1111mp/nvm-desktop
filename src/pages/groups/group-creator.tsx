@@ -68,7 +68,7 @@ export const GroupCreator: React.FC<Props> = ({
     projects: z.array(z.string()),
   });
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',

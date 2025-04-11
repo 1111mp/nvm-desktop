@@ -142,7 +142,7 @@ const ConfigrationExport: React.FC<ConfigrationExportProps> = ({ ref }) => {
   const { color } = useAppContext();
   const { t } = useTranslation();
 
-  const form = useForm<z.infer<typeof FormSchema>>({
+  const form = useForm({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       items: ['color', 'setting', 'projects'],

@@ -176,14 +176,21 @@ pub async fn open_with_vscode(path: String) -> CmdResult<()> {
     Ok(())
 }
 
-/// open data dir `.nvmd`
+/// open app config dir
+#[tauri::command]
+pub fn open_config_dir() -> CmdResult<()> {
+    let data_dir: PathBuf = wrap_err!(dirs::app_config_dir())?;
+    wrap_err!(open::that(data_dir))
+}
+
+/// open app data dir `.nvmd`
 #[tauri::command]
 pub fn open_data_dir() -> CmdResult<()> {
     let data_dir: PathBuf = wrap_err!(dirs::nvmd_home_dir())?;
     wrap_err!(open::that(data_dir))
 }
 
-/// open logs dir
+/// open app logs dir
 #[tauri::command]
 pub fn open_logs_dir() -> CmdResult<()> {
     let logs_dir: PathBuf = wrap_err!(dirs::app_logs_dir())?;

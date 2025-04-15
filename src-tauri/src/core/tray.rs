@@ -13,6 +13,7 @@ use tauri::{
     },
     AppHandle, Emitter, Manager, Wry,
 };
+use tauri_plugin_window_state::AppHandleExt;
 
 use super::handle;
 
@@ -129,12 +130,19 @@ impl Tray {
             .items(&[
                 &SubmenuBuilder::with_id(app_handle, "open_dirs", t!("Open Dir", "打开目录"))
                     .items(&[
+                        &MenuItemBuilder::with_id("open_config_dir", t!("Config Dir", "配置目录"))
+                            .build(app_handle)?,
                         &MenuItemBuilder::with_id("open_data_dir", t!("Data Dir", "数据目录"))
                             .build(app_handle)?,
                         &MenuItemBuilder::with_id("open_logs_dir", t!("Logs Dir", "日志目录"))
                             .build(app_handle)?,
                     ])
                     .build()?,
+                &MenuItemBuilder::with_id(
+                    "reset_window_state",
+                    t!("Reset Window State", "重置窗口状态"),
+                )
+                .build(app_handle)?,
                 &MenuItemBuilder::with_id("open_dev_tools", t!("Open Dev Tools", "开发者工具"))
                     .build(app_handle)?,
                 &PredefinedMenuItem::about(
@@ -203,8 +211,12 @@ impl Tray {
                 let _ = resolve::create_window();
             }
             "quit" => cmds::exit_app(app_handle.clone()),
+            "open_config_dir" => crate::log_err!(cmds::open_config_dir()),
             "open_data_dir" => crate::log_err!(cmds::open_data_dir()),
             "open_logs_dir" => crate::log_err!(cmds::open_logs_dir()),
+            "reset_window_state" => {
+                let _ = app_handle.reset_window_state();
+            }
             "open_dev_tools" => {
                 if let Some(window) = app_handle.get_webview_window("main") {
                     window.open_devtools();

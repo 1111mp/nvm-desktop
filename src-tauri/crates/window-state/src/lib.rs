@@ -10,9 +10,12 @@ use bitflags::bitflags;
 use serde::{Deserialize, Serialize};
 use tauri::{
     plugin::{Builder as PluginBuilder, TauriPlugin},
-    AppHandle, LogicalPosition, LogicalSize, Manager, Monitor, PhysicalPosition, PhysicalSize,
-    RunEvent, Runtime, WebviewWindow, Window, WindowEvent,
+    AppHandle, Manager, Monitor, RunEvent, Runtime, WebviewWindow, Window, WindowEvent,
 };
+#[cfg(target_os = "macos")]
+use tauri::{LogicalPosition, LogicalSize};
+#[cfg(not(target_os = "macos"))]
+use tauri::{PhysicalPosition, PhysicalSize};
 
 use std::{
     collections::{HashMap, HashSet},

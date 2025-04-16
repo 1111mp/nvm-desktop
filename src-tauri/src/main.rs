@@ -108,11 +108,9 @@ fn main() -> tauri::Result<()> {
                         if closer == "close" {
                             return;
                         }
-                        // TODO: replace with `app_handle.set_dock_visibility`
-                        // Waiting for PR to be merged: https://github.com/tauri-apps/tauri/pull/13185
+                        
                         #[cfg(target_os = "macos")]
-                        let _ =
-                            app_handle.set_activation_policy(tauri::ActivationPolicy::Accessory);
+                        let _ = app_handle.set_dock_visibility(false);
 
                         // CloseRequested Event
                         api.prevent_close();

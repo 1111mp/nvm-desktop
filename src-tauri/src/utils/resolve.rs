@@ -32,9 +32,8 @@ pub fn create_window() -> Result<()> {
     let app_handle = handle::Handle::global().app_handle().unwrap();
 
     if let Some(window) = handle::Handle::global().get_window() {
-        // TODO: replace with `app_handle.set_dock_visibility`
         #[cfg(target_os = "macos")]
-        let _ = app_handle.set_activation_policy(tauri::ActivationPolicy::Regular);
+        let _ = app_handle.set_dock_visibility(true);
 
         trace_err!(window.show(), "set win visible");
         trace_err!(window.set_focus(), "set win focus");

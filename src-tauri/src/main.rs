@@ -8,7 +8,6 @@ mod utils;
 
 use config::Config;
 use tauri::Manager;
-use tauri_plugin_window_state::{AppHandleExt, StateFlags};
 use utils::resolve;
 
 fn main() -> tauri::Result<()> {

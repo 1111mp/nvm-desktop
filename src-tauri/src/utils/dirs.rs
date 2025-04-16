@@ -83,6 +83,18 @@ pub fn app_resources_dir() -> Result<PathBuf> {
 }
 
 /// get the logs dir
+pub fn app_config_dir() -> Result<PathBuf> {
+    let app_handle = handle::Handle::global().app_handle().unwrap();
+    match app_handle.path().app_config_dir() {
+        Ok(dir) => Ok(dir),
+        Err(e) => {
+            log::error!(target:"app", "Failed to get the config directory: {}", e);
+            Err(anyhow::anyhow!("Failed to get the config directory"))
+        }
+    }
+}
+
+/// get the logs dir
 pub fn app_logs_dir() -> Result<PathBuf> {
     let app_handle = handle::Handle::global().app_handle().unwrap();
     match app_handle.path().app_log_dir() {

@@ -56,7 +56,6 @@
     "shell:allow-stdin-write",
 		"dialog:default",
 		"updater:default",
-		"window-state:default",
 		"log:default"
 	]
 }

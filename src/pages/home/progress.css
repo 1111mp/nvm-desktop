@@ -17,27 +17,27 @@
 }
 
 .CircularProgressbar .CircularProgressbar-path {
-  stroke: hsl(var(--primary));
+  stroke: var(--primary);
   stroke-linecap: round;
   -webkit-transition: stroke-dashoffset 0.5s ease 0s;
   transition: stroke-dashoffset 0.5s ease 0s;
 }
 
 .CircularProgressbar .CircularProgressbar-trail {
-  stroke: hsl(var(--primary-foreground));
+  stroke: var(--primary-foreground);
   /* Used when trail is not full diameter, i.e. when props.circleRatio is set */
   stroke-linecap: round;
 }
 
 .CircularProgressbar .CircularProgressbar-text {
-  fill: hsl(var(--primary));
+  fill: var(--primary);
   font-size: 20px;
   dominant-baseline: middle;
   text-anchor: middle;
 }
 
 .CircularProgressbar .CircularProgressbar-background {
-  fill: hsl(var(--primary-foreground));
+  fill: var(--primary-foreground);
 }
 
 /*
@@ -51,7 +51,7 @@
  */
 .CircularProgressbar.CircularProgressbar-inverted
   .CircularProgressbar-background {
-  fill: hsl(var(--primary));
+  fill: var(--primary);
 }
 
 .CircularProgressbar.CircularProgressbar-inverted .CircularProgressbar-text {

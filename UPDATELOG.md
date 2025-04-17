@@ -1,3 +1,19 @@
+## v4.0.8
+
+### Features
+
+- changing the icon of the MacOS platform application
+- hide dock icon when closing window [#132](https://github.com/1111mp/nvm-desktop/issues/132)
+
+### Bug Fixes
+
+- prevent terminal window from popping up on windows platform [#163](https://github.com/1111mp/nvm-desktop/issues/163)
+- abnormal position and size when window state is restored [#175](https://github.com/1111mp/nvm-desktop/issues/172)
+- add processing for npm's `--workspace` parameter & optimize the performance of `npm link` command
+- handling errors in the canonicalize method
+
+---
+
 ## v4.0.7
 
 ### Features

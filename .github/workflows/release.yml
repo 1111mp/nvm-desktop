@@ -149,6 +149,7 @@ jobs:
           sudo apt install -y \
             gcc-aarch64-linux-gnu \
             g++-aarch64-linux-gnu \
+            linux-libc-dev:arm64 \
             libwebkit2gtk-4.1-dev:arm64 \
             libappindicator3-dev:arm64 \
             libssl-dev:arm64 \

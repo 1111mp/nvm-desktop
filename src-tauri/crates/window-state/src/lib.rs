@@ -107,6 +107,9 @@ struct WindowStateCache(Arc<Mutex<HashMap<String, WindowState>>>);
 /// Used to prevent deadlocks from resize and position event listeners setting the cached state on restoring states
 struct RestoringWindowState(Mutex<()>);
 
+/// Whether to update the window status when the application exits
+static SHOULD_UPDATE_STATE: Mutex<bool> = Mutex::new(true);
+
 pub trait AppHandleExt {
     /// Saves all open windows state to disk
     fn save_window_state(&self, flags: StateFlags) -> Result<()>;
@@ -150,6 +153,10 @@ impl<R: Runtime> AppHandleExt for tauri::AppHandle<R> {
     }
 
     fn reset_window_state(&self) -> Result<()> {
+        if let Ok(mut should_update) = SHOULD_UPDATE_STATE.lock() {
+            *should_update = false;
+        }
+
         let app_dir = self.path().app_config_dir()?;
         let plugin_state = self.state::<PluginState>();
         let state_path = app_dir.join(&plugin_state.filename);
@@ -157,7 +164,8 @@ impl<R: Runtime> AppHandleExt for tauri::AppHandle<R> {
         if state_path.exists() {
             std::fs::remove_file(state_path)?;
         }
-        Ok(())
+
+				self.app_handle().restart()
     }
 }
 
@@ -578,7 +586,10 @@ impl Builder {
             })
             .on_event(move |app, event| {
                 if let RunEvent::Exit = event {
-                    let _ = app.save_window_state(flags);
+                    let should_update = *SHOULD_UPDATE_STATE.lock().unwrap();
+                    if should_update {
+                        let _ = app.save_window_state(flags);
+                    }
                 }
             })
             .build()

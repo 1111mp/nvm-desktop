@@ -22,9 +22,10 @@ fn main() -> tauri::Result<()> {
         // Ensure single instance operation
         .plugin(tauri_plugin_single_instance::init(
             |app_handle, _argc, _cwd| {
-                let windows = app_handle.webview_windows();
-                if let Some(windows) = windows.values().next() {
-                    let _ = windows.set_focus();
+                if let Some(window) = app_handle.get_webview_window("main") {
+                    let _ = window.show();
+                    let _ = window.unminimize();
+                    let _ = window.set_focus();
                 }
             },
         ))
@@ -108,7 +109,7 @@ fn main() -> tauri::Result<()> {
                         if closer == "close" {
                             return;
                         }
-                        
+
                         #[cfg(target_os = "macos")]
                         let _ = app_handle.set_dock_visibility(false);
 

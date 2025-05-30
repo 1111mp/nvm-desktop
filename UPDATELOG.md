@@ -1,3 +1,16 @@
+## v4.0.9
+
+### Features
+
+- Enhance the function of `reset-window-state` [#180](https://github.com/1111mp/nvm-desktop/issues/180)
+
+### Bug Fixes
+
+- The loading icon disappears when updating [#177](https://github.com/1111mp/nvm-desktop/issues/177)
+- Show and focus the window of the currently running instance when the user attempts to open a new instance [#182](https://github.com/1111mp/nvm-desktop/issues/182)
+
+---
+
 ## v4.0.8
 
 ### Features

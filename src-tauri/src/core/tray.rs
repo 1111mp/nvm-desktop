@@ -121,7 +121,7 @@ impl Tray {
             )
             .separator()
             .item(
-                &SubmenuBuilder::with_id(app_handle, "global", "Global (defaule)")
+                &SubmenuBuilder::with_id(app_handle, "global", "Global (default)")
                     .items(&global_menu_items_ref)
                     .build()?,
             )

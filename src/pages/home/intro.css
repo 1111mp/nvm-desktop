@@ -1,23 +1,26 @@
+.introjs-tour {
+  transition: all 0.3s ease-out;
+}
 .introjs-overlay {
   position: absolute;
   box-sizing: content-box;
-  z-index: 100;
+  z-index: 999999;
   opacity: 0;
   transition: all 0.3s ease-out;
 }
 .introjs-showElement {
-  z-index: 100 !important;
+  z-index: 9999999 !important;
 }
 tr.introjs-showElement > td {
-  z-index: 100 !important;
+  z-index: 9999999 !important;
   position: relative;
 }
 tr.introjs-showElement > th {
-  z-index: 100 !important;
+  z-index: 9999999 !important;
   position: relative;
 }
 .introjs-disableInteraction {
-  z-index: 110 !important;
+  z-index: 99999999 !important;
   position: absolute;
   background-color: #fff;
   opacity: 0;
@@ -28,7 +31,7 @@ tr.introjs-showElement > th {
 .introjs-helperLayer {
   box-sizing: content-box;
   position: absolute;
-  z-index: 105;
+  z-index: 9999998;
   border-radius: 4px;
   box-shadow: rgba(33, 33, 33, 0.5) 0px 0px 0px 5000px !important;
   transition: all 0.3s ease-out;
@@ -43,25 +46,25 @@ tr.introjs-showElement > th {
   box-sizing: content-box;
 }
 .introjs-tooltipReferenceLayer {
-  font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC',
-    'Hiragino Sans GB', 'Heiti SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
-    sans-serif;
+  font-family:
+    'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Hiragino Sans GB',
+    'Heiti SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei', sans-serif;
   box-sizing: content-box;
   position: absolute;
   visibility: visible !important;
-  z-index: 120;
+  z-index: 100000000;
   background-color: transparent;
   transition: all 0.3s ease-out;
 }
 .introjs-tooltipReferenceLayer * {
-  font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC',
-    'Hiragino Sans GB', 'Heiti SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
-    sans-serif;
+  font-family:
+    'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Hiragino Sans GB',
+    'Heiti SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei', sans-serif;
 }
 .introjs-helperNumberLayer {
-  font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC',
-    'Hiragino Sans GB', 'Heiti SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
-    sans-serif;
+  font-family:
+    'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Hiragino Sans GB',
+    'Heiti SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei', sans-serif;
   color: #9e9e9e;
   text-align: center;
   padding-top: 10px;
@@ -246,6 +249,7 @@ tr.introjs-showElement > th {
   cursor: pointer;
   font-weight: 400;
   text-align: center;
+  text-decoration: none;
 }
 .introjs-skipbutton:focus,
 .introjs-skipbutton:hover {

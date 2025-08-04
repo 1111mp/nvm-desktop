@@ -53,15 +53,15 @@ type Props = unknown;
 
 const formSchema = z.object({
   locale: z.string(),
-  theme: z.nativeEnum(Themes),
-  closer: z.nativeEnum(Closer),
+  theme: z.enum(Themes),
+  closer: z.enum(Closer),
   coder: z.string(),
   directory: z.string().min(1),
-  mirror: z.string().url({ message: 'Invalid mirror url' }),
+  mirror: z.url({ message: 'Invalid mirror url' }),
   proxy: z
     .object({
       enabled: z.boolean().default(false),
-      ip: z.string().ip({ message: 'Invalid ip' }).optional().or(z.literal('')),
+      ip: z.ipv4({ message: 'Invalid ip' }).optional().or(z.literal('')),
       port: z
         .string()
         .regex(/^\d+$/, 'Invalid port')
@@ -71,7 +71,7 @@ const formSchema = z.object({
     .superRefine((val, ctx) => {
       if (val.enabled && (val.ip === '' || val.ip === void 0)) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: ['ip'],
           message: 'Invalid ip',
         });

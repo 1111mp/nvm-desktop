@@ -121,3 +121,32 @@ impl ISettings {
         self.save_file()
     }
 }
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ISettingsResponse {
+    pub closer: Option<String>,
+    pub coder: Option<String>,
+    pub directory: Option<String>,
+    pub enable_silent_start: Option<bool>,
+    pub locale: Option<String>,
+    pub mirror: Option<String>,
+    pub proxy: Option<Proxy>,
+    pub no_proxy: Option<bool>,
+    pub theme: Option<String>,
+}
+
+impl From<ISettings> for ISettingsResponse {
+    fn from(settings: ISettings) -> Self {
+        Self {
+            closer: settings.closer,
+            coder: settings.coder,
+            directory: settings.directory,
+            enable_silent_start: settings.enable_silent_start,
+            locale: settings.locale,
+            mirror: settings.mirror,
+            proxy: settings.proxy,
+            no_proxy: settings.no_proxy,
+            theme: settings.theme,
+        }
+    }
+}

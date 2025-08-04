@@ -1,10 +1,8 @@
-use std::{
-    cmp::Ordering,
-    path::PathBuf,
-    sync::{Arc, Mutex},
-    time::Duration,
+use crate::{
+    config::{Config, NVersion},
+    core::handle,
+    log_err,
 };
-
 use anyhow::{anyhow, bail, Context, Result};
 use get_node::{
     archive::{fetch_native, FetchConfig},
@@ -12,15 +10,15 @@ use get_node::{
 };
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
+use std::{
+    cmp::Ordering,
+    path::PathBuf,
+    sync::{Arc, Mutex},
+    time::Duration,
+};
 use tauri::Emitter;
 use tokio::{sync::watch, time::Instant};
 use version_compare::{compare, Cmp};
-
-use crate::{
-    config::{Config, NVersion},
-    core::handle,
-    log_err,
-};
 
 static CANCEL_SENDER: Lazy<Arc<Mutex<Option<watch::Sender<bool>>>>> =
     Lazy::new(|| Arc::new(Mutex::new(None)));
@@ -36,23 +34,23 @@ pub struct ProgressData<'a> {
 pub fn get_current(fetch: Option<bool>) -> Result<Option<String>> {
     let fetch = fetch.unwrap_or(false);
     if !fetch {
-        return Ok(Config::node().latest().get_current());
+        return Ok(Config::node().latest_ref().get_current());
     }
 
     // sync from `default`
-    Config::node().draft().sync_current()?;
+    Config::node().draft_mut().sync_current()?;
     Config::node().apply();
 
-    Ok(Config::node().latest().get_current())
+    Ok(Config::node().data_ref().get_current())
 }
 
 /// Set the current node version
 pub async fn set_current(version: Option<String>) -> Result<()> {
     let version = version.as_deref().unwrap_or("");
 
-    Config::node().draft().update_current(version)?;
+    Config::node().draft_mut().update_current(version)?;
     Config::node().apply();
-    Config::node().data().save_current()?;
+    Config::node().data_mut().save_current()?;
 
     log_err!(handle::Handle::update_systray_part());
 
@@ -62,7 +60,7 @@ pub async fn set_current(version: Option<String>) -> Result<()> {
 /// update current from menu
 pub async fn update_current_from_menu(current: String) -> Result<()> {
     let ret = {
-        Config::node().draft().update_current(&current)?;
+        Config::node().draft_mut().update_current(&current)?;
         log_err!(handle::Handle::update_systray_part_with_emit(
             "call-current-update",
             &current
@@ -73,7 +71,7 @@ pub async fn update_current_from_menu(current: String) -> Result<()> {
     match ret {
         Ok(()) => {
             Config::node().apply();
-            Config::node().data().save_current()?;
+            Config::node().data_mut().save_current()?;
 
             Ok(())
         }
@@ -91,10 +89,10 @@ pub async fn get_version_list(fetch: Option<bool>) -> Result<Option<Vec<NVersion
     let fetch = fetch.unwrap_or(false);
     if !fetch {
         // return existing data directly
-        return Ok(Config::node().latest().get_list());
+        return Ok(Config::node().latest_ref().get_list());
     }
 
-    let settings = Config::settings().data().clone();
+    let settings = Config::settings().latest_ref().clone();
 
     // fetch list data from remote
     let list = version_list::<Vec<NVersion>>(ListConfig {
@@ -106,8 +104,9 @@ pub async fn get_version_list(fetch: Option<bool>) -> Result<Option<Vec<NVersion
     .await?;
 
     // update list
-    Config::node().draft().update_list(&list)?;
+    Config::node().draft_mut().update_list(&list)?;
     Config::node().apply();
+    Config::node().data_mut().save_file()?;
 
     Ok(Some(list))
 }
@@ -116,11 +115,11 @@ pub async fn get_version_list(fetch: Option<bool>) -> Result<Option<Vec<NVersion
 pub async fn get_installed_list(fetch: Option<bool>) -> Result<Option<Vec<String>>> {
     let fetch = fetch.unwrap_or(false);
     if !fetch {
-        return Ok(Config::node().latest().get_installed());
+        return Ok(Config::node().latest_ref().get_installed());
     }
 
     let directory = Config::settings()
-        .latest()
+        .latest_ref()
         .get_directory()
         .unwrap_or_default();
     let directory = PathBuf::from(directory);
@@ -128,7 +127,10 @@ pub async fn get_installed_list(fetch: Option<bool>) -> Result<Option<Vec<String
         return Ok(Some(vec![]));
     }
 
-    let list = Config::node().latest().get_installed().unwrap_or_default();
+    let list = Config::node()
+        .latest_ref()
+        .get_installed()
+        .unwrap_or_default();
 
     let mut versions = vec![];
     let mut entries = tokio::fs::read_dir(&directory).await?;
@@ -151,7 +153,7 @@ pub async fn get_installed_list(fetch: Option<bool>) -> Result<Option<Vec<String
     });
 
     // update installed
-    Config::node().draft().update_installed(&versions)?;
+    Config::node().draft_mut().update_installed(&versions)?;
     Config::node().apply();
 
     // update system tray
@@ -173,7 +175,7 @@ pub async fn install_node(
     }
 
     let version: String = version.unwrap();
-    let settings = Config::settings().latest().clone();
+    let settings = Config::settings().latest_ref().clone();
     let mirror = settings.mirror.unwrap();
     let directory = settings.directory.unwrap();
 
@@ -230,7 +232,7 @@ pub async fn install_node_cancel() -> Result<()> {
 
 /// uninstall node
 pub async fn uninstall_node(version: String) -> Result<()> {
-    let directory = Config::settings().latest().get_directory();
+    let directory = Config::settings().latest_ref().get_directory();
     if let Some(directory) = directory {
         let directory = PathBuf::from(directory).join(&version);
         tokio::fs::remove_dir_all(&directory)

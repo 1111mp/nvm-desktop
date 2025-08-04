@@ -133,7 +133,7 @@ impl INode {
     /// update version list
     pub fn update_list(&mut self, list: &Vec<NVersion>) -> Result<()> {
         self.list = Some(list.clone());
-        self.save_file()
+        Ok(())
     }
 
     /// update installed

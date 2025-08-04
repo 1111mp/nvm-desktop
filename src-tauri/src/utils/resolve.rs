@@ -19,7 +19,7 @@ pub async fn resolve_setup(app: &mut App) {
     log_err!(migrate::init());
     log_err!(tray::Tray::create_systray());
 
-    let silent_start = { Config::settings().data().enable_silent_start };
+    let silent_start = { Config::settings().latest_ref().enable_silent_start };
     if !silent_start.unwrap_or(false) {
         log_err!(create_window());
     }

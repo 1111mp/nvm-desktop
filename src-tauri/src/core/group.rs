@@ -1,5 +1,7 @@
 use crate::{
-    config::{Config, Group}, log_err, utils::{dirs, help}
+    config::{Config, Group},
+    log_err,
+    utils::{dirs, help},
 };
 use anyhow::Result;
 
@@ -9,14 +11,14 @@ use super::handle;
 pub async fn group_list(fetch: Option<bool>) -> Result<Option<Vec<Group>>> {
     let fetch = fetch.unwrap_or(false);
     if !fetch {
-        return Ok(Config::groups().latest().list.clone());
+        return Ok(Config::groups().latest_ref().list.clone());
     }
 
     let path = dirs::groups_path()?;
     let list = help::async_read_json::<Vec<Group>>(&path).await?;
 
     // update projects
-    Config::groups().draft().update_list(&list)?;
+    Config::groups().draft_mut().update_list(&list)?;
     Config::groups().apply();
 
     Ok(Some(list))
@@ -24,9 +26,9 @@ pub async fn group_list(fetch: Option<bool>) -> Result<Option<Vec<Group>>> {
 
 /// update groups & save
 pub async fn update_groups(list: Vec<Group>) -> Result<()> {
-    Config::groups().draft().update_list(&list)?;
+    Config::groups().draft_mut().update_list(&list)?;
     Config::groups().apply();
-    Config::groups().data().save_file()?;
+    Config::groups().data_mut().save_file()?;
 
     log_err!(handle::Handle::update_systray_part());
 
@@ -35,9 +37,9 @@ pub async fn update_groups(list: Vec<Group>) -> Result<()> {
 
 /// update group version
 pub async fn update_group_version(name: String, version: String) -> Result<()> {
-    Config::groups().draft().update_version(name, version)?;
+    Config::groups().draft_mut().update_version(name, version)?;
     Config::groups().apply();
-    Config::groups().data().save_file()?;
+    Config::groups().data_mut().save_file()?;
 
     Ok(())
 }

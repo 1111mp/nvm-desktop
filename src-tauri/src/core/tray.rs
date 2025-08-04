@@ -1,3 +1,4 @@
+use super::handle;
 use crate::core::{node, project};
 use crate::utils::resolve;
 use crate::{cmds, config::Config, log_err};
@@ -14,8 +15,6 @@ use tauri::{
     AppHandle, Emitter, Manager, Wry,
 };
 use tauri_plugin_window_state::AppHandleExt;
-
-use super::handle;
 
 pub struct Tray {}
 
@@ -43,17 +42,17 @@ impl Tray {
         let package_info = app_handle.package_info();
         let version = package_info.version.to_string();
         let app_name: String = package_info.name.to_string();
-        let zh = { Config::settings().latest().locale == Some("zh-CN".into()) };
+        let zh = { Config::settings().latest_ref().locale == Some("zh-CN".into()) };
         // projects (keep max length 5)
-        let mut projects = { Config::projects().latest().get_list() }.unwrap_or(vec![]);
+        let mut projects = { Config::projects().latest_ref().get_list() }.unwrap_or(vec![]);
         projects.truncate(5);
         // groups
         let groups = Config::groups();
-        let groups = groups.latest();
+        let groups = groups.latest_ref();
         let groups = groups.list.as_deref().unwrap_or(&[]);
         // installed versions
         let node = Config::node();
-        let node = node.latest();
+        let node = node.latest_ref();
         let installed = node.installed.as_deref().unwrap_or(&[]);
         let global_current = node.current.as_deref().unwrap_or_default();
 

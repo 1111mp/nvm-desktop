@@ -103,7 +103,7 @@ fn main() -> tauri::Result<()> {
                 match event {
                     tauri::WindowEvent::CloseRequested { api, .. } => {
                         let closer = Config::settings()
-                            .data()
+                            .latest_ref()
                             .get_closer()
                             .unwrap_or("minimize".to_string());
                         if closer == "close" {

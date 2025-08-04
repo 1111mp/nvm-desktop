@@ -3,7 +3,7 @@ use std::{path::PathBuf, process::Command};
 use tauri_plugin_window_state::{AppHandleExt, StateFlags};
 
 use crate::{
-    config::{Config, Group, ISettings, NVersion, Project},
+    config::{Config, Group, ISettings, ISettingsResponse, NVersion, Project},
     core::{configuration, group, handle, node, project},
     ret_err,
     utils::dirs,
@@ -38,25 +38,31 @@ pub async fn installed_list(fetch: Option<bool>) -> CmdResult<Option<Vec<String>
 
 /// read settings
 #[tauri::command]
-pub async fn read_settings() -> CmdResult<ISettings> {
-    Ok(Config::settings().data().clone())
+pub async fn read_settings() -> CmdResult<ISettingsResponse> {
+    let setting_data = Config::settings().latest_ref().clone();
+    Ok(ISettingsResponse::from(*setting_data))
 }
 
 /// update settings
 #[tauri::command]
-pub async fn update_settings(settings: ISettings) -> CmdResult<()> {
-    let locale = Config::settings().latest().get_locale();
-    let directory = Config::settings().latest().get_directory();
+pub async fn update_settings(payload: ISettings) -> CmdResult<()> {
+    let settings = Config::settings().latest_ref().clone();
+    let locale = settings.locale;
+    let directory = settings.directory;
 
-    wrap_err!({ Config::settings().draft().patch_settings(settings.clone()) })?;
+    wrap_err!({
+        Config::settings()
+            .draft_mut()
+            .patch_settings(payload.clone())
+    })?;
     Config::settings().apply();
 
     // refresh data when directory changes
-    if directory != settings.directory {
+    if directory != payload.directory {
         wrap_err!(node::get_installed_list(Some(true)).await)?;
     }
     // update system tray
-    if locale != settings.locale || directory != settings.directory {
+    if locale != payload.locale || directory != payload.directory {
         wrap_err!(handle::Handle::update_systray_part())?;
     }
 
@@ -161,7 +167,7 @@ pub async fn configration_import(
 /// open project with VsCode
 #[tauri::command]
 pub async fn open_with_vscode(path: String) -> CmdResult<()> {
-    let cmd = { Config::settings().latest().coder.clone() }.unwrap();
+    let cmd = { Config::settings().latest_ref().coder.clone() }.unwrap();
     let mut command = Command::new(cmd);
     command.arg(&path);
 

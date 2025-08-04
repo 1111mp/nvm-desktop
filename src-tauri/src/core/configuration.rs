@@ -1,6 +1,6 @@
 use super::{handle, project::sync_project_version};
 use crate::{
-    config::{Config, Group, ISettings, Project},
+    config::{Config, Group, ISettingsResponse, Project},
     log_err,
     utils::help::{async_read_json, async_save_json},
 };
@@ -31,7 +31,7 @@ pub struct ConfigurationData {
     color: Option<String>,
 
     /// export setting data
-    setting: Option<ISettings>,
+    setting: Option<ISettingsResponse>,
 
     /// export mirrors data
     mirrors: Option<String>,
@@ -49,7 +49,7 @@ pub struct ConfigurationImport {
     color: Option<String>,
 
     /// export setting data
-    setting: Option<ISettings>,
+    setting: Option<ISettingsResponse>,
 
     /// export mirrors data
     mirrors: Option<String>,
@@ -74,13 +74,14 @@ pub async fn configuration_export(
     }
     // export setting & mirrors data
     if setting.unwrap_or(false) {
-        output.setting = Some(Config::settings().latest().clone());
+        let setting_data = Config::settings().latest_ref().clone();
+        output.setting = Some(ISettingsResponse::from(*setting_data));
         output.mirrors = mirrors;
     }
     // export projects & groups data
     if projects.unwrap_or(false) {
-        output.projects = Config::projects().latest().get_list();
-        output.groups = Config::groups().latest().get_list();
+        output.projects = Config::projects().latest_ref().get_list();
+        output.groups = Config::groups().latest_ref().get_list();
     }
     async_save_json(&output_path, &output, None).await?;
 
@@ -127,15 +128,15 @@ pub async fn configuration_import(
         let need_update_groups = !groups.is_empty();
         // update projects data
         if need_update_projects {
-            Config::projects().draft().update_list(&projects)?;
+            Config::projects().draft_mut().update_list(&projects)?;
             Config::projects().apply();
-            Config::projects().data().save_file()?;
+            Config::projects().data_mut().save_file()?;
         }
         // update groups data
         if need_update_groups {
-            Config::groups().draft().update_list(&groups)?;
+            Config::groups().data_mut().update_list(&groups)?;
             Config::groups().apply();
-            Config::groups().data().save_file()?;
+            Config::groups().data_mut().save_file()?;
         }
         // update system tray & notification page refresh data
         if need_update_projects || need_update_groups {

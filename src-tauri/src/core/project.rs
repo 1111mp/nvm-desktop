@@ -16,14 +16,14 @@ use super::handle;
 pub async fn project_list(fetch: Option<bool>) -> Result<Option<Vec<Project>>> {
     let fetch = fetch.unwrap_or(false);
     if !fetch {
-        return Ok(Config::projects().latest().list.clone());
+        return Ok(Config::projects().latest_ref().list.clone());
     }
 
     let path = dirs::projects_path()?;
     let list = help::async_read_json::<Vec<Project>>(&path).await?;
 
     // update projects
-    Config::projects().draft().update_list(&list)?;
+    Config::projects().draft_mut().update_list(&list)?;
     Config::projects().apply();
 
     Ok(Some(list))
@@ -68,9 +68,9 @@ pub async fn update_projects(list: Vec<Project>, path: Option<PathBuf>) -> Resul
         }
     }
 
-    Config::projects().draft().update_list(&list)?;
+    Config::projects().draft_mut().update_list(&list)?;
     Config::projects().apply();
-    Config::projects().data().save_file()?;
+    Config::projects().data_mut().save_file()?;
 
     log_err!(handle::Handle::update_systray_part());
 
@@ -113,8 +113,12 @@ pub async fn batch_update_project_version(paths: Vec<PathBuf>, version: String) 
 /// change project with version from menu
 pub async fn change_with_version(name: String, version: String) -> Result<()> {
     let ret = {
-        let project_path = Config::projects().draft().update_version(&name, &version)?;
-        let need_update_groups = Config::groups().draft().update_projects(&project_path)?;
+        let project_path = Config::projects()
+            .draft_mut()
+            .update_version(&name, &version)?;
+        let need_update_groups = Config::groups()
+            .draft_mut()
+            .update_projects(&project_path)?;
 
         sync_project_version(PathBuf::from(&project_path), &version).await?;
 
@@ -129,11 +133,11 @@ pub async fn change_with_version(name: String, version: String) -> Result<()> {
     match ret {
         Ok(need_update_groups) => {
             Config::projects().apply();
-            Config::projects().data().save_file()?;
+            Config::projects().data_mut().save_file()?;
 
             if need_update_groups {
                 Config::groups().apply();
-                Config::groups().data().save_file()?;
+                Config::groups().data_mut().save_file()?;
             }
 
             Ok(())
@@ -150,10 +154,10 @@ pub async fn change_with_version(name: String, version: String) -> Result<()> {
 pub async fn change_with_group(name: String, group_name: String) -> Result<()> {
     let ret = {
         let project_path = Config::projects()
-            .draft()
+            .draft_mut()
             .update_version(&name, &group_name)?;
         let version = Config::groups()
-            .draft()
+            .draft_mut()
             .update_projects_version(&project_path, &group_name)?
             .ok_or_else(|| anyhow!("failed to find the group version \"name:{}\"", &group_name))?;
 
@@ -170,10 +174,10 @@ pub async fn change_with_group(name: String, group_name: String) -> Result<()> {
     match ret {
         Ok(()) => {
             Config::projects().apply();
-            Config::projects().data().save_file()?;
+            Config::projects().data_mut().save_file()?;
 
             Config::groups().apply();
-            Config::groups().data().save_file()?;
+            Config::groups().data_mut().save_file()?;
 
             Ok(())
         }

@@ -16,7 +16,7 @@ use super::handle;
 pub async fn project_list(fetch: Option<bool>) -> Result<Option<Vec<Project>>> {
     let fetch = fetch.unwrap_or(false);
     if !fetch {
-        return Ok(Config::projects().latest_ref().list.clone());
+        return Ok(Config::projects().latest_ref().get_list());
     }
 
     let path = dirs::projects_path()?;
@@ -123,7 +123,7 @@ pub async fn change_with_version(name: String, version: String) -> Result<()> {
         sync_project_version(PathBuf::from(&project_path), &version).await?;
 
         log_err!(handle::Handle::update_systray_part_with_emit(
-            "call-projects-update",
+            "nvm-desktop://refresh-project-info",
             &version
         ));
 
@@ -164,7 +164,7 @@ pub async fn change_with_group(name: String, group_name: String) -> Result<()> {
         sync_project_version(PathBuf::from(&project_path), &version).await?;
 
         log_err!(handle::Handle::update_systray_part_with_emit(
-            "call-projects-update",
+            "nvm-desktop://refresh-project-info",
             &version
         ));
 
@@ -178,6 +178,44 @@ pub async fn change_with_group(name: String, group_name: String) -> Result<()> {
 
             Config::groups().apply();
             Config::groups().data_mut().save_file()?;
+
+            Ok(())
+        }
+        Err(err) => {
+            Config::projects().discard();
+            Config::groups().discard();
+            Err(err)
+        }
+    }
+}
+
+pub async fn update_from_notice(name: &str, version: &str) -> Result<()> {
+    let ret = {
+        let project_path = Config::projects()
+            .draft_mut()
+            .update_version(name, version)?;
+
+        let need_update_groups = if Config::groups().data_ref().exsist(version) {
+            Config::groups()
+                .draft_mut()
+                .update_projects_version(&project_path, version)?;
+            true
+        } else {
+            Config::groups()
+                .draft_mut()
+                .update_projects(&project_path)?
+        };
+
+        <Result<bool>>::Ok(need_update_groups)
+    };
+
+    match ret {
+        Ok(need_update_groups) => {
+            Config::projects().apply();
+
+            if need_update_groups {
+                Config::groups().apply();
+            }
 
             Ok(())
         }

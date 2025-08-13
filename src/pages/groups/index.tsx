@@ -73,8 +73,9 @@ export const Component: React.FC = () => {
   const { directory } = settings;
 
   useEffect(() => {
-    const unlisted = getCurrent().listen<string>(
-      'call-projects-update',
+    const current = getCurrent();
+    const projectListener = current.listen<string>(
+      'nvm-desktop://refresh-project-info',
       async ({ payload }) => {
         const [projects, groups] = await Promise.all([
           projectList(),
@@ -87,8 +88,18 @@ export const Component: React.FC = () => {
       },
     );
 
+    const versionListener = current.listen<string>(
+      'nvm-desktop://refresh-version-info',
+      async () => {
+        const installed = await installedList();
+        setGroups([...groups]);
+        setInstalledVersions([...installed]);
+      },
+    );
+
     return () => {
-      unlisted.then((fn) => fn());
+      projectListener.then((fn) => fn());
+      versionListener.then((fn) => fn());
     };
   }, []);
 

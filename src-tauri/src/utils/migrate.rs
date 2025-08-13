@@ -1,6 +1,6 @@
 use super::{dirs, help};
-use crate::core::handle;
-
+use crate::utils::logging::Type;
+use crate::{core::handle, logging_error, process::AsyncHandler};
 use anyhow::Result;
 use tauri::Emitter;
 use tokio::fs;
@@ -10,9 +10,9 @@ const CURRENT_MIGRATION_VERSION: i16 = 23;
 const NODE_DEFAULT_EXECUTE: [&str; 4] = ["node", "npm", "npx", "corepack"];
 
 pub fn init() -> Result<()> {
-    tauri::async_runtime::spawn(async {
+    AsyncHandler::spawn(|| async {
         if let Err(err) = update_schema().await {
-            log::error!(target: "migrate", "{err}");
+            logging_error!(Type::Migrate, true, "{}", err);
 
             // Delay 1s before sending events to the window
             sleep(Duration::from_secs(1)).await;
@@ -27,8 +27,8 @@ pub fn init() -> Result<()> {
 
 async fn update_schema() -> Result<()> {
     let schema_version = get_schema_version().unwrap_or_else(|err| {
-        log::error!(target: "migrate", "{err}");
-        0 // treat error as version 0
+        logging_error!(Type::Migrate, true, "{}", err);
+        0 // default version 0
     });
 
     if schema_version < CURRENT_MIGRATION_VERSION {
@@ -41,15 +41,10 @@ async fn update_schema() -> Result<()> {
     Ok(())
 }
 
-/// default schema version is 0
+/// get schema version
 fn get_schema_version() -> Result<i16> {
-    match dirs::migration_path().and_then(|path| help::read_string(&path)) {
-        Ok(schema) => Ok(schema.parse::<i16>().unwrap_or(0)),
-        Err(err) => {
-            log::error!(target: "migrate", "{err}");
-            Ok(0)
-        }
-    }
+    let version_str = dirs::migration_path().and_then(|path| help::read_string(&path))?;
+    version_str.parse::<i16>().map_err(|e| e.into())
 }
 
 #[cfg(windows)]

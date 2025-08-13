@@ -1,20 +1,26 @@
-use anyhow::Result;
-use tauri::{App, Manager};
-use tauri_plugin_window_state::{StateFlags, WindowExt};
-
 use crate::{
     config::Config,
     core::{handle, tray},
-    log_err, trace_err,
-    utils::migrate,
+    log_err, logging, trace_err,
+    utils::{logging::Type, migrate, server},
 };
+use anyhow::Result;
+use tauri::AppHandle;
 
 /// handle something when start app
-pub async fn resolve_setup(app: &mut App) {
-    #[cfg(target_os = "macos")]
-    app.set_activation_policy(tauri::ActivationPolicy::Regular);
+pub async fn resolve_setup_async(app_handle: &AppHandle) {
+    logging!(
+        info,
+        Type::Setup,
+        true,
+        "Start executing asynchronous setup tasks..."
+    );
 
-    handle::Handle::global().init(app.app_handle());
+    #[cfg(target_os = "macos")]
+    let _ = app_handle.set_activation_policy(tauri::ActivationPolicy::Regular);
+
+    // Start the embedded server
+    server::start_embed_server();
 
     log_err!(migrate::init());
     log_err!(tray::Tray::create_systray());
@@ -29,9 +35,23 @@ pub async fn resolve_setup(app: &mut App) {
 
 /// create main window
 pub fn create_window() -> Result<()> {
+    logging!(
+        info,
+        Type::Window,
+        true,
+        "Start creating and displaying the main window."
+    );
+
     let app_handle = handle::Handle::global().app_handle().unwrap();
 
     if let Some(window) = handle::Handle::global().get_window() {
+        logging!(
+            info,
+            Type::Window,
+            true,
+            "The main window already exists, the existing window will be displayed."
+        );
+
         #[cfg(target_os = "macos")]
         let _ = app_handle.set_dock_visibility(true);
 
@@ -40,7 +60,7 @@ pub fn create_window() -> Result<()> {
         return Ok(());
     }
 
-    let builder = tauri::WebviewWindowBuilder::new(
+    let mut builder = tauri::WebviewWindowBuilder::new(
         &app_handle,
         "main",
         tauri::WebviewUrl::App("index.html".into()),
@@ -54,25 +74,48 @@ pub fn create_window() -> Result<()> {
     .center();
 
     #[cfg(target_os = "windows")]
-    let window = builder
+    {
+        builder = builder
 		.decorations(false)
 		.additional_browser_args("--enable-features=msWebView2EnableDraggableRegions --disable-features=OverscrollHistoryNavigation,msExperimentalScrolling")
-		.transparent(true)
-		.visible(false)
-		.build()?;
+		.transparent(true);
+    }
     #[cfg(target_os = "macos")]
-    let window = builder
-        .decorations(true)
-        .transparent(true)
-        .hidden_title(true)
-        .shadow(true)
-        .title_bar_style(tauri::TitleBarStyle::Overlay)
-        .build()?;
+    {
+        builder = builder
+            .decorations(true)
+            .transparent(true)
+            .hidden_title(true)
+            .shadow(true)
+            .title_bar_style(tauri::TitleBarStyle::Overlay);
+    }
     #[cfg(target_os = "linux")]
-    let window = builder.decorations(false).transparent(true).build()?;
+    {
+        builder = builder.decorations(false).transparent(true);
+    }
 
-    #[cfg(debug_assertions)]
-    window.open_devtools();
+    match builder.build() {
+        Ok(window) => {
+            logging!(
+                info,
+                Type::Window,
+                true,
+                "The main window instance was created successfully."
+            );
+
+            #[cfg(debug_assertions)]
+            window.open_devtools();
+        }
+        Err(err) => {
+            logging!(
+                error,
+                Type::Window,
+                true,
+                "Main window build failed: {}",
+                err
+            );
+        }
+    }
 
     Ok(())
 }

@@ -62,7 +62,7 @@ pub async fn update_current_from_menu(current: String) -> Result<()> {
     let ret = {
         Config::node().draft_mut().update_current(&current)?;
         log_err!(handle::Handle::update_systray_part_with_emit(
-            "call-current-update",
+            "nvm-desktop://refresh-version-info",
             &current
         ));
         <Result<()>>::Ok(())
@@ -162,6 +162,43 @@ pub async fn get_installed_list(fetch: Option<bool>) -> Result<Option<Vec<String
     }
 
     Ok(Some(versions))
+}
+
+pub async fn refresh_installed() -> Result<()> {
+    let directory = Config::settings()
+        .latest_ref()
+        .get_directory()
+        .unwrap_or_default();
+    let directory = PathBuf::from(directory);
+    if !directory.exists() {
+        return Ok(());
+    }
+
+    let mut versions = vec![];
+    let mut entries = tokio::fs::read_dir(&directory).await?;
+    while let Some(entry) = entries.next_entry().await? {
+        let version = entry.file_name().to_string_lossy().to_string();
+        let node_path = directory.clone();
+        #[cfg(target_os = "windows")]
+        let node_path = node_path.join(&version).join("node.exe");
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        let node_path = node_path.join(&version).join("bin/node");
+        if node_path.exists() {
+            versions.push(version);
+        }
+    }
+    versions.sort_by(|a, b| match compare(b, a) {
+        Ok(Cmp::Lt) => Ordering::Less,
+        Ok(Cmp::Eq) => Ordering::Equal,
+        Ok(Cmp::Gt) => Ordering::Greater,
+        _ => Ordering::Equal,
+    });
+
+    // update installed
+    Config::node().draft_mut().update_installed(&versions)?;
+    Config::node().apply();
+
+    Ok(())
 }
 
 /// install node

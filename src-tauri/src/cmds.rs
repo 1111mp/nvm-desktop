@@ -5,7 +5,6 @@ use tauri_plugin_window_state::{AppHandleExt, StateFlags};
 use crate::{
     config::{Config, Group, ISettings, ISettingsResponse, NVersion, Project},
     core::{configuration, group, handle, node, project},
-    ret_err,
     utils::dirs,
     wrap_err,
 };
@@ -87,12 +86,7 @@ pub async fn install_node_cancel() -> CmdResult<()> {
 
 /// uninstall node
 #[tauri::command]
-pub async fn uninstall_node(version: Option<String>) -> CmdResult<()> {
-    if version.is_none() {
-        ret_err!("version should not be null");
-    }
-
-    let version = version.unwrap();
+pub async fn uninstall_node(version: String) -> CmdResult<()> {
     wrap_err!(node::uninstall_node(version).await)
 }
 

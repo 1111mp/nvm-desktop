@@ -81,11 +81,14 @@ export const Versions: React.FC = () => {
 
   useEffect(() => {
     const unlisted = getCurrent().listen<string>(
-      'call-current-update',
+      'nvm-desktop://refresh-version-info',
       async ({ payload }) => {
         if (payload) {
           setCurrent(payload);
           toast.success(t('Restart-Terminal', { version: `v${payload}` }));
+        } else {
+          const installed = await installedList();
+          setInstalledVersions(installed);
         }
       },
     );

@@ -95,6 +95,12 @@ impl IGroups {
         Ok(false)
     }
 
+    pub fn exsist(&self, name: &str) -> bool {
+        self.list.as_ref().map_or(false, |groups| {
+            groups.iter().any(|group| group.name == name)
+        })
+    }
+
     /// update the projects of group for system tray menu
     /// remove from old group
     /// add to new group

@@ -142,7 +142,7 @@ pub async fn configuration_import(
         if need_update_projects || need_update_groups {
             log_err!(handle::Handle::update_systray_part());
             if let Some(window) = app_handle.get_webview_window("main") {
-                window.emit("call-projects-update", ())?;
+                window.emit("nvm-desktop://refresh-project-info", ())?;
             }
         }
 

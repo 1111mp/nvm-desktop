@@ -1,3 +1,21 @@
+## v4.1.0
+
+### Features
+
+- Support Node download and uninstall commands [#184](https://github.com/1111mp/nvm-desktop/issues/184)
+- Runs an embedded server to support real-time refresh of data from command line tools to clients
+
+### Bug Fixes
+
+- Refine text [#189](https://github.com/1111mp/nvm-desktop/pull/189)
+
+### Others
+
+- `nvm-desktop`: some performance optimizations
+- `nvmd` command line tool: a complete refactoring makes the code cleaner and faster
+
+---
+
 ## v4.0.9
 
 ### Features

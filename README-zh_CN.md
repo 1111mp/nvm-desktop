@@ -54,73 +54,73 @@
 - `"setting.json"`(文件) **保存着 `nvm-desktop` 设置中心的设置信息**， 比如 `Theme, Language, Mirror Url` 等。
   ```json
   {
-  	"locale": "en",
-  	"theme": "system",
-  	"closer": "minimize",
-  	"directory": "/Users/********/.nvmd/versions",
-  	"mirror": "https://nodejs.org/dist"
+    "locale": "en",
+    "theme": "system",
+    "closer": "minimize",
+    "directory": "/Users/********/.nvmd/versions",
+    "mirror": "https://nodejs.org/dist"
   }
   ```
 - `"projects.json"`(文件) **保存着所有添加过的项目的信息**。
   ```json
   [
-  	{
-  		"name": "nvm-desktop",
-  		"path": "/Users/********/Documents/Electron/nvm-desktop",
-  		"version": "20.6.1",
-  		"active": true,
-  		"createAt": "2023-11-25T04:07:43.012Z",
-  		"updateAt": "2023-11-25T04:07:44.931Z"
-  	},
-  	{
-  		"name": "electron_client",
-  		"path": "/Users/********/Documents/projects/electron_client",
-  		"version": "20.6.1",
-  		"active": true,
-  		"createAt": "2023-11-25T04:07:35.172Z",
-  		"updateAt": "2023-11-25T04:07:37.234Z"
-  	}
+    {
+      "name": "nvm-desktop",
+      "path": "/Users/********/Documents/Electron/nvm-desktop",
+      "version": "20.6.1",
+      "active": true,
+      "createAt": "2023-11-25T04:07:43.012Z",
+      "updateAt": "2023-11-25T04:07:44.931Z"
+    },
+    {
+      "name": "electron_client",
+      "path": "/Users/********/Documents/projects/electron_client",
+      "version": "20.6.1",
+      "active": true,
+      "createAt": "2023-11-25T04:07:35.172Z",
+      "updateAt": "2023-11-25T04:07:37.234Z"
+    }
   ]
   ```
 - `"packages.json"`(文件) **保存着 npm 全局安装的包的相关的信息**。 更多信息请查看 [how-does-it-work](https://github.com/1111mp/nvmd-command#how-does-it-work).
 - `"versions.json"`(文件) 保存着从 `"https://nodejs.org/dist"`（默认） 请求过来的所有的 Node.js 的版本的信息。
   ```json
   [
-  	{
-  		"version": "v21.2.0",
-  		"date": "2023-11-14",
-  		"files": [
-  			"aix-ppc64",
-  			"headers",
-  			"linux-arm64",
-  			"linux-armv7l",
-  			"linux-ppc64le",
-  			"linux-s390x",
-  			"linux-x64",
-  			"osx-arm64-tar",
-  			"osx-x64-pkg",
-  			"osx-x64-tar",
-  			"src",
-  			"win-arm64-7z",
-  			"win-arm64-zip",
-  			"win-x64-7z",
-  			"win-x64-exe",
-  			"win-x64-msi",
-  			"win-x64-zip",
-  			"win-x86-7z",
-  			"win-x86-exe",
-  			"win-x86-msi",
-  			"win-x86-zip"
-  		],
-  		"npm": "10.2.3",
-  		"v8": "11.8.172.17",
-  		"uv": "1.46.0",
-  		"zlib": "1.2.13.1-motley",
-  		"openssl": "3.0.12+quic",
-  		"modules": "120",
-  		"lts": false,
-  		"security": false
-  	}
+    {
+      "version": "v21.2.0",
+      "date": "2023-11-14",
+      "files": [
+        "aix-ppc64",
+        "headers",
+        "linux-arm64",
+        "linux-armv7l",
+        "linux-ppc64le",
+        "linux-s390x",
+        "linux-x64",
+        "osx-arm64-tar",
+        "osx-x64-pkg",
+        "osx-x64-tar",
+        "src",
+        "win-arm64-7z",
+        "win-arm64-zip",
+        "win-x64-7z",
+        "win-x64-exe",
+        "win-x64-msi",
+        "win-x64-zip",
+        "win-x86-7z",
+        "win-x86-exe",
+        "win-x86-msi",
+        "win-x86-zip"
+      ],
+      "npm": "10.2.3",
+      "v8": "11.8.172.17",
+      "uv": "1.46.0",
+      "zlib": "1.2.13.1-motley",
+      "openssl": "3.0.12+quic",
+      "modules": "120",
+      "lts": false,
+      "security": false
+    }
   ]
   ```
   </details>
@@ -150,27 +150,25 @@ v20.5.1
 
 ```shell
 $ nvmd --help
-nvmd (4.0.5)
+nvmd (4.1.0)
 command tools for nvm-desktop
 
 Usage: nvmd [COMMAND]
 
 Commands:
-  current  Get the currently used version
-  list     List the all installed versions of Node.js
-  ls       List the all installed versions of Node.js
-  use      Use the installed version of Node.js (default is global)
-  which    Get the path to the executable to where Node.js was installed
-  help     Print this message or the help of the given subcommand(s)
+  current    Get the currently used version
+  install    Install the specified version of Node.js
+  list       List the all installed versions of Node.js
+  ls         List the all installed versions of Node.js
+  uninstall  Uninstall the specified version of Node.js
+  use        Use the installed version of Node.js (default is global)
+  which      Get the path to the executable to where Node.js was installed
+  help       Print this message or the help of the given subcommand(s)
 
 Options:
   -h, --help     Print help
   -V, --version  Print version
-
-Please download new version of Node.js in nvm-desktop.
 ```
-
-> 在你通过`nvmd use` 命令行切换 Node 版本之后，请点击刷新按钮让`nvm-desktop`同步最新的数据。
 
 更多详情请查看此文档: [command-tools-intro](https://github.com/1111mp/nvmd-command#command-tools-intro) .
 
@@ -196,7 +194,6 @@ Please download new version of Node.js in nvm-desktop.
   ```
 
   默认的文件可能是：
-
   - .zshrc
   - .bashrc
   - .bash_profile
@@ -216,6 +213,7 @@ Please download new version of Node.js in nvm-desktop.
 ### 开发
 
 将项目代码克隆到本地，去到项目的根目录，然后在终端运行：
+
 - `pnpm check`：下载 `nvmd` 文件到 `./src-tauri/resources/` 目录下
 - `pnpm install`：安装项目依赖
 
@@ -236,6 +234,7 @@ Please download new version of Node.js in nvm-desktop.
 现在，您可以为每个项目单独选择不同的 Node.js 版本，无需任何额外依赖或复杂配置。此功能由 `nvmd-command` 提供底层支持，帮助您在多项目开发中保持 Node.js 环境的一致性和简便性。
 
 通过该功能，您可以：
+
 - 为每个项目选择独立的 Node.js 版本。
 - 自动检测项目根目录下的 `.nvmdrc` 文件，以确定适用的 Node 版本。
 - 无需手动配置或安装其他工具，`nvmd` 将自动识别并切换到所需版本。

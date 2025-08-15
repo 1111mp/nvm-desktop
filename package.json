@@ -1,7 +1,7 @@
 {
   "name": "nvm-desktop",
   "private": true,
-  "version": "4.0.9",
+  "version": "4.1.0",
   "type": "module",
   "license": "GPL-3.0-only",
   "scripts": {

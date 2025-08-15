@@ -410,7 +410,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     const unlisted = getCurrent().listen<string>(
-      'app-migration-error',
+      'nvm-desktop://app-migration-error',
       async () => {
         toast.error(t('Migration-error'), { duration: 8000 });
       },

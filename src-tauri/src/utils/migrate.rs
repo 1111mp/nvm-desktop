@@ -17,7 +17,7 @@ pub fn init() -> Result<()> {
             // Delay 1s before sending events to the window
             sleep(Duration::from_secs(1)).await;
             if let Some(window) = handle::Handle::global().get_window() {
-                let _ = window.emit("app-migration-error", ());
+                let _ = window.emit("nvm-desktop://app-migration-error", ());
             }
         }
     });

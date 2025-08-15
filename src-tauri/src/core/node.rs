@@ -240,7 +240,7 @@ pub async fn install_node(
                 if now.duration_since(*last_emit_time) >= Duration::from_millis(300) {
                     *last_emit_time = now;
                     let _ = window.emit(
-                        "on-node-progress",
+                        "nvm-desktop://node-download-progress",
                         ProgressData {
                             source,
                             transferred,

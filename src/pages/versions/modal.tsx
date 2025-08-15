@@ -58,7 +58,7 @@ export const Modal: React.FC<ModalProps> = ({ ref, onRefrresh }) => {
   // onProgress of the download node
   useEffect(() => {
     const unlisted = getCurrent().listen<Nvmd.ProgressData>(
-      'on-node-progress',
+      'nvm-desktop://node-download-progress',
       ({ payload }) => {
         const { source, transferred, total } = payload;
         if (source === 'download') {

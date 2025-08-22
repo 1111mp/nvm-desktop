@@ -10,11 +10,11 @@ export async function getSettings() {
 
 /**
  * @description: Update app settings data
- * @param {Nvmd.Setting} settings app settings data
+ * @param {Nvmd.Setting} payload app settings data
  * @return {Promise<void>} Promise-void
  */
-export async function updateSettings(settings: Nvmd.Setting) {
-  return invoke<void>('update_settings', { settings });
+export async function updateSettings(payload: Nvmd.Setting) {
+  return invoke<void>('update_settings', { payload });
 }
 
 /**

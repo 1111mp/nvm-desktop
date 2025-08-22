@@ -1,3 +1,11 @@
+## v4.1.1
+
+### Bug Fixes
+
+- Unable to update settings data [#196](https://github.com/1111mp/nvm-desktop/issues/196)
+
+---
+
 ## v4.1.0
 
 ### Features

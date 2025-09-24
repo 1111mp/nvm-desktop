@@ -5,8 +5,13 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0"
-async-compression = { version = "0.4", features = ["tokio", "gzip"] }
-async_zip = { version = "0.0.17", features = ["full"] }
+async-compression = { version = "0.4", default-features = false, features = [
+  "tokio",
+  "gzip",
+] }
+async_zip = { version = "0.0.17", default-features = false, features = [
+  "deflate",
+] }
 cfg-if = "1"
 futures-lite = "2"
 futures-util = "0.3"

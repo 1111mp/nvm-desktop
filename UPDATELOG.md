@@ -1,3 +1,11 @@
+## v4.1.2
+
+### Bug Fixes
+
+- Avoid app crash by disabling async_zip full feature [#198](https://github.com/1111mp/nvm-desktop/issues/198)
+
+---
+
 ## v4.1.1
 
 ### Bug Fixes

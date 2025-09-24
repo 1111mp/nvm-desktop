@@ -1,6 +1,6 @@
 [package]
 name = "nvm-desktop"
-version = "4.1.1"
+version = "4.1.2"
 description = "Node Version Manager Desktop - A desktop application to manage multiple active node.js versions."
 authors = ["The1111mp@outlook.com"]
 license = "GPL-3.0-only"

@@ -95,7 +95,7 @@ export const Component: React.FC = () => {
     return () => {
       unlisted.then((fn) => fn());
     };
-  }, []);
+  }, [t, allVersions]);
 
   useEffect(() => {
     const fetcher = async () => {
@@ -108,7 +108,7 @@ export const Component: React.FC = () => {
       setInstalledVersions(iVersions);
     };
     fetcher();
-  }, [directory]);
+  }, [directory, allVersions]);
 
   const columns: ColumnDef<Nvmd.Version>[] = [
     {

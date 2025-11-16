@@ -103,7 +103,7 @@ export const Component: React.FC = () => {
       projectListener.then((fn) => fn());
       versionListener.then((fn) => fn());
     };
-  }, []);
+  }, [t, groups]);
 
   useEffect(() => {
     const fetcher = async () => {

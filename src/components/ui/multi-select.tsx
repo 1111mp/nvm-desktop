@@ -3,6 +3,7 @@ import {
   useContext,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -76,7 +77,7 @@ type MultiSelectProps = React.ComponentPropsWithoutRef<
 
 const MultiSelect: React.FC<MultiSelectProps> = ({
   value: valueProp,
-  defaultValue,
+  defaultValue = [],
   defaultCache = [],
   filter,
   disabled,
@@ -390,12 +391,14 @@ const MultiSelectItem: React.FC<MultiSelectItemProps> = ({
     itemCache,
   } = useMultiSelect();
 
-  const item = value
-    ? {
-        value,
-        label: label || (typeof children === 'string' ? children : undefined),
-      }
-    : undefined;
+  const item = useMemo(() => {
+    return value
+      ? {
+          value,
+          label: label || (typeof children === 'string' ? children : undefined),
+        }
+      : undefined;
+  }, [value, label, children]);
 
   const selected = Boolean(value && contextValue.includes(value));
 
@@ -403,7 +406,7 @@ const MultiSelectItem: React.FC<MultiSelectItemProps> = ({
     if (value) {
       itemCache.current.set(value, item!);
     }
-  }, [selected, value, item]);
+  }, [value, item, itemCache]);
 
   const disabled = Boolean(
     disabledProp || (!selected && maxCount && contextValue.length >= maxCount),

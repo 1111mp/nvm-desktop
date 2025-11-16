@@ -70,7 +70,7 @@ pub fn create_window() -> Result<()> {
     .fullscreen(false)
     .inner_size(1024.0, 728.0)
     .min_inner_size(1024.0, 728.0)
-    .resizable(false)
+    .resizable(true)
     .center();
 
     #[cfg(target_os = "windows")]

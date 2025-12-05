@@ -30,7 +30,8 @@ pub struct FetchConfig {
     /// disable proxy
     pub no_proxy: Option<bool>,
 
-    /// timeout
+    /// connection timeout (default: 30s)
+    /// only affects the time to establish a connection, not the download time
     pub timeout: Option<Duration>,
 
     /// to cancel fetch
@@ -43,11 +44,13 @@ pub struct FetchConfig {
 fn create_client(
     proxy: Option<Proxy>,
     no_proxy: Option<bool>,
-    timeout: Duration,
+    connect_timeout: Duration,
+    read_timeout: Duration,
 ) -> Result<reqwest::Client> {
     let mut builder = reqwest::ClientBuilder::new()
         .use_rustls_tls()
-        .timeout(timeout);
+        .connect_timeout(connect_timeout)
+        .read_timeout(read_timeout);
     if let Some(true) = no_proxy {
         builder = builder.no_proxy();
     } else if let Some(proxy) = proxy {

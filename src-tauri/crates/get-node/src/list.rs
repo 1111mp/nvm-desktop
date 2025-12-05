@@ -14,7 +14,8 @@ pub struct ListConfig {
     /// proxy ip & port
     pub proxy: Option<Proxy>,
 
-    /// timeout
+    /// connection timeout (default: 30s)
+    /// only affects the time to establish a connection, not the download time
     pub timeout: Option<Duration>,
 }
 
@@ -34,10 +35,15 @@ where
     }
 
     let mirror = mirror.unwrap();
-    // timeout default value is `20s`
-    let timeout = timeout.unwrap_or(Duration::from_millis(20000));
+    // connect_timeout default value is `30s` for establishing connection
+    // read_timeout default value is `60s` for each read operation
+    let connect_timeout = timeout.unwrap_or(Duration::from_secs(30));
+    let read_timeout = Duration::from_secs(60);
 
-    let mut builder = reqwest::ClientBuilder::new().use_rustls_tls();
+    let mut builder = reqwest::ClientBuilder::new()
+        .use_rustls_tls()
+        .connect_timeout(connect_timeout)
+        .read_timeout(read_timeout);
     if let Some(true) = no_proxy {
         builder = builder.no_proxy();
     } else if let Some(proxy) = proxy {
@@ -57,7 +63,6 @@ where
     }
 
     let list = builder
-        .timeout(timeout)
         .build()?
         .get(format!("{}/index.json", &mirror.trim_end_matches("/")))
         .send()

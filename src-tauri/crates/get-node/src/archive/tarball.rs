@@ -19,16 +19,20 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
         version,
         proxy,
         no_proxy,
-        timeout,
+        connect_timeout,
+        read_timeout,
         mut cancel_signal,
         on_progress,
     } = config;
 
     let (name, full_name) = Node::archive_filename(&Version::parse(&version)?, arch);
     let url = format!("{}/v{}/{}", mirror, &version, &full_name);
-    // timeout default value is `20s`
-    let timeout = timeout.unwrap_or(Duration::from_millis(20000));
-    let client = create_client(proxy, no_proxy, timeout)?;
+    // connect_timeout default value is `30s` for establishing connection
+    let connect_timeout = connect_timeout.unwrap_or(Duration::from_secs(30));
+    // read_timeout default value is `60s` for each read operation (detecting stalls during download)
+    let read_timeout = read_timeout.unwrap_or(Duration::from_secs(60));
+
+    let client = create_client(proxy, no_proxy, connect_timeout, read_timeout)?;
 
     let response = send(&client, &url, cancel_signal.as_mut()).await?;
 

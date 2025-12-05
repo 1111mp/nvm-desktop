@@ -99,7 +99,8 @@ pub async fn get_version_list(fetch: Option<bool>) -> Result<Option<Vec<NVersion
         mirror: settings.mirror,
         proxy: settings.proxy,
         no_proxy: settings.no_proxy,
-        timeout: None,
+        connect_timeout: None,
+        read_timeout: None,
     })
     .await?;
 
@@ -232,7 +233,8 @@ pub async fn install_node(
         no_proxy: settings.no_proxy,
         proxy: settings.proxy,
         cancel_signal: Some(cancel_receiver),
-        timeout: None,
+        connect_timeout: None,
+        read_timeout: None,
         on_progress: Box::new({
             move |source: &str, transferred: usize, total: usize| {
                 let mut last_emit_time = last_emit_time.lock().unwrap();

@@ -32,7 +32,10 @@ pub struct FetchConfig {
 
     /// connection timeout (default: 30s)
     /// only affects the time to establish a connection, not the download time
-    pub timeout: Option<Duration>,
+    pub connect_timeout: Option<Duration>,
+
+    /// read timeout (default: 60s)
+    pub read_timeout: Option<Duration>,
 
     /// to cancel fetch
     pub cancel_signal: Option<tokio::sync::watch::Receiver<bool>>,

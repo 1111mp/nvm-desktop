@@ -16,7 +16,10 @@ pub struct ListConfig {
 
     /// connection timeout (default: 30s)
     /// only affects the time to establish a connection, not the download time
-    pub timeout: Option<Duration>,
+    pub connect_timeout: Option<Duration>,
+
+    /// read timeout (default: 60s)
+    pub read_timeout: Option<Duration>,
 }
 
 pub async fn version_list<T>(config: ListConfig) -> Result<T>
@@ -25,7 +28,8 @@ where
 {
     let ListConfig {
         mirror,
-        timeout,
+        connect_timeout,
+        read_timeout,
         no_proxy,
         proxy,
     } = config;
@@ -37,8 +41,8 @@ where
     let mirror = mirror.unwrap();
     // connect_timeout default value is `30s` for establishing connection
     // read_timeout default value is `60s` for each read operation
-    let connect_timeout = timeout.unwrap_or(Duration::from_secs(30));
-    let read_timeout = Duration::from_secs(60);
+    let connect_timeout = connect_timeout.unwrap_or(Duration::from_secs(30));
+    let read_timeout = read_timeout.unwrap_or(Duration::from_secs(60));
 
     let mut builder = reqwest::ClientBuilder::new()
         .use_rustls_tls()

@@ -6,7 +6,7 @@
 
 import fs from 'fs-extra';
 import path from 'node:path';
-import fetch from 'node-fetch';
+import axios from 'axios';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { execSync } from 'node:child_process';
 
@@ -67,7 +67,11 @@ if (!NVMD_LATEST_MAP[`${platform}-${arch}`]) {
 async function downloadFile(url, path) {
   console.log(`[INFO]: start to download "${url}"`);
 
-  const options = {};
+  const options = {
+    method: 'GET',
+    responseType: 'arraybuffer',
+    headers: { 'Content-Type': 'application/octet-stream' },
+  };
 
   const httpProxy =
     process.env.HTTP_PROXY ||
@@ -76,16 +80,12 @@ async function downloadFile(url, path) {
     process.env.https_proxy;
 
   if (httpProxy) {
-    options.agent = new HttpsProxyAgent(httpProxy);
+    options.httpsAgent = new HttpsProxyAgent(httpProxy);
   }
 
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/octet-stream' },
-  });
+  const response = await axios(url, options);
 
-  const buffer = await response.arrayBuffer();
-  await fs.writeFile(path, new Uint8Array(buffer));
+  await fs.writeFile(path, Buffer.from(response.data));
 
   console.log(`[INFO]: download finished "${url}"`);
 }

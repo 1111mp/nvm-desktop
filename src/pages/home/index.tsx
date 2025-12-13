@@ -419,7 +419,7 @@ const Home: React.FC = () => {
     return () => {
       unlisted.then((fn) => fn());
     };
-  }, []);
+  }, [t]);
 
   const linkStyle = navigationMenuTriggerStyle();
 

@@ -24,6 +24,9 @@ import { Themes } from './types';
 
   // Set the theme in advance to prevent flickering.
   applyTheme(settings.theme !== Themes.System ? settings.theme : sysTheme);
+  if (OS_PLATFORM !== 'darwin') {
+    document.documentElement.classList.add('beauty-scrollbar');
+  }
 
   createRoot(document.getElementById('root') as HTMLElement).render(
     <StrictMode>

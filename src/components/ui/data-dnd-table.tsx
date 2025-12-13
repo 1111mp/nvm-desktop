@@ -1,5 +1,7 @@
 /// https://tanstack.com/table/latest/docs/framework/react/examples/row-dnd
 
+'use no memo';
+
 import { useState } from 'react';
 import {
   ColumnDef,

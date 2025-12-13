@@ -6,5 +6,5 @@ export function useI18n(locale: string) {
 
   useEffect(() => {
     i18n.changeLanguage(locale);
-  }, [locale]);
+  }, [i18n, locale]);
 }

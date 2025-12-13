@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useLoaderData } from 'react-router';
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,6 +25,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from '@/components/ui';
 import { toast } from 'sonner';
 import { RotateCwIcon, SearchIcon, TrashIcon } from 'lucide-react';
@@ -101,7 +103,7 @@ export const Component: React.FC = () => {
       projectListener.then((fn) => fn());
       versionListener.then((fn) => fn());
     };
-  }, []);
+  }, [t, groups]);
 
   useEffect(() => {
     const fetcher = async () => {
@@ -126,9 +128,19 @@ export const Component: React.FC = () => {
       cell: ({ getValue }) => {
         const desc = getValue() as string;
         return (
-          <span className='max-w-52 inline-block truncate' title={desc}>
-            {desc}
-          </span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span
+                className='max-w-52 xl:max-w-[400px] 2xl:max-w-[600px] inline-block truncate'
+                title={desc}
+              >
+                {desc}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent className='max-w-2xl text-accent-foreground bg-accent'>
+              {desc}
+            </TooltipContent>
+          </Tooltip>
         );
       },
     },

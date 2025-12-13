@@ -92,7 +92,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
     if (open) {
       updatePosition();
     }
-  }, [open, updatePosition]);
+  }, [open]);
 
   return (
     <Command

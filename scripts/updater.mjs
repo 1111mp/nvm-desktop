@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { context, getOctokit } from '@actions/github';
 import { resolveUpdateLog } from './updatelog.mjs';
 
@@ -144,13 +143,12 @@ async function resolveUpdater() {
 
 // get the signature file content
 async function getSignature(url) {
-  const response = await axios(url, {
+  const response = await fetch(url, {
     method: 'GET',
     headers: { 'Content-Type': 'application/octet-stream' },
-    responseType: 'text',
   });
 
-  return response.data;
+  return response.text();
 }
 
 resolveUpdater().catch(console.error);

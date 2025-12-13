@@ -6,9 +6,8 @@
 
 import fs from 'fs-extra';
 import path from 'node:path';
-import axios from 'axios';
-import { HttpsProxyAgent } from 'https-proxy-agent';
 import { execSync } from 'node:child_process';
+import { ProxyAgent, setGlobalDispatcher } from 'undici';
 
 const cwd = process.cwd();
 const TEMP_DIR = path.join(cwd, 'node_modules/.nvmd');
@@ -61,31 +60,30 @@ if (!NVMD_LATEST_MAP[`${platform}-${arch}`]) {
   throw new Error(`nvmd unsupported platform "${platform}-${arch}"`);
 }
 
+const httpProxy =
+  process.env.HTTP_PROXY ||
+  process.env.http_proxy ||
+  process.env.HTTPS_PROXY ||
+  process.env.https_proxy;
+
+if (httpProxy) {
+  const dispatcher = new ProxyAgent(httpProxy);
+  setGlobalDispatcher(dispatcher);
+}
+
 /**
  * download file and save to `path`
  */
 async function downloadFile(url, path) {
   console.log(`[INFO]: start to download "${url}"`);
 
-  const options = {
+  const response = await fetch(url, {
     method: 'GET',
-    responseType: 'arraybuffer',
     headers: { 'Content-Type': 'application/octet-stream' },
-  };
+  });
 
-  const httpProxy =
-    process.env.HTTP_PROXY ||
-    process.env.http_proxy ||
-    process.env.HTTPS_PROXY ||
-    process.env.https_proxy;
-
-  if (httpProxy) {
-    options.httpsAgent = new HttpsProxyAgent(httpProxy);
-  }
-
-  const response = await axios(url, options);
-
-  await fs.writeFile(path, Buffer.from(response.data));
+  const buffer = await response.arrayBuffer();
+  await fs.writeFile(path, new Uint8Array(buffer));
 
   console.log(`[INFO]: download finished "${url}"`);
 }

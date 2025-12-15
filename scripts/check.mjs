@@ -6,9 +6,8 @@
 
 import fs from 'fs-extra';
 import path from 'node:path';
-import fetch from 'node-fetch';
-import { HttpsProxyAgent } from 'https-proxy-agent';
 import { execSync } from 'node:child_process';
+import { ProxyAgent, setGlobalDispatcher } from 'undici';
 
 const cwd = process.cwd();
 const TEMP_DIR = path.join(cwd, 'node_modules/.nvmd');
@@ -61,23 +60,22 @@ if (!NVMD_LATEST_MAP[`${platform}-${arch}`]) {
   throw new Error(`nvmd unsupported platform "${platform}-${arch}"`);
 }
 
+const httpProxy =
+  process.env.HTTP_PROXY ||
+  process.env.http_proxy ||
+  process.env.HTTPS_PROXY ||
+  process.env.https_proxy;
+
+if (httpProxy) {
+  const dispatcher = new ProxyAgent(httpProxy);
+  setGlobalDispatcher(dispatcher);
+}
+
 /**
  * download file and save to `path`
  */
 async function downloadFile(url, path) {
   console.log(`[INFO]: start to download "${url}"`);
-
-  const options = {};
-
-  const httpProxy =
-    process.env.HTTP_PROXY ||
-    process.env.http_proxy ||
-    process.env.HTTPS_PROXY ||
-    process.env.https_proxy;
-
-  if (httpProxy) {
-    options.agent = new HttpsProxyAgent(httpProxy);
-  }
 
   const response = await fetch(url, {
     method: 'GET',

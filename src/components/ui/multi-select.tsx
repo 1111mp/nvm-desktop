@@ -154,8 +154,9 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
 
 MultiSelect.displayName = 'MultiSelect';
 
-interface MultiSelectTriggerProps
-  extends React.ComponentPropsWithoutRef<typeof Primitive.div> {
+interface MultiSelectTriggerProps extends React.ComponentPropsWithoutRef<
+  typeof Primitive.div
+> {
   ref?: React.Ref<HTMLButtonElement>;
 }
 
@@ -195,8 +196,9 @@ const MultiSelectTrigger: React.FC<MultiSelectTriggerProps> = ({
 
 MultiSelectTrigger.displayName = 'MultiSelectTrigger';
 
-interface MultiSelectValueProps
-  extends React.ComponentProps<typeof Primitive.div> {
+interface MultiSelectValueProps extends React.ComponentProps<
+  typeof Primitive.div
+> {
   placeholder?: string;
   maxDisplay?: number;
   maxItemLength?: number;

@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import { getOctokit, context } from '@actions/github';
 import { resolveUpdateLog } from './updatelog.mjs';
 

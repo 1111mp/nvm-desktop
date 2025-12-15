@@ -52,6 +52,7 @@ function LabelCopyable({
         <LabelPrimitive.Root
           ref={ref}
           className={cn(labelVariants(), className)}
+          title={title}
           {...props}
         >
           {children}

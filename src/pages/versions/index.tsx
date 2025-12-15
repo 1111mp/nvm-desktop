@@ -96,7 +96,7 @@ export const Versions: React.FC = () => {
     return () => {
       unlisted.then((fn) => fn());
     };
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     const fetcher = async () => {

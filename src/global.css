@@ -702,27 +702,27 @@
   --ring: hsl(263.4 70% 50.4%);
 }
 
-::-webkit-scrollbar {
+.beauty-scrollbar ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
   background-color: transparent;
 }
 
-::-webkit-scrollbar-thumb {
+.beauty-scrollbar ::-webkit-scrollbar-thumb {
   border-radius: 3px;
   background-color: #b9b9b9;
   border: 1px solid #b9b9b9;
 }
 
-::-webkit-scrollbar-thumb:hover {
+.beauty-scrollbar ::-webkit-scrollbar-thumb:hover {
   background-color: #848484;
 }
 
-.dark ::-webkit-scrollbar-thumb {
+.dark.beauty-scrollbar ::-webkit-scrollbar-thumb {
   background-color: #848484;
   border: 1px solid #1b1b1b;
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
+.dark.beauty-scrollbar ::-webkit-scrollbar-thumb:hover {
   background-color: #b9b9b9;
 }

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useLoaderData } from 'react-router';
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,7 +29,6 @@ import { VsCodeLogo } from '@/components/vscode-logo';
 import { GitBranchPlusIcon, RotateCwIcon, TrashIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { cn } from '@/lib/utils';
 import { useAppContext } from '@/app-context';
 import { useTranslation } from 'react-i18next';
 import {
@@ -45,6 +43,7 @@ import {
   openWithVSCode,
 } from '@/services/cmds';
 import { getCurrent } from '@/services/api';
+import { cn } from '@/lib/utils';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { UniqueIdentifier } from '@dnd-kit/core';
 
@@ -102,7 +101,7 @@ export const Component: React.FC = () => {
       projectListener.then((fn) => fn());
       versionListener.then((fn) => fn());
     };
-  }, []);
+  }, [t, projects]);
 
   useEffect(() => {
     const fetcher = async () => {
@@ -119,6 +118,19 @@ export const Component: React.FC = () => {
       header: t('Project-Name'),
       maxSize: 240,
       enableHiding: false,
+      cell: ({ row }) => {
+        const { name } = row.original;
+        return (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className='truncate'>{name}</span>
+            </TooltipTrigger>
+            <TooltipContent className='text-accent-foreground bg-accent'>
+              {name}
+            </TooltipContent>
+          </Tooltip>
+        );
+      },
     },
     {
       accessorKey: 'path',
@@ -131,7 +143,7 @@ export const Component: React.FC = () => {
             <LabelCopyable
               rootClassName='flex'
               className={cn(
-                'max-w-[310px] leading-6 inline-block truncate cursor-pointer hover:text-primary',
+                'max-w-[310px] xl:max-w-[500px] 2xl:max-w-[800px] leading-6 inline-block truncate cursor-pointer hover:text-primary',
                 {
                   'line-through': !row.original.active,
                 },

@@ -16,28 +16,48 @@ type AutoCompleteProps = {
   options?: string[];
   placeholder?: string;
   shouldFilter?: boolean;
+  defaultOpts?: string[];
   onChange?: (value: string) => void;
 };
-
-const DefMirrors = [
-  'https://nodejs.org/dist',
-  'https://npmmirror.com/mirrors/node',
-];
 
 const AutoComplete: React.FC<AutoCompleteProps> = ({
   value: valueProp = '',
   options = [],
   placeholder = '',
   shouldFilter = true,
+  defaultOpts = [],
   onChange,
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [value, setValue] = useState<string>(valueProp);
   const [position, setPosition] = useState<'top' | 'bottom'>('bottom');
 
+  const containerRef = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const dropdown = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const handleClickOutside = (evt: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(evt.target as Node)
+      ) {
+        setOpen(false);
+        input.current?.blur();
+
+        if (open) {
+          evt.preventDefault();
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [open]);
 
   const onKeyDown = (evt: React.KeyboardEvent<HTMLDivElement>) => {
     evt.stopPropagation();
@@ -46,7 +66,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
 
     switch (evt.key) {
       case 'Enter': {
-        if (![...DefMirrors, ...options].includes(value)) {
+        if (![...defaultOpts, ...options].includes(value)) {
           evt.preventDefault();
         }
         break;
@@ -68,6 +88,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
     onChange?.(value);
 
     setTimeout(() => {
+      setOpen(false);
       input.current?.blur();
     });
   };
@@ -96,6 +117,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
 
   return (
     <Command
+      ref={containerRef}
       shouldFilter={shouldFilter}
       className='overflow-visible bg-transparent'
       onKeyDown={onKeyDown}
@@ -110,7 +132,6 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
             setOpen(true);
           })
         }
-        onBlur={() => setOpen(false)}
         onValueChange={onValueChange}
       />
       <div className='relative mt-1'>
@@ -152,20 +173,22 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
                       ))}
                     </CommandGroup>
                   ) : null}
-                  <CommandGroup heading={t('Default')}>
-                    {DefMirrors.map((optValue) => (
-                      <CommandItem
-                        key={optValue}
-                        value={optValue}
-                        title={optValue}
-                        className='gap-1'
-                        onSelect={onSelect}
-                      >
-                        <span className='flex-1 truncate'>{optValue}</span>
-                        {optValue === value ? <Check /> : null}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
+                  {defaultOpts.length ? (
+                    <CommandGroup heading={t('Default')}>
+                      {defaultOpts.map((optValue) => (
+                        <CommandItem
+                          key={optValue}
+                          value={optValue}
+                          title={optValue}
+                          className='gap-1'
+                          onSelect={onSelect}
+                        >
+                          <span className='flex-1 truncate'>{optValue}</span>
+                          {optValue === value ? <Check /> : null}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  ) : null}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -178,4 +201,4 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
 
 AutoComplete.displayName = 'AutoComplete';
 
-export { DefMirrors, AutoComplete, type AutoCompleteProps };
+export { AutoComplete, type AutoCompleteProps };

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-  DefMirrors,
   AutoComplete,
   AutoCompleteProps,
   Button,
@@ -51,11 +50,18 @@ type Options = NonNullable<AutoCompleteProps['options']>;
 
 type Props = unknown;
 
+const DefNodeVersionFiles = ['.nvmrc', '.nvmdrc', '.node-version'];
+const DefMirrors = [
+  'https://nodejs.org/dist',
+  'https://npmmirror.com/mirrors/node',
+];
+
 const formSchema = z.object({
   locale: z.string(),
   theme: z.enum(Themes),
   closer: z.enum(Closer),
   coder: z.string(),
+  node_version_file: z.string(),
   directory: z.string().min(1),
   mirror: z.url({ message: 'Invalid mirror url' }),
   proxy: z
@@ -82,7 +88,7 @@ const formSchema = z.object({
         (val.port === '' || val.port === '0' || val.port === void 0)
       ) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: ['port'],
           message: 'Invalid port',
         });
@@ -94,7 +100,11 @@ const Setting: React.FC<Props> = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [options, setOptions] = useState<Options>(() => {
+  const [versionFileOpts, setVersionFileOptions] = useState<Options>(() => {
+    const optStr = localStorage.getItem('nvmd-version-file');
+    return optStr ? optStr.split('__') : [];
+  });
+  const [mirrorOpts, setMirrorOpts] = useState<Options>(() => {
     const optStr = localStorage.getItem('nvmd-mirror');
     return optStr ? optStr.split('__') : [];
   });
@@ -102,6 +112,7 @@ const Setting: React.FC<Props> = () => {
   const { settings, updateSetting } = useAppContext();
   const defaultSettings = {
     ...settings,
+    node_version_file: settings.node_version_file ?? '.nvmdrc',
     proxy: settings.proxy || { enabled: false, ip: '', port: '' },
   };
 
@@ -119,6 +130,7 @@ const Setting: React.FC<Props> = () => {
       theme: newTheme,
       closer: newCloser,
       coder: newCoder,
+      node_version_file: newNodeVersionFile,
       directory: newDirectory,
       mirror: newMirror,
       proxy: newProxy,
@@ -128,6 +140,7 @@ const Setting: React.FC<Props> = () => {
       settings.theme === newTheme &&
       settings.closer === newCloser &&
       settings.coder === newCoder &&
+      settings.node_version_file === newNodeVersionFile &&
       settings.directory === newDirectory &&
       settings.mirror === newMirror &&
       compareObject(settings.proxy, newProxy)
@@ -137,10 +150,26 @@ const Setting: React.FC<Props> = () => {
       return;
     }
 
+    // for custom node file config name
+    // if not exesit need to cache
+    if (
+      ![...DefNodeVersionFiles, ...versionFileOpts].includes(newNodeVersionFile)
+    ) {
+      setVersionFileOptions((pre) => {
+        let newOptions = [...pre];
+        newOptions.unshift(newNodeVersionFile);
+        // max cache 5
+        newOptions = newOptions.slice(0, 5);
+        localStorage.setItem('nvmd-version-file', newOptions.join('__'));
+
+        return newOptions;
+      });
+    }
+
     // for custom mirror url
     // if not exesit need to cache
-    if (![...DefMirrors, ...options].includes(newMirror)) {
-      setOptions((pre) => {
+    if (![...DefMirrors, ...mirrorOpts].includes(newMirror)) {
+      setMirrorOpts((pre) => {
         let newOptions = [...pre];
         newOptions.unshift(newMirror);
         // max cache 5
@@ -157,6 +186,7 @@ const Setting: React.FC<Props> = () => {
         theme: newTheme,
         closer: newCloser,
         coder: newCoder,
+        node_version_file: newNodeVersionFile,
         directory: newDirectory,
         mirror: newMirror,
         proxy: newProxy,
@@ -335,6 +365,36 @@ const Setting: React.FC<Props> = () => {
             />
             <FormField
               control={form.control}
+              name='node_version_file'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className='flex items-center gap-1 text-muted-foreground'>
+                    Node Version File
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <InfoIcon className='size-4 text-primary cursor-pointer' />
+                      </TooltipTrigger>
+                      <TooltipContent className='w-96 text-accent-foreground bg-accent break-normal'>
+                        The file used to store the Node.js version (e.g.
+                        &apos;.nvmdrc&apos;, &apos;.nvmrc&apos;)
+                      </TooltipContent>
+                    </Tooltip>
+                  </FormLabel>
+                  <FormControl>
+                    <AutoComplete
+                      value={field.value}
+                      shouldFilter={false}
+                      placeholder='Node Version File'
+                      options={versionFileOpts}
+                      defaultOpts={DefNodeVersionFiles}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name='directory'
               render={({ field }) => (
                 <FormItem>
@@ -435,7 +495,7 @@ const Setting: React.FC<Props> = () => {
                             <FormItem>
                               <FormControl>
                                 <Input
-                                  className='w-[72px] h-8 text-center'
+                                  className='w-18 h-8 text-center'
                                   disabled={!enabled}
                                   {...field}
                                 />
@@ -462,8 +522,9 @@ const Setting: React.FC<Props> = () => {
                     <AutoComplete
                       value={field.value}
                       shouldFilter={false}
-                      placeholder='mirror url'
-                      options={options}
+                      placeholder='Mirror Url'
+                      options={mirrorOpts}
+                      defaultOpts={DefMirrors}
                       onChange={field.onChange}
                     />
                   </FormControl>

@@ -67,6 +67,7 @@ declare global {
       proxy?: Proxy;
       no_proxy?: boolean;
       theme: Themes;
+      node_version_file?: string;
     }
 
     // type UpdateInfo = ElectronUpdateInfo | "update-not-available";

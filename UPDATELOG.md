@@ -1,3 +1,18 @@
+## v4.2.0
+
+### Features
+
+- Allow users to specify custom filename for Node version config (default: .nvmdrc) [#206](https://github.com/1111mp/nvm-desktop/issues/206)
+- Allow overriding Node version using `NVMD_NODE_VERSION` environment variable [#11](https://github.com/1111mp/nvmd-command/issues/11)
+- Preserve macOS scrollbar behavior and allow window resizing [#199](https://github.com/1111mp/nvm-desktop/issues/199)
+
+### Bug Fixes
+
+- Handle node.js download timeout for slow networks [#165](https://github.com/1111mp/nvm-desktop/issues/165)
+- File exists (os error 17) [#200](https://github.com/1111mp/nvm-desktop/issues/200)
+
+---
+
 ## v4.1.2
 
 ### Bug Fixes

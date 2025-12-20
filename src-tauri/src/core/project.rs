@@ -34,7 +34,7 @@ pub struct PInfo {
     /// project floder path
     pub path: PathBuf,
 
-    /// project version from `.nvmdrc`
+    /// project version default from `.nvmdrc`
     pub version: Option<String>,
 }
 
@@ -42,9 +42,10 @@ pub struct PInfo {
 pub async fn select_projects(app_handle: tauri::AppHandle) -> Result<Option<Vec<PInfo>>> {
     if let Some(file_paths) = app_handle.dialog().file().blocking_pick_folders() {
         let mut p_info = Vec::new();
+        let version_file_name = Config::settings().latest_ref().get_node_version_file();
         for file_path in file_paths {
             if let FilePath::Path(path) = file_path {
-                let nvmdrc_path = path.join(".nvmdrc");
+                let nvmdrc_path = path.join(&version_file_name);
                 let version = if nvmdrc_path.exists() {
                     Some(help::async_read_string(&nvmdrc_path).await?)
                 } else {
@@ -62,7 +63,8 @@ pub async fn select_projects(app_handle: tauri::AppHandle) -> Result<Option<Vec<
 /// update projects
 pub async fn update_projects(list: Vec<Project>, path: Option<PathBuf>) -> Result<()> {
     if let Some(path) = path {
-        let nvmdrc = path.join(".nvmdrc");
+        let node_version_file = Config::settings().latest_ref().get_node_version_file();
+        let nvmdrc = path.join(&node_version_file);
         if nvmdrc.exists() {
             tokio::fs::remove_file(nvmdrc).await?;
         }
@@ -83,7 +85,8 @@ pub async fn sync_project_version(path: PathBuf, version: &str) -> Result<i32> {
         return Ok(404);
     }
 
-    let path = path.join(".nvmdrc");
+    let node_version_file = Config::settings().latest_ref().get_node_version_file();
+    let path = path.join(&node_version_file);
     help::async_save_string(&path, version).await?;
 
     Ok(200)
@@ -91,11 +94,13 @@ pub async fn sync_project_version(path: PathBuf, version: &str) -> Result<i32> {
 
 /// batch update project version
 pub async fn batch_update_project_version(paths: Vec<PathBuf>, version: String) -> Result<()> {
+    let node_version_file = Config::settings().latest_ref().get_node_version_file();
     let result = stream::iter(paths.into_iter())
         .map(|path| {
             let version = version.clone();
+            let file_name = node_version_file.clone();
             async move {
-                let path = path.join(".nvmdrc");
+                let path = path.join(file_name);
                 help::async_save_string(&path, &version).await
             }
         })

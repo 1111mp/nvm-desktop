@@ -39,6 +39,10 @@ pub struct ISettings {
     /// app theme
     /// `system` or `light` or `dark`
     pub theme: Option<String>,
+
+    /// node version config file name
+    /// default: `.nvmdrc`
+    pub node_version_file: Option<String>,
 }
 
 #[cfg(windows)]
@@ -74,6 +78,7 @@ impl ISettings {
             mirror: Some("https://nodejs.org/dist".into()),
             no_proxy: Some(false),
             theme: Some("system".into()),
+            node_version_file: Some(".nvmdrc".into()),
             ..Self::default()
         }
     }
@@ -82,14 +87,14 @@ impl ISettings {
         help::save_json(&dirs::settings_path()?, self, None)
     }
 
-    /// get the value of `locale`
-    pub fn get_locale(&self) -> Option<String> {
-        self.locale.clone()
-    }
-
     /// get the value of `closer`
     pub fn get_closer(&self) -> Option<String> {
         self.closer.clone()
+    }
+
+    /// get the value of `node_version_file`
+    pub fn get_node_version_file(&self) -> String {
+        self.node_version_file.clone().unwrap_or(".nvmdrc".into())
     }
 
     /// get the value of `directory`
@@ -114,6 +119,7 @@ impl ISettings {
         patch!(enable_silent_start);
         patch!(locale);
         patch!(mirror);
+        patch!(node_version_file);
         patch!(proxy);
         patch!(no_proxy);
         patch!(theme);
@@ -133,6 +139,7 @@ pub struct ISettingsResponse {
     pub proxy: Option<Proxy>,
     pub no_proxy: Option<bool>,
     pub theme: Option<String>,
+    pub node_version_file: Option<String>,
 }
 
 impl From<ISettings> for ISettingsResponse {
@@ -147,6 +154,7 @@ impl From<ISettings> for ISettingsResponse {
             proxy: settings.proxy,
             no_proxy: settings.no_proxy,
             theme: settings.theme,
+            node_version_file: settings.node_version_file,
         }
     }
 }

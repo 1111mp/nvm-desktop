@@ -138,5 +138,7 @@
   "open-with-vscode": "Open with VsCode",
   "VSCode-Code-Command": "VSCode Code Command",
   "VSCode-Code-Command-tip": "In most cases the default value of 'code' is sufficient. However, on MacOS you must fill in the full path, for example: '/usr/local/bin/code' ( you can get it by running 'where code' )",
-  "VSCode-code-command-not-found": "VSCode 'code' command not found"
+  "VSCode-code-command-not-found": "VSCode 'code' command not found",
+  "Node-Version-File": "Node.js Version File",
+  "Node-Version-File-Tip": "The file used to store the Node.js version (e.g. '.nvmdrc', '.nvmrc', '.node-version')"
 }

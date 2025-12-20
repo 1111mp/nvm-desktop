@@ -369,14 +369,13 @@ const Setting: React.FC<Props> = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className='flex items-center gap-1 text-muted-foreground'>
-                    Node Version File
+                    {t('Node-Version-File')}
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <InfoIcon className='size-4 text-primary cursor-pointer' />
                       </TooltipTrigger>
                       <TooltipContent className='w-96 text-accent-foreground bg-accent break-normal'>
-                        The file used to store the Node.js version (e.g.
-                        &apos;.nvmdrc&apos;, &apos;.nvmrc&apos;)
+                        {t('Node-Version-File-Tip')}
                       </TooltipContent>
                     </Tooltip>
                   </FormLabel>

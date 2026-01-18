@@ -14,8 +14,10 @@ import {
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 
-interface DataTableColumnHeaderProps<TData, TValue>
-  extends React.HTMLAttributes<HTMLDivElement> {
+interface DataTableColumnHeaderProps<
+  TData,
+  TValue,
+> extends React.HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>;
   title: string;
 }
@@ -39,7 +41,7 @@ export function DataTableColumnSortHeader<TData, TValue>({
             animate={false}
             variant='ghost'
             size='sm'
-            className='text-sm font-light -translate-x-[7px] hover:bg-secondary-hover data-[state=open]:bg-secondary-hover'
+            className='text-sm font-light -translate-x-1.75 hover:bg-secondary-hover data-[state=open]:bg-secondary-hover'
           >
             <span>{title}</span>
             {column.getIsSorted() === 'desc' ? (

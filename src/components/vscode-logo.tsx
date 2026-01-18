@@ -6,7 +6,7 @@ export const VsCodeLogo = ({ ref, className, ...props }: VsCodeLogoProps) => {
   return (
     <svg
       ref={ref}
-      className={cn('w-[18px] h-[18px] text-primary cursor-pointer', className)}
+      className={cn('w-4.5 h-4.5 text-primary cursor-pointer', className)}
       viewBox='0 0 1024 1024'
       version='1.1'
       xmlns='http://www.w3.org/2000/svg'

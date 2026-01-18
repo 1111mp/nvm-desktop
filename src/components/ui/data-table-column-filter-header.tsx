@@ -10,8 +10,10 @@ import { Popover, PopoverTrigger, PopoverContent } from './popover';
 
 import { cn } from '@/lib/utils';
 
-interface DataTableColumnHeaderProps<TData, TValue>
-  extends React.HTMLAttributes<HTMLDivElement> {
+interface DataTableColumnHeaderProps<
+  TData,
+  TValue,
+> extends React.HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>;
   title: string;
 }
@@ -37,7 +39,7 @@ export function DataTableColumnFilterHeader<TData, TValue>({
             animate={false}
             variant='ghost'
             size='sm'
-            className='text-sm font-light -translate-x-[7px] hover:bg-secondary-hover data-[state=open]:bg-secondary-hover'
+            className='text-sm font-light -translate-x-1.75 hover:bg-secondary-hover data-[state=open]:bg-secondary-hover'
           >
             <span>{title}</span>
             <Search className='ml-2 size-4' />

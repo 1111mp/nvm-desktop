@@ -131,7 +131,7 @@ export const Component: React.FC = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <span
-                className='max-w-52 xl:max-w-[400px] 2xl:max-w-[600px] inline-block truncate'
+                className='max-w-52 xl:max-w-100 2xl:max-w-150 inline-block truncate'
                 title={desc}
               >
                 {desc}

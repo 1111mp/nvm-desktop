@@ -124,7 +124,7 @@ export function ThemeCustomizer() {
       </PopoverTrigger>
       <PopoverContent
         align='end'
-        className='z-40 w-[340px] rounded-[0.5rem] bg-white p-3 dark:bg-zinc-950'
+        className='z-40 w-85 rounded-xl bg-white p-3 dark:bg-zinc-950'
       >
         <div className='space-y-1.5'>
           <Label className='text-xs'>{t('Theme color')}</Label>

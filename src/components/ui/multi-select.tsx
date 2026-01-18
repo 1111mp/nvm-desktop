@@ -356,7 +356,7 @@ const MultiSelectContent: React.FC<MultiSelectContentProps> = ({
       >
         <Command
           className={cn(
-            'pt-1 px-1 w-full min-w-[var(--radix-select-trigger-width)]',
+            'pt-1 px-1 w-full min-w-(--radix-select-trigger-width)',
             className,
           )}
           filter={filter}

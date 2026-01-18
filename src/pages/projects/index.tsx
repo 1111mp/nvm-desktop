@@ -143,7 +143,7 @@ export const Component: React.FC = () => {
             <LabelCopyable
               rootClassName='flex'
               className={cn(
-                'max-w-[310px] xl:max-w-[500px] 2xl:max-w-[800px] leading-6 inline-block truncate cursor-pointer hover:text-primary',
+                'max-w-77.5 xl:max-w-125 2xl:max-w-200 leading-6 inline-block truncate cursor-pointer hover:text-primary',
                 {
                   'line-through': !row.original.active,
                 },

@@ -148,7 +148,7 @@ export const Updater: React.FC = () => {
             <Button
               size='sm'
               variant='ghost'
-              className='w-[31px] h-6'
+              className='w-7.75 h-6'
               icon={<CircularProgressbar value={percentage} />}
               onClick={() => {
                 if (percentage >= 100) {

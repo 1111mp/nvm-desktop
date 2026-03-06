@@ -1,3 +1,11 @@
+## v4.2.1
+
+### Bug Fixes
+
+- Resource temporarily unavailable (os error 35) [#213](https://github.com/1111mp/nvm-desktop/issues/213)
+
+---
+
 ## v4.2.0
 
 ### Features

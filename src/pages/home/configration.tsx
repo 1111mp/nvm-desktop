@@ -1,11 +1,13 @@
 import { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle,
   Button,
   Checkbox,
@@ -14,22 +16,25 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
 } from '@/components/ui';
-import { Share2Icon } from 'lucide-react';
+import {
+  LoaderCircle,
+  Share2Icon,
+  SquareArrowRightEnter,
+  SquareArrowRightExit,
+} from 'lucide-react';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
 
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useAppContext } from '@/app-context';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -85,18 +90,13 @@ const Configration: React.FC = () => {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            className='nvmd-tip'
-            size='sm'
-            title={title}
-            variant='ghost'
-            icon={<Share2Icon />}
-          />
+          <Button size='sm' title={title} variant='ghost'>
+            <Share2Icon />
+          </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align='end' className='w-48'>
-          <DropdownMenuLabel>{title}</DropdownMenuLabel>
-          <DropdownMenuSeparator />
           <DropdownMenuGroup>
+            <DropdownMenuLabel>{title}</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() => {
                 exporter.current?.alert();
@@ -199,71 +199,79 @@ const ConfigrationExport: React.FC<ConfigrationExportProps> = ({ ref }) => {
         setOpen(open);
       }}
     >
-      <AlertDialogContent className='top-1/3'>
+      <AlertDialogContent className='top-1/3 max-w-md!'>
         <AlertDialogHeader>
+          <AlertDialogMedia>
+            <SquareArrowRightExit />
+          </AlertDialogMedia>
           <AlertDialogTitle>{t('Configration-export')}</AlertDialogTitle>
           <AlertDialogDescription>
             {t('Configration-export-tip')}
           </AlertDialogDescription>
-          <Form {...form}>
-            <FormField
-              control={form.control}
+        </AlertDialogHeader>
+        <form
+          id='configuration-export'
+          onSubmit={form.handleSubmit(onExportSubmit)}
+        >
+          <FieldGroup>
+            <Controller
               name='items'
-              render={() => (
-                <FormItem>
-                  {items.map((item) => (
-                    <FormField
-                      key={item.id}
-                      control={form.control}
-                      name='items'
-                      render={({ field }) => {
-                        return (
-                          <FormItem
-                            key={item.id}
-                            className='flex flex-row items-center space-x-3 space-y-0'
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <FieldGroup>
+                  <FieldSet data-invalid={fieldState.invalid}>
+                    <FieldGroup data-slot='checkbox-group'>
+                      {items.map((item) => (
+                        <Field
+                          key={item.id}
+                          orientation='horizontal'
+                          data-invalid={fieldState.invalid}
+                        >
+                          <Checkbox
+                            id={`configuration-export-items-${item.id}`}
+                            name={field.name}
+                            aria-invalid={fieldState.invalid}
+                            checked={field.value.includes(item.id)}
+                            onCheckedChange={(checked) => {
+                              const newValue = checked
+                                ? [...field.value, item.id]
+                                : field.value.filter(
+                                    (value) => value !== item.id,
+                                  );
+                              field.onChange(newValue);
+                            }}
+                          />
+                          <FieldLabel
+                            htmlFor={`configuration-export-items-${item.id}`}
+                            className='font-normal'
                           >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(item.id)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([...field.value, item.id])
-                                    : field.onChange(
-                                        field.value?.filter(
-                                          (value) => value !== item.id,
-                                        ),
-                                      );
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className='flex items-center gap-1 text-sm font-normal'>
-                              {t(item.label)}
-                              {item.id === 'setting' ? (
-                                <span className='text-muted-foreground'>
-                                  {t('Configration-export-setting')}
-                                </span>
-                              ) : item.id === 'projects' ? (
-                                <span className='text-muted-foreground'>
-                                  {t('Configration-export-projects')}
-                                </span>
-                              ) : null}
-                            </FormLabel>
-                          </FormItem>
-                        );
-                      }}
-                    />
-                  ))}
-                  <FormMessage />
-                </FormItem>
+                            {item.label}
+                            {item.id === 'setting' ? (
+                              <span className='text-muted-foreground'>
+                                {t('Configration-export-setting')}
+                              </span>
+                            ) : item.id === 'projects' ? (
+                              <span className='text-muted-foreground'>
+                                {t('Configration-export-projects')}
+                              </span>
+                            ) : null}
+                          </FieldLabel>
+                        </Field>
+                      ))}
+                    </FieldGroup>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </FieldSet>
+                </FieldGroup>
               )}
             />
-          </Form>
-        </AlertDialogHeader>
+          </FieldGroup>
+        </form>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>
-            {t('Cancel')}
-          </AlertDialogCancel>
-          <Button loading={loading} onClick={form.handleSubmit(onExportSubmit)}>
+          <AlertDialogCancel>{t('Cancel')}</AlertDialogCancel>
+          <Button disabled={loading} type='submit' form='configuration-export'>
+            {loading && <LoaderCircle className='animate-spin' />}
             {t('Continue')}
           </Button>
         </AlertDialogFooter>
@@ -328,19 +336,30 @@ const ConfigrationImport: React.FC<ConfigrationImportProps> = ({ ref }) => {
     >
       <AlertDialogContent className='top-1/3'>
         <AlertDialogHeader>
+          <AlertDialogMedia>
+            <SquareArrowRightEnter />
+          </AlertDialogMedia>
           <AlertDialogTitle>{t('Configration-import')}</AlertDialogTitle>
           <AlertDialogDescription>
             {t('Configration-import-tip')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{t('Cancel')}</AlertDialogCancel>
-          <Button variant='tag' onClick={() => onConfigrationImport(false)}>
+          <AlertDialogCancel variant='outline'>{t('Cancel')}</AlertDialogCancel>
+          <Button
+            variant='secondary'
+            onClick={() => onConfigrationImport(false)}
+          >
             {t('Import-only')}
           </Button>
-          <Button onClick={() => onConfigrationImport(true)}>
+          <AlertDialogAction
+            onClick={(evt) => {
+              evt.preventDefault();
+              onConfigrationImport(true);
+            }}
+          >
             {t('Import-and-sync')}
-          </Button>
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

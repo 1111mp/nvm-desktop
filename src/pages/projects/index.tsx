@@ -8,6 +8,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle,
   AlertDialogTrigger,
   Button,
@@ -26,7 +27,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui';
 import { VsCodeLogo } from '@/components/vscode-logo';
-import { GitBranchPlusIcon, RotateCwIcon, TrashIcon } from 'lucide-react';
+import { FolderSync, PackagePlus, TrashIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { useAppContext } from '@/app-context';
@@ -118,6 +119,9 @@ export const Component: React.FC = () => {
       header: t('Project-Name'),
       maxSize: 240,
       enableHiding: false,
+      meta: {
+        className: 'flex items-center',
+      },
       cell: ({ row }) => {
         const { name } = row.original;
         return (
@@ -125,9 +129,7 @@ export const Component: React.FC = () => {
             <TooltipTrigger asChild>
               <span className='truncate'>{name}</span>
             </TooltipTrigger>
-            <TooltipContent className='text-accent-foreground bg-accent'>
-              {name}
-            </TooltipContent>
+            <TooltipContent>{name}</TooltipContent>
           </Tooltip>
         );
       },
@@ -136,6 +138,9 @@ export const Component: React.FC = () => {
       accessorKey: 'path',
       header: t('Project-Path'),
       enableHiding: false,
+      meta: {
+        className: 'flex items-center text-muted-foreground',
+      },
       cell: ({ row }) => {
         const path = row.original.path;
         return (
@@ -172,9 +177,7 @@ export const Component: React.FC = () => {
                   }}
                 />
               </TooltipTrigger>
-              <TooltipContent className='text-accent-foreground bg-accent'>
-                {t('open-with-vscode')}
-              </TooltipContent>
+              <TooltipContent>{t('open-with-vscode')}</TooltipContent>
             </Tooltip>
           </div>
         );
@@ -265,8 +268,8 @@ export const Component: React.FC = () => {
               }
             }}
           >
-            <SelectTrigger className='h-6'>
-              <SelectValue />
+            <SelectTrigger className='w-full'>
+              <SelectValue placeholder='Select version' />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
@@ -306,21 +309,27 @@ export const Component: React.FC = () => {
         return (
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button size='sm' variant='tag'>
+              <Button size='xs' variant='destructive'>
                 <TrashIcon />
                 {t('Remove')}
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent className='top-1/3'>
+            <AlertDialogContent className='top-1/3' size='sm'>
               <AlertDialogHeader>
+                <AlertDialogMedia className='bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive'>
+                  <TrashIcon />
+                </AlertDialogMedia>
                 <AlertDialogTitle>{name}</AlertDialogTitle>
                 <AlertDialogDescription>
                   {t('Project-Delete')}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>{t('Cancel')}</AlertDialogCancel>
+                <AlertDialogCancel variant='outline'>
+                  {t('Cancel')}
+                </AlertDialogCancel>
                 <AlertDialogAction
+                  variant='destructive'
                   onClick={async () => {
                     const [newProjects, newGroups] = await Promise.all([
                       (async () => {
@@ -439,21 +448,12 @@ export const Component: React.FC = () => {
               status={false}
             />
             <div className='flex items-center gap-2'>
-              <Button
-                size='sm'
-                className='h-7 text-sm'
-                loading={loading}
-                icon={<RotateCwIcon />}
-                onClick={onPageReload}
-              >
+              <Button size='sm' disabled={loading} onClick={onPageReload}>
+                <FolderSync />
                 {t('Page-Reload')}
               </Button>
-              <Button
-                size='sm'
-                className='h-7 text-sm'
-                icon={<GitBranchPlusIcon />}
-                onClick={onAddProject}
-              >
+              <Button size='sm' disabled={loading} onClick={onAddProject}>
+                <PackagePlus />
                 {t('Add-Project')}
               </Button>
             </div>

@@ -1,38 +1,40 @@
 import { useState } from 'react';
 import {
   Button,
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxValue,
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
   Input,
-  MultiSelect,
-  MultiSelectContent,
-  MultiSelectItem,
-  MultiSelectList,
-  MultiSelectSearch,
-  MultiSelectTrigger,
-  MultiSelectValue,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  useComboboxAnchor,
 } from '@/components/ui';
-import { GitBranchPlusIcon } from 'lucide-react';
+import { LayersPlus, LoaderCircle } from 'lucide-react';
 
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -51,20 +53,21 @@ export const GroupCreator: React.FC<Props> = ({
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [container, setContainer] = useState<HTMLElement | null>(null);
 
   const { t } = useTranslation();
 
   const formSchema = z.object({
     name: z
       .string()
-      .min(1, 'group name is invalid')
-      .max(16, 'group name is invalid')
+      .min(1, 'Group name is invalid')
+      .max(16, 'Group name is invalid')
       .trim()
       .refine((val) => !groupsProp.find(({ name }) => name === val), {
-        message: 'group name already exists',
+        message: 'Group name already exists',
       }),
     desc: z.string(),
-    version: z.string().min(1, { message: 'please select a version' }),
+    version: z.string().min(1, { message: 'Please select a version' }),
     projects: z.array(z.string()),
   });
 
@@ -77,6 +80,8 @@ export const GroupCreator: React.FC<Props> = ({
       projects: [],
     },
   });
+
+  const anchor = useComboboxAnchor();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -99,73 +104,93 @@ export const GroupCreator: React.FC<Props> = ({
       }}
     >
       <DialogTrigger asChild>
-        <Button size='sm' className='h-7 text-sm' icon={<GitBranchPlusIcon />}>
+        <Button size='sm'>
+          <LayersPlus />
           {t('Create-Group')}
         </Button>
       </DialogTrigger>
-      <DialogContent
-        className='top-1/3'
-        onPointerDownOutside={(e) => e.preventDefault()}
-      >
+      <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{t('Create-Group')}</DialogTitle>
+          <DialogDescription></DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <div className='flex items-center gap-4'>
-            <FormField
-              control={form.control}
-              name='name'
-              render={({ field }) => (
-                <FormItem className='flex-1'>
-                  <FormLabel className='text-muted-foreground'>
-                    {t('Group-Name')}
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder='name' {...field} />
-                  </FormControl>
-                  <FormMessage className='absolute -translate-y-2' />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name='desc'
-              render={({ field }) => (
-                <FormItem className='flex-1'>
-                  <FormLabel className='text-muted-foreground'>
-                    {t('Group-Desc')}
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder='description' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className='flex items-center gap-4'>
-            <FormField
-              control={form.control}
-              name='version'
-              render={({ field }) => (
-                <FormItem className='flex-1'>
-                  <FormLabel className='text-muted-foreground'>
-                    {t('Version')}
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+        <form
+          id='create-group'
+          ref={setContainer}
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          <FieldGroup className='gap-2'>
+            <Field>
+              <Controller
+                name='name'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      className='text-muted-foreground'
+                      htmlFor='create-group-name'
                     >
-                      <FormControl>
-                        <SelectTrigger data-testid='language-trigger'>
-                          <SelectValue
-                            data-testid='language-value'
-                            placeholder='version'
-                          />
-                        </SelectTrigger>
-                      </FormControl>
+                      {t('Group-Name')}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id='create-group-name'
+                      aria-invalid={fieldState.invalid}
+                      placeholder='name'
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                control={form.control}
+                name='desc'
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      className='text-muted-foreground'
+                      htmlFor='create-group-desc'
+                    >
+                      {t('Group-Desc')}
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id='create-group-desc'
+                      placeholder='description'
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </Field>
+            <Field>
+              <Controller
+                name='version'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      className='text-muted-foreground'
+                      htmlFor='create-group-version'
+                    >
+                      {t('Version')}
+                    </FieldLabel>
+                    <Select
+                      name={field.name}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger
+                        id='create-group-version'
+                        aria-invalid={fieldState.invalid}
+                      >
+                        <SelectValue placeholder='version' />
+                      </SelectTrigger>
                       <SelectContent>
                         {versions.map((version) => (
                           <SelectItem key={version} value={version}>
@@ -174,64 +199,87 @@ export const GroupCreator: React.FC<Props> = ({
                         ))}
                       </SelectContent>
                     </Select>
-                  </FormControl>
-                  <FormMessage className='absolute -translate-y-2' />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='projects'
-              render={({ field }) => (
-                <FormItem className='flex-1'>
-                  <FormLabel className='text-muted-foreground'>
-                    {t('Projects')}
-                  </FormLabel>
-                  <FormControl>
-                    <MultiSelect
-                      defaultValue={field.value}
-                      filter={(keyword, current) => {
-                        if (keyword.includes(current)) return 1;
-                        return 0;
-                      }}
-                      defaultCache={projectsProp.map(({ name, path }) => ({
-                        value: path,
-                        label: name,
-                      }))}
-                      onValueChange={field.onChange}
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name='projects'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      className='text-muted-foreground'
+                      htmlFor='create-group-projects'
                     >
-                      <MultiSelectTrigger>
-                        <MultiSelectValue
-                          maxDisplay={2}
-                          maxItemLength={5}
-                          placeholder='projects'
-                        />
-                      </MultiSelectTrigger>
-                      <MultiSelectContent>
-                        <MultiSelectSearch placeholder={t('Input-To-Search')} />
-                        <MultiSelectList>
-                          {projectsProp.map(({ name, path }) => (
-                            <MultiSelectItem key={path} value={path}>
-                              {name}
-                            </MultiSelectItem>
-                          ))}
-                        </MultiSelectList>
-                      </MultiSelectContent>
-                    </MultiSelect>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </Form>
+                      {t('Projects')}
+                    </FieldLabel>
+                    <Combobox
+                      multiple
+                      autoHighlight
+                      value={field.value ?? []}
+                      items={projectsProp.map((p) => p.path)}
+                      onValueChange={(value) => {
+                        field.onChange?.(value);
+                      }}
+                    >
+                      <ComboboxChips
+                        ref={anchor}
+                        className='max-h-14 overflow-y-auto'
+                      >
+                        <ComboboxValue>
+                          {(values: string[]) => (
+                            <>
+                              {values.map((value: string) => (
+                                <ComboboxChip key={value}>
+                                  {
+                                    projectsProp.find((p) => p.path === value)
+                                      ?.name
+                                  }
+                                </ComboboxChip>
+                              ))}
+                              <ComboboxChipsInput
+                                id='create-group-projects'
+                                aria-invalid={fieldState.invalid}
+                              />
+                            </>
+                          )}
+                        </ComboboxValue>
+                      </ComboboxChips>
+                      <ComboboxContent
+                        anchor={anchor}
+                        className='isolate z-100'
+                        container={container ?? undefined}
+                      >
+                        <ComboboxEmpty>No items found.</ComboboxEmpty>
+                        <ComboboxList>
+                          {(item: string) => (
+                            <ComboboxItem key={item} value={item}>
+                              {projectsProp.find((p) => p.path === item)?.name}
+                            </ComboboxItem>
+                          )}
+                        </ComboboxList>
+                      </ComboboxContent>
+                    </Combobox>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </Field>
+          </FieldGroup>
+        </form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button disabled={loading} variant='secondary'>
+            <Button size='sm' disabled={loading} variant='secondary'>
               {t('Cancel')}
             </Button>
           </DialogClose>
-          <Button loading={loading} onClick={form.handleSubmit(onSubmit)}>
+          <Button size='sm' disabled={loading} form='create-group'>
+            {loading && <LoaderCircle className='animate-spin' />}
             {t('OK')}
           </Button>
         </DialogFooter>

@@ -16,6 +16,7 @@ const resources = {
 i18n.use(initReactI18next).init({
   resources,
   lng: 'en',
+  showSupportNotice: false,
   interpolation: {
     escapeValue: false, // react already safes from xss
   },

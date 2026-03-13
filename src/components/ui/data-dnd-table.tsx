@@ -28,7 +28,7 @@ import {
 } from './table';
 import { Bars } from './bars-icon';
 import { Button } from './button';
-import { GripVerticalIcon } from 'lucide-react';
+import { GripHorizontal } from 'lucide-react';
 import {
   closestCenter,
   DndContext,
@@ -101,28 +101,28 @@ function DraggableRow<TData>({ row }: DraggableRowProps<TData>) {
       className='w-full flex'
       style={style}
     >
-      <TableCell key={row.id} className='max-w-12 flex items-center'>
+      <TableCell key={row.id} className='w-12 flex items-center'>
         <Button
           {...attributes}
           className='cursor-move'
           size='sm'
           variant='ghost'
-          icon={<GripVerticalIcon />}
           {...listeners}
-        />
+        >
+          <GripHorizontal />
+        </Button>
       </TableCell>
       {row.getVisibleCells().map((cell) => {
-        const { maxSize } = cell.column.columnDef;
+        const { maxSize, meta } = cell.column.columnDef;
 
         return (
           <TableCell
             key={cell.id}
-            className='text-[#999999]'
-            style={
-              maxSize !== Number.MAX_SAFE_INTEGER
-                ? { maxWidth: `${maxSize}px` }
-                : undefined
-            }
+            className={`flex-1 ${meta?.className ?? ''}`}
+            style={{
+              maxWidth: maxSize !== Number.MAX_SAFE_INTEGER ? maxSize : void 0,
+              width: cell.column.getSize(),
+            }}
           >
             {flexRender(cell.column.columnDef.cell, cell.getContext())}
           </TableCell>
@@ -214,24 +214,27 @@ export function DataDndTable<TData, TValue>({
           transition={{ duration: 0.3 }}
         >
           <Table>
-            <TableHeader className='sticky top-0 z-10'>
+            <TableHeader className='sticky top-0 z-10 bg-secondary'>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
-                  className='[&>*:not(:last-child)]:relative [&>*:not(:last-child)]:after:absolute [&>*:not(:last-child)]:after:right-0 [&>*:not(:last-child)]:after:w-px [&>*:not(:last-child)]:after:h-5 [&>*:not(:last-child)]:after:bg-zinc-300 dark:[&>*:not(:last-child)]:after:bg-zinc-700'
+                  className='w-full flex items-center [&>*:not(:last-child)]:relative [&>*:not(:last-child)]:after:absolute [&>*:not(:last-child)]:after:right-0 [&>*:not(:last-child)]:after:w-px [&>*:not(:last-child)]:after:h-5 [&>*:not(:last-child)]:after:bg-zinc-300 dark:[&>*:not(:last-child)]:after:bg-zinc-700'
                 >
-                  <TableHead key='header_sortable' className='max-w-12' />
+                  <TableHead className='w-12' />
                   {headerGroup.headers.map((header) => {
                     const { maxSize } = header.column.columnDef;
                     return (
                       <TableHead
                         key={header.id}
+                        className='flex flex-1 items-center'
                         colSpan={header.colSpan}
-                        style={
-                          maxSize !== Number.MAX_SAFE_INTEGER
-                            ? { maxWidth: maxSize }
-                            : undefined
-                        }
+                        style={{
+                          maxWidth:
+                            maxSize !== Number.MAX_SAFE_INTEGER
+                              ? maxSize
+                              : void 0,
+                          width: header.getSize(),
+                        }}
                       >
                         {header.isPlaceholder
                           ? null
@@ -255,10 +258,10 @@ export function DataDndTable<TData, TValue>({
                     .getRowModel()
                     .rows.map((row) => <DraggableRow key={row.id} row={row} />)
                 ) : (
-                  <TableRow>
+                  <TableRow className='flex'>
                     <TableCell
                       colSpan={columns.length}
-                      className='h-24 justify-center'
+                      className='flex flex-1 h-24 items-center justify-center'
                     >
                       {t('No-results')}
                     </TableCell>

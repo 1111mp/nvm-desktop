@@ -553,19 +553,21 @@ const Home: React.FC = () => {
               <Button
                 size='sm'
                 variant='secondary'
-                icon={<MinusIcon />}
                 onClick={() => {
                   windowMinimize();
                 }}
-              />
+              >
+                <MinusIcon />
+              </Button>
               <Button
                 size='sm'
                 variant='secondary'
-                icon={<XIcon />}
                 onClick={() => {
                   windowClose();
                 }}
-              />
+              >
+                <XIcon />
+              </Button>
             </div>
           </div>
         </header>

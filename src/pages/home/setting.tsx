@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import {
-  AutoComplete,
-  AutoCompleteProps,
   Button,
   LabelCopyable,
   RadioGroup,
@@ -24,29 +22,31 @@ import {
   Input,
   IpInput,
   Switch,
-} from '@/components/ui';
-import { InfoIcon, SettingsIcon, SquarePenIcon } from 'lucide-react';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  FieldGroup,
+  Field,
+  FieldLabel,
+  FieldError,
+  FieldContent,
+  FieldDescription,
+  FieldTitle,
   Select,
+  AutoComplete,
 } from '@/components/ui';
+import {
+  InfoIcon,
+  LoaderCircle,
+  SettingsIcon,
+  SquarePenIcon,
+} from 'lucide-react';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
 
-import { z } from 'zod';
-import { useForm, useWatch } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppContext } from '@/app-context';
 import { compareObject } from '@/lib/utils';
 import { Closer, Themes } from '@/types';
-
-type Options = NonNullable<AutoCompleteProps['options']>;
+import { z } from '@/lib/zod';
 
 type Props = unknown;
 
@@ -66,7 +66,7 @@ const formSchema = z.object({
   mirror: z.url({ message: 'Invalid mirror url' }),
   proxy: z
     .object({
-      enabled: z.boolean().default(false),
+      enabled: z.boolean().default(false).optional(),
       ip: z.ipv4({ message: 'Invalid ip' }).optional().or(z.literal('')),
       port: z
         .string()
@@ -100,11 +100,11 @@ const Setting: React.FC<Props> = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [versionFileOpts, setVersionFileOptions] = useState<Options>(() => {
+  const [versionFileOpts, setVersionFileOptions] = useState<string[]>(() => {
     const optStr = localStorage.getItem('nvmd-version-file');
     return optStr ? optStr.split('__') : [];
   });
-  const [mirrorOpts, setMirrorOpts] = useState<Options>(() => {
+  const [mirrorOpts, setMirrorOpts] = useState<string[]>(() => {
     const optStr = localStorage.getItem('nvmd-mirror');
     return optStr ? optStr.split('__') : [];
   });
@@ -116,7 +116,7 @@ const Setting: React.FC<Props> = () => {
     proxy: settings.proxy || { enabled: false, ip: '', port: '' },
   };
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultSettings,
   });
@@ -197,6 +197,28 @@ const Setting: React.FC<Props> = () => {
     }
   };
 
+  const enabled = useWatch({
+      control: form.control,
+      name: 'proxy.enabled',
+    }),
+    versionFileItems = [
+      {
+        value: t('Custom'),
+        items: versionFileOpts,
+      },
+      {
+        value: t('Default'),
+        items: DefNodeVersionFiles,
+      },
+    ],
+    mirrorItems = [
+      { value: t('Custom'), items: mirrorOpts },
+      {
+        value: t('Default'),
+        items: DefMirrors,
+      },
+    ];
+
   return (
     <Sheet
       open={open}
@@ -207,224 +229,249 @@ const Setting: React.FC<Props> = () => {
     >
       <SheetTrigger asChild>
         <Button
-          className='nvmd-setting'
-          data-testid='setting-trigger'
           size='sm'
-          title={t('Setting')}
           variant='ghost'
-          icon={<SettingsIcon />}
-        />
+          title={t('Setting')}
+          className='nvmd-setting'
+        >
+          <SettingsIcon />
+        </Button>
       </SheetTrigger>
-      <SheetContent className='p-0'>
+      <SheetContent className='gap-0'>
         <SheetHeader className='pt-6 px-6'>
           <SheetTitle>{t('Setting')}</SheetTitle>
-          <SheetDescription></SheetDescription>
+          <SheetDescription>{t('Setting-Desc')}</SheetDescription>
         </SheetHeader>
         <div className='flex-1 px-6 space-y-6 [overflow-y:overlay]'>
-          <Form {...form}>
-            <FormField
-              control={form.control}
-              name='locale'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='inline-block text-muted-foreground'>
-                    {t('Language')}
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+          <form id='form-setting' onSubmit={form.handleSubmit(onSubmit)}>
+            <FieldGroup className='gap-4'>
+              <Controller
+                name='locale'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      htmlFor='form-setting-locale'
+                      className='text-muted-foreground'
                     >
-                      <FormControl>
-                        <SelectTrigger
-                          data-testid='language-trigger'
-                          className='w-44 h-8'
-                        >
-                          <SelectValue
-                            data-testid='language-value'
-                            placeholder='Select a language to display'
-                          />
-                        </SelectTrigger>
-                      </FormControl>
+                      {t('Language')}
+                    </FieldLabel>
+                    <Select
+                      name={field.name}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger
+                        className='w-44! h-8!'
+                        id='form-setting-locale'
+                        aria-invalid={fieldState.invalid}
+                      >
+                        <SelectValue placeholder='Select a language to display' />
+                      </SelectTrigger>
                       <SelectContent>
-                        <SelectItem data-testid='language-item' value='zh-CN'>
-                          简体中文
-                        </SelectItem>
-                        <SelectItem data-testid='language-item' value='en'>
-                          English
-                        </SelectItem>
+                        <SelectItem value='zh-CN'>简体中文</SelectItem>
+                        <SelectItem value='en'>English</SelectItem>
                       </SelectContent>
                     </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='theme'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='inline-block text-muted-foreground'>
-                    {t('Themes')}
-                  </FormLabel>
-                  <FormControl>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name='theme'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel className='text-muted-foreground'>
+                      {t('Themes')}
+                    </FieldLabel>
                     <RadioGroup
+                      name={field.name}
+                      value={field.value}
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className='flex space-x-1'
                     >
-                      <FormItem className='flex items-center space-x-3 space-y-0'>
-                        <FormControl>
-                          <RadioGroupItem value={Themes.System} />
-                        </FormControl>
-                        <FormLabel className='font-normal'>
-                          {t('System-Default')}
-                        </FormLabel>
-                      </FormItem>
-                      <FormItem className='flex items-center space-x-3 space-y-0'>
-                        <FormControl>
-                          <RadioGroupItem value={Themes.Light} />
-                        </FormControl>
-                        <FormLabel className='font-normal'>
-                          {t('Light')}
-                        </FormLabel>
-                      </FormItem>
-                      <FormItem className='flex items-center space-x-3 space-y-0'>
-                        <FormControl>
-                          <RadioGroupItem value={Themes.Dark} />
-                        </FormControl>
-                        <FormLabel className='font-normal'>
-                          {t('Dark')}
-                        </FormLabel>
-                      </FormItem>
+                      <FieldLabel htmlFor='form-setting-theme-system'>
+                        <Field orientation='horizontal' className='py-1.5!'>
+                          <RadioGroupItem
+                            value={Themes.System}
+                            id='form-setting-theme-system'
+                          />
+                          <FieldContent>
+                            <FieldTitle>{t('System-Default')}</FieldTitle>
+                          </FieldContent>
+                        </Field>
+                      </FieldLabel>
+                      <FieldLabel htmlFor='form-setting-theme-light'>
+                        <Field orientation='horizontal' className='py-1.5!'>
+                          <RadioGroupItem
+                            value={Themes.Light}
+                            id='form-setting-theme-light'
+                          />
+                          <FieldContent>
+                            <FieldTitle>{t('Light')}</FieldTitle>
+                          </FieldContent>
+                        </Field>
+                      </FieldLabel>
+                      <FieldLabel htmlFor='form-setting-theme-dark'>
+                        <Field orientation='horizontal' className='py-1.5!'>
+                          <RadioGroupItem
+                            value={Themes.Dark}
+                            id='form-setting-theme-dark'
+                          />
+                          <FieldContent>
+                            <FieldTitle>{t('Dark')}</FieldTitle>
+                          </FieldContent>
+                        </Field>
+                      </FieldLabel>
                     </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='closer'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='inline-block text-muted-foreground'>
-                    {t('When-Closing')}
-                  </FormLabel>
-                  <FormControl>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name='closer'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel className='text-muted-foreground'>
+                      {t('When-Closing')}
+                    </FieldLabel>
                     <RadioGroup
+                      name={field.name}
+                      value={field.value}
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className='flex space-x-1'
                     >
-                      <FormItem className='flex items-center space-x-3 space-y-0'>
-                        <FormControl>
-                          <RadioGroupItem value={Closer.Minimize} />
-                        </FormControl>
-                        <FormLabel className='font-normal'>
-                          {t('Minimize-Window')}
-                        </FormLabel>
-                      </FormItem>
-                      <FormItem className='flex items-center space-x-3 space-y-0'>
-                        <FormControl>
-                          <RadioGroupItem value={Closer.Close} />
-                        </FormControl>
-                        <FormLabel className='font-normal'>
-                          {t('Quit-App')}
-                        </FormLabel>
-                      </FormItem>
+                      <FieldLabel htmlFor='form-setting-closer-minimize'>
+                        <Field orientation='horizontal' className='py-1.5!'>
+                          <RadioGroupItem
+                            value={Closer.Minimize}
+                            id='form-setting-closer-minimize'
+                          />
+                          <FieldContent>
+                            <FieldTitle>{t('Minimize-Window')}</FieldTitle>
+                          </FieldContent>
+                        </Field>
+                      </FieldLabel>
+                      <FieldLabel htmlFor='form-setting-closer-close'>
+                        <Field orientation='horizontal' className='py-1.5!'>
+                          <RadioGroupItem
+                            value={Closer.Close}
+                            id='form-setting-closer-close'
+                          />
+                          <FieldContent>
+                            <FieldTitle>{t('Quit-App')}</FieldTitle>
+                          </FieldContent>
+                        </Field>
+                      </FieldLabel>
                     </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='coder'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='flex items-center gap-1 text-muted-foreground'>
-                    {t('VSCode-Code-Command')}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <InfoIcon className='size-4 text-primary cursor-pointer' />
-                      </TooltipTrigger>
-                      <TooltipContent className='w-96 text-accent-foreground bg-accent'>
-                        {t('VSCode-Code-Command-tip')}
-                      </TooltipContent>
-                    </Tooltip>
-                  </FormLabel>
-                  <FormControl>
-                    <Input className='h-8' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='node_version_file'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='flex items-center gap-1 text-muted-foreground'>
-                    {t('Node-Version-File')}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <InfoIcon className='size-4 text-primary cursor-pointer' />
-                      </TooltipTrigger>
-                      <TooltipContent className='w-96 text-accent-foreground bg-accent break-normal'>
-                        {t('Node-Version-File-Tip')}
-                      </TooltipContent>
-                    </Tooltip>
-                  </FormLabel>
-                  <FormControl>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name='coder'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      className='text-muted-foreground'
+                      htmlFor='form-setting-coder'
+                    >
+                      {t('VSCode-Code-Command')}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <InfoIcon className='size-4 text-primary cursor-pointer' />
+                        </TooltipTrigger>
+                        <TooltipContent className='w-96'>
+                          {t('VSCode-Code-Command-tip')}
+                        </TooltipContent>
+                      </Tooltip>
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      id='form-setting-coder'
+                      aria-invalid={fieldState.invalid}
+                      placeholder='Enter'
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name='node_version_file'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      className='text-muted-foreground'
+                      htmlFor='form-setting-version_file'
+                    >
+                      {t('Node-Version-File')}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <InfoIcon className='size-4 text-primary cursor-pointer' />
+                        </TooltipTrigger>
+                        <TooltipContent className='w-96 break-normal'>
+                          {t('Node-Version-File-Tip')}
+                        </TooltipContent>
+                      </Tooltip>
+                    </FieldLabel>
                     <AutoComplete
                       value={field.value}
-                      shouldFilter={false}
+                      items={versionFileItems}
+                      id='form-setting-version_file'
                       placeholder='Node Version File'
-                      options={versionFileOpts}
-                      defaultOpts={DefNodeVersionFiles}
+                      aria-invalid={fieldState.invalid}
                       onChange={field.onChange}
                     />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='directory'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='flex items-center gap-1 text-muted-foreground'>
-                    {t('Installation-Directory')}
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <InfoIcon className='size-4 text-primary cursor-pointer' />
-                      </TooltipTrigger>
-                      <TooltipContent className='w-96 text-accent-foreground bg-accent'>
-                        {t('Installation-Directory-tip')}
-                      </TooltipContent>
-                    </Tooltip>
-                  </FormLabel>
-                  <FormControl>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name='directory'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel className='text-muted-foreground'>
+                      {t('Installation-Directory')}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <InfoIcon className='size-4 text-primary cursor-pointer' />
+                        </TooltipTrigger>
+                        <TooltipContent className='w-96'>
+                          {t('Installation-Directory-tip')}
+                        </TooltipContent>
+                      </Tooltip>
+                    </FieldLabel>
                     <div className='flex items-center justify-between'>
                       <Tooltip delayDuration={700}>
                         <TooltipTrigger asChild>
-                          <LabelCopyable className='max-w-64 leading-5 truncate'>
+                          <LabelCopyable
+                            rootClassName='flex item-center'
+                            className='max-w-64 inline-block truncate leading-5'
+                          >
                             {field.value}
                           </LabelCopyable>
                         </TooltipTrigger>
-                        <TooltipContent className='text-accent-foreground bg-accent'>
-                          {field.value}
-                        </TooltipContent>
+                        <TooltipContent>{field.value}</TooltipContent>
                       </Tooltip>
                       <Button
+                        size='xs'
+                        type='button'
                         variant='secondary'
-                        size='sm'
-                        icon={<SquarePenIcon />}
-                        onClick={async () => {
+                        onClick={async (evt) => {
+                          evt.preventDefault();
                           const path = await openDialog({
                             title: t('Directory-Select'),
                             directory: true,
@@ -434,117 +481,135 @@ const Setting: React.FC<Props> = () => {
                             field.onChange(path);
                           }
                         }}
-                      />
+                      >
+                        <SquarePenIcon />
+                      </Button>
                     </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='proxy'
-              render={() => (
-                <FormItem>
-                  <FormLabel className='inline-block text-muted-foreground'>
-                    {t('Proxy')}
-                  </FormLabel>
-                  <div className='space-y-4'>
-                    <FormField
-                      control={form.control}
-                      name='proxy.enabled'
-                      render={({ field }) => (
-                        <FormItem className='flex items-center gap-3'>
-                          <FormControl>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+              <Controller
+                name='proxy'
+                control={form.control}
+                render={() => (
+                  <Field>
+                    <FieldLabel className='inline-block text-muted-foreground'>
+                      {t('Proxy')}
+                    </FieldLabel>
+                    <div className='space-y-4'>
+                      <Controller
+                        name='proxy.enabled'
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                          <Field
+                            orientation='horizontal'
+                            data-invalid={fieldState.invalid}
+                          >
                             <Switch
-                              className='mb-0'
                               checked={field.value}
                               onCheckedChange={field.onChange}
+                              aria-invalid={fieldState.invalid}
                             />
-                          </FormControl>
-                          <FormDescription className='mt-0!'>
-                            {t(field.value ? 'Enabled' : 'Disabled')}
-                          </FormDescription>
-                        </FormItem>
-                      )}
-                    />
-                    <div className='flex items-center gap-2'>
-                      <FormField
-                        control={form.control}
-                        name='proxy.ip'
-                        render={({ field }) => {
-                          const enabled = useWatch({ name: 'proxy.enabled' });
-                          return (
-                            <FormItem>
-                              <FormControl>
-                                <IpInput disabled={!enabled} {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          );
-                        }}
+                            <FieldDescription>
+                              {t(field.value ? 'Enabled' : 'Disabled')}
+                            </FieldDescription>
+                          </Field>
+                        )}
                       />
-                      <span>:</span>
-                      <FormField
-                        control={form.control}
-                        name='proxy.port'
-                        render={({ field }) => {
-                          const enabled = useWatch({ name: 'proxy.enabled' });
-                          return (
-                            <FormItem>
-                              <FormControl>
-                                <Input
-                                  className='w-18 h-8 text-center'
-                                  disabled={!enabled}
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          );
-                        }}
-                      />
+                      <div className='flex items-center gap-2'>
+                        <Controller
+                          name='proxy.ip'
+                          control={form.control}
+                          render={({ field, fieldState }) => {
+                            return (
+                              <Field
+                                className='relative w-40'
+                                data-disabled={!enabled}
+                                data-invalid={fieldState.invalid}
+                              >
+                                <IpInput {...field} disabled={!enabled} />
+                                {fieldState.invalid && (
+                                  <FieldError
+                                    className='absolute top-full'
+                                    errors={[fieldState.error]}
+                                  />
+                                )}
+                              </Field>
+                            );
+                          }}
+                        />
+                        <span>:</span>
+                        <div className='w-20'>
+                          <Controller
+                            name='proxy.port'
+                            control={form.control}
+                            render={({ field, fieldState }) => {
+                              return (
+                                <Field
+                                  className='relative'
+                                  data-invalid={fieldState.invalid}
+                                >
+                                  <Input
+                                    {...field}
+                                    disabled={!enabled}
+                                    // className='w-18 h-8 text-center'
+                                  />
+                                  {fieldState.invalid && (
+                                    <FieldError
+                                      className='absolute top-full'
+                                      errors={[fieldState.error]}
+                                    />
+                                  )}
+                                </Field>
+                              );
+                            }}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='mirror'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className='inline-block text-muted-foreground'>
-                    {t('Mirror-Url')}
-                  </FormLabel>
-                  <FormControl>
+                  </Field>
+                )}
+              />
+              <Controller
+                name='mirror'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      className='text-muted-foreground'
+                      htmlFor='form-setting-mirror'
+                    >
+                      {t('Mirror-Url')}
+                    </FieldLabel>
                     <AutoComplete
                       value={field.value}
-                      shouldFilter={false}
+                      items={mirrorItems}
+                      id='form-setting-mirror'
                       placeholder='Mirror Url'
-                      options={mirrorOpts}
-                      defaultOpts={DefMirrors}
+                      aria-invalid={fieldState.invalid}
                       onChange={field.onChange}
                     />
-                  </FormControl>
-                  <FormDescription>{t('Mirror-Tip')}</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </Form>
+                    <FieldDescription>{t('Mirror-Tip')}</FieldDescription>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
+          </form>
         </div>
-        <SheetFooter className='px-6 pb-6'>
-          <SheetClose asChild>
-            <Button variant='secondary'>{t('Cancel')}</Button>
-          </SheetClose>
-          <Button
-            data-testid='setting-submit'
-            loading={loading}
-            onClick={form.handleSubmit(onSubmit)}
-          >
+        <SheetFooter>
+          <Button type='submit' form='form-setting'>
+            {loading && <LoaderCircle className='animate-spin' />}
             {t('OK')}
           </Button>
+          <SheetClose asChild>
+            <Button variant='outline'>{t('Cancel')}</Button>
+          </SheetClose>
         </SheetFooter>
       </SheetContent>
     </Sheet>

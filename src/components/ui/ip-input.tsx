@@ -114,8 +114,9 @@ const IpInput: React.FC<IpInputProps> = ({
     <div
       ref={ref}
       className={cn(
-        'flex h-8 rounded-md border border-input bg-transparent px-2 py-1 text-sm shadow-xs transition-colors ring-1 ring-transparent',
+        'flex h-8 rounded-md border border-input px-2 py-1 bg-transparent text-sm shadow-xs transition-colors ring-1 ring-transparent dark:bg-input/30',
         focus && 'ring-ring',
+        disabled && 'opacity-50 bg-input/50 dark:bg-input/80',
         className,
       )}
     >

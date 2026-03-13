@@ -1,4 +1,4 @@
-'use no memo';
+// 'use no memo';
 
 import { useRef, useState } from 'react';
 import {
@@ -8,11 +8,12 @@ import {
   useReactTable,
   getSortedRowModel,
   getFilteredRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
   type SortingState,
   type ColumnFiltersState,
   type VisibilityState,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
+  type Table as StackTable,
 } from '@tanstack/react-table';
 import {
   Table,
@@ -24,10 +25,8 @@ import {
 } from './table';
 import { motion, AnimatePresence } from 'motion/react';
 import { Bars } from './bars-icon';
-
 import { useTranslation } from 'react-i18next';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { type Table as StackTable } from '@tanstack/react-table';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -57,8 +56,8 @@ export function DataTable<TData, TValue>({
   const { t } = useTranslation();
 
   const table = useReactTable({
-    columns,
     data,
+    columns,
     state: {
       sorting,
       columnVisibility,
@@ -118,22 +117,25 @@ export function DataTable<TData, TValue>({
         transition={{ duration: 0.3 }}
       >
         <Table>
-          <TableHeader className='sticky top-0 z-10'>
+          <TableHeader className='sticky top-0 z-10 bg-secondary'>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
                 key={headerGroup.id}
-                className='[&>*:not(:last-child)]:relative [&>*:not(:last-child)]:after:absolute [&>*:not(:last-child)]:after:right-0 [&>*:not(:last-child)]:after:w-px [&>*:not(:last-child)]:after:h-5 [&>*:not(:last-child)]:after:bg-zinc-300 dark:[&>*:not(:last-child)]:after:bg-zinc-700'
+                className='w-full flex items-center [&>*:not(:last-child)]:relative [&>*:not(:last-child)]:after:absolute [&>*:not(:last-child)]:after:right-0 [&>*:not(:last-child)]:after:w-px [&>*:not(:last-child)]:after:h-5 [&>*:not(:last-child)]:after:bg-zinc-300 dark:[&>*:not(:last-child)]:after:bg-zinc-700'
               >
                 {headerGroup.headers.map((header) => {
                   const { maxSize } = header.column.columnDef;
                   return (
                     <TableHead
                       key={header.id}
-                      style={
-                        maxSize !== Number.MAX_SAFE_INTEGER
-                          ? { maxWidth: maxSize }
-                          : undefined
-                      }
+                      className='flex flex-1 items-center'
+                      style={{
+                        maxWidth:
+                          maxSize !== Number.MAX_SAFE_INTEGER
+                            ? maxSize
+                            : void 0,
+                        width: header.getSize(),
+                      }}
                     >
                       {header.isPlaceholder
                         ? null
@@ -148,7 +150,7 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody
-            className='grid relative'
+            className='w-full grid relative'
             style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
           >
             {table.getRowModel().rows.length ? (
@@ -158,10 +160,8 @@ export function DataTable<TData, TValue>({
                 return (
                   <TableRow
                     key={row.id}
-                    // needed for dynamic row height measurement
-                    data-index={virtualRow.index}
-                    // measure dynamic row height
-                    ref={(node) => rowVirtualizer.measureElement(node)}
+                    data-index={virtualRow.index} //needed for dynamic row height measurement
+                    ref={(node) => rowVirtualizer.measureElement(node)} //measure dynamic row height
                     data-state={row.getIsSelected() && 'selected'}
                     className='w-full flex absolute'
                     style={{
@@ -169,16 +169,18 @@ export function DataTable<TData, TValue>({
                     }}
                   >
                     {row.getVisibleCells().map((cell) => {
-                      const { maxSize } = cell.column.columnDef;
+                      const { maxSize, meta } = cell.column.columnDef;
                       return (
                         <TableCell
                           key={cell.id}
-                          className='text-[#999999]'
-                          style={
-                            maxSize !== Number.MAX_SAFE_INTEGER
-                              ? { maxWidth: `${maxSize}px` }
-                              : undefined
-                          }
+                          className={`flex-1 ${meta?.className ?? ''}`}
+                          style={{
+                            maxWidth:
+                              maxSize !== Number.MAX_SAFE_INTEGER
+                                ? maxSize
+                                : void 0,
+                            width: cell.column.getSize(),
+                          }}
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
@@ -191,10 +193,10 @@ export function DataTable<TData, TValue>({
                 );
               })
             ) : (
-              <TableRow>
+              <TableRow className='flex'>
                 <TableCell
                   colSpan={columns.length}
-                  className='h-24 justify-center'
+                  className='flex flex-1 h-24 items-center justify-center'
                 >
                   {t('No-results')}
                 </TableCell>

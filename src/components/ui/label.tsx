@@ -1,29 +1,26 @@
 import { useEffect, useRef, useState } from 'react';
-import * as LabelPrimitive from '@radix-ui/react-label';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { Label as LabelPrimitive } from 'radix-ui';
 import { CopyIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
 
 import { useCopyToClipboard } from '@/hooks';
 import { cn } from '@/lib/utils';
 
-const labelVariants = cva(
-  'text-sm leading-none font-normal select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
-);
-
-export type LabelProps = React.ComponentProps<typeof LabelPrimitive.Root> &
-  VariantProps<typeof labelVariants>;
-
-function Label({ className, ...props }: LabelProps) {
+function Label({
+  className,
+  ...props
+}: React.ComponentProps<typeof LabelPrimitive.Root>) {
   return (
     <LabelPrimitive.Root
       data-slot='label'
-      className={cn(labelVariants(), className)}
+      className={cn(
+        'flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
+        className,
+      )}
       {...props}
     />
   );
 }
-Label.displayName = LabelPrimitive.Root.displayName;
 
 function LabelCopyable({
   ref,
@@ -32,7 +29,10 @@ function LabelCopyable({
   rootClassName,
   title,
   ...props
-}: LabelProps & { rootClassName?: string; title?: string }) {
+}: React.ComponentProps<typeof LabelPrimitive.Root> & {
+  rootClassName?: string;
+  title?: string;
+}) {
   const [open, setOpen] = useState<boolean>(false);
   const [did, setDid] = useState<boolean>(false);
 
@@ -51,7 +51,10 @@ function LabelCopyable({
       <>
         <LabelPrimitive.Root
           ref={ref}
-          className={cn(labelVariants(), className)}
+          className={cn(
+            'text-sm leading-none font-normal select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
+            className,
+          )}
           title={title}
           {...props}
         >
@@ -79,14 +82,11 @@ function LabelCopyable({
               }}
             />
           </TooltipTrigger>
-          <TooltipContent className='text-accent-foreground bg-accent'>
-            {did ? 'Copied' : 'Copy'}
-          </TooltipContent>
+          <TooltipContent>{did ? 'Copied' : 'Copy'}</TooltipContent>
         </Tooltip>
       </>
     </span>
   );
 }
-LabelCopyable.displayName = 'LabelCopyable';
 
 export { Label, LabelCopyable };

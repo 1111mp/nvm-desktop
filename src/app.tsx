@@ -1,4 +1,4 @@
-import './global.css';
+import './styles/global.css';
 
 import { useEffect } from 'react';
 import { RouterProvider } from 'react-router';

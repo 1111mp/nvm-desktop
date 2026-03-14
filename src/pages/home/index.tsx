@@ -62,7 +62,7 @@ const Home: React.FC = () => {
       },
       {
         element: '#theme-customizer',
-        title: t('Theme color'),
+        title: t('Theme'),
         intro: (
           <p className='flex items-center gap-2'>
             {t('Color-Tip')}

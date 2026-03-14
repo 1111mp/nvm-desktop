@@ -1,12 +1,18 @@
 import { createContext, useContext } from 'react';
-import { useColor, useI18n, useSettings, useTheme } from './hooks';
+import {
+  useColor,
+  useI18n,
+  useSettings,
+  useTheme,
+  type AppColor,
+} from './hooks';
 
 import { SystemTheme } from '@/types';
 
 type AppContextType = {
-  color: string;
+  color: AppColor;
   settings: Nvmd.Setting;
-  updateColor: (color: string) => void;
+  updateColor: (color: Partial<AppColor>) => void;
   updateSetting: (setting: Nvmd.Setting) => Promise<void>;
 };
 

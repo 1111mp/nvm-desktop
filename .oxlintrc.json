@@ -10,7 +10,7 @@
     "shared-node-browser": true
   },
   "globals": {},
-  "ignorePatterns": [],
+  "ignorePatterns": ["node_modules/**", "src-tauri/**", "scripts/**"],
   "rules": {
     "constructor-super": "error",
     "for-direction": "error",

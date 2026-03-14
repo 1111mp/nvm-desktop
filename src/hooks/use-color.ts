@@ -1,16 +1,45 @@
 import { startTransition, useEffect, useState } from 'react';
 
-export function useColor({
-  defaultColor = 'orange',
+type AppColor = {
+  baseColor: string;
+  theme: string;
+  radius: string;
+};
+
+function useColor({
+  defaultColor = {
+    baseColor: 'neutral',
+    theme: '',
+    radius: '',
+  },
   storageKey = 'nvmd-ui-theme',
 }: {
-  defaultColor?: string;
+  defaultColor?: AppColor;
   storageKey?: string;
 } = {}) {
-  const [color, setColor] = useState<string>(
-    () => localStorage.getItem(storageKey) || defaultColor,
-  );
+  const [color, setColor] = useState<AppColor>(() => {
+    try {
+      const storageStr = localStorage.getItem(storageKey);
+      return storageStr ? JSON.parse(storageStr) : { ...defaultColor };
+    } catch {
+      return { ...defaultColor };
+    }
+  });
 
+  // base color
+  useEffect(() => {
+    document.body.classList.forEach((className) => {
+      if (className.match(/^color.*/)) {
+        document.body.classList.remove(className);
+      }
+    });
+
+    if (color.baseColor) {
+      return document.body.classList.add(`color-${color.baseColor}`);
+    }
+  }, [color.baseColor]);
+
+  // theme
   useEffect(() => {
     document.body.classList.forEach((className) => {
       if (className.match(/^theme.*/)) {
@@ -18,15 +47,34 @@ export function useColor({
       }
     });
 
-    if (color) {
-      return document.body.classList.add(`theme-${color}`);
+    if (color.theme) {
+      return document.body.classList.add(`theme-${color.theme}`);
     }
-  }, [color]);
+  }, [color.theme]);
 
-  const updateColor = (newColor: string) => {
-    localStorage.setItem(storageKey, newColor);
+  // radius
+  useEffect(() => {
+    document.body.classList.forEach((className) => {
+      if (className.match(/^radius.*/)) {
+        document.body.classList.remove(className);
+      }
+    });
+
+    if (color.radius) {
+      return document.body.classList.add(`radius-${color.radius}`);
+    }
+  }, [color.radius]);
+
+  const updateColor = (newColor: Partial<AppColor>) => {
     startTransition(() => {
-      setColor(newColor);
+      setColor((prev) => {
+        const nextColor = {
+          ...prev,
+          ...newColor,
+        };
+        localStorage.setItem(storageKey, JSON.stringify(nextColor));
+        return nextColor;
+      });
     });
   };
 
@@ -35,3 +83,5 @@ export function useColor({
     updateColor,
   };
 }
+
+export { useColor, type AppColor };

@@ -15,6 +15,7 @@
     "check": "node scripts/check.mjs",
     "updater": "node scripts/updater.mjs",
     "updater-fixed-webview2": "node scripts/updater-fixed-webview2.mjs",
+    "generate:themes": "node scripts/theme-generator.mjs",
     "oxlint": "oxlint src scripts --type-aware",
     "oxlint:fix": "oxlint src scripts --fix",
     "format:check": "prettier --check src --cache",

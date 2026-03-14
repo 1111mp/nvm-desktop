@@ -214,7 +214,7 @@ export function DataDndTable<TData, TValue>({
           transition={{ duration: 0.3 }}
         >
           <Table>
-            <TableHeader className='sticky top-0 z-10 bg-secondary'>
+            <TableHeader className='sticky top-0 z-10 bg-muted'>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}

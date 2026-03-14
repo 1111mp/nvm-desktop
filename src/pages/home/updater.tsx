@@ -207,7 +207,7 @@ export const Updater: React.FC = () => {
                 <p className='space-x-4'>
                   <Label>{t('Release-Notes')} :</Label>
                 </p>
-                <div className='max-h-60 mt-2 p-3 overflow-auto bg-secondary text-secondary-foreground rounded-sm'>
+                <div className='max-h-60 mt-2 p-3 overflow-auto bg-muted text-muted-foreground rounded-sm'>
                   <Markdown
                     components={{
                       a: ({ children, ...props }) => {

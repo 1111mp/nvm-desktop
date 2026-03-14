@@ -43,7 +43,7 @@ import { configrationExport, configrationImport } from '@/services/cmds';
 const items = [
   {
     id: 'color',
-    label: 'Theme color',
+    label: 'Theme',
   },
   {
     id: 'setting',
@@ -173,7 +173,9 @@ const ConfigrationExport: React.FC<ConfigrationExportProps> = ({ ref }) => {
       const exportSetting = items.includes('setting');
 
       await configrationExport(filename, {
-        color: items.includes('color') ? color : void 0,
+        baseColor: items.includes('color') ? color.baseColor : void 0,
+        color: items.includes('color') ? color.theme : void 0,
+        radius: items.includes('color') ? color.radius : void 0,
         projects: items.includes('projects'),
         setting: exportSetting,
         mirrors: exportSetting
@@ -307,9 +309,13 @@ const ConfigrationImport: React.FC<ConfigrationImportProps> = ({ ref }) => {
       const data = await configrationImport(sync);
       if (!data) return;
 
-      const { color, mirrors, setting } = data;
-      if (color) {
-        updateColor(color);
+      const { baseColor, color, radius, mirrors, setting } = data;
+      if (baseColor || color || radius) {
+        updateColor({
+          baseColor: baseColor ?? void 0,
+          theme: color ?? void 0,
+          radius: radius ?? void 0,
+        });
       }
 
       if (mirrors) {

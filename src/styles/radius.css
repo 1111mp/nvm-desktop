@@ -1,0 +1,15 @@
+.radius-none {
+  --radius: 0;
+}
+
+.radius-small {
+  --radius: 0.45rem;
+}
+
+.radius-medium {
+  --radius: 0.625rem;
+}
+
+.radius-large {
+  --radius: 0.875rem;
+}

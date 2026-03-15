@@ -13,6 +13,12 @@ Supports `macOS`, `Windows`, and `Linux`.
 
 English | [简体中文](./README-zh_CN.md)
 
+## Screenshot
+
+<img width="1029" alt="nvm-desktop main screenshot" src="https://github.com/user-attachments/assets/1103871f-5e47-4f96-b71c-3805fdfd694f">
+
+<img width="1030" alt="nvm-desktop project screenshot" src="https://github.com/user-attachments/assets/d8005347-a671-4c25-a776-658b258fe06e">
+
 ## Why use it
 
 - Install and uninstall Node.js versions quickly

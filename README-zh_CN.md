@@ -13,6 +13,12 @@
 
 [English](./README.md) | 简体中文
 
+## 截图
+
+<img width="1029" alt="nvm-desktop 主界面截图" src="https://github.com/user-attachments/assets/1103871f-5e47-4f96-b71c-3805fdfd694f">
+
+<img width="1030" alt="nvm-desktop 项目管理截图" src="https://github.com/user-attachments/assets/d8005347-a671-4c25-a776-658b258fe06e">
+
 ## 适合谁用
 
 - 需要快速安装/卸载多个 Node.js 版本

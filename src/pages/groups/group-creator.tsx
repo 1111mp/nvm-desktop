@@ -243,6 +243,9 @@ export const GroupCreator: React.FC<Props> = ({
                               <ComboboxChipsInput
                                 id='create-group-projects'
                                 aria-invalid={fieldState.invalid}
+                                placeholder={
+                                  values.length === 0 ? 'projects' : void 0
+                                }
                               />
                             </>
                           )}

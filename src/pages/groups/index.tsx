@@ -510,7 +510,9 @@ function MultiSelectProject({
                   {projects.find((p) => p.path === value)?.name}
                 </ComboboxChip>
               ))}
-              <ComboboxChipsInput />
+              <ComboboxChipsInput
+                placeholder={values.length === 0 ? 'Select projects' : void 0}
+              />
             </>
           )}
         </ComboboxValue>

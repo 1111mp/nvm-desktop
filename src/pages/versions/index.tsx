@@ -137,7 +137,7 @@ export const Versions: React.FC = () => {
         const { version, lts, date } = row.original;
         return (
           <div className='relative flex gap-1 items-center'>
-            <Tooltip>
+            <Tooltip disableHoverableContent={true}>
               <TooltipTrigger asChild>
                 <a
                   className='h-6 p-0 leading-6 text-md text-foreground font-medium cursor-pointer hover:text-primary hover:underline'

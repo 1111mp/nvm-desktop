@@ -40,7 +40,10 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import {
+  restrictToVerticalAxis,
+  restrictToParentElement,
+} from '@dnd-kit/modifiers';
 import {
   SortableContext,
   useSortable,
@@ -185,7 +188,7 @@ export function DataDndTable<TData, TValue>({
   return (
     <DndContext
       collisionDetection={closestCenter}
-      modifiers={[restrictToVerticalAxis]}
+      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
       sensors={sensors}
       onDragEnd={handleDragEnd}
     >
@@ -205,7 +208,7 @@ export function DataDndTable<TData, TValue>({
           )}
         </AnimatePresence>
         <motion.div
-          className='w-full flex-1 rounded-md [overflow-y:overlay]'
+          className='w-full flex-1 rounded-md overflow-x-hidden overflow-y-auto'
           animate={loading ? 'hidden' : 'visible'}
           variants={{
             visible: { opacity: 1 },
@@ -220,7 +223,7 @@ export function DataDndTable<TData, TValue>({
                   key={headerGroup.id}
                   className='w-full flex items-center [&>*:not(:last-child)]:relative [&>*:not(:last-child)]:after:absolute [&>*:not(:last-child)]:after:right-0 [&>*:not(:last-child)]:after:w-px [&>*:not(:last-child)]:after:h-5 [&>*:not(:last-child)]:after:bg-zinc-300 dark:[&>*:not(:last-child)]:after:bg-zinc-700'
                 >
-                  <TableHead className='w-12' />
+                  <TableHead className='w-12 flex items-center' />
                   {headerGroup.headers.map((header) => {
                     const { maxSize } = header.column.columnDef;
                     return (

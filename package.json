@@ -3,7 +3,7 @@
   "private": true,
   "version": "4.2.1",
   "type": "module",
-  "license": "GPL-3.0-only",
+  "license": "MIT",
   "scripts": {
     "dev": "tauri dev",
     "build": "tauri build",

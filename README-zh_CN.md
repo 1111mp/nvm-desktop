@@ -15,9 +15,17 @@
 
 ## 截图
 
-<img width="1029" alt="nvm-desktop 主界面截图" src="https://github.com/user-attachments/assets/1103871f-5e47-4f96-b71c-3805fdfd694f">
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/a66ba500-10ba-4711-a625-c8707765621d" width="32%" />
+  <img src="https://github.com/user-attachments/assets/ed43197f-bcc1-40ef-80e2-1dd7c02afc81" width="32%" />
+  <img src="https://github.com/user-attachments/assets/a454f0a3-08fa-4f49-96a7-ef5f736e29c4" width="32%" />
+</p>
 
-<img width="1030" alt="nvm-desktop 项目管理截图" src="https://github.com/user-attachments/assets/d8005347-a671-4c25-a776-658b258fe06e">
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/433c4b85-f2d5-4f12-9d7d-db97324dc550" width="32%" />
+  <img src="https://github.com/user-attachments/assets/55d3a674-24bf-4757-9fc4-772d069ad294" width="32%" />
+  <img src="https://github.com/user-attachments/assets/7bd7f510-da10-492b-961d-f447903bf942" width="32%" />
+</p>
 
 ## 适合谁用
 

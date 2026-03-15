@@ -1,62 +1,62 @@
 {
-	"$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-	"productName": "NVM Desktop",
-	"version": "4.2.1",
-	"identifier": "io.github.1111mp.nvm-desktop",
-	"build": {
-		"beforeDevCommand": "pnpm ui:dev",
-		"devUrl": "http://localhost:1420",
-		"beforeBuildCommand": "pnpm ui:build",
-		"frontendDist": "../dist",
-		"removeUnusedCommands": true
-	},
-	"app": {
-		"macOSPrivateApi": true,
-		"windows": [],
-		"security": {
-			"csp": {
-				"default-src": "blob: data: filesystem: ws: wss: http: https: tauri: asset: 'unsafe-eval' 'unsafe-inline' 'self'",
-				"connect-src": "ipc: http://ipc.localhost"
-			},
-			"assetProtocol": {
-				"enable": true,
-				"scope": [
-					"$APPDATA/**",
-					"$RESOURCE/../**",
-					"**"
-				]
-			}
-		}
-	},
-	"bundle": {
-		"active": true,
-		"targets": "all",
-		"icon": [
-			"icons/32x32.png",
-			"icons/128x128.png",
-			"icons/128x128@2x.png",
-			"icons/icon.icns",
-			"icons/icon.ico"
-		],
-		"resources": [
-			"resources",
-			"icons/icon.png"
-		],
-		"publisher": "NVM Desktop",
-		"copyright": "GNU General Public License v3.0",
-		"licenseFile": "../LICENSE",
-    "license": "GPL-3.0-only",
-		"category": "DeveloperTool",
-		"shortDescription": "Node Version Manager Desktop",
-		"longDescription": "Node Version Manager Desktop - A desktop application to manage multiple active node.js versions.",
-		"createUpdaterArtifacts": true
-	},
-	"plugins": {
-		"updater": {
-			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJERDQ4RjMyREY1RDhDMjQKUldRa2pGM2ZNby9Vdlk3NXdqcnZmOVcwSDZSU2FFVTRxbzRWbUptSTltQ3czeXlCc1VzM2ZTWHQK",
-			"endpoints": [
-				"https://github.com/1111mp/nvm-desktop/releases/download/updater/update.json"
-			]
-		}
-	}
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "NVM Desktop",
+  "version": "4.2.1",
+  "identifier": "io.github.1111mp.nvm-desktop",
+  "build": {
+    "beforeDevCommand": "pnpm ui:dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "pnpm ui:build",
+    "frontendDist": "../dist",
+    "removeUnusedCommands": true
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "windows": [],
+    "security": {
+      "csp": {
+        "default-src": "blob: data: filesystem: ws: wss: http: https: tauri: asset: 'unsafe-eval' 'unsafe-inline' 'self'",
+        "connect-src": "ipc: http://ipc.localhost"
+      },
+      "assetProtocol": {
+        "enable": true,
+        "scope": [
+          "$APPDATA/**",
+          "$RESOURCE/../**",
+          "**"
+        ]
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": [
+      "resources",
+      "icons/icon.png"
+    ],
+    "publisher": "NVM Desktop",
+    "copyright": "MIT License",
+    "licenseFile": "../LICENSE",
+    "license": "MIT",
+    "category": "DeveloperTool",
+    "shortDescription": "Node Version Manager Desktop",
+    "longDescription": "Node Version Manager Desktop - A desktop application to manage multiple active node.js versions.",
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJERDQ4RjMyREY1RDhDMjQKUldRa2pGM2ZNby9Vdlk3NXdqcnZmOVcwSDZSU2FFVTRxbzRWbUptSTltQ3czeXlCc1VzM2ZTWHQK",
+      "endpoints": [
+        "https://github.com/1111mp/nvm-desktop/releases/download/updater/update.json"
+      ]
+    }
+  }
 }

@@ -24,13 +24,9 @@ function Tip() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button
-          className='nvmd-tip'
-          size='sm'
-          title={t('Tip')}
-          variant='ghost'
-          icon={<InfoIcon />}
-        />
+        <Button className='nvmd-tip' size='sm' title={t('Tip')} variant='ghost'>
+          <InfoIcon />
+        </Button>
       </SheetTrigger>
       <SheetContent className='overflow-hidden px-0'>
         <SheetHeader className='px-4'>
@@ -338,13 +334,13 @@ function Tip() {
             </p>
             <Button
               className='w-full'
-              variant='tag'
-              icon={<SparklesIcon />}
+              variant='outline'
               onClick={() => {
                 localStorage.removeItem('nvmd-first');
                 toast.success(t('Tour-Tip'));
               }}
             >
+              <SparklesIcon />
               {t('Tour-Text')}
             </Button>
           </div>

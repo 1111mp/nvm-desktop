@@ -1,7 +1,6 @@
 'use no memo';
 
 import { Column } from '@tanstack/react-table';
-import { Button } from './button';
 import { ArrowDown, ArrowUp, ChevronsUpDown, EyeOff } from 'lucide-react';
 import {
   DropdownMenu,
@@ -10,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './dropdown-menu';
+import { Button } from './button';
 
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
@@ -38,10 +38,9 @@ export function DataTableColumnSortHeader<TData, TValue>({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            animate={false}
             variant='ghost'
             size='sm'
-            className='text-sm font-light -translate-x-1.75 hover:bg-secondary-hover data-[state=open]:bg-secondary-hover'
+            className='text-sm font-light -translate-x-1.75'
           >
             <span>{title}</span>
             {column.getIsSorted() === 'desc' ? (

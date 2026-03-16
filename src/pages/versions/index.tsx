@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLoaderData } from 'react-router';
 import {
+  Badge,
   Button,
   DataTable,
   DataTableColumnFilterHeader,
@@ -8,23 +9,27 @@ import {
   DataTableToolbar,
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  Tag,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui';
 import {
+  CircleCheckBig,
   CircleChevronDown,
+  CircleSlash,
+  CircleX,
   CloudDownload,
+  CloudSync,
+  FolderSync,
   Frown,
   HardDrive,
+  LoaderCircle,
   MousePointerClick,
-  RefreshCw,
-  RotateCw,
   ThumbsUp,
-  TrashIcon,
+  Trash,
 } from 'lucide-react';
 import { memo, type ColumnDef, type Table } from '@tanstack/react-table';
 import { toast } from 'sonner';
@@ -132,7 +137,7 @@ export const Versions: React.FC = () => {
         const { version, lts, date } = row.original;
         return (
           <div className='relative flex gap-1 items-center'>
-            <Tooltip>
+            <Tooltip disableHoverableContent={true}>
               <TooltipTrigger asChild>
                 <a
                   className='h-6 p-0 leading-6 text-md text-foreground font-medium cursor-pointer hover:text-primary hover:underline'
@@ -145,16 +150,17 @@ export const Versions: React.FC = () => {
                   {version}
                 </a>
               </TooltipTrigger>
-              <TooltipContent className='bg-primary text-primary-foreground'>
+              <TooltipContent
+                className='bg-primary text-primary-foreground'
+                arrowClassName='bg-primary fill-primary'
+              >
                 {t('Whats-new')}
               </TooltipContent>
             </Tooltip>
             {lts ? (
-              <span className='text-foreground-foreground'>({lts})</span>
+              <span className='text-muted-foreground'>({lts})</span>
             ) : row.index === 0 ? (
-              <span className='text-foreground-foreground'>
-                ({t('latest')})
-              </span>
+              <span className='text-muted-foreground'>({t('latest')})</span>
             ) : null}
             {dayjs().diff(date, 'day') <= 3 ? (
               <span className='inline-block absolute w-1 h-1 top-1 -left-1.5 rounded-full bg-primary' />
@@ -173,6 +179,7 @@ export const Versions: React.FC = () => {
       ),
       meta: {
         label: `V8 ${t('Version')}`,
+        className: 'flex items-center text-muted-foreground',
       },
       enableSorting: false,
     },
@@ -186,6 +193,7 @@ export const Versions: React.FC = () => {
       ),
       meta: {
         label: `NPM ${t('Version')}`,
+        className: 'flex items-center text-muted-foreground',
       },
       enableSorting: false,
     },
@@ -196,6 +204,7 @@ export const Versions: React.FC = () => {
       ),
       meta: {
         label: t('Release-Date'),
+        className: 'flex items-center text-muted-foreground',
       },
       cell: ({ row }) => dayjs(row.original.date).format('ll'),
     },
@@ -204,11 +213,11 @@ export const Versions: React.FC = () => {
       header: t('Status'),
       meta: {
         label: t('Status'),
+        className: 'flex items-center',
       },
       enableSorting: false,
       filterFn: (row, _columnId, filterValue: string[]) => {
         const { version, files } = row.original;
-
         const rets = filterValue.map((value) => {
           switch (value) {
             case 'Installed': {
@@ -226,31 +235,61 @@ export const Versions: React.FC = () => {
               return false;
           }
         });
-
         return rets.includes(true);
       },
       cell: ({ row }) => {
         const { version, files } = row.original;
-
         const installed = installedVersions.find(
           (installed) => `v${installed}` === version,
         );
 
-        if (installed && current && version === `v${current}`)
-          return <Tag color='lime'>{t('Current')}</Tag>;
+        // the current version
+        if (installed && current && version === `v${current}`) {
+          return (
+            <Badge>
+              <CircleCheckBig />
+              {t('Current')}
+            </Badge>
+          );
+        }
 
-        if (installed) return <Tag color='purple'>{t('Installed')}</Tag>;
+        // the installed version
+        if (installed) {
+          return (
+            <Badge variant='secondary'>
+              <CircleCheckBig />
+              {t('Installed')}
+            </Badge>
+          );
+        }
 
         const support = checkSupportive(files);
-        if (!support) return <Tag color='rose'>{t('Not-Supported')}</Tag>;
+        // the unsupport version
+        if (!support) {
+          return (
+            <Badge variant='destructive'>
+              <CircleX />
+              {t('Not-Supported')}
+            </Badge>
+          );
+        }
 
-        return <Tag color='neutral'>{t('Not-Installed')}</Tag>;
+        // default => not installed
+        return (
+          <Badge variant='outline'>
+            <CircleSlash />
+            {t('Not-Installed')}
+          </Badge>
+        );
       },
     },
     {
       header: t('Operation'),
       enableHiding: false,
       enableSorting: false,
+      meta: {
+        className: 'flex items-center',
+      },
       cell: ({ row }) => {
         const { version } = row.original;
 
@@ -258,63 +297,56 @@ export const Versions: React.FC = () => {
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  size='sm'
-                  variant='tag'
-                  className='text-fuchsia-500 border-fuchsia-500 hover:text-fuchsia-500/80 hover:border-fuchsia-500/60 focus-visible:ring-1 focus-visible:ring-fuchsia-500/60'
-                  icon={<CircleChevronDown />}
-                >
+                <Button size='xs' variant='outline'>
+                  <CircleChevronDown />
                   {t('More')}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className='min-w-8'>
-                <DropdownMenuItem
-                  className='flex gap-2 cursor-pointer'
-                  onSelect={async () => {
-                    try {
-                      const curVersion = version.slice(1);
-                      await vSetCurrent(curVersion);
-                      setCurrent(curVersion);
-                      toast.success(t('Restart-Terminal', { version }));
-                    } catch (err) {
-                      toast.error(err);
-                    }
-                  }}
-                >
-                  <MousePointerClick className='text-foreground' />
-                  {t('Apply')}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className='flex gap-2 text-red-600 focus:text-red-500 cursor-pointer'
-                  onSelect={async () => {
-                    try {
-                      await uninstallNode(version.slice(1));
-                      const [currentVersion, versions] = await Promise.all([
-                        vCurrent(),
-                        installedList(true),
-                      ]);
-                      setCurrent(currentVersion);
-                      setInstalledVersions(versions);
-                      toast.success(t('Tip-Uninstall', { version }));
-                    } catch (err) {
-                      toast.error(err);
-                    }
-                  }}
-                >
-                  <TrashIcon className='text-red-600' />
-                  {t('Uninstall')}
-                </DropdownMenuItem>
+              <DropdownMenuContent>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    onSelect={async () => {
+                      try {
+                        const curVersion = version.slice(1);
+                        await vSetCurrent(curVersion);
+                        setCurrent(curVersion);
+                        toast.success(t('Restart-Terminal', { version }));
+                      } catch (err) {
+                        toast.error(err);
+                      }
+                    }}
+                  >
+                    <MousePointerClick />
+                    {t('Apply')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    variant='destructive'
+                    onSelect={async () => {
+                      try {
+                        await uninstallNode(version.slice(1));
+                        const [currentVersion, versions] = await Promise.all([
+                          vCurrent(),
+                          installedList(true),
+                        ]);
+                        setCurrent(currentVersion);
+                        setInstalledVersions(versions);
+                        toast.success(t('Tip-Uninstall', { version }));
+                      } catch (err) {
+                        toast.error(err);
+                      }
+                    }}
+                  >
+                    <Trash />
+                    {t('Uninstall')}
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
           );
 
         return (
-          <Button
-            size='sm'
-            variant='tag'
-            icon={<CloudDownload />}
-            onClick={() => modal.current?.show(row.original)}
-          >
+          <Button size='xs' onClick={() => modal.current?.show(row.original)}>
+            <CloudDownload />
             {t('Install')}
           </Button>
         );
@@ -446,21 +478,22 @@ export const Versions: React.FC = () => {
               <div className='flex items-center gap-2'>
                 <Button
                   size='sm'
-                  disabled={loading}
-                  className='h-7 text-sm'
-                  loading={localLoading}
-                  icon={<RotateCw />}
+                  disabled={localLoading || loading}
                   onClick={onPageReload}
                 >
+                  <FolderSync />
                   {t('Page-Reload')}
                 </Button>
                 <Button
-                  loading={loading}
                   size='sm'
-                  className='h-7 text-sm'
-                  icon={<RefreshCw />}
+                  disabled={loading || localLoading}
                   onClick={onDataUpdate}
                 >
+                  {loading ? (
+                    <LoaderCircle className='animate-spin' />
+                  ) : (
+                    <CloudSync />
+                  )}
                   {t('Data-Update')}
                 </Button>
               </div>

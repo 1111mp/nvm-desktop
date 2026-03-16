@@ -11,9 +11,16 @@ use tauri::{Emitter, Manager};
 use tauri_plugin_dialog::{DialogExt, FilePath};
 
 #[derive(Default, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ConfigurationExport {
+    /// base color
+    base_color: Option<String>,
+
     /// theme color
     color: Option<String>,
+
+    /// radius
+    radius: Option<String>,
 
     /// export setting data
     setting: Option<bool>,
@@ -26,9 +33,16 @@ pub struct ConfigurationExport {
 }
 
 #[derive(Default, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ConfigurationData {
+    /// base color
+    base_color: Option<String>,
+
     /// theme color
     color: Option<String>,
+
+    /// radius
+    radius: Option<String>,
 
     /// export setting data
     setting: Option<ISettingsResponse>,
@@ -44,9 +58,16 @@ pub struct ConfigurationData {
 }
 
 #[derive(Default, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ConfigurationImport {
+    /// base color
+    base_color: Option<String>,
+
     /// theme color
     color: Option<String>,
+
+    /// radius
+    radius: Option<String>,
 
     /// export setting data
     setting: Option<ISettingsResponse>,
@@ -61,16 +82,26 @@ pub async fn configuration_export(
     configuration: ConfigurationExport,
 ) -> Result<()> {
     let ConfigurationExport {
+        base_color,
         color,
+        radius,
         setting,
         mirrors,
         projects,
     } = configuration;
 
     let mut output = ConfigurationData::default();
+    // export base color
+    if let Some(base_color) = base_color {
+        output.base_color = Some(base_color)
+    }
     // export theme color
     if let Some(color) = color {
         output.color = Some(color);
+    }
+    // export radius
+    if let Some(radius) = radius {
+        output.radius = Some(radius);
     }
     // export setting & mirrors data
     if setting.unwrap_or(false) {
@@ -147,7 +178,9 @@ pub async fn configuration_import(
         }
 
         return Ok(Some(ConfigurationImport {
+            base_color: configuration.base_color,
             color: configuration.color,
+            radius: configuration.radius,
             setting: configuration.setting,
             mirrors: configuration.mirrors,
         }));

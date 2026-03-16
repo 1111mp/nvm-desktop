@@ -36,10 +36,9 @@ export function DataTableColumnFilterHeader<TData, TValue>({
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            animate={false}
             variant='ghost'
             size='sm'
-            className='text-sm font-light -translate-x-1.75 hover:bg-secondary-hover data-[state=open]:bg-secondary-hover'
+            className='text-sm font-light -translate-x-1.75'
           >
             <span>{title}</span>
             <Search className='ml-2 size-4' />

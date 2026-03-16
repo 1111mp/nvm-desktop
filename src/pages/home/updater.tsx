@@ -9,6 +9,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle,
   Button,
   Label,
@@ -18,7 +19,7 @@ import {
   Progress,
 } from '@/components/ui';
 import Markdown from 'react-markdown';
-import { GlobeIcon } from 'lucide-react';
+import { GlobeIcon, Info, LoaderCircle } from 'lucide-react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import { check, type Update } from '@tauri-apps/plugin-updater';
 
@@ -40,7 +41,7 @@ export const Updater: React.FC = () => {
   const [pop, setPop] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [percentage, setPercentage] = useState<number>();
-  const [updateInfo, setUpdateInfo] = useState<Update>();
+  const [updateInfo, setUpdateInfo] = useState<Update | null>(null);
 
   const { t } = useTranslation();
 
@@ -49,7 +50,7 @@ export const Updater: React.FC = () => {
     const checkUpdate = async () => {
       try {
         const update = await check();
-        if (update) {
+        if (update !== null) {
           setUpdateInfo(update);
         }
       } catch {
@@ -61,14 +62,14 @@ export const Updater: React.FC = () => {
   }, []);
 
   const onCheckUpdates = async () => {
-    if (updateInfo?.available) {
+    if (updateInfo !== null) {
       return setOpen({ visible: true, type: ModalType.Check });
     }
 
     setLoading(true);
     try {
       const update = await check();
-      if (update) {
+      if (update !== null) {
         setUpdateInfo(update);
         setOpen({ visible: true, type: ModalType.Check });
       } else {
@@ -82,7 +83,7 @@ export const Updater: React.FC = () => {
   };
 
   const onUpgrade = async () => {
-    if (!updateInfo) return;
+    if (updateInfo === null) return;
 
     setLoading(true);
     setOpen({ visible: false, type: ModalType.Check });
@@ -115,7 +116,7 @@ export const Updater: React.FC = () => {
   };
 
   const onMakeUpdateNow = async () => {
-    if (!updateInfo) return;
+    if (updateInfo === null) return;
 
     try {
       await updateInfo.install();
@@ -125,6 +126,8 @@ export const Updater: React.FC = () => {
     }
   };
 
+  const hasUpdate = updateInfo !== null;
+
   return (
     <>
       {percentage === void 0 ? (
@@ -132,13 +135,17 @@ export const Updater: React.FC = () => {
           <Button
             size='sm'
             variant='ghost'
-            loading={loading}
             title={t('Check-Update')}
             className='module-home-btn'
-            icon={<GlobeIcon />}
             onClick={onCheckUpdates}
-          />
-          {updateInfo?.available && (
+          >
+            {loading ? (
+              <LoaderCircle className='animate-spin' />
+            ) : (
+              <GlobeIcon />
+            )}
+          </Button>
+          {hasUpdate && (
             <span className='inline-block absolute top-1 left-1 w-1.5 h-1.5 rounded bg-red-500' />
           )}
         </div>
@@ -149,7 +156,6 @@ export const Updater: React.FC = () => {
               size='sm'
               variant='ghost'
               className='w-7.75 h-6'
-              icon={<CircularProgressbar value={percentage} />}
               onClick={() => {
                 if (percentage >= 100) {
                   setOpen({ visible: true, type: ModalType.Complete });
@@ -158,7 +164,9 @@ export const Updater: React.FC = () => {
               onMouseOver={() => {
                 setPop(true);
               }}
-            />
+            >
+              <CircularProgressbar value={percentage} />
+            </Button>
           </PopoverTrigger>
           <PopoverContent align='end' className='p-2'>
             <p className='text-sm font-normal'>{t('Download-Progress')}</p>
@@ -171,24 +179,27 @@ export const Updater: React.FC = () => {
       )}
 
       <AlertDialog open={open.visible}>
-        <AlertDialogContent className='top-72'>
-          <AlertDialogHeader className='space-y-0'>
+        <AlertDialogContent size='sm' className='top-1/3 max-w-md!'>
+          <AlertDialogHeader>
+            <AlertDialogMedia>
+              <Info />
+            </AlertDialogMedia>
             <AlertDialogTitle>{t('Update-Info')}</AlertDialogTitle>
-            <AlertDialogDescription className='my-0'></AlertDialogDescription>
+            <AlertDialogDescription></AlertDialogDescription>
           </AlertDialogHeader>
           <div>
-            {open.type === ModalType.Check && updateInfo ? (
+            {open.type === ModalType.Check && hasUpdate ? (
               <>
                 <div className='columns-2'>
                   <p className='space-x-4 mb-3'>
                     <Label>{t('Current-Version')} :</Label>
-                    <span className='text-popover-foreground'>
+                    <span className='text-muted-foreground'>
                       {updateInfo?.currentVersion}
                     </span>
                   </p>
                   <p className='space-x-4 mb-3'>
                     <Label>{t('New-Version')} :</Label>
-                    <span className='text-popover-foreground'>
+                    <span className='text-muted-foreground'>
                       {updateInfo?.version}
                     </span>
                   </p>
@@ -196,7 +207,7 @@ export const Updater: React.FC = () => {
                 <p className='space-x-4'>
                   <Label>{t('Release-Notes')} :</Label>
                 </p>
-                <div className='max-h-60 mt-2 p-3 overflow-auto bg-secondary text-secondary-foreground rounded-sm'>
+                <div className='max-h-60 mt-2 p-3 overflow-auto bg-muted text-muted-foreground rounded-sm'>
                   <Markdown
                     components={{
                       a: ({ children, ...props }) => {

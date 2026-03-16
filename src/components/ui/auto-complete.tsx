@@ -1,204 +1,76 @@
-import { startTransition, useEffect, useRef, useState } from 'react';
 import {
-  Command,
-  CommandInput,
-  CommandGroup,
-  CommandList,
-  CommandItem,
-  CommandEmpty,
-} from './command';
-import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'motion/react';
-import { Check } from 'lucide-react';
+  Combobox,
+  ComboboxCollection,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxGroup,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxLabel,
+  ComboboxList,
+  ComboboxSeparator,
+  type ComboboxInputProps,
+} from '@/components/ui';
+import { useState } from 'react';
 
-type AutoCompleteProps = {
+type AutoCompleteProps = ComboboxInputProps & {
   value?: string;
-  options?: string[];
-  placeholder?: string;
-  shouldFilter?: boolean;
-  defaultOpts?: string[];
+  items?: GroupItem[];
   onChange?: (value: string) => void;
 };
 
-const AutoComplete: React.FC<AutoCompleteProps> = ({
-  value: valueProp = '',
-  options = [],
-  placeholder = '',
-  shouldFilter = true,
-  defaultOpts = [],
-  onChange,
-}) => {
-  const [open, setOpen] = useState<boolean>(false);
-  const [value, setValue] = useState<string>(valueProp);
-  const [position, setPosition] = useState<'top' | 'bottom'>('bottom');
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const input = useRef<HTMLInputElement>(null);
-  const dropdown = useRef<HTMLDivElement>(null);
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    const handleClickOutside = (evt: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(evt.target as Node)
-      ) {
-        setOpen(false);
-        input.current?.blur();
-
-        if (open) {
-          evt.preventDefault();
-        }
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [open]);
-
-  const onKeyDown = (evt: React.KeyboardEvent<HTMLDivElement>) => {
-    evt.stopPropagation();
-
-    if (!input.current) return;
-
-    switch (evt.key) {
-      case 'Enter': {
-        if (![...defaultOpts, ...options].includes(value)) {
-          evt.preventDefault();
-        }
-        break;
-      }
-      case 'Escape': {
-        input.current?.blur();
-        break;
-      }
-    }
-  };
-
-  const onValueChange = (value: string) => {
-    setValue(value);
-    onChange?.(value);
-  };
-
-  const onSelect = (value: string) => {
-    setValue(value);
-    onChange?.(value);
-
-    setTimeout(() => {
-      setOpen(false);
-      input.current?.blur();
-    });
-  };
-
-  const updatePosition = () => {
-    if (input.current && dropdown.current) {
-      const inputRect = input.current.getBoundingClientRect();
-      const dropdownRect = dropdown.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const spaceBelow = windowHeight - inputRect.bottom - 72;
-      const spaceAbove = inputRect.top;
-
-      if (spaceBelow < dropdownRect.height && spaceAbove > spaceBelow) {
-        setPosition('top');
-      } else {
-        setPosition('bottom');
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (open) {
-      updatePosition();
-    }
-  }, [open]);
-
-  return (
-    <Command
-      ref={containerRef}
-      shouldFilter={shouldFilter}
-      className='overflow-visible bg-transparent'
-      onKeyDown={onKeyDown}
-    >
-      <CommandInput
-        ref={input}
-        value={value}
-        className='h-8'
-        placeholder={placeholder}
-        onFocus={() =>
-          startTransition(() => {
-            setOpen(true);
-          })
-        }
-        onValueChange={onValueChange}
-      />
-      <div className='relative mt-1'>
-        <div
-          ref={dropdown}
-          className={`w-full absolute ${
-            position === 'bottom' ? 'top-0' : 'bottom-11'
-          }`}
-        >
-          <CommandList>
-            <AnimatePresence>
-              {open && (
-                <motion.div
-                  key='auto-complete-content'
-                  className='w-full max-h-56 rounded-md border bg-popover text-popover-foreground [overflow:overlay] shadow-lg'
-                  initial={{
-                    opacity: 0,
-                  }}
-                  animate={{ opacity: 1 }}
-                  exit={{
-                    opacity: 0,
-                  }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <CommandEmpty>No results found.</CommandEmpty>
-                  {options.length ? (
-                    <CommandGroup heading={t('Custom')}>
-                      {options.map((optValue) => (
-                        <CommandItem
-                          key={optValue}
-                          value={optValue}
-                          title={optValue}
-                          className='gap-1'
-                          onSelect={onSelect}
-                        >
-                          <span className='flex-1 truncate'>{optValue}</span>
-                          {optValue === value ? <Check /> : null}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  ) : null}
-                  {defaultOpts.length ? (
-                    <CommandGroup heading={t('Default')}>
-                      {defaultOpts.map((optValue) => (
-                        <CommandItem
-                          key={optValue}
-                          value={optValue}
-                          title={optValue}
-                          className='gap-1'
-                          onSelect={onSelect}
-                        >
-                          <span className='flex-1 truncate'>{optValue}</span>
-                          {optValue === value ? <Check /> : null}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  ) : null}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </CommandList>
-        </div>
-      </div>
-    </Command>
-  );
+type GroupItem = {
+  value: string;
+  items: string[];
 };
 
-AutoComplete.displayName = 'AutoComplete';
+function AutoComplete({
+  value: valueProp,
+  items = [],
+  onChange,
+  ...props
+}: AutoCompleteProps) {
+  const [value, setValue] = useState<string>(() => valueProp ?? '');
 
-export { AutoComplete, type AutoCompleteProps };
+  return (
+    <Combobox
+      items={items}
+      value={value}
+      filter={() => true}
+      onValueChange={(value) => {
+        const newValue = value ?? '';
+        setValue(newValue);
+        onChange?.(newValue);
+      }}
+    >
+      <ComboboxInput
+        {...props}
+        onChange={(evt) => {
+          const newValue = evt.target.value;
+          setValue(newValue);
+          onChange?.(newValue);
+        }}
+      />
+      <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(group: GroupItem, index) => (
+            <ComboboxGroup key={group.value} items={group.items}>
+              <ComboboxLabel>{group.value}</ComboboxLabel>
+              <ComboboxCollection>
+                {(item) => (
+                  <ComboboxItem key={item} value={item}>
+                    {item}
+                  </ComboboxItem>
+                )}
+              </ComboboxCollection>
+              {index < items.length - 1 && <ComboboxSeparator />}
+            </ComboboxGroup>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  );
+}
+
+export { AutoComplete };

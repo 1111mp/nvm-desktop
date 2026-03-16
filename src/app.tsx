@@ -1,4 +1,4 @@
-import './global.css';
+import './styles/global.css';
 
 import { useEffect } from 'react';
 import { RouterProvider } from 'react-router';
@@ -41,7 +41,7 @@ export default function App({
       <TooltipProvider delayDuration={200}>
         <RouterProvider router={router} />
       </TooltipProvider>
-      <Toaster />
+      <Toaster position='top-center' />
     </AppProvider>
   );
 }

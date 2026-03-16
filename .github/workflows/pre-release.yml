@@ -27,7 +27,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Rust Stable
         uses: dtolnay/rust-toolchain@stable
@@ -48,9 +48,9 @@ jobs:
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: Install Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -90,7 +90,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Rust Stable
         uses: dtolnay/rust-toolchain@stable
@@ -105,9 +105,9 @@ jobs:
           cache-all-crates: true
 
       - name: Install Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -125,7 +125,7 @@ jobs:
         run: |-
           sudo ls -lR /etc/apt/
           echo "-------------"
-          
+
           cat > /tmp/sources.list << EOF
           deb [arch=amd64,i386] http://archive.ubuntu.com/ubuntu jammy main multiverse universe restricted
           deb [arch=amd64,i386] http://archive.ubuntu.com/ubuntu jammy-security main multiverse universe restricted
@@ -212,7 +212,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Add Rust Target
         run: rustup target add ${{ matrix.target }}
@@ -223,9 +223,9 @@ jobs:
           workspaces: src-tauri
 
       - name: Install Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -280,7 +280,7 @@ jobs:
     needs: [alpha, alpha-for-linux-arm64, alpha-for-fixed-webview2]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set Env
         run: |
@@ -303,44 +303,64 @@ jobs:
       - run: |
           cat > release.txt << 'EOF'
           ## Which version should I download?
+            
+          Choose the version that matches your **operating system** and **CPU architecture**.
 
-          ### MacOS (Prompts that the file is damaged or the developer cannot verify it. Please check [FAQ](https://github.com/1111mp/nvm-desktop/issues/126))
-          - MacOS Intel chip: x64.dmg
-          - MacOS apple M chip: aarch64.dmg
+          ### macOS
+          > If macOS shows **"The file is damaged"** or **"Cannot verify the developer"**, please check the [FAQ](https://github.com/1111mp/nvm-desktop/issues/126).
+
+          - **Intel Mac (x86_64)** → `x64.dmg`
+          - **Apple Silicon (M1/M2/M3)** → `aarch64.dmg`
 
           ### Linux
-          - Linux 64-bit: amd64.deb/amd64.rpm
-          - Linux arm64 architecture: arm64.deb/aarch64.rpm
+          - **x86_64 (64-bit)** → `amd64.deb` / `x86_64.rpm`
+          - **ARM64** → `arm64.deb` / `aarch64.rpm`
 
-          ### Windows (Win7 users please make sure to install and enable webview2)
-          #### Normal version (recommended)
-          - 64-bit: x64-setup.exe
-          - arm64 architecture: arm64-setup.exe
-          #### Built-in Webview2 version (large in size, only used when the enterprise version system or Win7 cannot install webview2)
-          - 64-bit: x64_fixed_webview2-setup.exe
-          - arm64 architecture: arm64_fixed_webview2-setup.exe
+          ### Windows
+          > Windows 7 users must install and enable **WebView2** first.
+
+          #### Recommended Version
+          - **64-bit** → `x64-setup.exe`
+          - **ARM64** → `arm64-setup.exe`
+
+          #### Built-in WebView2 Version
+          *(Larger file size. Use this only if your system cannot install WebView2, such as some enterprise editions or Windows 7.)*
+
+          - **64-bit** → `x64_fixed_webview2-setup.exe`
+          - **ARM64** → `arm64_fixed_webview2-setup.exe`
 
           ---
 
           ## 我应该下载哪个版本？
 
-          ### MacOS (提示文件损坏或开发者无法验证请查看 [FAQ](https://github.com/1111mp/nvm-desktop/issues/126))
-          - MacOS intel芯片: x64.dmg
-          - MacOS apple M芯片: aarch64.dmg
+          请选择与你的 **操作系统** 和 **CPU 架构** 相匹配的版本。
+
+          ### macOS
+          > 如果 macOS 提示 **“文件已损坏”** 或 **“无法验证开发者”**，请查看 [FAQ](https://github.com/1111mp/nvm-desktop/issues/126)。
+
+          - **Intel Mac (x86_64)** → `x64.dmg`
+          - **Apple Silicon (M1/M2/M3)** → `aarch64.dmg`
 
           ### Linux
-          - Linux 64位: amd64.deb/amd64.rpm
-          - Linux arm64架构: arm64.deb/aarch64.rpm
+          - **x86_64 (64位)** → `amd64.deb` / `x86_64.rpm`
+          - **ARM64 架构** → `arm64.deb` / `aarch64.rpm`
 
-          ### Windows (Win7 用户请确保安装并启用webview2)
-          #### 正常版本(推荐)
-          - 64位: x64-setup.exe
-          - arm64架构: arm64-setup.exe
-          #### 内置Webview2版(体积较大，仅在企业版系统或Win7无法安装webview2时使用)
-          - 64位: x64_fixed_webview2-setup.exe
-          - arm64架构: arm64_fixed_webview2-setup.exe
+          ### Windows
+          > Windows 7 用户请确保已安装并启用 **WebView2**。
 
-          Created at  ${{ env.BUILDTIME }}.
+          #### 推荐版本
+          - **64 位** → `x64-setup.exe`
+          - **ARM64 架构** → `arm64-setup.exe`
+
+          #### 内置 WebView2 版本
+          （体积较大，仅在系统无法安装 WebView2 时使用，例如某些企业版系统或 Windows 7）
+
+          - **64 位** → `x64_fixed_webview2-setup.exe`
+          - **ARM64 架构** → `arm64_fixed_webview2-setup.exe`
+
+          ---
+
+          Created at ${{ env.BUILDTIME }}.
           EOF
 
       - name: Upload Release

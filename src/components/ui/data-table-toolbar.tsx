@@ -1,11 +1,11 @@
 'use no memo';
 
 import { CircleX } from 'lucide-react';
-import { Table } from '@tanstack/react-table';
-
 import { Button } from './button';
 import { Input } from './input';
 import { DataTableViewOptions } from './data-table-view-options';
+
+import { type Table } from '@tanstack/react-table';
 
 import {
   DataTableFacetedFilter,

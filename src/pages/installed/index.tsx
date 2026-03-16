@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLoaderData } from 'react-router';
 import { toast } from 'sonner';
 import {
+  Badge,
   Button,
   DataTable,
   DataTableColumnFilterHeader,
@@ -9,20 +10,22 @@ import {
   DataTableToolbar,
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  Tag,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui';
 import { type ColumnDef, type Table, memo } from '@tanstack/react-table';
 import {
+  CircleCheckBig,
   CircleChevronDownIcon,
+  CircleSlash,
+  FolderSync,
   HardDriveIcon,
   LightbulbIcon,
   MousePointerClick,
-  RotateCwIcon,
   TrashIcon,
 } from 'lucide-react';
 
@@ -139,7 +142,7 @@ export const Component: React.FC = () => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <a
-                  className='h-6 p-0 text-md text-foreground font-medium hover:text-primary hover:underline'
+                  className='h-6 p-0 leading-6 text-md text-foreground font-medium hover:text-primary hover:underline'
                   href={`https://github.com/nodejs/node/releases/tag/${version}`}
                   rel='noreferrer'
                   target='_blank'
@@ -147,16 +150,17 @@ export const Component: React.FC = () => {
                   {version}
                 </a>
               </TooltipTrigger>
-              <TooltipContent className='bg-primary'>
+              <TooltipContent
+                className='bg-primary text-primary-foreground'
+                arrowClassName='bg-primary fill-primary'
+              >
                 {t('Whats-new')}
               </TooltipContent>
             </Tooltip>
             {lts ? (
-              <span className='text-foreground-foreground'>({lts})</span>
+              <span className='text-muted-foreground'>({lts})</span>
             ) : row.index === 0 ? (
-              <span className='text-foreground-foreground'>
-                ({t('latest')})
-              </span>
+              <span className='text-muted-foreground'>({t('latest')})</span>
             ) : null}
           </div>
         );
@@ -172,6 +176,7 @@ export const Component: React.FC = () => {
       ),
       meta: {
         label: `V8 ${t('Version')}`,
+        className: 'flex items-center text-muted-foreground',
       },
       enableSorting: false,
     },
@@ -185,6 +190,7 @@ export const Component: React.FC = () => {
       ),
       meta: {
         label: `NPM ${t('Version')}`,
+        className: 'flex items-center text-muted-foreground',
       },
       enableSorting: false,
     },
@@ -195,6 +201,7 @@ export const Component: React.FC = () => {
       ),
       meta: {
         label: t('Release-Date'),
+        className: 'flex items-center text-muted-foreground',
       },
       cell: ({ row }) => dayjs(row.original.date).format('ll'),
     },
@@ -203,11 +210,11 @@ export const Component: React.FC = () => {
       header: t('Status'),
       meta: {
         label: t('Status'),
+        className: 'flex items-center',
       },
       enableSorting: false,
       filterFn: (row, _columnId, filterValue: string[]) => {
         const { version } = row.original;
-
         const rets = filterValue.map((value) => {
           switch (value) {
             case 'Current': {
@@ -222,84 +229,103 @@ export const Component: React.FC = () => {
               return false;
           }
         });
-
         return rets.includes(true);
       },
       cell: ({ row }) => {
         const { version } = row.original;
-
         const installed = installedVersions.find((installed) =>
           version.includes(installed),
         );
 
-        if (installed && current && version.includes(current))
-          return <Tag color='lime'>{t('Current')}</Tag>;
+        // the current version
+        if (installed && current && version.includes(current)) {
+          return (
+            <Badge>
+              <CircleCheckBig />
+              {t('Current')}
+            </Badge>
+          );
+        }
 
-        if (installed) return <Tag color='purple'>{t('Installed')}</Tag>;
+        // the installed version
+        if (installed) {
+          return (
+            <Badge variant='secondary'>
+              <CircleCheckBig />
+              {t('Installed')}
+            </Badge>
+          );
+        }
 
-        return <Tag color='neutral'>{t('Not-Installed')}</Tag>;
+        // default => not installed
+        return (
+          <Badge variant='outline'>
+            <CircleSlash />
+            {t('Not-Installed')}
+          </Badge>
+        );
       },
     },
     {
       header: t('Operation'),
       enableHiding: false,
       enableSorting: false,
+      meta: {
+        className: 'flex items-center',
+      },
       cell: ({ row }) => {
         const { version } = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                size='sm'
-                variant='tag'
-                className='text-fuchsia-500 border-fuchsia-500 hover:text-fuchsia-500/80 hover:border-fuchsia-500/60 focus-visible:ring-1 focus-visible:ring-fuchsia-500/60'
-                icon={<CircleChevronDownIcon />}
-              >
+              <Button size='xs' variant='outline'>
+                <CircleChevronDownIcon />
                 {t('More')}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className='min-w-8'>
-              <DropdownMenuItem
-                className='flex gap-2 cursor-pointer'
-                onSelect={async () => {
-                  try {
-                    const curVersion = version.slice(1);
-                    await vSetCurrent(curVersion);
-                    setCurrent(curVersion);
-                    toast.success(t('Restart-Terminal', { version }));
-                  } catch (err) {
-                    toast.error(err);
-                  }
-                }}
-              >
-                <MousePointerClick className='text-foreground' />
-                {t('Apply')}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className='flex gap-2 text-red-600 focus:text-red-500 cursor-pointer'
-                onSelect={async () => {
-                  try {
-                    await uninstallNode(version.slice(1));
-                    const [currentVersion, installeds] = await Promise.all([
-                      vCurrent(),
-                      installedList(true),
-                    ]);
-                    setCurrent(currentVersion);
-                    setInstalledVersions(installeds);
-                    setVersions(
-                      allVersions.filter(({ version }) =>
-                        installeds.includes(version.slice(1)),
-                      ),
-                    );
-                    toast.success(t('Tip-Uninstall', { version }));
-                  } catch (err) {
-                    toast.error(err);
-                  }
-                }}
-              >
-                <TrashIcon className='text-red-600' />
-                {t('Uninstall')}
-              </DropdownMenuItem>
+            <DropdownMenuContent>
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onSelect={async () => {
+                    try {
+                      const curVersion = version.slice(1);
+                      await vSetCurrent(curVersion);
+                      setCurrent(curVersion);
+                      toast.success(t('Restart-Terminal', { version }));
+                    } catch (err) {
+                      toast.error(err);
+                    }
+                  }}
+                >
+                  <MousePointerClick />
+                  {t('Apply')}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  variant='destructive'
+                  onSelect={async () => {
+                    try {
+                      await uninstallNode(version.slice(1));
+                      const [currentVersion, installeds] = await Promise.all([
+                        vCurrent(),
+                        installedList(true),
+                      ]);
+                      setCurrent(currentVersion);
+                      setInstalledVersions(installeds);
+                      setVersions(
+                        allVersions.filter(({ version }) =>
+                          installeds.includes(version.slice(1)),
+                        ),
+                      );
+                      toast.success(t('Tip-Uninstall', { version }));
+                    } catch (err) {
+                      toast.error(err);
+                    }
+                  }}
+                >
+                  <TrashIcon />
+                  {t('Uninstall')}
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -391,13 +417,8 @@ export const Component: React.FC = () => {
                 },
               ]}
             />
-            <Button
-              size='sm'
-              className='h-7 text-sm'
-              loading={loading}
-              icon={<RotateCwIcon />}
-              onClick={onPageReload}
-            >
+            <Button size='sm' disabled={loading} onClick={onPageReload}>
+              <FolderSync />
               {t('Page-Reload')}
             </Button>
           </div>

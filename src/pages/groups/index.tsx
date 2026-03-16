@@ -8,18 +8,21 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle,
   AlertDialogTrigger,
   Button,
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxValue,
   DataDndTable,
   DataTableToolbar,
-  MultiSelect,
-  MultiSelectContent,
-  MultiSelectItem,
-  MultiSelectList,
-  MultiSelectSearch,
-  MultiSelectTrigger,
-  MultiSelectValue,
   Select,
   SelectContent,
   SelectItem,
@@ -28,9 +31,10 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  useComboboxAnchor,
 } from '@/components/ui';
 import { toast } from 'sonner';
-import { RotateCwIcon, SearchIcon, TrashIcon } from 'lucide-react';
+import { FolderSync, TrashIcon } from 'lucide-react';
 import { GroupCreator } from './group-creator';
 
 import { useTranslation } from 'react-i18next';
@@ -120,10 +124,16 @@ export const Component: React.FC = () => {
       header: t('Group-Name'),
       maxSize: 160,
       enableHiding: false,
+      meta: {
+        className: 'flex items-center',
+      },
     },
     {
       accessorKey: 'desc',
       header: t('Group-Desc'),
+      meta: {
+        className: 'flex items-center text-muted-foreground',
+      },
       enableHiding: false,
       cell: ({ getValue }) => {
         const desc = getValue() as string;
@@ -137,9 +147,7 @@ export const Component: React.FC = () => {
                 {desc}
               </span>
             </TooltipTrigger>
-            <TooltipContent className='max-w-2xl text-accent-foreground bg-accent'>
-              {desc}
-            </TooltipContent>
+            <TooltipContent className='max-w-2xl'>{desc}</TooltipContent>
           </Tooltip>
         );
       },
@@ -174,7 +182,7 @@ export const Component: React.FC = () => {
               }
             }}
           >
-            <SelectTrigger className='h-6'>
+            <SelectTrigger className='w-full'>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -198,96 +206,17 @@ export const Component: React.FC = () => {
       cell: ({ row }) => {
         const { name, projects: defaultProjects, version } = row.original;
         return (
-          <MultiSelect
-            defaultValue={defaultProjects}
-            filter={(keyword, current) => {
-              if (keyword.includes(current)) return 1;
-              return 0;
-            }}
-            defaultCache={projects.map(({ name, path }) => ({
-              value: path,
-              label: name,
-            }))}
-            onValueChange={async (projectsPaths) => {
-              const { added, removed } = compareArray(
-                defaultProjects,
-                projectsPaths,
-              );
-              const [newProjects, newGroups] = await Promise.all([
-                (async () => {
-                  const newProjects: Nvmd.Project[] = [...projects],
-                    addedPaths: string[] = [],
-                    removedPaths: string[] = [];
-
-                  newProjects.forEach((project) => {
-                    // Need addition
-                    if (added.length && added.includes(project.path)) {
-                      project.version = name;
-                      addedPaths.push(project.path);
-                    }
-
-                    // Need remove
-                    if (removed.length && removed.includes(project.path)) {
-                      project.version = '';
-                      removedPaths.push(project.path);
-                    }
-                  });
-
-                  await Promise.all([
-                    addedPaths.length
-                      ? batchUpdateProjectVersion(addedPaths, version)
-                      : Promise.resolve(undefined),
-                    removedPaths.length
-                      ? batchUpdateProjectVersion(removedPaths, '')
-                      : Promise.resolve(undefined),
-                    updateProjects(newProjects),
-                  ]);
-
-                  return newProjects;
-                })(),
-                (async () => {
-                  const newGroups = [...groups];
-                  newGroups.forEach((group) => {
-                    // If the project is already in other groups, you need to remove it from the original group.
-                    const repeatProjects = group.projects.filter((path) =>
-                      projectsPaths.includes(path),
-                    );
-                    if (added.length && repeatProjects.length) {
-                      const groupProjects = [...group.projects];
-                      group.projects = groupProjects.filter(
-                        (path) => !repeatProjects.includes(path),
-                      );
-                    }
-
-                    if (group.name === name) {
-                      group.projects = projectsPaths;
-                    }
-                  });
-                  await updateGroups(newGroups);
-                  return newGroups;
-                })(),
-              ]);
+          <MultiSelectProject
+            value={defaultProjects}
+            name={name}
+            version={version}
+            projects={projects}
+            groups={groups}
+            onSubmit={(newProjects, newGroups) => {
               setProjects(newProjects);
               setGroups(newGroups);
             }}
-          >
-            <MultiSelectTrigger className='h-6'>
-              <MultiSelectValue maxDisplay={2} maxItemLength={5} />
-            </MultiSelectTrigger>
-            <MultiSelectContent>
-              <MultiSelectSearch
-                icon={<SearchIcon className='size-4' />}
-                placeholder={t('Input-To-Search')}
-              />
-              <MultiSelectList>
-                {projects.map(({ name, path }) => (
-                  <MultiSelectItem key={path} value={path}>
-                    {name}
-                  </MultiSelectItem>
-                ))}
-              </MultiSelectList>
-            </MultiSelectContent>
-          </MultiSelect>
+          />
         );
       },
     },
@@ -295,26 +224,35 @@ export const Component: React.FC = () => {
       header: t('Operation'),
       maxSize: 120,
       enableHiding: false,
+      meta: {
+        className: 'flex items-center',
+      },
       cell: ({ row }) => {
         const { name, projects: groupProjects } = row.original;
         return (
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button size='sm' variant='tag'>
+              <Button size='xs' variant='destructive'>
                 <TrashIcon />
                 {t('Remove')}
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent className='top-1/3'>
+            <AlertDialogContent className='top-1/3' size='sm'>
               <AlertDialogHeader>
+                <AlertDialogMedia className='bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive'>
+                  <TrashIcon />
+                </AlertDialogMedia>
                 <AlertDialogTitle>{name}</AlertDialogTitle>
                 <AlertDialogDescription>
                   {t('Group-Delete')}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>{t('Cancel')}</AlertDialogCancel>
+                <AlertDialogCancel variant='outline'>
+                  {t('Cancel')}
+                </AlertDialogCancel>
                 <AlertDialogAction
+                  variant='destructive'
                   onClick={async () => {
                     const [newProjects, newGroups] = await Promise.all([
                       (async () => {
@@ -462,13 +400,8 @@ export const Component: React.FC = () => {
               status={false}
             />
             <div className='flex items-center gap-2'>
-              <Button
-                size='sm'
-                className='h-7 text-sm'
-                loading={loading}
-                icon={<RotateCwIcon />}
-                onClick={onPageReload}
-              >
+              <Button size='sm' disabled={loading} onClick={onPageReload}>
+                <FolderSync />
                 {t('Page-Reload')}
               </Button>
               <GroupCreator
@@ -488,3 +421,115 @@ export const Component: React.FC = () => {
 };
 
 Component.displayName = 'Groups';
+
+function MultiSelectProject({
+  value = [],
+  version,
+  name,
+  projects = [],
+  groups = [],
+  onSubmit,
+}: {
+  value?: string[];
+  name: string;
+  version: string;
+  projects?: Nvmd.Project[];
+  groups?: Nvmd.Group[];
+  onSubmit?: (projects: Nvmd.Project[], groups: Nvmd.Group[]) => void;
+}) {
+  const anchor = useComboboxAnchor();
+
+  return (
+    <Combobox
+      multiple
+      autoHighlight
+      defaultValue={value}
+      items={projects.map((p) => p.path)}
+      onValueChange={async (projectsPaths) => {
+        const { added, removed } = compareArray(value, projectsPaths);
+        const [newProjects, newGroups] = await Promise.all([
+          (async () => {
+            const newProjects: Nvmd.Project[] = [...projects],
+              addedPaths: string[] = [],
+              removedPaths: string[] = [];
+
+            newProjects.forEach((project) => {
+              // Need addition
+              if (added.length && added.includes(project.path)) {
+                project.version = name;
+                addedPaths.push(project.path);
+              }
+
+              // Need remove
+              if (removed.length && removed.includes(project.path)) {
+                project.version = '';
+                removedPaths.push(project.path);
+              }
+            });
+
+            await Promise.all([
+              addedPaths.length
+                ? batchUpdateProjectVersion(addedPaths, version)
+                : Promise.resolve(undefined),
+              removedPaths.length
+                ? batchUpdateProjectVersion(removedPaths, '')
+                : Promise.resolve(undefined),
+              updateProjects(newProjects),
+            ]);
+
+            return newProjects;
+          })(),
+          (async () => {
+            const newGroups = [...groups];
+            newGroups.forEach((group) => {
+              // If the project is already in other groups, you need to remove it from the original group.
+              const repeatProjects = group.projects.filter((path) =>
+                projectsPaths.includes(path),
+              );
+              if (added.length && repeatProjects.length) {
+                const groupProjects = [...group.projects];
+                group.projects = groupProjects.filter(
+                  (path) => !repeatProjects.includes(path),
+                );
+              }
+
+              if (group.name === name) {
+                group.projects = projectsPaths;
+              }
+            });
+            await updateGroups(newGroups);
+            return newGroups;
+          })(),
+        ]);
+        onSubmit?.(newProjects, newGroups);
+      }}
+    >
+      <ComboboxChips ref={anchor} className='w-full max-h-14 overflow-y-auto'>
+        <ComboboxValue>
+          {(values: string[]) => (
+            <>
+              {values.map((value: string) => (
+                <ComboboxChip key={value}>
+                  {projects.find((p) => p.path === value)?.name}
+                </ComboboxChip>
+              ))}
+              <ComboboxChipsInput
+                placeholder={values.length === 0 ? 'Select projects' : void 0}
+              />
+            </>
+          )}
+        </ComboboxValue>
+      </ComboboxChips>
+      <ComboboxContent anchor={anchor} className='isolate z-100'>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {projects.find((p) => p.path === item)?.name}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  );
+}

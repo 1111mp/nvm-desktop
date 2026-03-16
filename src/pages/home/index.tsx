@@ -62,7 +62,7 @@ const Home: React.FC = () => {
       },
       {
         element: '#theme-customizer',
-        title: t('Theme color'),
+        title: t('Theme'),
         intro: (
           <p className='flex items-center gap-2'>
             {t('Color-Tip')}
@@ -553,19 +553,21 @@ const Home: React.FC = () => {
               <Button
                 size='sm'
                 variant='secondary'
-                icon={<MinusIcon />}
                 onClick={() => {
                   windowMinimize();
                 }}
-              />
+              >
+                <MinusIcon />
+              </Button>
               <Button
                 size='sm'
                 variant='secondary'
-                icon={<XIcon />}
                 onClick={() => {
                   windowClose();
                 }}
-              />
+              >
+                <XIcon />
+              </Button>
             </div>
           </div>
         </header>

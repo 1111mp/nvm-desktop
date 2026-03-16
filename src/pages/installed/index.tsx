@@ -176,7 +176,7 @@ export const Component: React.FC = () => {
       ),
       meta: {
         label: `V8 ${t('Version')}`,
-        className: 'text-muted-foreground',
+        className: 'flex items-center text-muted-foreground',
       },
       enableSorting: false,
     },
@@ -190,7 +190,7 @@ export const Component: React.FC = () => {
       ),
       meta: {
         label: `NPM ${t('Version')}`,
-        className: 'text-muted-foreground',
+        className: 'flex items-center text-muted-foreground',
       },
       enableSorting: false,
     },
@@ -201,7 +201,7 @@ export const Component: React.FC = () => {
       ),
       meta: {
         label: t('Release-Date'),
-        className: 'text-muted-foreground',
+        className: 'flex items-center text-muted-foreground',
       },
       cell: ({ row }) => dayjs(row.original.date).format('ll'),
     },
@@ -210,6 +210,7 @@ export const Component: React.FC = () => {
       header: t('Status'),
       meta: {
         label: t('Status'),
+        className: 'flex items-center',
       },
       enableSorting: false,
       filterFn: (row, _columnId, filterValue: string[]) => {
@@ -269,6 +270,9 @@ export const Component: React.FC = () => {
       header: t('Operation'),
       enableHiding: false,
       enableSorting: false,
+      meta: {
+        className: 'flex items-center',
+      },
       cell: ({ row }) => {
         const { version } = row.original;
         return (

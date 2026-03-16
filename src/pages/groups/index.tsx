@@ -224,6 +224,9 @@ export const Component: React.FC = () => {
       header: t('Operation'),
       maxSize: 120,
       enableHiding: false,
+      meta: {
+        className: 'flex items-center',
+      },
       cell: ({ row }) => {
         const { name, projects: groupProjects } = row.original;
         return (

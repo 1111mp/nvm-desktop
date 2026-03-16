@@ -304,6 +304,9 @@ export const Component: React.FC = () => {
     {
       header: t('Operation'),
       maxSize: 120,
+      meta: {
+        className: 'flex items-center',
+      },
       cell: ({ row }) => {
         const { name, path, version } = row.original;
         return (

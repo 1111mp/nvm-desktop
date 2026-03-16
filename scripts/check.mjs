@@ -77,15 +77,32 @@ if (httpProxy) {
 async function downloadFile(url, path) {
   console.log(`[INFO]: start to download "${url}"`);
 
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/octet-stream' },
-  });
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/octet-stream' },
+    });
 
-  const buffer = await response.arrayBuffer();
-  await fs.writeFile(path, new Uint8Array(buffer));
+    // check response status
+    if (!response.ok) {
+      throw new Error(
+        `download failed: ${url} (status ${response.status} ${response.statusText})`,
+      );
+    }
 
-  console.log(`[INFO]: download finished "${url}"`);
+    const buffer = await response.arrayBuffer();
+
+    if (!buffer.byteLength) {
+      throw new Error(`download failed: empty file from ${url}`);
+    }
+
+    await fs.writeFile(path, new Uint8Array(buffer));
+
+    console.log(`[INFO]: download finished "${url}"`);
+  } catch (err) {
+    await fs.remove(path).catch(() => {});
+    throw err;
+  }
 }
 
 /// download `temp.cmd` on windows platform

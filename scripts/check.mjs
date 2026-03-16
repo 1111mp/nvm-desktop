@@ -185,4 +185,8 @@ async function run() {
   }
 }
 
-run().catch(console.error);
+run().catch((err) => {
+  console.error(err);
+  // abort workflow ci
+  process.exit(1);
+});

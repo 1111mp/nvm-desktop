@@ -1,3 +1,11 @@
+## v4.3.1
+
+### Bug Fixes
+
+- Fix Windows Binary Architecture Issue [#217](https://github.com/1111mp/nvm-desktop/issues/217)
+
+---
+
 ## v4.3.0
 
 ### Features

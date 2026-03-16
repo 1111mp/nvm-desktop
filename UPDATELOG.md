@@ -1,3 +1,12 @@
+## v4.3.0
+
+### Features
+
+- Upgrade all UI components to the latest version of shadcn/ui (v4)
+- Enhanced theme settings
+
+---
+
 ## v4.2.1
 
 ### Bug Fixes

@@ -9,7 +9,10 @@ use tokio::{
 };
 use tokio_tar::Archive;
 
-use super::{create_client, download_archive, node::*, verify_archive_checksum, FetchConfig};
+use super::{
+    cleanup_stale_partial_archives, create_client, download_archive, node::*,
+    verify_archive_checksum, FetchConfig,
+};
 
 pub async fn fetch(config: FetchConfig) -> Result<String> {
     let FetchConfig {
@@ -36,6 +39,8 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
 
     let dest = PathBuf::from(dest);
     let temp_file_path = dest.join(&full_name);
+
+    cleanup_stale_partial_archives(&dest, &temp_file_path).await?;
 
     download_archive(
         &client,
@@ -74,7 +79,6 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
                     entry
                 },
                 _ = cancel_receiver.changed() => {
-                    let _ = remove_file(&temp_file_path).await;
                     let _ = remove_dir_all(dest.join(&name)).await;
                     bail!("Unzipping was cancelled");
                 }

@@ -6,7 +6,10 @@ use anyhow::Result;
 use futures_util::StreamExt;
 use reqwest::{header, StatusCode};
 use sha2::{Digest, Sha256};
-use std::{path::Path, time::Duration};
+use std::{
+    path::Path,
+    time::{Duration, SystemTime},
+};
 use tokio::{
     fs::{File, OpenOptions},
     io::{AsyncReadExt, AsyncWriteExt},
@@ -21,6 +24,7 @@ pub type OnProgress = dyn Fn(&str, usize, usize) + Send + Sync;
 const DOWNLOAD_MAX_RETRIES: usize = 3;
 const DOWNLOAD_RETRY_DELAY_MS: u64 = 800;
 const NODE_SHASUMS_FILE: &str = "SHASUMS256.txt";
+const STALE_PARTIAL_MAX_AGE: Duration = Duration::from_secs(60 * 60 * 24 * 7);
 
 pub struct FetchConfig {
     /// output dir
@@ -129,6 +133,51 @@ fn parse_total_size(response: &reqwest::Response, start_from: u64) -> u64 {
         .unwrap_or_default()
 }
 
+fn is_partial_archive_file(file_name: &str) -> bool {
+    file_name.starts_with("node-v")
+        && (file_name.ends_with(".zip") || file_name.ends_with(".tar.gz"))
+}
+
+pub(super) async fn cleanup_stale_partial_archives(dest: &Path, active_file: &Path) -> Result<()> {
+    let mut entries = match tokio::fs::read_dir(dest).await {
+        Ok(entries) => entries,
+        Err(_) => return Ok(()),
+    };
+
+    while let Ok(Some(entry)) = entries.next_entry().await {
+        let path = entry.path();
+        if path == active_file {
+            continue;
+        }
+
+        match path.file_name().and_then(|n| n.to_str()) {
+            Some(name) if is_partial_archive_file(name) => name,
+            _ => continue,
+        };
+
+        let metadata = match entry.metadata().await {
+            Ok(metadata) if metadata.is_file() => metadata,
+            _ => continue,
+        };
+
+        let modified = match metadata.modified() {
+            Ok(modified) => modified,
+            Err(_) => continue,
+        };
+
+        let age = match SystemTime::now().duration_since(modified) {
+            Ok(age) => age,
+            Err(_) => continue,
+        };
+
+        if age > STALE_PARTIAL_MAX_AGE {
+            let _ = tokio::fs::remove_file(&path).await;
+        }
+    }
+
+    Ok(())
+}
+
 async fn fetch_shasums(
     client: &reqwest::Client,
     shasums_url: &str,
@@ -219,6 +268,7 @@ pub(super) async fn verify_archive_checksum(
     let actual = sha256_file(archive_path).await?;
 
     if expected != actual {
+        let _ = tokio::fs::remove_file(archive_path).await;
         anyhow::bail!("Checksum mismatch for {archive_name}: expected {expected}, got {actual}");
     }
 

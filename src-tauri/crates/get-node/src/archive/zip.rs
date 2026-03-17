@@ -12,7 +12,10 @@ use tokio::{
 };
 use tokio_util::compat::{TokioAsyncReadCompatExt, TokioAsyncWriteCompatExt};
 
-use super::{create_client, download_archive, node::*, verify_archive_checksum, FetchConfig};
+use super::{
+    cleanup_stale_partial_archives, create_client, download_archive, node::*,
+    verify_archive_checksum, FetchConfig,
+};
 
 fn resolve_entry_path(dest: &Path, entry_name: &str) -> Result<PathBuf> {
     let entry_path = Path::new(entry_name);
@@ -56,6 +59,8 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
 
     let dest = PathBuf::from(dest);
     let temp_file_path = dest.join(&full_name);
+
+    cleanup_stale_partial_archives(&dest, &temp_file_path).await?;
 
     download_archive(
         &client,
@@ -129,7 +134,6 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
     }
 
     if is_cancel {
-        let _ = remove_file(&temp_file_path).await;
         let _ = remove_dir_all(dest.join(&name)).await;
         bail!("Unzipping was cancelled");
     }

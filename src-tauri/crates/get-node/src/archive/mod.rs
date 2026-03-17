@@ -25,7 +25,6 @@ const DOWNLOAD_MAX_RETRIES: usize = 3;
 const DOWNLOAD_RETRY_DELAY_MS: u64 = 800;
 const NODE_SHASUMS_FILE: &str = "SHASUMS256.txt";
 const STALE_PARTIAL_MAX_AGE: Duration = Duration::from_secs(60 * 60 * 24 * 7);
-const DOWNLOAD_TEMP_SUBDIR: &str = "nvm-desktop-get-node";
 
 pub struct FetchConfig {
     /// output dir
@@ -134,10 +133,8 @@ fn parse_total_size(response: &reqwest::Response, start_from: u64) -> u64 {
         .unwrap_or_default()
 }
 
-pub(super) async fn get_temp_archive_path(archive_name: &str) -> Result<PathBuf> {
-    let temp_dir = tempfile::env::temp_dir().join(DOWNLOAD_TEMP_SUBDIR);
-    tokio::fs::create_dir_all(&temp_dir).await?;
-    Ok(temp_dir.join(archive_name))
+pub(super) fn get_temp_archive_path(dest: &Path, archive_name: &str) -> PathBuf {
+    dest.join(archive_name)
 }
 
 fn is_partial_archive_file(file_name: &str) -> bool {

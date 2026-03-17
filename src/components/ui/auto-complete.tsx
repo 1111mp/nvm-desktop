@@ -10,12 +10,14 @@ import {
   ComboboxList,
   ComboboxSeparator,
   type ComboboxInputProps,
+  type ComboboxContentProps,
 } from '@/components/ui';
 import { useState } from 'react';
 
 type AutoCompleteProps = ComboboxInputProps & {
   value?: string;
   items?: GroupItem[];
+  container?: ComboboxContentProps['container'];
   onChange?: (value: string) => void;
 };
 
@@ -26,6 +28,7 @@ type GroupItem = {
 
 function AutoComplete({
   value: valueProp,
+  container,
   items = [],
   onChange,
   ...props
@@ -51,7 +54,7 @@ function AutoComplete({
           onChange?.(newValue);
         }}
       />
-      <ComboboxContent>
+      <ComboboxContent container={container}>
         <ComboboxEmpty>No items found.</ComboboxEmpty>
         <ComboboxList>
           {(group: GroupItem, index) => (

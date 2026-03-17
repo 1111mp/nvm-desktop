@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Button,
   LabelCopyable,
@@ -121,6 +121,8 @@ const Setting: React.FC<Props> = () => {
     defaultValues: defaultSettings,
   });
 
+  const sheetContent = useRef<HTMLDivElement>(null);
+
   const { t } = useTranslation();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -237,7 +239,7 @@ const Setting: React.FC<Props> = () => {
           <SettingsIcon />
         </Button>
       </SheetTrigger>
-      <SheetContent className='gap-0'>
+      <SheetContent ref={sheetContent} className='gap-0'>
         <SheetHeader className='pt-6 px-6'>
           <SheetTitle>{t('Setting')}</SheetTitle>
           <SheetDescription>{t('Setting-Desc')}</SheetDescription>
@@ -426,6 +428,7 @@ const Setting: React.FC<Props> = () => {
                     </FieldLabel>
                     <AutoComplete
                       value={field.value}
+                      container={sheetContent}
                       items={versionFileItems}
                       id='form-setting-version_file'
                       placeholder='Node Version File'
@@ -586,6 +589,7 @@ const Setting: React.FC<Props> = () => {
                     </FieldLabel>
                     <AutoComplete
                       value={field.value}
+                      container={sheetContent}
                       items={mirrorItems}
                       id='form-setting-mirror'
                       placeholder='Mirror Url'

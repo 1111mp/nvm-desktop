@@ -86,6 +86,13 @@ function ComboboxInput({
   );
 }
 
+type ComboboxContentProps = ComboboxPrimitive.Popup.Props &
+  Pick<
+    ComboboxPrimitive.Positioner.Props,
+    'side' | 'align' | 'sideOffset' | 'alignOffset' | 'anchor'
+  > &
+  Pick<ComboboxPrimitive.Portal.Props, 'container'>;
+
 function ComboboxContent({
   className,
   side = 'bottom',
@@ -95,12 +102,7 @@ function ComboboxContent({
   anchor,
   container,
   ...props
-}: ComboboxPrimitive.Popup.Props &
-  Pick<
-    ComboboxPrimitive.Positioner.Props,
-    'side' | 'align' | 'sideOffset' | 'alignOffset' | 'anchor'
-  > &
-  Pick<ComboboxPrimitive.Portal.Props, 'container'>) {
+}: ComboboxContentProps) {
   return (
     <ComboboxPrimitive.Portal container={container}>
       <ComboboxPrimitive.Positioner
@@ -302,4 +304,5 @@ export {
   ComboboxValue,
   useComboboxAnchor,
   type ComboboxInputProps,
+  type ComboboxContentProps,
 };

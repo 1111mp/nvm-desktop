@@ -13,8 +13,8 @@ use tokio::{
 use tokio_util::compat::{TokioAsyncReadCompatExt, TokioAsyncWriteCompatExt};
 
 use super::{
-    cleanup_stale_partial_archives, create_client, download_archive, node::*,
-    verify_archive_checksum, FetchConfig,
+    cleanup_stale_partial_archives, create_client, download_archive, get_temp_archive_path,
+    node::*, verify_archive_checksum, FetchConfig,
 };
 
 fn resolve_entry_path(dest: &Path, entry_name: &str) -> Result<PathBuf> {
@@ -58,9 +58,11 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
     let client = create_client(proxy, no_proxy, connect_timeout, read_timeout)?;
 
     let dest = PathBuf::from(dest);
-    let temp_file_path = dest.join(&full_name);
+    let temp_file_path = get_temp_archive_path(&full_name).await?;
 
-    cleanup_stale_partial_archives(&dest, &temp_file_path).await?;
+    if let Some(temp_dir) = temp_file_path.parent() {
+        cleanup_stale_partial_archives(temp_dir, &temp_file_path).await?;
+    }
 
     download_archive(
         &client,

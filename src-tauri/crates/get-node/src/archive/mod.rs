@@ -5,8 +5,12 @@ use super::{node, Proxy};
 use anyhow::Result;
 use futures_util::StreamExt;
 use reqwest::{header, StatusCode};
+use sha2::{Digest, Sha256};
 use std::{path::Path, time::Duration};
-use tokio::{fs::OpenOptions, io::AsyncWriteExt};
+use tokio::{
+    fs::{File, OpenOptions},
+    io::{AsyncReadExt, AsyncWriteExt},
+};
 
 /// get progress
 /// source: &str (`download` & `unzip`)
@@ -16,6 +20,7 @@ pub type OnProgress = dyn Fn(&str, usize, usize) + Send + Sync;
 
 const DOWNLOAD_MAX_RETRIES: usize = 3;
 const DOWNLOAD_RETRY_DELAY_MS: u64 = 800;
+const NODE_SHASUMS_FILE: &str = "SHASUMS256.txt";
 
 pub struct FetchConfig {
     /// output dir
@@ -122,6 +127,102 @@ fn parse_total_size(response: &reqwest::Response, start_from: u64) -> u64 {
         .content_length()
         .map(|len| len.saturating_add(start_from))
         .unwrap_or_default()
+}
+
+async fn fetch_shasums(
+    client: &reqwest::Client,
+    shasums_url: &str,
+    mut cancel_signal: Option<&mut tokio::sync::watch::Receiver<bool>>,
+) -> Result<String> {
+    let mut attempt = 0;
+
+    loop {
+        let response = match send(client, shasums_url, 0, cancel_signal.as_deref_mut()).await {
+            Ok(response) => response,
+            Err(_err) if attempt < DOWNLOAD_MAX_RETRIES => {
+                attempt += 1;
+                tokio::time::sleep(Duration::from_millis(DOWNLOAD_RETRY_DELAY_MS)).await;
+                continue;
+            }
+            Err(err) => return Err(err),
+        };
+
+        if !response.status().is_success() {
+            if attempt < DOWNLOAD_MAX_RETRIES {
+                attempt += 1;
+                tokio::time::sleep(Duration::from_millis(DOWNLOAD_RETRY_DELAY_MS)).await;
+                continue;
+            }
+            anyhow::bail!(
+                "HTTP failure when fetching SHASUMS256.txt ({})",
+                response.status()
+            );
+        }
+
+        return response.text().await.map_err(Into::into);
+    }
+}
+
+fn parse_expected_sha256(shasums: &str, archive_name: &str) -> Result<String> {
+    for line in shasums.lines() {
+        let mut parts = line.split_whitespace();
+        let hash = match parts.next() {
+            Some(hash) => hash,
+            None => continue,
+        };
+        let file = match parts.next() {
+            Some(file) => file.trim_start_matches('*'),
+            None => continue,
+        };
+
+        if file == archive_name {
+            return Ok(hash.to_lowercase());
+        }
+    }
+
+    anyhow::bail!("Checksum for archive `{archive_name}` not found in SHASUMS256.txt")
+}
+
+async fn sha256_file(file_path: &Path) -> Result<String> {
+    let mut hasher = Sha256::new();
+    let mut file = File::open(file_path).await?;
+    let mut buffer = [0_u8; 8192];
+
+    loop {
+        let read = file.read(&mut buffer).await?;
+        if read == 0 {
+            break;
+        }
+        hasher.update(&buffer[..read]);
+    }
+
+    Ok(format!("{:x}", hasher.finalize()))
+}
+
+pub(super) async fn verify_archive_checksum(
+    client: &reqwest::Client,
+    mirror: &str,
+    version: &str,
+    archive_name: &str,
+    archive_path: &Path,
+    cancel_signal: Option<&mut tokio::sync::watch::Receiver<bool>>,
+) -> Result<()> {
+    let shasums_url = format!(
+        "{}/v{}/{}",
+        mirror.trim_end_matches('/'),
+        version,
+        NODE_SHASUMS_FILE
+    );
+
+    let shasums = fetch_shasums(client, &shasums_url, cancel_signal).await?;
+    let expected = parse_expected_sha256(&shasums, archive_name)?;
+    let actual = sha256_file(archive_path).await?;
+
+    if expected != actual {
+        anyhow::bail!("Checksum mismatch for {archive_name}: expected {expected}, got {actual}");
+    }
+
+    Ok(())
 }
 
 pub(super) async fn download_archive(
@@ -249,5 +350,34 @@ cfg_if::cfg_if! {
         }
     } else {
         compile_error!("Unsupported OS (expected 'unix' or 'windows').");
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_expected_sha256_finds_target_file() {
+        let content = "aaaa  node-v20.0.0-linux-x64.tar.gz
+bbbb  node-v20.0.0-win-x64.zip
+";
+        let hash = parse_expected_sha256(content, "node-v20.0.0-win-x64.zip").unwrap();
+        assert_eq!(hash, "bbbb");
+    }
+
+    #[test]
+    fn parse_expected_sha256_supports_star_prefix() {
+        let content = "cccc *node-v20.0.0-linux-x64.tar.gz
+";
+        let hash = parse_expected_sha256(content, "node-v20.0.0-linux-x64.tar.gz").unwrap();
+        assert_eq!(hash, "cccc");
+    }
+
+    #[test]
+    fn parse_expected_sha256_returns_error_when_missing() {
+        let content = "dddd  node-v20.0.0-linux-x64.tar.gz
+";
+        assert!(parse_expected_sha256(content, "missing.tar.gz").is_err());
     }
 }

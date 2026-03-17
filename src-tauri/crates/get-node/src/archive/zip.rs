@@ -12,7 +12,7 @@ use tokio::{
 };
 use tokio_util::compat::{TokioAsyncReadCompatExt, TokioAsyncWriteCompatExt};
 
-use super::{create_client, download_archive, node::*, FetchConfig};
+use super::{create_client, download_archive, node::*, verify_archive_checksum, FetchConfig};
 
 fn resolve_entry_path(dest: &Path, entry_name: &str) -> Result<PathBuf> {
     let entry_path = Path::new(entry_name);
@@ -63,6 +63,16 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
         &temp_file_path,
         cancel_signal.as_mut(),
         on_progress.as_ref(),
+    )
+    .await?;
+
+    verify_archive_checksum(
+        &client,
+        &mirror,
+        &version,
+        &full_name,
+        &temp_file_path,
+        cancel_signal.as_mut(),
     )
     .await?;
 

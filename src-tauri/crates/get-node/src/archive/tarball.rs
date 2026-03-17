@@ -9,7 +9,7 @@ use tokio::{
 };
 use tokio_tar::Archive;
 
-use super::{create_client, download_archive, node::*, FetchConfig};
+use super::{create_client, download_archive, node::*, verify_archive_checksum, FetchConfig};
 
 pub async fn fetch(config: FetchConfig) -> Result<String> {
     let FetchConfig {
@@ -43,6 +43,16 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
         &temp_file_path,
         cancel_signal.as_mut(),
         on_progress.as_ref(),
+    )
+    .await?;
+
+    verify_archive_checksum(
+        &client,
+        &mirror,
+        &version,
+        &full_name,
+        &temp_file_path,
+        cancel_signal.as_mut(),
     )
     .await?;
 

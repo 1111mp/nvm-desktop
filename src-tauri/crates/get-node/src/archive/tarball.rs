@@ -5,11 +5,14 @@ use node_semver::Version;
 use std::{path::PathBuf, time::Duration};
 use tokio::{
     fs::{remove_dir_all, remove_file, rename, File},
-    io::{AsyncWriteExt, BufReader},
+    io::BufReader,
 };
 use tokio_tar::Archive;
 
-use super::{create_client, node::*, send, FetchConfig};
+use super::{
+    cleanup_stale_partial_archives, create_client, download_archive, ensure_not_cancelled,
+    get_temp_archive_path, node::*, verify_archive_checksum, FetchConfig,
+};
 
 pub async fn fetch(config: FetchConfig) -> Result<String> {
     let FetchConfig {
@@ -34,45 +37,31 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
 
     let client = create_client(proxy, no_proxy, connect_timeout, read_timeout)?;
 
-    let response = send(&client, &url, cancel_signal.as_mut()).await?;
-
-    let status = response.status();
-    if !status.is_success() {
-        bail!(format!("HTTP failure ({status})"));
-    }
-
-    let total_size = response
-        .content_length()
-        .ok_or_else(|| anyhow::anyhow!("Failed to get content length"))?;
-    let mut downloaded_size = 0;
     let dest = PathBuf::from(dest);
-    let temp_file_path = dest.join(&full_name);
+    let temp_file_path = get_temp_archive_path(&dest, &full_name);
 
-    // start to download file
-    let mut temp_file = File::create(&temp_file_path).await?;
-    let mut stream = response.bytes_stream();
-    // write stream buffer to file
-    while let Some(chunk) = match cancel_signal.as_mut() {
-        Some(cancel_receiver) => {
-            tokio::select! {
-                chunk = stream.next() => {
-                    chunk
-                },
-                _ = cancel_receiver.changed() => {
-                    let _ = remove_file(temp_file_path).await;
-                    bail!("Download was cancelled");
-                }
-            }
-        }
-        None => stream.next().await,
-    } {
-        let chunk = chunk?;
-        downloaded_size += chunk.len();
-        temp_file.write_all(&chunk).await?;
-        on_progress("download", downloaded_size as usize, total_size as usize);
-    }
-    temp_file.sync_all().await?;
-    drop(temp_file);
+    cleanup_stale_partial_archives(&dest, &temp_file_path).await?;
+
+    download_archive(
+        &client,
+        &url,
+        &temp_file_path,
+        cancel_signal.as_mut(),
+        on_progress.as_ref(),
+    )
+    .await?;
+
+    verify_archive_checksum(
+        &client,
+        &mirror,
+        &version,
+        &full_name,
+        &temp_file_path,
+        cancel_signal.as_mut(),
+    )
+    .await?;
+
+    ensure_not_cancelled(cancel_signal.as_ref())?;
 
     // Create a buffered reader for the compressed data
     let file = File::open(&temp_file_path).await?;
@@ -87,14 +76,17 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
 
     while let Some(entry) = match cancel_signal.as_mut() {
         Some(cancel_receiver) => {
+            if *cancel_receiver.borrow() {
+                let _ = remove_dir_all(dest.join(&name)).await;
+                bail!("Unzipping was cancelled");
+            }
+
             tokio::select! {
                 entry = entries.next() => {
                     entry
                 },
                 _ = cancel_receiver.changed() => {
-                    let (r_download, r_unzip) = tokio::join!(remove_file(temp_file_path), remove_dir_all(dest.join(&name)));
-                    r_download?;
-                    r_unzip?;
+                    let _ = remove_dir_all(dest.join(&name)).await;
                     bail!("Unzipping was cancelled");
                 }
             }

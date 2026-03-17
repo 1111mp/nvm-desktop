@@ -22,4 +22,5 @@ serde_json = "1"
 sha2 = "0.10"
 tokio = { version = "1", features = ["full"] }
 tokio-tar = "0.3"
+tempfile = "3"
 tokio-util = { version = "0.7", features = ["compat"] }

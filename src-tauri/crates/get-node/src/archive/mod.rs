@@ -135,7 +135,7 @@ fn parse_total_size(response: &reqwest::Response, start_from: u64) -> u64 {
 }
 
 pub(super) async fn get_temp_archive_path(archive_name: &str) -> Result<PathBuf> {
-    let temp_dir = std::env::temp_dir().join(DOWNLOAD_TEMP_SUBDIR);
+    let temp_dir = tempfile::env::temp_dir().join(DOWNLOAD_TEMP_SUBDIR);
     tokio::fs::create_dir_all(&temp_dir).await?;
     Ok(temp_dir.join(archive_name))
 }

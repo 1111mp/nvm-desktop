@@ -1,16 +1,38 @@
-use std::time::Duration;
+use std::{
+    path::{Component, Path, PathBuf},
+    time::Duration,
+};
 
-use anyhow::{bail, Result};
+use anyhow::{anyhow, bail, Result};
 use async_zip::base::read::seek::ZipFileReader;
-use futures_util::StreamExt;
 use node_semver::Version;
 use tokio::{
     fs::{create_dir_all, remove_dir_all, remove_file, rename, File, OpenOptions},
-    io::{AsyncWriteExt, BufReader},
+    io::BufReader,
 };
 use tokio_util::compat::{TokioAsyncReadCompatExt, TokioAsyncWriteCompatExt};
 
-use super::{create_client, node::*, send, FetchConfig, PathBuf};
+use super::{
+    cleanup_stale_partial_archives, create_client, download_archive, ensure_not_cancelled,
+    get_temp_archive_path, node::*, verify_archive_checksum, FetchConfig,
+};
+
+fn resolve_entry_path(dest: &Path, entry_name: &str) -> Result<PathBuf> {
+    let entry_path = Path::new(entry_name);
+
+    if entry_path.is_absolute()
+        || entry_path.components().any(|component| {
+            matches!(
+                component,
+                Component::ParentDir | Component::RootDir | Component::Prefix(_)
+            )
+        })
+    {
+        bail!("Illegal archive entry path: {entry_name}");
+    }
+
+    Ok(dest.join(entry_path))
+}
 
 pub async fn fetch(config: FetchConfig) -> Result<String> {
     let FetchConfig {
@@ -35,44 +57,31 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
 
     let client = create_client(proxy, no_proxy, connect_timeout, read_timeout)?;
 
-    let response = send(&client, &url, cancel_signal.as_mut()).await?;
-
-    let status = response.status();
-    if !status.is_success() {
-        bail!(format!("HTTP failure ({status})"));
-    }
-
-    let total_size = response
-        .content_length()
-        .ok_or_else(|| anyhow::anyhow!("Failed to get content length"))?;
-    let mut downloaded_size = 0;
     let dest = PathBuf::from(dest);
-    let temp_file_path = dest.join(&full_name);
-    let mut temp_file = File::create(&temp_file_path).await?;
-    let mut stream = response.bytes_stream();
+    let temp_file_path = get_temp_archive_path(&dest, &full_name);
 
-    while let Some(chunk) = match cancel_signal.as_mut() {
-        Some(cancel_receiver) => {
-            tokio::select! {
-                chunk = stream.next() => {
-                    chunk
-                },
-                _ = cancel_receiver.changed() => {
-                    let _ = remove_file(temp_file_path).await;
-                    bail!("Download was cancelled");
-                }
-            }
-        }
-        None => stream.next().await,
-    } {
-        let chunk = chunk?;
-        downloaded_size += chunk.len();
-        temp_file.write_all(&chunk).await?;
-        (on_progress)("download", downloaded_size as usize, total_size as usize);
-    }
+    cleanup_stale_partial_archives(&dest, &temp_file_path).await?;
 
-    temp_file.sync_all().await?;
-    drop(temp_file);
+    download_archive(
+        &client,
+        &url,
+        &temp_file_path,
+        cancel_signal.as_mut(),
+        on_progress.as_ref(),
+    )
+    .await?;
+
+    verify_archive_checksum(
+        &client,
+        &mirror,
+        &version,
+        &full_name,
+        &temp_file_path,
+        cancel_signal.as_mut(),
+    )
+    .await?;
+
+    ensure_not_cancelled(cancel_signal.as_ref())?;
 
     // Create a buffered reader for the compressed data
     let file = File::open(&temp_file_path).await?;
@@ -91,8 +100,12 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
             }
         }
 
-        let entry = reader.file().entries().get(index).unwrap();
-        let path = dest.join(entry.filename().as_str()?);
+        let entry = reader
+            .file()
+            .entries()
+            .get(index)
+            .ok_or_else(|| anyhow!("Missing zip entry at index {index}"))?;
+        let path = resolve_entry_path(&dest, entry.filename().as_str()?)?;
         // If the filename of the entry ends with '/', it is treated as a directory.
         // This is implemented by previous versions of this crate and the Python Standard Library.
         let entry_is_dir = entry.dir()?;
@@ -106,9 +119,10 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
         } else {
             // Creates parent directories. They may not exist if iteration is out of order
             // or the archive does not contain directory entries.
-            let parent = path.parent().unwrap();
-            if !parent.is_dir() {
-                create_dir_all(parent).await?;
+            if let Some(parent) = path.parent() {
+                if !parent.is_dir() {
+                    create_dir_all(parent).await?;
+                }
             }
             let writer = OpenOptions::new()
                 .write(true)
@@ -122,12 +136,7 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
     }
 
     if is_cancel {
-        let (r_download, r_unzip) = tokio::join!(
-            remove_file(temp_file_path),
-            remove_dir_all(dest.join(&name))
-        );
-        r_download?;
-        r_unzip?;
+        let _ = remove_dir_all(dest.join(&name)).await;
         bail!("Unzipping was cancelled");
     }
 

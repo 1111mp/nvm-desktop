@@ -334,8 +334,14 @@ pub(super) async fn download_archive(
 
         let status = response.status();
         if status == StatusCode::RANGE_NOT_SATISFIABLE {
+            // Local partial file may be stale/corrupted. Reset and re-request from byte 0.
             let _ = tokio::fs::remove_file(temp_file_path).await;
-            downloaded_size = 0;
+            if attempt < DOWNLOAD_MAX_RETRIES {
+                attempt += 1;
+                tokio::time::sleep(Duration::from_millis(DOWNLOAD_RETRY_DELAY_MS)).await;
+                continue;
+            }
+            anyhow::bail!("HTTP failure ({status})");
         } else if status == StatusCode::OK {
             if downloaded_size > 0 {
                 downloaded_size = 0;

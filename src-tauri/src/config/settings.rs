@@ -83,6 +83,10 @@ impl ISettings {
         }
     }
 
+    pub fn data(&self) -> ISettingsResponse {
+        self.clone().into()
+    }
+
     pub fn save_file(&self) -> Result<()> {
         help::save_json(&dirs::settings_path()?, self, None)
     }

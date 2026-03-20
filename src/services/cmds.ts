@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import { SystemTheme } from '@/types';
 
 /**
  * @description: Get app settings data
@@ -194,6 +195,14 @@ export function openWithVSCode(path: string) {
  */
 export function openDir(dir: string) {
   return invoke<void>('open_dir', { dir });
+}
+
+/**
+ * @description: Get native theme of system
+ * @returns {Promise<SystemTheme>}
+ */
+export function getSystemTheme() {
+  return invoke<SystemTheme>('get_system_theme');
 }
 
 /**

@@ -1,4 +1,5 @@
 use anyhow::Result;
+use dark_light::{detect as detect_system_theme, Mode as SystemTheme};
 use std::{path::PathBuf, process::Command};
 use tauri_plugin_window_state::{AppHandleExt, StateFlags};
 
@@ -201,6 +202,16 @@ pub fn open_logs_dir() -> CmdResult<()> {
 #[tauri::command]
 pub fn open_dir(dir: String) -> CmdResult<()> {
     wrap_err!(open::that(dir))
+}
+
+#[tauri::command]
+pub fn get_system_theme() -> CmdResult<String> {
+    let theme = match detect_system_theme() {
+        Ok(SystemTheme::Dark) => "dark",
+        Ok(SystemTheme::Light) => "light",
+        Ok(SystemTheme::Unspecified) | Err(_) => "light",
+    };
+    Ok(theme.to_string())
 }
 
 /// restart app

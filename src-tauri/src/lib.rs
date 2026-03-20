@@ -108,6 +108,7 @@ pub fn run() {
             cmds::configration_import,
             // app
             cmds::restart,
+            cmds::get_system_theme,
         ]);
 
     #[cfg(debug_assertions)]

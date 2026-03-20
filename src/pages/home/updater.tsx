@@ -135,6 +135,7 @@ export const Updater: React.FC = () => {
           <Button
             size='sm'
             variant='ghost'
+            disabled={loading}
             title={t('Check-Update')}
             className='module-home-btn'
             onClick={onCheckUpdates}

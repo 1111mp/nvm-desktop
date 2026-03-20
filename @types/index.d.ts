@@ -1,4 +1,4 @@
-import { Closer, Themes } from 'types';
+import { Closer, Themes, SystemTheme } from '@/types';
 
 type Platform =
   | 'aix'
@@ -32,6 +32,11 @@ declare global {
    */
   declare const OS_ARCH: Architecture;
   declare const OS_PLATFORM: Platform;
+
+  interface Window {
+    __NVMD_INITIAL_SETTINGS__: Nvmd.Setting;
+    __NVMD_INITIAL_THEME__: SystemTheme;
+  }
 
   namespace Nvmd {
     interface Version {

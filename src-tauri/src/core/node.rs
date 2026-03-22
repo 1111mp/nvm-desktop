@@ -2,7 +2,8 @@ use crate::{
     config::{Config, INode, NVersion, SharedDraft},
     core::handle,
     logging,
-    utils::{dirs, help, logging::Type},
+    process::AsyncHandler,
+    utils::{help, logging::Type},
 };
 use anyhow::{anyhow, bail, Context, Result};
 use get_node::{
@@ -12,12 +13,14 @@ use get_node::{
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::{
+    cmp::Ordering,
     path::PathBuf,
     sync::{Arc, Mutex},
     time::Duration,
 };
 use tauri::Emitter;
 use tokio::{sync::watch, time::Instant};
+use version_compare::{compare, Cmp};
 
 static CANCEL_SENDER: Lazy<Arc<Mutex<Option<watch::Sender<bool>>>>> =
     Lazy::new(|| Arc::new(Mutex::new(None)));
@@ -39,10 +42,22 @@ pub async fn fetch_installed() -> Result<Option<Vec<String>>> {
     Ok(fetch_nodes().await?.get_installed())
 }
 
-pub async fn fetch_installed_with_sync() -> Result<Option<Vec<String>>> {
+pub async fn fetch_installed_with_sync(
+    need_refresh_tray: Option<bool>,
+) -> Result<Option<Vec<String>>> {
     let draft = Config::settings().await.data_arc();
     let dir = draft.get_directory();
-    Ok(sync_installed(dir).await?)
+
+    let versions = sync_installed(dir).await?;
+
+    let need_refresh_tray = need_refresh_tray.unwrap_or(false);
+    if need_refresh_tray {
+        AsyncHandler::spawn(|| async {
+            let _ = handle::Handle::update_systray_part().await;
+        });
+    }
+
+    Ok(versions)
 }
 
 pub async fn get_current() -> Result<Option<String>> {
@@ -177,6 +192,13 @@ pub async fn read_installed(path: &str) -> Result<Vec<String>> {
             versions.push(version);
         }
     }
+
+    versions.sort_by(|a, b| match compare(b, a) {
+        Ok(Cmp::Lt) => Ordering::Less,
+        Ok(Cmp::Eq) => Ordering::Equal,
+        Ok(Cmp::Gt) => Ordering::Greater,
+        _ => unreachable!(),
+    });
 
     Ok(versions)
 }

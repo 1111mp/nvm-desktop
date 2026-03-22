@@ -31,10 +31,13 @@ pub async fn version_list(fetch: Option<bool>) -> CmdResult<Option<Vec<NVersion>
 
 /// read node installed version list
 #[tauri::command]
-pub async fn installed_list(fetch: Option<bool>) -> CmdResult<Option<Vec<String>>> {
+pub async fn installed_list(
+    fetch: Option<bool>,
+    tray: Option<bool>,
+) -> CmdResult<Option<Vec<String>>> {
     let fetch = fetch.unwrap_or(false);
     if fetch {
-        node::fetch_installed_with_sync().await.stringify_err()
+        node::fetch_installed_with_sync(tray).await.stringify_err()
     } else {
         node::fetch_installed().await.stringify_err()
     }

@@ -51,7 +51,19 @@ export function versionList(fetch: boolean = false) {
  * @return {Promise<Array<string>>} An array containing the node version number
  */
 export function installedList(fetch: boolean = false) {
-  return invoke<Array<string>>('installed_list', { fetch });
+  return invoke<Array<string>>('installed_list', { fetch, tray: false });
+}
+
+/**
+ * @description: Get a list of installed nodes & refresh tray
+ * @param {boolean} need_refresh_tray Whether to refresh tray
+ * @return {Promise<Array<string>>} An array containing the node version number
+ */
+export function installedListWithTray(need_refresh_tray: boolean = false) {
+  return invoke<Array<string>>('installed_list', {
+    fetch: true,
+    tray: need_refresh_tray,
+  });
 }
 
 /**

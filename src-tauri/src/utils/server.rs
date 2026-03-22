@@ -53,7 +53,7 @@ pub fn start_embed_server() {
                         }
                     }
                     Source::Version => {
-                        let _ = node::fetch_installed_with_sync().await;
+                        let _ = node::fetch_installed_with_sync(None).await;
                     }
                     Source::Project => {
                         if let (Some(name), Some(version)) = (name.as_ref(), version.as_ref()) {

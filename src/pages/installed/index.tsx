@@ -34,6 +34,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppContext } from '@/app-context';
 import {
   installedList,
+  installedListWithTray,
   uninstallNode,
   vCurrent,
   versionList,
@@ -102,7 +103,7 @@ export const Component: React.FC = () => {
 
   useEffect(() => {
     const fetcher = async () => {
-      const iVersions = await installedList(false);
+      const iVersions = await installedList();
       setVersions(
         allVersions.filter(({ version }) =>
           iVersions.includes(version.slice(1)),
@@ -307,7 +308,7 @@ export const Component: React.FC = () => {
                       await uninstallNode(version.slice(1));
                       const [currentVersion, installeds] = await Promise.all([
                         vCurrent(),
-                        installedList(true),
+                        installedListWithTray(true),
                       ]);
                       setCurrent(currentVersion);
                       setInstalledVersions(installeds);

@@ -46,6 +46,7 @@ import {
   versionList,
   uninstallNode,
   vSetCurrent,
+  installedListWithTray,
 } from '@/services/cmds';
 import { checkSupportive } from '@/lib/utils';
 import { getCurrent } from '@/services/api';
@@ -105,7 +106,7 @@ export const Versions: React.FC = () => {
 
   useEffect(() => {
     const fetcher = async () => {
-      const iVersions = await installedList(false);
+      const iVersions = await installedList();
       setInstalledVersions(iVersions);
     };
     fetcher();
@@ -326,7 +327,7 @@ export const Versions: React.FC = () => {
                         await uninstallNode(version.slice(1));
                         const [currentVersion, versions] = await Promise.all([
                           vCurrent(),
-                          installedList(true),
+                          installedListWithTray(true),
                         ]);
                         setCurrent(currentVersion);
                         setInstalledVersions(versions);
@@ -437,7 +438,7 @@ export const Versions: React.FC = () => {
   const onInstalledRefresh = async () => {
     const [current, versions] = await Promise.all([
       vCurrent(true),
-      installedList(true),
+      installedListWithTray(true),
     ]);
 
     setCurrent(current);

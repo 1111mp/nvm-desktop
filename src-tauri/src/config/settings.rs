@@ -1,4 +1,7 @@
-use crate::utils::{dirs, help};
+use crate::{
+    logging,
+    utils::{dirs, help, logging::Type},
+};
 
 use anyhow::Result;
 use get_node::Proxy;
@@ -56,11 +59,17 @@ fn default_coder() -> Option<String> {
 }
 
 impl ISettings {
-    pub fn new() -> Self {
-        match dirs::settings_path().and_then(|path| help::read_json::<Self>(&path)) {
-            Ok(settings) => settings,
+    pub async fn new() -> Self {
+        match dirs::settings_path() {
+            Ok(path) => match help::read_json(&path).await {
+                Ok(settings) => settings,
+                Err(err) => {
+                    logging!(error, Type::Config, "{err}");
+                    Self::template()
+                }
+            },
             Err(err) => {
-                log::error!(target: "app", "{err}");
+                logging!(error, Type::Config, "{err}");
                 Self::template()
             }
         }
@@ -83,12 +92,12 @@ impl ISettings {
         }
     }
 
-    pub fn data(&self) -> ISettingsResponse {
+    pub fn into_response(&self) -> ISettingsResponse {
         self.clone().into()
     }
 
-    pub fn save_file(&self) -> Result<()> {
-        help::save_json(&dirs::settings_path()?, self, None)
+    pub async fn save_file(&self) -> Result<()> {
+        help::save_json(&dirs::settings_path()?, self, None).await
     }
 
     /// get the value of `closer`
@@ -107,12 +116,11 @@ impl ISettings {
     }
 
     /// update settings config
-    /// save to file
-    pub fn patch_settings(&mut self, patch: ISettings) -> Result<()> {
+    pub fn patch_settings(&mut self, patch: &Self) {
         macro_rules! patch {
             ($key: tt) => {
                 if patch.$key.is_some() {
-                    self.$key = patch.$key;
+                    self.$key = patch.$key.clone();
                 }
             };
         }
@@ -127,8 +135,6 @@ impl ISettings {
         patch!(proxy);
         patch!(no_proxy);
         patch!(theme);
-
-        self.save_file()
     }
 }
 

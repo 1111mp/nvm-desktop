@@ -4,6 +4,8 @@ use tauri::{async_runtime, async_runtime::JoinHandle};
 pub struct AsyncHandler;
 
 impl AsyncHandler {
+    #[inline]
+    #[track_caller]
     pub fn spawn<F, Fut>(f: F) -> JoinHandle<()>
     where
         F: FnOnce() -> Fut + Send + 'static,
@@ -12,20 +14,23 @@ impl AsyncHandler {
         async_runtime::spawn(f())
     }
 
-    pub fn spawn_blocking<F, R>(f: F) -> JoinHandle<R>
+    #[inline]
+    #[track_caller]
+    pub fn spawn_blocking<T, F>(f: F) -> JoinHandle<T>
     where
-        F: FnOnce() -> R + Send + 'static,
-        R: Send + 'static,
+        F: FnOnce() -> T + Send + 'static,
+        T: Send + 'static,
     {
         async_runtime::spawn_blocking(f)
     }
 
-    pub fn block_on<F, Fut, R>(f: F) -> R
+    #[inline]
+    #[track_caller]
+    pub fn block_on<Fut>(fut: Fut) -> Fut::Output
     where
-        F: FnOnce() -> Fut,
-        Fut: Future<Output = R>,
+        Fut: Future + Send + 'static,
     {
-        async_runtime::block_on(f())
+        async_runtime::block_on(fut)
     }
 
     /// Allows blocking on async code without creating a nested runtime.

@@ -91,11 +91,11 @@ export function projectList(fetch: boolean = false) {
 }
 
 /**
- * @description: Select projects
- * @return {Promise<Array<Nvmd.PInfo>>}
+ * @description: Add projects
+ * @return {Promise<void>}
  */
-export function selectProjects() {
-  return invoke<Array<Nvmd.PInfo>>('select_projects');
+export function addProjects(projects: Nvmd.Project[]) {
+  return invoke<void>('add_projects', { projects });
 }
 
 /**
@@ -104,7 +104,19 @@ export function selectProjects() {
  * @return {Promise<void>}
  */
 export function updateProjects(list: Nvmd.Project[], path?: string) {
-  return invoke<void>('update_projects', { list, path });
+  return invoke<void>('update_projects', { payload: { list }, path });
+}
+
+/**
+ * @description: Update projects data don't need refresh tray
+ * @param {Array<Nvmd.Project>} list projects list
+ * @return {Promise<void>}
+ */
+export function updateProjectsWithoutTray(list: Nvmd.Project[], path?: string) {
+  return invoke<void>('update_projects_without_tray', {
+    payload: { list },
+    path,
+  });
 }
 
 /**

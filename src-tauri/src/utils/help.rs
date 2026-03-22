@@ -1,55 +1,28 @@
+use super::dirs;
+use crate::{logging, utils::logging::Type};
 use anyhow::{bail, Context, Result};
 use serde::{de::DeserializeOwned, Serialize};
-use std::{fs, path::PathBuf};
+use std::path::PathBuf;
 
-pub fn read_string(path: &PathBuf) -> Result<String> {
-    fs::read_to_string(path)
-        .with_context(|| format!("failed to read the file \"{}\"", path.display()))
-}
-
-pub async fn async_read_string(path: &PathBuf) -> Result<String> {
+pub async fn read_string(path: &PathBuf) -> Result<String> {
     tokio::fs::read_to_string(path)
         .await
         .with_context(|| format!("failed to read the file \"{}\"", path.display()))
 }
 
-pub fn save_string(path: &PathBuf, content: &str) -> Result<()> {
-    fs::write(path, content)
-        .with_context(|| format!("failed to write the file \"{}\"", path.display()))
-}
-
-pub async fn async_save_string(path: &PathBuf, content: &str) -> Result<()> {
+pub async fn save_string(path: &PathBuf, content: &str) -> Result<()> {
     tokio::fs::write(path, content)
         .await
         .with_context(|| format!("failed to write the file \"{}\"", path.display()))
 }
 
 /// read data from json as struct T
-pub fn read_json<T: DeserializeOwned>(path: &PathBuf) -> Result<T> {
-    if !path.exists() {
+pub async fn read_json<T: DeserializeOwned>(path: &PathBuf) -> Result<T> {
+    if !tokio::fs::try_exists(path).await.unwrap_or(false) {
         bail!("file not found \"{}\"", path.display());
     }
 
-    let json_str = fs::read_to_string(path)
-        .with_context(|| format!("failed to read the file \"{}\"", path.display()))?;
-
-    serde_json::from_str::<T>(&json_str).with_context(|| {
-        format!(
-            "failed to read the file with json format \"{}\"",
-            path.display()
-        )
-    })
-}
-
-/// async read data from json as struct T
-pub async fn async_read_json<T: DeserializeOwned>(path: &PathBuf) -> Result<T> {
-    if !path.exists() {
-        bail!("file not found \"{}\"", path.display());
-    }
-
-    let json_str = tokio::fs::read_to_string(path)
-        .await
-        .with_context(|| format!("failed to read the file \"{}\"", path.display()))?;
+    let json_str = tokio::fs::read_to_string(path).await?;
 
     serde_json::from_str::<T>(&json_str).with_context(|| {
         format!(
@@ -61,22 +34,7 @@ pub async fn async_read_json<T: DeserializeOwned>(path: &PathBuf) -> Result<T> {
 
 /// save the data to the file
 /// can set `prefix` string to add some comments
-pub fn save_json<T: Serialize>(path: &PathBuf, data: &T, prefix: Option<&str>) -> Result<()> {
-    let data_str = serde_json::to_string(data)?;
-
-    let json_str = match prefix {
-        Some(prefix) => format!("{prefix}\n\n{data_str}"),
-        None => data_str,
-    };
-
-    let path_str = path.as_os_str().to_string_lossy().to_string();
-    fs::write(path, json_str.as_bytes())
-        .with_context(|| format!("failed to save file \"{path_str}\""))
-}
-
-/// save the data to the file
-/// can set `prefix` string to add some comments
-pub async fn async_save_json<T: Serialize>(
+pub async fn save_json<T: Serialize + Sync>(
     path: &PathBuf,
     data: &T,
     prefix: Option<&str>,
@@ -94,26 +52,18 @@ pub async fn async_save_json<T: Serialize>(
         .with_context(|| format!("failed to save file \"{path_str}\""))
 }
 
-/// read node installed version list
-pub fn read_installed(path: &String) -> Result<Vec<String>> {
-    let directory = PathBuf::from(path);
-    if !directory.exists() {
-        return Ok(vec![]);
+pub async fn read_current() -> Result<Option<String>> {
+    let path = dirs::default_version_path()?;
+    let result = read_string(&path).await;
+    if let Err(err) = &result {
+        logging!(error, Type::Config, "read_current failed: {err}");
     }
 
-    let mut versions = vec![];
-    for entry in fs::read_dir(&directory)? {
-        let entry = entry?;
-        let version = entry.file_name().to_string_lossy().to_string();
-        let node_path = directory.clone();
-        #[cfg(target_os = "windows")]
-        let node_path = node_path.join(&version).join("node.exe");
-        #[cfg(any(target_os = "macos", target_os = "linux"))]
-        let node_path = node_path.join(&version).join("bin/node");
-        if node_path.exists() {
-            versions.push(version);
-        }
-    }
+    Ok(result.ok())
+}
 
-    Ok(versions)
+pub async fn write_current(current: &Option<String>) -> Result<()> {
+    let path = dirs::default_version_path()?;
+    let content = current.as_deref().unwrap_or("");
+    save_string(&path, content).await
 }

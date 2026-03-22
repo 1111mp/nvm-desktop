@@ -165,7 +165,7 @@ impl<R: Runtime> AppHandleExt for tauri::AppHandle<R> {
             std::fs::remove_file(state_path)?;
         }
 
-				self.app_handle().restart()
+        self.app_handle().restart()
     }
 }
 

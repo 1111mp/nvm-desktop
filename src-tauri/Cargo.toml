@@ -22,6 +22,8 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 anyhow = "1.0"
+bitflags = { version = "2.11" }
+chrono = "0.4"
 # Use the git repo until the next release after v2.0.0.
 dark-light = { git = "https://github.com/rust-dark-light/dark-light" }
 dotenvy = "0.15"

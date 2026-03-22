@@ -1,4 +1,7 @@
-use crate::utils::{dirs, help};
+use crate::{
+    logging,
+    utils::{dirs, help, logging::Type},
+};
 use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 
@@ -31,21 +34,42 @@ pub struct IProjects {
 }
 
 impl IProjects {
-    pub fn new() -> Self {
-        match dirs::projects_path().and_then(|path| help::read_json::<Vec<Project>>(&path)) {
+    pub async fn new() -> Self {
+        let path = match dirs::projects_path() {
+            Ok(p) => p,
+            Err(err) => {
+                logging!(error, Type::Config, "{err}");
+                return Self::default();
+            }
+        };
+
+        match help::read_json::<Vec<Project>>(&path).await {
             Ok(projects) => Self {
                 list: Some(projects),
             },
             Err(err) => {
-                log::error!(target: "app", "{err}");
-                Self::template()
+                logging!(error, Type::Config, "{err}");
+                Self::default()
             }
         }
     }
 
-    /// return the default data
-    pub fn template() -> Self {
-        Self { list: Some(vec![]) }
+    pub fn patch(&mut self, patch: &Self) {
+        macro_rules! patch {
+            ($key: tt) => {
+                if patch.$key.is_some() {
+                    self.$key = patch.$key.clone();
+                }
+            };
+        }
+
+        patch!(list);
+    }
+
+    pub fn extend(&mut self, mut projects: Vec<Project>) {
+        let list = self.list.get_or_insert_with(Vec::new);
+        projects.append(list);
+        *list = projects;
     }
 
     /// get list
@@ -54,30 +78,24 @@ impl IProjects {
     }
 
     /// save project list to local file
-    pub fn save_file(&self) -> Result<()> {
-        help::save_json(&dirs::projects_path()?, &self.list, None)
+    pub async fn save_file(&self) -> Result<()> {
+        help::save_json(&dirs::projects_path()?, &self.list, None).await
     }
 
     /// update project list
-    pub fn update_list(&mut self, list: &Vec<Project>) -> Result<()> {
-        self.list = Some(list.clone());
-        Ok(())
+    pub fn update_list(&mut self, list: Vec<Project>) {
+        self.list = Some(list);
     }
 
     /// update project version for system tray menu
     pub fn update_version(&mut self, name: &str, version: &str) -> Result<String> {
-        let mut list = self.list.take().unwrap_or_default();
-
-        for each in list.iter_mut() {
-            if each.name == name {
-                each.version = Some(version.to_string());
-                let path = each.path.clone();
-                self.list = Some(list);
-                return Ok(path);
+        let list = self.list.get_or_insert_with(Vec::new);
+        for item in list.iter_mut() {
+            if item.name == name {
+                item.version = Some(version.to_string());
+                return Ok(item.path.clone());
             }
         }
-
-        self.list = Some(list);
         bail!("failed to find the project item \"name:{name}\"");
     }
 }

@@ -1,7 +1,10 @@
 use super::handle;
-use crate::core::{node, project};
+use crate::core::{app, node, project};
+use crate::logging;
+use crate::process::AsyncHandler;
+use crate::utils::logging::Type;
 use crate::utils::resolve;
-use crate::{cmds, config::Config, log_err};
+use crate::{config::Config, log_err};
 use anyhow::{bail, Ok, Result};
 use tauri::menu::{AboutMetadataBuilder, CheckMenuItem};
 use tauri::tray::{MouseButton, TrayIconEvent};
@@ -38,21 +41,19 @@ fn gen_check_menu_items(
 }
 
 impl Tray {
-    pub fn create_tray_menu(app_handle: &AppHandle) -> Result<Menu<Wry>> {
+    pub async fn create_tray_menu(app_handle: &AppHandle) -> Result<Menu<Wry>> {
         let package_info = app_handle.package_info();
         let version = package_info.version.to_string();
         let app_name: String = package_info.name.to_string();
-        let zh = { Config::settings().latest_ref().locale == Some("zh-CN".into()) };
+        let zh = { Config::settings().await.latest_arc().locale == Some("zh-CN".into()) };
         // projects (keep max length 5)
-        let mut projects = { Config::projects().latest_ref().get_list() }.unwrap_or(vec![]);
+        let mut projects = { Config::projects().await.latest_arc().get_list() }.unwrap_or(vec![]);
         projects.truncate(5);
         // groups
-        let groups = Config::groups();
-        let groups = groups.latest_ref();
-        let groups = groups.list.as_deref().unwrap_or(&[]);
+        let groups = Config::groups().await.latest_arc();
+        let groups = groups.get_list().unwrap_or(vec![]);
         // installed versions
-        let node = Config::node();
-        let node = node.latest_ref();
+        let node = Config::node().await.latest_arc();
         let installed = node.installed.as_deref().unwrap_or(&[]);
         let global_current = node.current.as_deref().unwrap_or_default();
 
@@ -162,8 +163,17 @@ impl Tray {
             .build()?)
     }
 
-    pub fn create_systray() -> Result<()> {
-        let app_handle = handle::Handle::global().app_handle().unwrap();
+    pub fn init_systray() {
+        if handle::Handle::global().is_exiting() {
+            logging!(
+                debug,
+                Type::Setup,
+                "The application is exiting, skipping tray initialization."
+            );
+            return;
+        }
+
+        let app_handle = handle::Handle::app_handle();
         if let Some(tray) = app_handle.tray_by_id("main") {
             tray.on_tray_icon_event(|_, event| {
                 #[cfg(not(target_os = "macos"))]
@@ -172,47 +182,65 @@ impl Tray {
                     ..
                 } = event
                 {
-                    let _ = resolve::create_window();
+                    AsyncHandler::spawn(|| async {
+                        let _ = resolve::create_window().await;
+                    });
                 }
             });
             tray.on_menu_event(Tray::on_menu_event);
         }
-
-        Ok(())
     }
 
-    pub fn update_part() -> Result<()> {
-        let app_handle = handle::Handle::global().app_handle().unwrap();
-        if let Some(tray) = app_handle.tray_by_id("main") {
-            let _ = tray.set_menu(Some(Tray::create_tray_menu(&app_handle)?));
-            Ok(())
-        } else {
-            bail!("The system tray menu has not been initialized")
+    pub async fn update_part() -> Result<()> {
+        if handle::Handle::global().is_exiting() {
+            logging!(
+                debug,
+                Type::Setup,
+                "The application is exiting, skipping tray initialization."
+            );
+            return Ok(());
         }
+
+        let app_handle = handle::Handle::app_handle();
+        if let Some(tray) = app_handle.tray_by_id("main") {
+            let _ = tray.set_menu(Some(Tray::create_tray_menu(&app_handle).await?));
+            return Ok(());
+        }
+        bail!("The system tray menu has not been initialized")
     }
 
-    pub fn update_part_with_emit(event: &str, version: &str) -> Result<()> {
-        let app_handle = handle::Handle::global().app_handle().unwrap();
+    pub async fn update_part_with_emit(event: &str, version: &str) -> Result<()> {
+        if handle::Handle::global().is_exiting() {
+            logging!(
+                debug,
+                Type::Setup,
+                "The application is exiting, skipping tray initialization."
+            );
+            return Ok(());
+        }
+
+        let app_handle = handle::Handle::app_handle();
         if let Some(tray) = app_handle.tray_by_id("main") {
-            let _ = tray.set_menu(Some(Tray::create_tray_menu(&app_handle)?));
-            if let Some(window) = handle::Handle::global().get_window() {
+            let _ = tray.set_menu(Some(Tray::create_tray_menu(&app_handle).await?));
+            if let Some(window) = handle::Handle::global().get_main_window() {
                 window.emit(event, version)?;
             }
-            Ok(())
-        } else {
-            bail!("The system tray menu has not been initialized")
+            return Ok(());
         }
+        bail!("The system tray menu has not been initialized")
     }
 
     pub fn on_menu_event(app_handle: &AppHandle, event: MenuEvent) {
         match event.id().as_ref() {
             "open_window" => {
-                let _ = resolve::create_window();
+                AsyncHandler::spawn(|| async {
+                    let _ = resolve::create_window().await;
+                });
             }
-            "quit" => cmds::exit_app(app_handle.clone()),
-            "open_config_dir" => crate::log_err!(cmds::open_config_dir()),
-            "open_data_dir" => crate::log_err!(cmds::open_data_dir()),
-            "open_logs_dir" => crate::log_err!(cmds::open_logs_dir()),
+            "quit" => super::app::exit_app(app_handle),
+            "open_config_dir" => crate::log_err!(app::open_config_dir()),
+            "open_data_dir" => crate::log_err!(app::open_data_dir()),
+            "open_logs_dir" => crate::log_err!(app::open_logs_dir()),
             "reset_window_state" => {
                 let _ = app_handle.reset_window_state();
             }
@@ -234,11 +262,11 @@ impl Tray {
             let version = info[1].to_owned();
             if name == "global" {
                 spawn(async move {
-                    log_err!(node::update_current_from_menu(version).await);
+                    log_err!(node::update_current_from_menu(Some(version)).await);
                 });
             } else {
                 spawn(async move {
-                    log_err!(project::change_with_version(name, version).await);
+                    log_err!(project::change_with_version(&name, &version).await);
                 });
             }
         }
@@ -250,7 +278,7 @@ impl Tray {
             let name = info[0].to_owned();
             let group_name = info[1].to_owned();
             spawn(async move {
-                log_err!(project::change_with_group(name, group_name).await);
+                log_err!(project::change_with_group(&name, &group_name).await);
             });
         }
     }

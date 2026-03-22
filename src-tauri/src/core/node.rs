@@ -1,7 +1,8 @@
 use crate::{
-    config::{Config, NVersion},
+    config::{Config, INode, NVersion, SharedDraft},
     core::handle,
-    log_err,
+    logging,
+    utils::{dirs, help, logging::Type},
 };
 use anyhow::{anyhow, bail, Context, Result};
 use get_node::{
@@ -11,14 +12,12 @@ use get_node::{
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::{
-    cmp::Ordering,
     path::PathBuf,
     sync::{Arc, Mutex},
     time::Duration,
 };
 use tauri::Emitter;
 use tokio::{sync::watch, time::Instant};
-use version_compare::{compare, Cmp};
 
 static CANCEL_SENDER: Lazy<Arc<Mutex<Option<watch::Sender<bool>>>>> =
     Lazy::new(|| Arc::new(Mutex::new(None)));
@@ -30,176 +29,156 @@ pub struct ProgressData<'a> {
     pub transferred: usize,
 }
 
-/// Get the currently set node version
-pub fn get_current(fetch: Option<bool>) -> Result<Option<String>> {
-    let fetch = fetch.unwrap_or(false);
-    if !fetch {
-        return Ok(Config::node().latest_ref().get_current());
-    }
+pub async fn fetch_nodes() -> Result<SharedDraft<INode>> {
+    let draft = Config::node().await;
+    let data = draft.data_arc();
+    Ok(data)
+}
 
-    // sync from `default`
-    Config::node().draft_mut().sync_current()?;
-    Config::node().apply();
+pub async fn fetch_installed() -> Result<Option<Vec<String>>> {
+    Ok(fetch_nodes().await?.get_installed())
+}
 
-    Ok(Config::node().data_ref().get_current())
+pub async fn fetch_installed_with_sync() -> Result<Option<Vec<String>>> {
+    let draft = Config::settings().await.data_arc();
+    let dir = draft.get_directory();
+    Ok(sync_installed(dir).await?)
+}
+
+pub async fn get_current() -> Result<Option<String>> {
+    Ok(fetch_nodes().await?.get_current())
+}
+
+pub async fn get_current_with_sync() -> Result<Option<String>> {
+    let current = help::read_current().await?;
+    Config::node()
+        .await
+        .edit_draft(|d| d.update_current(current));
+
+    Config::node().await.apply();
+    Ok(Config::node().await.data_arc().get_current())
 }
 
 /// Set the current node version
 pub async fn set_current(version: Option<String>) -> Result<()> {
-    let version = version.as_deref().unwrap_or("");
+    Config::node().await.edit_draft(|d| {
+        d.update_current(version.clone());
+    });
 
-    Config::node().draft_mut().update_current(version)?;
-    Config::node().apply();
-    Config::node().data_mut().save_current()?;
+    let process_result: std::result::Result<(), anyhow::Error> = {
+        help::write_current(&version).await?;
+        handle::Handle::update_systray_part().await?;
+        Ok(())
+    };
 
-    log_err!(handle::Handle::update_systray_part());
+    if let Err(err) = process_result {
+        Config::node().await.discard();
+        return Err(err);
+    }
+    Config::node().await.apply();
 
     Ok(())
 }
 
-/// update current from menu
-pub async fn update_current_from_menu(current: String) -> Result<()> {
-    let ret = {
-        Config::node().draft_mut().update_current(&current)?;
-        log_err!(handle::Handle::update_systray_part_with_emit(
+/// update current version from menu
+pub async fn update_current_from_menu(version: Option<String>) -> Result<()> {
+    Config::node().await.edit_draft(|d| {
+        d.update_current(version.clone());
+    });
+
+    let process_result: std::result::Result<(), anyhow::Error> = {
+        handle::Handle::update_systray_part_with_emit(
             "nvm-desktop://refresh-version-info",
-            &current
-        ));
-        <Result<()>>::Ok(())
+            &version.unwrap_or_default(),
+        )
+        .await?;
+        Ok(())
     };
 
-    match ret {
-        Ok(()) => {
-            Config::node().apply();
-            Config::node().data_mut().save_current()?;
-
-            Ok(())
-        }
-        Err(err) => {
-            Config::node().discard();
-            Err(err)
-        }
+    if let Err(err) = process_result {
+        Config::node().await.discard();
+        return Err(err);
     }
+    Config::node().await.apply();
+
+    Ok(())
 }
 
-/// fetch version list data from remote or local
-/// remote when fetch is `true`
-/// local when fetch is `false`
-pub async fn get_version_list(fetch: Option<bool>) -> Result<Option<Vec<NVersion>>> {
-    let fetch = fetch.unwrap_or(false);
-    if !fetch {
-        // return existing data directly
-        return Ok(Config::node().latest_ref().get_list());
-    }
+/// get version list data from local
+pub async fn get_version_list() -> Result<Option<Vec<NVersion>>> {
+    Ok(fetch_nodes().await?.get_list())
+}
 
-    let settings = Config::settings().latest_ref().clone();
-
+/// get version list data from remote
+pub async fn get_version_list_with_sync() -> Result<Option<Vec<NVersion>>> {
+    let settings = Config::settings().await.data_arc();
     // fetch list data from remote
     let list = version_list::<Vec<NVersion>>(ListConfig {
-        mirror: settings.mirror,
-        proxy: settings.proxy,
+        mirror: settings.mirror.clone(),
+        proxy: settings.proxy.clone(),
         no_proxy: settings.no_proxy,
         connect_timeout: None,
         read_timeout: None,
     })
     .await?;
 
-    // update list
-    Config::node().draft_mut().update_list(&list)?;
-    Config::node().apply();
-    Config::node().data_mut().save_file()?;
+    Config::node().await.edit_draft(|d| d.update_list(list));
 
-    Ok(Some(list))
+    Config::node().await.apply();
+    let node_data = Config::node().await.data_arc();
+    logging!(debug, Type::Setup, "Saving Node data to file...");
+    node_data.save_file().await?;
+
+    Ok(node_data.get_list())
 }
 
-/// get node installed list
-pub async fn get_installed_list(fetch: Option<bool>) -> Result<Option<Vec<String>>> {
-    let fetch = fetch.unwrap_or(false);
-    if !fetch {
-        return Ok(Config::node().latest_ref().get_installed());
-    }
+pub async fn sync_installed(path: Option<String>) -> Result<Option<Vec<String>>> {
+    let new_installed = match path {
+        Some(p) => read_installed(&p).await?,
+        _ => vec![],
+    };
+    Config::node()
+        .await
+        .edit_draft(|d| d.update_installed(new_installed));
 
-    let directory = Config::settings()
-        .latest_ref()
-        .get_directory()
-        .unwrap_or_default();
-    let directory = PathBuf::from(directory);
-    if !directory.exists() {
-        return Ok(Some(vec![]));
-    }
-
-    let list = Config::node()
-        .latest_ref()
-        .get_installed()
-        .unwrap_or_default();
-
-    let mut versions = vec![];
-    let mut entries = tokio::fs::read_dir(&directory).await?;
-    while let Some(entry) = entries.next_entry().await? {
-        let version = entry.file_name().to_string_lossy().to_string();
-        let node_path = directory.clone();
-        #[cfg(target_os = "windows")]
-        let node_path = node_path.join(&version).join("node.exe");
-        #[cfg(any(target_os = "macos", target_os = "linux"))]
-        let node_path = node_path.join(&version).join("bin/node");
-        if node_path.exists() {
-            versions.push(version);
-        }
-    }
-    versions.sort_by(|a, b| match compare(b, a) {
-        Ok(Cmp::Lt) => Ordering::Less,
-        Ok(Cmp::Eq) => Ordering::Equal,
-        Ok(Cmp::Gt) => Ordering::Greater,
-        _ => unreachable!(),
-    });
-
-    // update installed
-    Config::node().draft_mut().update_installed(&versions)?;
-    Config::node().apply();
-
-    // update system tray
-    if list.len() != versions.len() {
-        log_err!(handle::Handle::update_systray_part());
-    }
-
-    Ok(Some(versions))
+    Config::node().await.apply();
+    let node_data = Config::node().await.data_arc();
+    Ok(node_data.get_installed())
 }
 
-pub async fn refresh_installed() -> Result<()> {
-    let directory = Config::settings()
-        .latest_ref()
-        .get_directory()
-        .unwrap_or_default();
-    let directory = PathBuf::from(directory);
-    if !directory.exists() {
-        return Ok(());
+/// read node installed version list
+pub async fn read_installed(path: &str) -> Result<Vec<String>> {
+    let directory = PathBuf::from(path);
+    if !tokio::fs::try_exists(&directory).await.unwrap_or(false) {
+        logging!(
+            error,
+            Type::Config,
+            "file not found \"{}\"",
+            directory.display()
+        );
+        return Ok(vec![]);
     }
 
     let mut versions = vec![];
     let mut entries = tokio::fs::read_dir(&directory).await?;
     while let Some(entry) = entries.next_entry().await? {
-        let version = entry.file_name().to_string_lossy().to_string();
-        let node_path = directory.clone();
-        #[cfg(target_os = "windows")]
-        let node_path = node_path.join(&version).join("node.exe");
-        #[cfg(any(target_os = "macos", target_os = "linux"))]
-        let node_path = node_path.join(&version).join("bin/node");
-        if node_path.exists() {
+        let version = entry.file_name().to_string_lossy().into_owned();
+        let node_path = {
+            #[cfg(target_os = "windows")]
+            {
+                directory.join(&version).join("node.exe")
+            }
+            #[cfg(any(target_os = "macos", target_os = "linux"))]
+            {
+                directory.join(&version).join("bin/node")
+            }
+        };
+        if tokio::fs::try_exists(&node_path).await.unwrap_or(false) {
             versions.push(version);
         }
     }
-    versions.sort_by(|a, b| match compare(b, a) {
-        Ok(Cmp::Lt) => Ordering::Less,
-        Ok(Cmp::Eq) => Ordering::Equal,
-        Ok(Cmp::Gt) => Ordering::Greater,
-        _ => Ordering::Equal,
-    });
 
-    // update installed
-    Config::node().draft_mut().update_installed(&versions)?;
-    Config::node().apply();
-
-    Ok(())
+    Ok(versions)
 }
 
 /// install node
@@ -208,14 +187,17 @@ pub async fn install_node(
     version: Option<String>,
     arch: Option<String>,
 ) -> Result<String> {
-    if version.is_none() {
+    let Some(version) = version else {
         bail!("version should not be null");
-    }
+    };
 
-    let version: String = version.unwrap();
-    let settings = Config::settings().latest_ref().clone();
-    let mirror = settings.mirror.unwrap();
-    let directory = settings.directory.unwrap();
+    let settings = Config::settings().await.data_arc();
+    let Some(directory) = settings.get_directory() else {
+        bail!("directory should not be null");
+    };
+    let Some(mirror) = settings.mirror.clone() else {
+        bail!("mirror should not be null");
+    };
 
     let last_emit_time = Arc::new(Mutex::new(Instant::now()));
 
@@ -231,7 +213,7 @@ pub async fn install_node(
         arch,
         version: version,
         no_proxy: settings.no_proxy,
-        proxy: settings.proxy,
+        proxy: settings.proxy.clone(),
         cancel_signal: Some(cancel_receiver),
         connect_timeout: None,
         read_timeout: None,
@@ -271,16 +253,19 @@ pub async fn install_node_cancel() -> Result<()> {
 
 /// uninstall node
 pub async fn uninstall_node(version: String) -> Result<()> {
-    let directory = Config::settings().latest_ref().get_directory();
-    if let Some(directory) = directory {
-        let directory = PathBuf::from(directory).join(&version);
-        tokio::fs::remove_dir_all(&directory)
-            .await
-            .context(format!(
-                "Failed to remove version directory: {:?}",
-                directory
-            ))?;
+    let draft = Config::settings().await.data_arc();
+    let directory = draft.get_directory();
+    let Some(directory) = directory else {
+        return Ok(());
+    };
+
+    let node_dir = PathBuf::from(directory).join(version);
+    if !tokio::fs::try_exists(&node_dir).await.unwrap_or(false) {
+        return Ok(());
     }
+    tokio::fs::remove_dir_all(&node_dir)
+        .await
+        .with_context(|| format!("Failed to remove version directory: {}", node_dir.display()))?;
 
     Ok(())
 }

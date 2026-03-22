@@ -1,8 +1,8 @@
 use super::{handle, project::sync_project_version};
 use crate::{
     config::{Config, Group, ISettingsResponse, Project},
-    log_err,
-    utils::help::{async_read_json, async_save_json},
+    log_err, logging,
+    utils::{help, logging::Type},
 };
 use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
@@ -61,12 +61,15 @@ pub struct ConfigurationData {
 #[serde(rename_all = "camelCase")]
 pub struct ConfigurationImport {
     /// base color
+    #[serde(skip_serializing_if = "Option::is_none")]
     base_color: Option<String>,
 
     /// theme color
+    #[serde(skip_serializing_if = "Option::is_none")]
     color: Option<String>,
 
     /// radius
+    #[serde(skip_serializing_if = "Option::is_none")]
     radius: Option<String>,
 
     /// export setting data
@@ -92,29 +95,23 @@ pub async fn configuration_export(
 
     let mut output = ConfigurationData::default();
     // export base color
-    if let Some(base_color) = base_color {
-        output.base_color = Some(base_color)
-    }
+    output.base_color = base_color;
     // export theme color
-    if let Some(color) = color {
-        output.color = Some(color);
-    }
+    output.color = color;
     // export radius
-    if let Some(radius) = radius {
-        output.radius = Some(radius);
-    }
+    output.radius = radius;
     // export setting & mirrors data
     if setting.unwrap_or(false) {
-        let setting_data = Config::settings().latest_ref().clone();
-        output.setting = Some(ISettingsResponse::from(*setting_data));
+        let setting_data = Config::settings().await.data_arc();
+        output.setting = Some(setting_data.into_response());
         output.mirrors = mirrors;
     }
     // export projects & groups data
     if projects.unwrap_or(false) {
-        output.projects = Config::projects().latest_ref().get_list();
-        output.groups = Config::groups().latest_ref().get_list();
+        output.projects = Config::projects().await.data_arc().get_list();
+        output.groups = Config::groups().await.data_arc().get_list();
     }
-    async_save_json(&output_path, &output, None).await?;
+    help::save_json(&output_path, &output, None).await?;
 
     Ok(())
 }
@@ -134,7 +131,7 @@ pub async fn configuration_import(
             FilePath::Path(path) => path,
             FilePath::Url(_) => bail!("Unsupported URL scheme"),
         };
-        let configuration = async_read_json::<ConfigurationData>(&path).await?;
+        let configuration = help::read_json::<ConfigurationData>(&path).await?;
         let projects = configuration.projects.unwrap_or_default();
         let groups = configuration.groups.unwrap_or_default();
 
@@ -159,19 +156,27 @@ pub async fn configuration_import(
         let need_update_groups = !groups.is_empty();
         // update projects data
         if need_update_projects {
-            Config::projects().draft_mut().update_list(&projects)?;
-            Config::projects().apply();
-            Config::projects().data_mut().save_file()?;
+            Config::projects()
+                .await
+                .edit_draft(|d| d.update_list(projects));
+
+            Config::projects().await.apply();
+            let projects_data = Config::projects().await.data_arc();
+            logging!(debug, Type::Cmd, "Saving Projects data to file...");
+            projects_data.save_file().await?;
         }
         // update groups data
         if need_update_groups {
-            Config::groups().data_mut().update_list(&groups)?;
-            Config::groups().apply();
-            Config::groups().data_mut().save_file()?;
+            Config::groups().await.edit_draft(|d| d.update_list(groups));
+
+            Config::groups().await.apply();
+            let groups_data = Config::groups().await.data_arc();
+            logging!(debug, Type::Cmd, "Saving Group data to file...");
+            groups_data.save_file().await?;
         }
         // update system tray & notification page refresh data
         if need_update_projects || need_update_groups {
-            log_err!(handle::Handle::update_systray_part());
+            log_err!(handle::Handle::update_systray_part().await);
             if let Some(window) = app_handle.get_webview_window("main") {
                 window.emit("nvm-desktop://refresh-project-info", ())?;
             }

@@ -1,51 +1,62 @@
 use super::tray::Tray;
+use crate::{logging, utils::logging::Type, APP_HANDLE};
 use anyhow::Result;
-use once_cell::sync::OnceCell;
-use parking_lot::RwLock;
-use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::{AppHandle, Manager, WebviewWindow};
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug)]
 pub struct Handle {
-    pub app_handle: Arc<RwLock<Option<AppHandle>>>,
+    is_exiting: AtomicBool,
+}
+
+impl Default for Handle {
+    fn default() -> Self {
+        Self {
+            is_exiting: AtomicBool::new(false),
+        }
+    }
 }
 
 impl Handle {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     pub fn global() -> &'static Handle {
-        static HANDLE: OnceCell<Handle> = OnceCell::new();
-
-        HANDLE.get_or_init(|| Handle {
-            app_handle: Arc::new(RwLock::new(None)),
-        })
+        static HANDLE: std::sync::OnceLock<Handle> = std::sync::OnceLock::new();
+        HANDLE.get_or_init(|| Self::new())
     }
 
-    pub fn init(&self, app_handle: &AppHandle) {
-        let mut handle = self.app_handle.write();
-        *handle = Some(app_handle.clone());
+    pub fn app_handle() -> &'static AppHandle {
+        #[allow(clippy::expect_used)]
+        APP_HANDLE.get().expect("App handle not initialized")
     }
 
-    pub fn app_handle(&self) -> Option<AppHandle> {
-        self.app_handle.read().clone()
+    pub fn set_is_exiting(&self) {
+        self.is_exiting.store(true, Ordering::Release);
     }
 
-    pub fn get_window(&self) -> Option<WebviewWindow> {
-        let app_handle = self.app_handle().unwrap();
-        let window: Option<WebviewWindow> = app_handle.get_webview_window("main");
+    pub fn is_exiting(&self) -> bool {
+        self.is_exiting.load(Ordering::Acquire)
+    }
+
+    pub fn get_main_window(&self) -> Option<WebviewWindow> {
+        let window = Self::app_handle().get_webview_window("main");
         if window.is_none() {
-            log::debug!(target:"app", "main window not found");
+            logging!(debug, Type::Window, "main window not found");
         }
         window
     }
 
     /// update the system tray state
-    pub fn update_systray_part() -> Result<()> {
-        Tray::update_part()?;
+    pub async fn update_systray_part() -> Result<()> {
+        Tray::update_part().await?;
         Ok(())
     }
 
     /// update the system tray state & emit event
-    pub fn update_systray_part_with_emit(event: &str, version: &str) -> Result<()> {
-        Tray::update_part_with_emit(event, version)?;
+    pub async fn update_systray_part_with_emit(event: &str, version: &str) -> Result<()> {
+        Tray::update_part_with_emit(event, version).await?;
         Ok(())
     }
 }

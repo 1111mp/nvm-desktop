@@ -1,4 +1,7 @@
-use crate::utils::{dirs, help};
+use crate::{
+    logging,
+    utils::{dirs, help, logging::Type},
+};
 use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 
@@ -29,24 +32,27 @@ pub struct IGroups {
 }
 
 impl IGroups {
-    pub fn new() -> Self {
-        match dirs::groups_path().and_then(|path| help::read_json::<Vec<Group>>(&path)) {
+    pub async fn new() -> Self {
+        let path = match dirs::groups_path() {
+            Ok(p) => p,
+            Err(err) => {
+                logging!(error, Type::Config, "{err}");
+                return Self::default();
+            }
+        };
+
+        match help::read_json::<Vec<Group>>(&path).await {
             Ok(groups) => Self { list: Some(groups) },
             Err(err) => {
-                log::error!(target: "app", "{err}");
-                Self::template()
+                logging!(error, Type::Config, "{err}");
+                Self::default()
             }
         }
     }
 
-    /// return the default data
-    pub fn template() -> Self {
-        Self { list: Some(vec![]) }
-    }
-
     /// save group list to local file
-    pub fn save_file(&self) -> Result<()> {
-        help::save_json(&dirs::groups_path()?, &self.list, None)
+    pub async fn save_file(&self) -> Result<()> {
+        help::save_json(&dirs::groups_path()?, &self.list, None).await
     }
 
     /// get list
@@ -55,43 +61,29 @@ impl IGroups {
     }
 
     /// update groups list
-    pub fn update_list(&mut self, list: &Vec<Group>) -> Result<()> {
-        self.list = Some(list.clone());
-        Ok(())
+    pub fn update_list(&mut self, list: Vec<Group>) {
+        self.list = Some(list);
     }
 
     /// update group version
-    pub fn update_version(&mut self, name: String, version: String) -> Result<()> {
-        let mut list = self.list.take().unwrap_or_default();
-
-        for each in list.iter_mut() {
-            if each.name == name {
-                each.version = Some(version.clone());
-
-                self.list = Some(list);
-
-                return Ok(());
-            }
+    pub fn update_version(&mut self, name: &str, version: &str) -> Result<()> {
+        let list = self.list.get_or_insert_with(Vec::new);
+        if let Some(group) = list.iter_mut().find(|g| g.name == name) {
+            group.version = Some(version.to_string());
+            return Ok(());
         }
-
-        self.list = Some(list);
         bail!("failed to find the group item \"name:{name}\"");
     }
 
     /// update the projects of group for system tray menu
-    pub fn update_projects(&mut self, path: &String) -> Result<bool> {
-        let mut list = self.list.take().unwrap_or_default();
-
-        for each in list.iter_mut() {
-            if each.projects.contains(path) {
-                each.projects.retain(|p| p != path);
-
-                self.list = Some(list);
+    pub fn update_projects(&mut self, path: &str) -> Result<bool> {
+        let list = self.list.get_or_insert_with(Vec::new);
+        for group in list.iter_mut() {
+            if group.projects.iter().any(|p| p == path) {
+                group.projects.retain(|p| p != path);
                 return Ok(true);
             }
         }
-
-        self.list = Some(list);
         Ok(false)
     }
 
@@ -105,21 +97,16 @@ impl IGroups {
     /// remove from old group
     /// add to new group
     pub fn update_projects_version(&mut self, path: &str, name: &str) -> Result<Option<String>> {
-        let mut list = self.list.take().unwrap_or_default();
-        let mut version: Option<String> = None;
-
-        for each in list.iter_mut() {
-            if each.projects.contains(&path.to_string()) {
-                each.projects.retain(|p| p != path);
-            }
-
-            if &each.name == name {
-                version = each.version.clone();
-                each.projects.push(path.to_string());
-            }
+        let list = self.list.get_or_insert_with(Vec::new);
+        for group in list.iter_mut() {
+            group.projects.retain(|p| p != path);
+        }
+        if let Some(group) = list.iter_mut().find(|g| g.name == name) {
+            let version = group.version.clone();
+            group.projects.push(path.to_owned());
+            return Ok(version);
         }
 
-        self.list = Some(list);
-        Ok(version)
+        Ok(None)
     }
 }

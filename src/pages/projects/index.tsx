@@ -29,11 +29,12 @@ import {
 import { VsCodeLogo } from '@/components/vscode-logo';
 import { FolderSync, PackagePlus, TrashIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { open as openDialog } from '@tauri-apps/plugin-dialog';
 
 import { useAppContext } from '@/app-context';
 import { useTranslation } from 'react-i18next';
 import {
-  selectProjects,
+  addProjects,
   groupList,
   installedList,
   projectList,
@@ -42,6 +43,7 @@ import {
   syncProjectVersion,
   openDir,
   openWithVSCode,
+  updateProjectsWithoutTray,
 } from '@/services/cmds';
 import { getCurrent } from '@/services/api';
 import { cn } from '@/lib/utils';
@@ -194,7 +196,7 @@ export const Component: React.FC = () => {
         const { version, path } = row.original;
         return (
           <Select
-            defaultValue={version}
+            defaultValue={version ?? ''}
             onValueChange={async (newVersion) => {
               // fromGroup: whether to switch from group, need to remove
               // toGroup: whether to switch to group, need to add
@@ -205,6 +207,23 @@ export const Component: React.FC = () => {
                   ? toGroup.version
                   : newVersion || '';
                 const code = await syncProjectVersion(path, targetVersion);
+
+                const needUpdateGroups = [...groups];
+                let needUpdate: boolean = false;
+                needUpdateGroups.forEach((group) => {
+                  const groupProjects = [...group.projects];
+                  if (fromGroup && group.name === version) {
+                    needUpdate = true;
+                    group.projects = groupProjects.filter(
+                      (project) => project !== path,
+                    );
+                  }
+
+                  if (toGroup && group.name === newVersion) {
+                    needUpdate = true;
+                    group.projects = [path].concat(groupProjects);
+                  }
+                });
 
                 const updateProjectsPromise = async () => {
                   const newProjects = projects.map((project) =>
@@ -221,33 +240,20 @@ export const Component: React.FC = () => {
                         }
                       : project,
                   );
-                  await updateProjects(newProjects);
+                  if (needUpdate) {
+                    await updateProjectsWithoutTray(newProjects);
+                  } else {
+                    await updateProjects(newProjects);
+                  }
 
                   return newProjects;
                 };
 
                 const updateGroupsPromise = async () => {
-                  const newGroups = [...groups];
-                  let needUpdate: boolean = false;
-                  newGroups.forEach((group) => {
-                    const groupProjects = [...group.projects];
-                    if (fromGroup && group.name === version) {
-                      needUpdate = true;
-                      group.projects = groupProjects.filter(
-                        (project) => project !== path,
-                      );
-                    }
-
-                    if (toGroup && group.name === newVersion) {
-                      needUpdate = true;
-                      group.projects = [path].concat(groupProjects);
-                    }
-                  });
-
                   if (!needUpdate) return Promise.resolve(undefined);
 
-                  await updateGroups(newGroups);
-                  return newGroups;
+                  await updateGroups(needUpdateGroups);
+                  return needUpdateGroups;
                 };
 
                 const [newProjects, newGroups] = await Promise.all([
@@ -334,28 +340,33 @@ export const Component: React.FC = () => {
                 <AlertDialogAction
                   variant='destructive'
                   onClick={async () => {
+                    const needUpdateGroups = [...groups];
+                    let needUpdate: boolean = false;
+                    needUpdateGroups.forEach((group) => {
+                      if (group.name === version) {
+                        needUpdate = true;
+                        const projects = [...group.projects];
+                        group.projects = projects.filter(
+                          (proPath) => proPath !== path,
+                        );
+                      }
+                    });
+
                     const [newProjects, newGroups] = await Promise.all([
                       (async () => {
                         const newProjects = projects.filter(
                           ({ path: source }) => source !== path,
                         );
-                        await updateProjects(newProjects, path);
+                        if (needUpdate) {
+                          await updateProjectsWithoutTray(newProjects, path);
+                        } else {
+                          await updateProjects(newProjects, path);
+                        }
                         return newProjects;
                       })(),
                       (async () => {
-                        const newGroups = [...groups];
-                        let needUpdate: boolean = false;
-                        newGroups.forEach((group) => {
-                          if (group.name === version) {
-                            needUpdate = true;
-                            const projects = [...group.projects];
-                            group.projects = projects.filter(
-                              (proPath) => proPath !== path,
-                            );
-                          }
-                        });
-                        if (needUpdate) await updateGroups(newGroups);
-                        return needUpdate ? newGroups : undefined;
+                        if (needUpdate) await updateGroups(needUpdateGroups);
+                        return needUpdate ? needUpdateGroups : undefined;
                       })(),
                     ]);
                     setProjects(newProjects);
@@ -376,32 +387,35 @@ export const Component: React.FC = () => {
 
   // add project (multiple)
   const onAddProject = async () => {
-    const pInfo = await selectProjects();
-    if (!pInfo) return;
+    const paths = await openDialog({
+      title: t('Add-Project'),
+      directory: true,
+      multiple: true,
+    });
+    if (paths === null) return;
 
-    const addedProjects: Nvmd.Project[] = [];
-    pInfo.forEach(({ path, version }) => {
+    const needAddProjects: Nvmd.Project[] = paths.map((path) => {
       const name = path.split(OS_PLATFORM === 'win32' ? '\\' : '/').pop()!,
         now = new Date().toISOString();
 
-      if (!projects.find(({ path: source }) => source === path)) {
-        addedProjects.push({
-          name,
-          path,
-          version,
-          active: true,
-          createAt: now,
-          updateAt: now,
-        });
-      } else {
-        toast.error(`The project "${name}" already exists`);
-      }
+      return {
+        name,
+        path,
+        // version,
+        active: true,
+        createAt: now,
+        updateAt: now,
+      };
     });
 
-    const newProjects = [...addedProjects, ...projects];
-    setProjects(newProjects);
-    updateProjects(newProjects);
-    return;
+    try {
+      await addProjects(needAddProjects);
+    } catch (err) {
+      toast.error(err);
+    }
+    // refresh data
+    const allProjects = await projectList();
+    setProjects(allProjects);
   };
 
   const reorderRow = (draggedRowIndex: number, targetRowIndex: number) => {

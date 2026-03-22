@@ -44,9 +44,9 @@ import {
   installedList,
   groupList,
   updateGroups,
-  updateProjects,
   batchUpdateProjectVersion,
   updateGroupVersion,
+  updateProjectsWithoutTray,
 } from '@/services/cmds';
 import { compareArray } from '@/lib/utils';
 import { getCurrent } from '@/services/api';
@@ -265,7 +265,7 @@ export const Component: React.FC = () => {
 
                         await Promise.all([
                           batchUpdateProjectVersion(groupProjects, ''),
-                          updateProjects(newProjects),
+                          updateProjectsWithoutTray(newProjects),
                         ]);
 
                         return newProjects;
@@ -348,7 +348,7 @@ export const Component: React.FC = () => {
           if (needUpdate) {
             // todo update
             await Promise.all([
-              updateProjects(newProjects),
+              updateProjectsWithoutTray(newProjects),
               batchUpdateProjectVersion(paths, version),
             ]);
 
@@ -474,7 +474,7 @@ function MultiSelectProject({
               removedPaths.length
                 ? batchUpdateProjectVersion(removedPaths, '')
                 : Promise.resolve(undefined),
-              updateProjects(newProjects),
+              updateProjectsWithoutTray(newProjects),
             ]);
 
             return newProjects;

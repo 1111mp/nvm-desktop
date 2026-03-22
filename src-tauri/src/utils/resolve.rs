@@ -1,12 +1,13 @@
 use crate::{
     config::{Config, ISettingsResponse},
     core::{handle, tray},
-    log_err, logging, trace_err,
+    log_err, logging, logging_error,
+    process::AsyncHandler,
+    trace_err,
     utils::{logging::Type, migrate, server},
 };
 use anyhow::Result;
 use dark_light::{detect as detect_system_theme, Mode as SystemTheme};
-use tauri::AppHandle;
 use tauri::{utils::config::Color, Theme};
 
 const DARK_BACKGROUND_COLOR: Color = Color(0, 0, 0, 255); // #000000
@@ -18,33 +19,44 @@ const DEFAULT_DECORATIONS: bool = false;
 const DEFAULT_DECORATIONS: bool = true;
 
 /// handle something when start app
-pub async fn resolve_setup_async(app_handle: &AppHandle) {
-    logging!(
-        info,
-        Type::Setup,
-        true,
-        "Start executing asynchronous setup tasks..."
-    );
+pub fn resolve_setup_async() {
+    AsyncHandler::spawn(|| async {
+        logging!(
+            info,
+            Type::Setup,
+            "Start executing asynchronous setup tasks..."
+        );
+
+        init_window().await;
+
+        // Start the embedded server
+        server::start_embed_server();
+        // migrate
+        migrate::init();
+        // tary
+        tray::Tray::init_systray();
+        logging_error!(Type::Setup, handle::Handle::update_systray_part().await);
+    });
+}
+
+pub async fn init_window() {
+    let app_handle = handle::Handle::app_handle();
 
     #[cfg(target_os = "macos")]
     let _ = app_handle.set_activation_policy(tauri::ActivationPolicy::Regular);
 
-    // Start the embedded server
-    server::start_embed_server();
-
-    log_err!(migrate::init());
-    log_err!(tray::Tray::create_systray());
-
-    let silent_start = { Config::settings().latest_ref().enable_silent_start };
-    if !silent_start.unwrap_or(false) {
-        log_err!(create_window());
+    let silent_start = Config::settings()
+        .await
+        .data_arc()
+        .enable_silent_start
+        .unwrap_or(false);
+    if !silent_start {
+        log_err!(create_window().await);
     }
-
-    log_err!(handle::Handle::update_systray_part());
 }
 
 /// create main window
-pub fn create_window() -> Result<()> {
+pub async fn create_window() -> Result<()> {
     logging!(
         info,
         Type::Window,
@@ -52,9 +64,9 @@ pub fn create_window() -> Result<()> {
         "Start creating and displaying the main window."
     );
 
-    let app_handle = handle::Handle::global().app_handle().unwrap();
+    let app_handle = handle::Handle::app_handle();
 
-    if let Some(window) = handle::Handle::global().get_window() {
+    if let Some(window) = handle::Handle::global().get_main_window() {
         logging!(
             info,
             Type::Window,
@@ -70,7 +82,7 @@ pub fn create_window() -> Result<()> {
         return Ok(());
     }
 
-    let settings = Config::settings().latest_ref().data();
+    let settings = Config::settings().await.data_arc().into_response();
     let initial_theme_mode = match settings.theme.as_deref() {
         Some("dark") => "dark",
         Some("light") => "light",
@@ -103,7 +115,7 @@ pub fn create_window() -> Result<()> {
     let initial_script = build_window_initial_script(settings, initial_theme_str);
 
     let mut builder = tauri::WebviewWindowBuilder::new(
-        &app_handle,
+        app_handle,
         "main",
         tauri::WebviewUrl::App("index.html".into()),
     )

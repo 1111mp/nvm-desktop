@@ -9,24 +9,22 @@ use tokio::time::{sleep, Duration};
 const CURRENT_MIGRATION_VERSION: i16 = 30;
 const NODE_DEFAULT_EXECUTE: [&str; 4] = ["node", "npm", "npx", "corepack"];
 
-pub fn init() -> Result<()> {
+pub fn init() {
     AsyncHandler::spawn(|| async {
         if let Err(err) = update_schema().await {
             logging_error!(Type::Migrate, true, "{}", err);
 
             // Delay 1s before sending events to the window
             sleep(Duration::from_secs(1)).await;
-            if let Some(window) = handle::Handle::global().get_window() {
+            if let Some(window) = handle::Handle::global().get_main_window() {
                 let _ = window.emit("nvm-desktop://app-migration-error", ());
             }
         }
     });
-
-    Ok(())
 }
 
 async fn update_schema() -> Result<()> {
-    let schema_version = get_schema_version().unwrap_or_else(|err| {
+    let schema_version = get_schema_version().await.unwrap_or_else(|err| {
         logging_error!(Type::Migrate, true, "{}", err);
         0 // default version 0
     });
@@ -42,9 +40,11 @@ async fn update_schema() -> Result<()> {
 }
 
 /// get schema version
-fn get_schema_version() -> Result<i16> {
-    let version_str = dirs::migration_path().and_then(|path| help::read_string(&path))?;
-    version_str.parse::<i16>().map_err(|e| e.into())
+async fn get_schema_version() -> Result<i16> {
+    let path = dirs::migration_path()?;
+    let content = help::read_string(&path).await?;
+    let version = content.trim().parse::<i16>()?;
+    Ok(version)
 }
 
 #[cfg(windows)]
@@ -123,6 +123,6 @@ async fn ensure_bin_path_exists() -> Result<std::path::PathBuf> {
 }
 
 async fn save_schema_version(version: i16) -> Result<()> {
-    help::async_save_string(&dirs::migration_path()?, &version.to_string()).await?;
+    help::save_string(&dirs::migration_path()?, &version.to_string()).await?;
     Ok(())
 }

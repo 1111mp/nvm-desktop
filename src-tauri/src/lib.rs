@@ -1,4 +1,4 @@
-mod cmds;
+mod cmd;
 mod config;
 mod core;
 mod process;
@@ -6,12 +6,14 @@ mod utils;
 
 use crate::{
     config::Config,
-    core::handle,
+    core::app,
     process::AsyncHandler,
     utils::{logging::Type, resolve},
 };
-use tauri::Manager;
-use tokio::time::{timeout, Duration};
+use once_cell::sync::OnceCell;
+use tauri::{AppHandle, Manager};
+
+pub static APP_HANDLE: OnceCell<AppHandle> = OnceCell::new();
 
 pub fn run() {
     #[cfg(target_os = "linux")]
@@ -33,82 +35,49 @@ pub fn run() {
             },
         ))
         .setup(|app| {
-            logging!(
-                info,
-                Type::Setup,
-                true,
-                "Starting application initialization..."
-            );
+            #[allow(clippy::expect_used)]
+            APP_HANDLE
+                .set(app.app_handle().clone())
+                .expect("failed to set global app handle");
 
-            let app_handle = app.handle().clone();
-            AsyncHandler::spawn(move || async move {
-                logging!(
-                    info,
-                    Type::Setup,
-                    true,
-                    "Asynchronously execute application setup..."
-                );
+            logging!(info, Type::Setup, "Starting application initialization...");
 
-                match timeout(
-                    Duration::from_secs(30),
-                    resolve::resolve_setup_async(&app_handle),
-                )
-                .await
-                {
-                    Ok(_) => {
-                        logging!(
-                            info,
-                            Type::Setup,
-                            true,
-                            "Application setup completed successfully."
-                        );
-                    }
-                    Err(_) => {
-                        logging!(
-                            error,
-                            Type::Setup,
-                            true,
-                            "Apply the timeout setup (30 seconds) and continue with the subsequent process."
-                        );
-                    }
-                };
-            });
+            resolve::resolve_setup_async();
 
-            logging!(info, Type::Setup, true, "Initialize the core handle...");
-            handle::Handle::global().init(app.handle());
-
+            logging!(info, Type::Setup, "Initialization has started");
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            // settings
-            cmds::read_settings,
-            cmds::update_settings,
+            // setting
+            cmd::setting::read_settings,
+            cmd::setting::update_settings,
             // node
-            cmds::current,
-            cmds::set_current,
-            cmds::version_list,
-            cmds::installed_list,
-            cmds::install_node,
-            cmds::uninstall_node,
-            cmds::install_node_cancel,
-            // projects
-            cmds::project_list,
-            cmds::select_projects,
-            cmds::update_projects,
-            cmds::sync_project_version,
-            cmds::batch_update_project_version,
-            cmds::open_dir,
-            cmds::open_with_vscode,
-            // groups
-            cmds::group_list,
-            cmds::update_groups,
-            cmds::update_group_version,
+            cmd::node::current,
+            cmd::node::set_current,
+            cmd::node::version_list,
+            cmd::node::installed_list,
+            cmd::node::install_node,
+            cmd::node::uninstall_node,
+            cmd::node::install_node_cancel,
+            // project
+            cmd::project::project_list,
+            cmd::project::add_projects,
+            cmd::project::update_projects,
+            cmd::project::update_projects_without_tray,
+            cmd::project::sync_project_version,
+            cmd::project::batch_update_project_version,
+            cmd::project::open_with_vscode,
+            // group
+            cmd::group::group_list,
+            cmd::group::update_groups,
+            cmd::group::update_group_version,
             // configuration
-            cmds::configration_export,
-            cmds::configration_import,
+            cmd::configration::configration_export,
+            cmd::configration::configration_import,
             // app
-            cmds::restart,
-            cmds::get_system_theme,
+            cmd::app::open_dir,
+            cmd::app::restart,
+            cmd::app::get_system_theme,
         ]);
 
     #[cfg(debug_assertions)]
@@ -143,32 +112,32 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while running tauri application");
 
-    app.run(|app_handle, err| match err {
-        tauri::RunEvent::WindowEvent { label, event, .. } => {
-            if label == "main" {
-                match event {
-                    tauri::WindowEvent::CloseRequested { api, .. } => {
-                        let closer = Config::settings()
-                            .latest_ref()
-                            .get_closer()
-                            .unwrap_or("minimize".to_string());
-                        if closer == "close" {
-                            return;
-                        }
+    app.run(|app_handle, evt| match evt {
+        tauri::RunEvent::WindowEvent { label, event, .. } if label == "main" => match event {
+            tauri::WindowEvent::CloseRequested { api, .. } => {
+                api.prevent_close();
 
+                let app_handle = app_handle.clone();
+                AsyncHandler::spawn(move || async move {
+                    let closer = Config::settings()
+                        .await
+                        .data_arc()
+                        .get_closer()
+                        .unwrap_or("minimize".to_string());
+                    if closer == "close" {
+                        app::exit_app(&app_handle);
+                    } else {
                         #[cfg(target_os = "macos")]
                         let _ = app_handle.set_dock_visibility(false);
 
-                        // CloseRequested Event
-                        api.prevent_close();
-                        if let Some(window) = core::handle::Handle::global().get_window() {
+                        if let Some(window) = app_handle.get_webview_window("main") {
                             log_err!(window.hide());
                         }
                     }
-                    _ => {}
-                }
+                });
             }
-        }
+            _ => {}
+        },
         _ => {}
     });
 }

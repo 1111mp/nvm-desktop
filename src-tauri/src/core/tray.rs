@@ -17,7 +17,6 @@ use tauri::{
     },
     AppHandle, Emitter, Manager, Wry,
 };
-use tauri_plugin_window_state::AppHandleExt;
 
 pub struct Tray {}
 
@@ -138,11 +137,6 @@ impl Tray {
                             .build(app_handle)?,
                     ])
                     .build()?,
-                &MenuItemBuilder::with_id(
-                    "reset_window_state",
-                    t!("Reset Window State", "重置窗口状态"),
-                )
-                .build(app_handle)?,
                 &MenuItemBuilder::with_id("open_dev_tools", t!("Open Dev Tools", "开发者工具"))
                     .build(app_handle)?,
                 &PredefinedMenuItem::about(
@@ -241,9 +235,6 @@ impl Tray {
             "open_config_dir" => crate::log_err!(app::open_config_dir()),
             "open_data_dir" => crate::log_err!(app::open_data_dir()),
             "open_logs_dir" => crate::log_err!(app::open_logs_dir()),
-            "reset_window_state" => {
-                let _ = app_handle.reset_window_state();
-            }
             "open_dev_tools" => {
                 if let Some(window) = app_handle.get_webview_window("main") {
                     window.open_devtools();

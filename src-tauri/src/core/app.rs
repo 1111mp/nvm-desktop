@@ -1,7 +1,6 @@
 use crate::{core::handle, utils::dirs};
 use anyhow::Result;
 use dark_light::{detect as detect_system_theme, Mode as SystemTheme};
-use tauri_plugin_window_state::{AppHandleExt, StateFlags};
 
 pub fn open_dir(dir: String) -> Result<()> {
     open::that(&dir)?;
@@ -40,8 +39,6 @@ pub fn get_system_theme() -> Result<String> {
 
 pub fn restart(app_handle: &tauri::AppHandle) -> Result<()> {
     handle::Handle::global().set_is_exiting();
-
-    let _ = app_handle.save_window_state(StateFlags::default());
     app_handle.restart()
 }
 

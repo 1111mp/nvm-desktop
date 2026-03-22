@@ -46,7 +46,7 @@ tauri-plugin-dialog = "2"
 tauri-plugin-log = { version = "2", features = ["colored"] }
 tauri-plugin-shell = "2"
 tauri-plugin-single-instance = "2"
-tauri-plugin-window-state = { path = "crates/window-state" }
+tauri-plugin-window-state = "2"
 tauri-plugin-updater = "2"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }

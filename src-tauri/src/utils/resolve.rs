@@ -126,6 +126,7 @@ pub async fn create_window() -> Result<()> {
     .min_inner_size(1024.0, 728.0)
     .resizable(true)
     .center()
+    .focused(true)
     .decorations(DEFAULT_DECORATIONS)
     .initialization_script(&initial_script);
 

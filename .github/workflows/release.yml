@@ -358,13 +358,6 @@ jobs:
           sudo apt-get install jq
           echo "VERSION=$(cat package.json | jq '.version' | tr -d '"')" >> $GITHUB_ENV
 
-      - name: Update Tag
-        uses: richardsimko/update-tag@v1
-        with:
-          tag_name: v${{ env.VERSION }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - run: |
           cat > release.txt << 'EOF'
           ## Which version should I download?

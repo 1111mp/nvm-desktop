@@ -20,6 +20,7 @@ const PLATFORM_MAP = {
   'aarch64-apple-darwin': 'darwin',
   'x86_64-unknown-linux-gnu': 'linux',
   'aarch64-unknown-linux-gnu': 'linux',
+  'armv7-unknown-linux-gnueabihf': 'linux',
 };
 
 const ARCH_MAP = {
@@ -29,6 +30,7 @@ const ARCH_MAP = {
   'aarch64-apple-darwin': 'arm64',
   'x86_64-unknown-linux-gnu': 'x64',
   'aarch64-unknown-linux-gnu': 'arm64',
+  'armv7-unknown-linux-gnueabihf': 'armhf',
 };
 
 const arg1 = process.argv.slice(2)[0];
@@ -51,6 +53,7 @@ const NVMD_LATEST_MAP = {
   'darwin-arm64': 'nvmd_macos-arm64',
   'linux-x64': 'nvmd_linux-x64',
   'linux-arm64': 'nvmd_linux-arm64',
+  'linux-armhf': 'nvmd_linux-armv7',
 };
 
 /*

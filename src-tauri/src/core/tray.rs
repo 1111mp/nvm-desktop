@@ -8,7 +8,7 @@ use crate::utils::resolve;
 use crate::{logging, logging_error};
 use anyhow::Result;
 use tauri::menu::{AboutMetadataBuilder, CheckMenuItem, MenuItem};
-use tauri::tray::{TrayIcon, TrayIconEvent};
+use tauri::tray::{MouseButton, TrayIcon, TrayIconEvent};
 use tauri::{
     image::Image,
     menu::{IsMenuItem, MenuEvent, PredefinedMenuItem, Submenu, SubmenuBuilder},

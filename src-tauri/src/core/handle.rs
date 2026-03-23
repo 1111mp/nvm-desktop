@@ -27,7 +27,6 @@ impl Handle {
     }
 
     pub fn app_handle() -> &'static AppHandle {
-        #[allow(clippy::expect_used)]
         APP_HANDLE.get().expect("App handle not initialized")
     }
 

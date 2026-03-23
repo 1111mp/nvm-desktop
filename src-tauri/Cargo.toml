@@ -56,9 +56,6 @@ warp = "0.3"
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.59", features = ["Win32_System_Threading"] }
 
-[target.'cfg(target_os = "linux")'.dependencies]
-openssl = { version = "0.10", features = ["vendored"] }
-
 [profile.release]
 codegen-units = 1 # Allows LLVM to perform better optimization.
 lto = true        # Enables link-time-optimizations.

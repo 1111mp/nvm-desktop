@@ -34,7 +34,6 @@ pub fn run() {
             },
         ))
         .setup(|app| {
-            #[allow(clippy::expect_used)]
             APP_HANDLE
                 .set(app.app_handle().clone())
                 .expect("failed to set global app handle");

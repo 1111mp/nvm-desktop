@@ -45,7 +45,7 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libxslt1.1 libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
 
       - name: Install Node
         uses: actions/setup-node@v6
@@ -53,7 +53,7 @@ jobs:
           node-version: '24'
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           run_install: false
 
@@ -87,6 +87,10 @@ jobs:
         include:
           - os: ubuntu-22.04
             target: aarch64-unknown-linux-gnu
+            arch: arm64
+          - os: ubuntu-22.04
+            target: armv7-unknown-linux-gnueabihf
+            arch: armhf
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Repository
@@ -110,7 +114,7 @@ jobs:
           node-version: '24'
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           run_install: false
 
@@ -124,7 +128,6 @@ jobs:
       - name: 'Setup for linux'
         run: |-
           sudo ls -lR /etc/apt/
-          echo "-------------"
 
           cat > /tmp/sources.list << EOF
           deb [arch=amd64,i386] http://archive.ubuntu.com/ubuntu jammy main multiverse universe restricted
@@ -132,48 +135,56 @@ jobs:
           deb [arch=amd64,i386] http://archive.ubuntu.com/ubuntu jammy-updates main multiverse universe restricted
           deb [arch=amd64,i386] http://archive.ubuntu.com/ubuntu jammy-backports main multiverse universe restricted
 
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy main multiverse universe restricted
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-security main multiverse universe restricted
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates main multiverse universe restricted
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-backports main multiverse universe restricted
+          deb [arch=armhf,arm64] http://ports.ubuntu.com/ubuntu-ports jammy main multiverse universe restricted
+          deb [arch=armhf,arm64] http://ports.ubuntu.com/ubuntu-ports jammy-security main multiverse universe restricted
+          deb [arch=armhf,arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates main multiverse universe restricted
+          deb [arch=armhf,arm64] http://ports.ubuntu.com/ubuntu-ports jammy-backports main multiverse universe restricted
           EOF
 
           sudo mv /etc/apt/sources.list /etc/apt/sources.list.default
           sudo mv /tmp/sources.list /etc/apt/sources.list
 
-          echo "-------------"
-          echo /etc/apt/sources.list && cat /etc/apt/sources.list
-          echo "-------------"
-          echo /etc/apt/apt-mirrors.txt && cat /etc/apt/apt-mirrors.txt
-          echo "-------------"
-          echo /etc/apt/sources.list.d/ports.list && cat /etc/apt/sources.list.d/ports.list || true
-          echo "-------------"
+          sudo dpkg --add-architecture ${{ matrix.arch }}
+          sudo apt-get update -y
+          sudo apt-get -f install -y
 
-          sudo dpkg --add-architecture arm64
-          sudo apt update
+          sudo apt-get install -y \
+            linux-libc-dev:${{ matrix.arch }} \
+            libc6-dev:${{ matrix.arch }}
 
+          sudo apt-get install -y \
+            libxslt1.1:${{ matrix.arch }} \
+            libwebkit2gtk-4.1-dev:${{ matrix.arch }} \
+            libayatana-appindicator3-dev:${{ matrix.arch }} \
+            libssl-dev:${{ matrix.arch }} \
+            patchelf:${{ matrix.arch }} \
+            librsvg2-dev:${{ matrix.arch }}
+
+      - name: Install aarch64 tools
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
           sudo apt install -y \
             gcc-aarch64-linux-gnu \
-            g++-aarch64-linux-gnu \
-            linux-libc-dev:arm64 \
-            libwebkit2gtk-4.1-dev:arm64 \
-            libappindicator3-dev:arm64 \
-            libssl-dev:arm64 \
-            patchelf:arm64 \
-            librsvg2-dev:arm64
+            g++-aarch64-linux-gnu
 
-          echo 'ok'
+      - name: Install armv7 tools
+        if: matrix.target == 'armv7-unknown-linux-gnueabihf'
+        run: |
+          sudo apt install -y \
+            gcc-arm-linux-gnueabihf \
+            g++-arm-linux-gnueabihf
 
       - name: Build for Linux
         run: |
-          echo "build native binarys..."
-
-          export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig/:$PKG_CONFIG_PATH
-          export PKG_CONFIG_SYSROOT_DIR=/usr/aarch64-linux-gnu/
           export PKG_CONFIG_ALLOW_CROSS=1
-          pnpm build --target aarch64-unknown-linux-gnu
-
-          echo "build native binarys finished"
+          if [ "${{ matrix.target }}" == "aarch64-unknown-linux-gnu" ]; then
+            export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig/:$PKG_CONFIG_PATH
+            export PKG_CONFIG_SYSROOT_DIR=/usr/aarch64-linux-gnu/
+          elif [ "${{ matrix.target }}" == "armv7-unknown-linux-gnueabihf" ]; then
+            export PKG_CONFIG_PATH=/usr/lib/arm-linux-gnueabihf/pkgconfig/:$PKG_CONFIG_PATH
+            export PKG_CONFIG_SYSROOT_DIR=/usr/arm-linux-gnueabihf/
+          fi
+          pnpm build --target ${{ matrix.target }}
         env:
           NODE_OPTIONS: '--max_old_space_size=4096'
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
@@ -184,6 +195,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install jq
           echo "VERSION=$(cat package.json | jq '.version' | tr -d '"')" >> $GITHUB_ENV
+          echo "BUILDTIME=$(TZ=Asia/Shanghai date)" >> $GITHUB_ENV
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2
@@ -227,7 +239,7 @@ jobs:
         with:
           node-version: '24'
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
         name: Install pnpm
         with:
           run_install: false
@@ -260,8 +272,23 @@ jobs:
 
       - name: Rename
         run: |
-          Rename-Item '.\src-tauri\target\${{ matrix.target }}\release\bundle\nsis\NVM Desktop_${{steps.build.outputs.appVersion}}_${{ matrix.arch }}-setup.exe' 'NVM Desktop_${{steps.build.outputs.appVersion}}_${{ matrix.arch }}_fixed_webview2-setup.exe'
-          Rename-Item '.\src-tauri\target\${{ matrix.target }}\release\bundle\nsis\NVM Desktop_${{steps.build.outputs.appVersion}}_${{ matrix.arch }}-setup.exe.sig' 'NVM Desktop_${{steps.build.outputs.appVersion}}_${{ matrix.arch }}_fixed_webview2-setup.exe.sig'
+          $files = Get-ChildItem ".\src-tauri\target\${{ matrix.target }}\release\bundle\nsis\*-setup.exe"
+          foreach ($file in $files) {
+            $newName = $file.Name -replace "-setup\.exe$", "_fixed_webview2-setup.exe"
+            Rename-Item $file.FullName $newName
+          }
+
+          $files = Get-ChildItem ".\src-tauri\target\${{ matrix.target }}\release\bundle\nsis\*.nsis.zip"
+          foreach ($file in $files) {
+            $newName = $file.Name -replace "-setup\.nsis\.zip$", "_fixed_webview2-setup.nsis.zip"
+            Rename-Item $file.FullName $newName
+          }
+
+          $files = Get-ChildItem ".\src-tauri\target\${{ matrix.target }}\release\bundle\nsis\*-setup.exe.sig"
+          foreach ($file in $files) {
+            $newName = $file.Name -replace "-setup\.exe\.sig$", "_fixed_webview2-setup.exe.sig"
+            Rename-Item $file.FullName $newName
+          }
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2

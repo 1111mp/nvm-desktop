@@ -373,6 +373,7 @@ jobs:
           ### Linux
           - **x86_64 (64-bit)** → `amd64.deb` / `x86_64.rpm`
           - **ARM64** → `arm64.deb` / `aarch64.rpm`
+          - **ARMv7** → `armhf.deb` / `armhfp.rpm`
 
           ### Windows
           > Windows 7 users must install and enable **WebView2** first.
@@ -402,7 +403,7 @@ jobs:
           ### Linux
           - **x86_64 (64位)** → `amd64.deb` / `x86_64.rpm`
           - **ARM64 架构** → `arm64.deb` / `aarch64.rpm`
-          - **ARMv7** → `armhf.deb` / `armhfp.rpm`
+          - **ARMv7 架构** → `armhf.deb` / `armhfp.rpm`
 
           ### Windows
           > Windows 7 用户请确保已安装并启用 **WebView2**。

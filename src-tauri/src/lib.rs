@@ -20,7 +20,7 @@ pub fn run() {
     std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
 
     let mut builder = tauri::Builder::default()
-        .plugin(tauri_plugin_window_state::Builder::default().build())
+        // .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_updater::Builder::default().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
@@ -41,6 +41,10 @@ pub fn run() {
                 .expect("failed to set global app handle");
 
             logging!(info, Type::Setup, "Starting application initialization...");
+
+            if let Err(e) = setup_window_state(app) {
+                logging!(error, Type::Setup, "Failed to setup window state: {}", e);
+            }
 
             resolve::resolve_setup_async();
 
@@ -140,4 +144,14 @@ pub fn run() {
         },
         _ => {}
     });
+}
+
+/// Setup window state management
+fn setup_window_state(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+    logging!(info, Type::Setup, "Initialize window state management...");
+    let window_state_plugin = tauri_plugin_window_state::Builder::new()
+        .with_state_flags(tauri_plugin_window_state::StateFlags::default())
+        .build();
+    app.handle().plugin(window_state_plugin)?;
+    Ok(())
 }

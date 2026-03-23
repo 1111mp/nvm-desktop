@@ -1,6 +1,6 @@
 use crate::{
     config::Config,
-    core::{handle::Handle, node, project::update_from_notice},
+    core::{handle::Handle, node, project, tray},
     log_err, logging,
     process::AsyncHandler,
     utils::logging::Type,
@@ -57,7 +57,7 @@ pub fn start_embed_server() {
                     }
                     Source::Project => {
                         if let (Some(name), Some(version)) = (name.as_ref(), version.as_ref()) {
-                            let _ = update_from_notice(name, version).await;
+                            let _ = project::update_from_notice(name, version).await;
                         }
                     }
                 };
@@ -66,7 +66,7 @@ pub fn start_embed_server() {
                     let _ = window.emit(event_name, &version);
                 }
 
-                log_err!(Handle::update_systray_part().await);
+                log_err!(tray::Tray::global().update_part().await);
             });
 
             Ok(StatusCode::OK)

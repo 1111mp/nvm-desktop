@@ -1,8 +1,7 @@
-use super::tray::Tray;
 use crate::{logging, utils::logging::Type, APP_HANDLE};
 use anyhow::Result;
 use std::sync::atomic::{AtomicBool, Ordering};
-use tauri::{AppHandle, Manager, WebviewWindow};
+use tauri::{AppHandle, Emitter, Manager, WebviewWindow};
 
 #[derive(Debug)]
 pub struct Handle {
@@ -48,15 +47,12 @@ impl Handle {
         window
     }
 
-    /// update the system tray state
-    pub async fn update_systray_part() -> Result<()> {
-        Tray::update_part().await?;
-        Ok(())
-    }
-
     /// update the system tray state & emit event
-    pub async fn update_systray_part_with_emit(event: &str, version: &str) -> Result<()> {
-        Tray::update_part_with_emit(event, version).await?;
+    pub async fn update_tray_part_and_emit(event: &str, payload: &str) -> Result<()> {
+        super::tray::Tray::global().update_menu().await?;
+        if let Some(window) = Self::global().get_main_window() {
+            window.emit(event, payload)?;
+        }
         Ok(())
     }
 }

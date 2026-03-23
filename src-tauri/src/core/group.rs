@@ -5,8 +5,6 @@ use crate::{
 };
 use anyhow::Result;
 
-use super::handle;
-
 pub async fn fetch_groups() -> Result<SharedDraft<IGroups>> {
     let draft = Config::groups().await;
     let data = draft.data_arc();
@@ -35,7 +33,7 @@ pub async fn update_groups(list: Vec<Group>) -> Result<()> {
     Config::groups().await.edit_draft(|d| d.update_list(list));
 
     let process_result: std::result::Result<(), anyhow::Error> = {
-        handle::Handle::update_systray_part().await?;
+        super::tray::Tray::global().update_part().await?;
         Ok(())
     };
 

@@ -6,6 +6,7 @@ pub enum Type {
     Config,
     Migrate,
     Setup,
+    Tray,
     Window,
     Server,
 }
@@ -17,6 +18,7 @@ impl fmt::Display for Type {
             Type::Config => write!(f, "[Config]"),
             Type::Migrate => write!(f, "[Migrate]"),
             Type::Setup => write!(f, "[Setup]"),
+            Type::Tray => write!(f, "[Tray]"),
             Type::Window => write!(f, "[Window]"),
             Type::Server => write!(f, "[Server]"),
         }

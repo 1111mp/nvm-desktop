@@ -20,7 +20,6 @@ pub fn run() {
     std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
 
     let mut builder = tauri::Builder::default()
-        // .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_updater::Builder::default().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
@@ -116,12 +115,11 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while running tauri application");
 
-    app.run(|app_handle, evt| match evt {
+    app.run(|_, evt| match evt {
         tauri::RunEvent::WindowEvent { label, event, .. } if label == "main" => match event {
             tauri::WindowEvent::CloseRequested { api, .. } => {
                 api.prevent_close();
 
-                let app_handle = app_handle.clone();
                 AsyncHandler::spawn(move || async move {
                     let closer = Config::settings()
                         .await
@@ -129,14 +127,9 @@ pub fn run() {
                         .get_closer()
                         .unwrap_or("minimize".to_string());
                     if closer == "close" {
-                        app::exit_app(&app_handle);
+                        app::exit_app();
                     } else {
-                        #[cfg(target_os = "macos")]
-                        let _ = app_handle.set_dock_visibility(false);
-
-                        if let Some(window) = app_handle.get_webview_window("main") {
-                            log_err!(window.hide());
-                        }
+                        app::hide();
                     }
                 });
             }

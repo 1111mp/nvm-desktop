@@ -1,20 +1,15 @@
-use std::{
-    path::{Path, PathBuf},
-    process::Command,
-};
-
+use super::handle;
 use crate::{
     config::{Config, IProjects, Project, SharedDraft},
     log_err, logging,
     utils::{dirs, help, logging::Type},
 };
 use anyhow::{anyhow, bail, Result};
-use chrono::Utc;
 use futures::{stream, StreamExt, TryStreamExt};
-use serde::{Deserialize, Serialize};
-use tauri_plugin_dialog::{DialogExt, FilePath};
-
-use super::handle;
+use std::{
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 pub async fn fetch_projects() -> Result<SharedDraft<IProjects>> {
     let draft = Config::projects().await;
@@ -48,36 +43,8 @@ pub async fn patch_projects(patch: &IProjects, need_save_file: bool) -> Result<(
     Ok(())
 }
 
-// /// get project list from `projects.json`
-// pub async fn project_list(fetch: Option<bool>) -> Result<Option<Vec<Project>>> {
-//     let fetch = fetch.unwrap_or(false);
-//     if !fetch {
-//         return fetch_projects().await.stringify_err();
-//         // return Ok(Config::projects().await.data_arc().get_list());
-//     }
-
-//     let path = dirs::projects_path()?;
-//     let list = help::read_json::<Vec<Project>>(&path).await?;
-
-//     // update projects
-//     Config::projects().draft_mut().update_list(&list)?;
-//     Config::projects().apply();
-
-//     Ok(Some(list))
-// }
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct PInfo {
-    /// project floder path
-    pub path: PathBuf,
-
-    /// project version default from `.nvmdrc`
-    pub version: Option<String>,
-}
-
 /// add projects
 pub async fn add_projects(projects: Vec<Project>) -> Result<()> {
-    // let now = Utc::now().to_rfc3339();
     let draft = Config::settings().await.data_arc();
     let node_version_file = draft.get_node_version_file();
     let node_version_file_ref = &node_version_file;
@@ -101,7 +68,7 @@ pub async fn add_projects(projects: Vec<Project>) -> Result<()> {
     });
 
     let process_result: std::result::Result<(), anyhow::Error> = {
-        handle::Handle::update_systray_part().await?;
+        super::tray::Tray::global().update_part().await?;
         Ok(())
     };
 
@@ -133,7 +100,7 @@ pub async fn update_projects(
     Config::projects().await.edit_draft(|d| d.patch(payload));
     let process_result: std::result::Result<(), anyhow::Error> = {
         if need_refresh_tary {
-            handle::Handle::update_systray_part().await?;
+            super::tray::Tray::global().update_part().await?;
         }
         Ok(())
     };
@@ -193,7 +160,7 @@ pub async fn change_with_version(name: &str, version: &str) -> Result<()> {
         sync_project_version(PathBuf::from(&project_path), &version).await?;
 
         log_err!(
-            handle::Handle::update_systray_part_with_emit(
+            handle::Handle::update_tray_part_and_emit(
                 "nvm-desktop://refresh-project-info",
                 &version
             )
@@ -241,7 +208,7 @@ pub async fn change_with_group(name: &str, group_name: &str) -> Result<()> {
         sync_project_version(PathBuf::from(&project_path), &version).await?;
 
         log_err!(
-            handle::Handle::update_systray_part_with_emit(
+            handle::Handle::update_tray_part_and_emit(
                 "nvm-desktop://refresh-project-info",
                 &version
             )

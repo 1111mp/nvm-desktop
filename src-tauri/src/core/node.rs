@@ -53,7 +53,7 @@ pub async fn fetch_installed_with_sync(
     let need_refresh_tray = need_refresh_tray.unwrap_or(false);
     if need_refresh_tray {
         AsyncHandler::spawn(|| async {
-            let _ = handle::Handle::update_systray_part().await;
+            let _ = super::tray::Tray::global().update_part().await;
         });
     }
 
@@ -82,7 +82,7 @@ pub async fn set_current(version: Option<String>) -> Result<()> {
 
     let process_result: std::result::Result<(), anyhow::Error> = {
         help::write_current(&version).await?;
-        handle::Handle::update_systray_part().await?;
+        super::tray::Tray::global().update_part().await?;
         Ok(())
     };
 
@@ -102,7 +102,7 @@ pub async fn update_current_from_menu(version: Option<String>) -> Result<()> {
     });
 
     let process_result: std::result::Result<(), anyhow::Error> = {
-        handle::Handle::update_systray_part_with_emit(
+        handle::Handle::update_tray_part_and_emit(
             "nvm-desktop://refresh-version-info",
             &version.unwrap_or_default(),
         )

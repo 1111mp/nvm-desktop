@@ -1,4 +1,3 @@
-use super::{handle, project::sync_project_version};
 use crate::{
     config::{Config, Group, ISettingsResponse, Project},
     log_err, logging,
@@ -147,7 +146,8 @@ pub async fn configuration_import(
                 }
 
                 if let Some(version) = version {
-                    sync_project_version(PathBuf::from(&project.path), &version).await?;
+                    super::project::sync_project_version(PathBuf::from(&project.path), &version)
+                        .await?;
                 }
             }
         }
@@ -176,7 +176,7 @@ pub async fn configuration_import(
         }
         // update system tray & notification page refresh data
         if need_update_projects || need_update_groups {
-            log_err!(handle::Handle::update_systray_part().await);
+            log_err!(super::tray::Tray::global().update_part().await);
             if let Some(window) = app_handle.get_webview_window("main") {
                 window.emit("nvm-desktop://refresh-project-info", ())?;
             }

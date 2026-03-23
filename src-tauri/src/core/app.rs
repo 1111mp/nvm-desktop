@@ -1,4 +1,8 @@
-use crate::{core::handle, utils::dirs};
+use crate::{
+    core::handle,
+    logging_error,
+    utils::{dirs, logging::Type},
+};
 use anyhow::Result;
 use dark_light::{detect as detect_system_theme, Mode as SystemTheme};
 
@@ -37,12 +41,31 @@ pub fn get_system_theme() -> Result<String> {
     Ok(theme.to_string())
 }
 
+pub fn open_devtools() {
+    if let Some(window) = handle::Handle::global().get_main_window() {
+        window.open_devtools();
+    }
+}
+
+pub fn hide() {
+    let app_handle = handle::Handle::app_handle();
+
+    #[cfg(target_os = "macos")]
+    let _ = app_handle.set_dock_visibility(false);
+
+    if let Some(window) = handle::Handle::global().get_main_window() {
+        logging_error!(Type::Window, window.hide());
+    }
+}
+
 pub fn restart(app_handle: &tauri::AppHandle) -> Result<()> {
     handle::Handle::global().set_is_exiting();
     app_handle.restart()
 }
 
-pub fn exit_app(app_handle: &tauri::AppHandle) {
+pub fn exit_app() {
     handle::Handle::global().set_is_exiting();
+
+    let app_handle = handle::Handle::app_handle();
     app_handle.exit(0);
 }

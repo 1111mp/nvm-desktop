@@ -1,6 +1,5 @@
 use crate::{
     config::{Config, ISettings, SharedDraft},
-    core::handle,
     logging,
     utils::logging::Type,
 };
@@ -77,7 +76,7 @@ async fn process_terminated_flags(update_flags: UpdateFlags, patch: &ISettings) 
     }
     // update system tray
     if update_flags.contains(UpdateFlags::DIRECTORY | UpdateFlags::LOCALE) {
-        handle::Handle::update_systray_part().await?;
+        super::tray::Tray::global().update_part().await?;
     }
 
     Ok(())

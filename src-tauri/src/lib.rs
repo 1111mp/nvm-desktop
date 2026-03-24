@@ -17,7 +17,7 @@ pub static APP_HANDLE: OnceCell<AppHandle> = OnceCell::new();
 
 pub fn run() {
     #[cfg(target_os = "linux")]
-    std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+    utils::linux::workarounds::apply_nvidia_dmabuf_renderer_workaround();
 
     let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::default().build())

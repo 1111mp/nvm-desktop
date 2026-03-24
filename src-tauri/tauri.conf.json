@@ -39,7 +39,10 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": ["resources"],
+    "resources": [
+      "resources",
+      "icons/icon.png"
+    ],
     "publisher": "NVM Desktop",
     "copyright": "MIT License",
     "licenseFile": "../LICENSE",

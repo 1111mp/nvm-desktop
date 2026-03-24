@@ -1,12 +1,6 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "identifier": "io.github.1111mp.nvm-desktop",
-  "app": {
-    "trayIcon": {
-      "id": "main",
-      "iconPath": "icons/icon.ico"
-    }
-  },
   "bundle": {
     "targets": ["deb", "rpm"],
     "linux": {

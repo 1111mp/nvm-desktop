@@ -34,7 +34,7 @@ pub fn resolve_setup_async() {
         // migrate
         migrate::init();
         // tary
-        logging_error!(Type::Setup, tray::Tray::global().init());
+        logging_error!(Type::Setup, tray::Tray::global().init().await);
         logging_error!(Type::Setup, tray::Tray::global().update_part().await);
     });
 }

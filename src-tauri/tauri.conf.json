@@ -11,7 +11,6 @@
     "removeUnusedCommands": true
   },
   "app": {
-    "windows": [],
     "security": {
       "csp": {
         "default-src": "blob: data: filesystem: ws: wss: http: https: tauri: asset: 'unsafe-eval' 'unsafe-inline' 'self'",
@@ -40,10 +39,7 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": [
-      "resources",
-      "icons/icon.png"
-    ],
+    "resources": ["resources"],
     "publisher": "NVM Desktop",
     "copyright": "MIT License",
     "licenseFile": "../LICENSE",

@@ -8,6 +8,7 @@ use crate::utils::resolve;
 use crate::{logging, logging_error};
 use anyhow::Result;
 use tauri::menu::{AboutMetadataBuilder, CheckMenuItem, MenuItem};
+use tauri::tray::TrayIconBuilder;
 use tauri::tray::{MouseButton, TrayIcon, TrayIconEvent};
 use tauri::{
     image::Image,
@@ -28,7 +29,7 @@ impl Tray {
         TRAY.get_or_init(|| Self::new())
     }
 
-    pub fn init(&self) -> Result<()> {
+    pub async fn init(&self) -> Result<()> {
         if handle::Handle::global().is_exiting() {
             logging!(
                 debug,
@@ -39,7 +40,7 @@ impl Tray {
         }
 
         let app_handle = handle::Handle::app_handle();
-        match self.handle_event(app_handle) {
+        match self.create_tray_from_handle(app_handle).await {
             Ok(_) => {
                 logging!(info, Type::Tray, "Tray initialized successfully");
             }
@@ -55,31 +56,39 @@ impl Tray {
         Ok(())
     }
 
-    pub fn handle_event(&self, app_handle: &AppHandle) -> Result<()> {
+    async fn create_tray_from_handle(&self, app_handle: &AppHandle) -> Result<()> {
         if handle::Handle::global().is_exiting() {
             logging!(
                 debug,
                 Type::Setup,
-                "Application is exiting, skipping tray event binding"
+                "Application is exiting, skipping tray create"
             );
             return Ok(());
         }
 
-        logging!(debug, Type::Tray, "Registering tray event handlers");
+        logging!(info, Type::Tray, "System tray creating...");
 
-        let Some(tray) = app_handle.tray_by_id("main") else {
-            logging!(
-                warn,
-                Type::Tray,
-                "Tray not found, skipping tray event binding"
-            );
-            return Ok(());
-        };
+        #[cfg(target_os = "linux")]
+        let icon_bytes = include_bytes!("../../icons/icon.ico").to_vec();
+        #[cfg(target_os = "windows")]
+        let icon_bytes = include_bytes!("../../icons/icon.png").to_vec();
+        #[cfg(target_os = "macos")]
+        let icon_bytes = include_bytes!("../../icons/icon-template.png").to_vec();
 
+        let icon = tauri::image::Image::from_bytes(&icon_bytes)?;
+
+        let mut builder = TrayIconBuilder::with_id("main")
+            .icon(icon)
+            .icon_as_template(false);
+
+        #[cfg(target_os = "macos")]
+        {
+            builder = builder.icon_as_template(true);
+        }
+
+        let tray = builder.build(app_handle)?;
         tray.on_tray_icon_event(on_tray_icon_event);
         tray.on_menu_event(on_menu_event);
-
-        logging!(debug, Type::Tray, "Tray event handlers registered");
 
         Ok(())
     }

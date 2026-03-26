@@ -127,7 +127,7 @@ pub async fn create_window() -> Result<()> {
     .center()
     .focused(true)
     .decorations(DEFAULT_DECORATIONS)
-    // waiting `window-state` plugin ready
+    // waiting `window-state` plugin ready, it'll show the window
     .visible(false)
     .initialization_script(&initial_script);
 
@@ -155,10 +155,6 @@ pub async fn create_window() -> Result<()> {
 
             #[cfg(debug_assertions)]
             window.open_devtools();
-
-            // show the window
-            let _ = window.show();
-            let _ = window.set_focus();
         }
         Err(err) => {
             logging!(

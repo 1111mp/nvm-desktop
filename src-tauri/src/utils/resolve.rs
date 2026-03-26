@@ -120,7 +120,6 @@ pub async fn create_window() -> Result<()> {
         tauri::WebviewUrl::App("index.html".into()),
     )
     .title("NVM-Desktop")
-    .visible(true)
     .fullscreen(false)
     .inner_size(1024.0, 728.0)
     .min_inner_size(1024.0, 728.0)
@@ -128,6 +127,8 @@ pub async fn create_window() -> Result<()> {
     .center()
     .focused(true)
     .decorations(DEFAULT_DECORATIONS)
+    // waiting `window-state` plugin ready
+    .visible(false)
     .initialization_script(&initial_script);
 
     #[cfg(target_os = "macos")]
@@ -154,6 +155,10 @@ pub async fn create_window() -> Result<()> {
 
             #[cfg(debug_assertions)]
             window.open_devtools();
+
+            // show the window
+            let _ = window.show();
+            let _ = window.set_focus();
         }
         Err(err) => {
             logging!(

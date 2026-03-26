@@ -124,7 +124,7 @@ pub async fn create_window() -> Result<()> {
     .inner_size(1024.0, 728.0)
     .min_inner_size(1024.0, 728.0)
     .resizable(true)
-    // .center()
+    .center()
     .decorations(DEFAULT_DECORATIONS)
     // waiting `window-state` plugin ready, it'll show the window
     .visible(false)

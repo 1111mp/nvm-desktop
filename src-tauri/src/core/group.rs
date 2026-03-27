@@ -12,12 +12,12 @@ pub async fn fetch_groups() -> Result<SharedDraft<IGroups>> {
 }
 
 /// get project list from memory
-pub async fn group_list() -> Result<Option<Vec<Group>>> {
-    Ok(fetch_groups().await?.get_list())
+pub async fn group_list() -> Result<Vec<Group>> {
+    Ok(fetch_groups().await?.get_list().unwrap_or_default())
 }
 
 /// get project list from `projects.json`
-pub async fn group_list_with_sync() -> Result<Option<Vec<Group>>> {
+pub async fn group_list_with_sync() -> Result<Vec<Group>> {
     let path = dirs::groups_path()?;
     let list = help::read_json::<Vec<Group>>(&path).await?;
 
@@ -25,7 +25,7 @@ pub async fn group_list_with_sync() -> Result<Option<Vec<Group>>> {
 
     Config::groups().await.apply();
     let groups_data = Config::groups().await.data_arc();
-    Ok(groups_data.get_list())
+    Ok(groups_data.get_list().unwrap_or_default())
 }
 
 /// update groups & save

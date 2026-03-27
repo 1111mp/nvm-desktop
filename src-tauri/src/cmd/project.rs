@@ -8,7 +8,7 @@ use std::path::PathBuf;
 
 /// get project list
 #[tauri::command]
-pub async fn project_list(fetch: Option<bool>) -> CmdResult<Option<Vec<Project>>> {
+pub async fn project_list(fetch: Option<bool>) -> CmdResult<Vec<Project>> {
     let fetch = fetch.unwrap_or(false);
     if fetch {
         project::fetch_projects_with_sync().await.stringify_err()

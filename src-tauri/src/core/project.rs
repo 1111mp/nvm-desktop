@@ -17,17 +17,17 @@ pub async fn fetch_projects() -> Result<SharedDraft<IProjects>> {
     Ok(data)
 }
 
-pub async fn fetch_projects_from_local() -> Result<Option<Vec<Project>>> {
-    Ok(fetch_projects().await?.get_list())
+pub async fn fetch_projects_from_local() -> Result<Vec<Project>> {
+    Ok(fetch_projects().await?.get_list().unwrap_or_default())
 }
 
-pub async fn fetch_projects_with_sync() -> Result<Option<Vec<Project>>> {
+pub async fn fetch_projects_with_sync() -> Result<Vec<Project>> {
     let path = dirs::projects_path()?;
     let list = help::read_json::<Vec<Project>>(&path).await?;
     patch_projects(&IProjects { list: Some(list) }, false).await?;
 
     let draft = Config::projects().await.data_arc();
-    Ok(draft.get_list())
+    Ok(draft.get_list().unwrap_or_default())
 }
 
 pub async fn patch_projects(patch: &IProjects, need_save_file: bool) -> Result<()> {

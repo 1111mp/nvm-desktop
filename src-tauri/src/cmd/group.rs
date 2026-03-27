@@ -3,7 +3,7 @@ use crate::{cmd::StringifyErr, config::Group, core::group};
 
 /// get group list
 #[tauri::command]
-pub async fn group_list(fetch: Option<bool>) -> CmdResult<Option<Vec<Group>>> {
+pub async fn group_list(fetch: Option<bool>) -> CmdResult<Vec<Group>> {
     let fetch = fetch.unwrap_or(false);
     if fetch {
         group::group_list_with_sync().await.stringify_err()

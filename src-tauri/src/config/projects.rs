@@ -27,10 +27,16 @@ pub struct Project {
     pub update_at: Option<String>,
 }
 
-#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct IProjects {
     /// projects list
     pub list: Option<Vec<Project>>,
+}
+
+impl Default for IProjects {
+    fn default() -> Self {
+        Self { list: Some(vec![]) }
+    }
 }
 
 impl IProjects {

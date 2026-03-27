@@ -25,10 +25,16 @@ fn default_projects() -> Vec<String> {
     vec![]
 }
 
-#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct IGroups {
     /// projects list
     pub list: Option<Vec<Group>>,
+}
+
+impl Default for IGroups {
+    fn default() -> Self {
+        Self { list: Some(vec![]) }
+    }
 }
 
 impl IGroups {

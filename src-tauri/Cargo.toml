@@ -36,6 +36,7 @@ parking_lot = "0.12"
 tauri = { version = "2", features = [
 	"image-ico",
 	"image-png",
+	"macos-private-api",
 	"protocol-asset",
 	"tray-icon",
 	"devtools",

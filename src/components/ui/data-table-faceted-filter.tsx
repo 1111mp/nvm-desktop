@@ -1,7 +1,6 @@
 'use no memo';
 
 import { Check, CirclePlus } from 'lucide-react';
-import { Column } from '@tanstack/react-table';
 import { Badge } from './badge';
 import { Button } from './button';
 import {
@@ -18,6 +17,8 @@ import { Separator } from './separator';
 
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
+
+import { type Column } from '@tanstack/react-table';
 
 export interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;

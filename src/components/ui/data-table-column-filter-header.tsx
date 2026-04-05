@@ -1,12 +1,13 @@
 'use no memo';
 
 import { useRef } from 'react';
-import { Column } from '@tanstack/react-table';
 import { Search, CircleX } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from './button';
 import { Input } from './input';
 import { Popover, PopoverTrigger, PopoverContent } from './popover';
+
+import { type Column } from '@tanstack/react-table';
 
 import { cn } from '@/lib/utils';
 

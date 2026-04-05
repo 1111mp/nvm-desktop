@@ -88,11 +88,6 @@ const Home: React.FC = () => {
                           {' '}
                           %HOMEDIR%\.nvmd\bin{' '}
                         </span>
-                        ，{t('Set-by')} :
-                        <span className='text-muted-foreground'>
-                          {' '}
-                          setx -m NVMD path{' '}
-                        </span>
                         。
                       </span>
                     </p>
@@ -151,11 +146,6 @@ const Home: React.FC = () => {
                         <span className='text-muted-foreground'>
                           {' '}
                           %HOMEDIR%\.nvmd\bin{' '}
-                        </span>
-                        , {t('Set-by')} :
-                        <span className='text-muted-foreground'>
-                          {' '}
-                          setx -m NVMD path{' '}
                         </span>
                         .
                       </span>

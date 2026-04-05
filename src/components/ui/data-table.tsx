@@ -2,7 +2,6 @@
 
 import { useRef, useState } from 'react';
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
@@ -10,6 +9,7 @@ import {
   getFilteredRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
+  type ColumnDef,
   type SortingState,
   type ColumnFiltersState,
   type VisibilityState,

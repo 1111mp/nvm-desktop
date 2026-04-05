@@ -366,7 +366,7 @@ export const Component: React.FC = () => {
         },
         {
           key:
-            process.env.NODE_ENV === 'development' &&
+            import.meta.env.MODE === 'development' &&
             'getFacetedUniqueValues_' + columnId,
           debug: () => table.options.debugAll ?? table.options.debugTable,
           onChange: () => {},

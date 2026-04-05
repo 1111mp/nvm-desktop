@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 import { memo, type ColumnDef, type Table } from '@tanstack/react-table';
 import { toast } from 'sonner';
-import { Modal, ModalRef } from './modal';
+import { Modal, type ModalRef } from './modal';
 
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -391,7 +391,7 @@ export const Versions: React.FC = () => {
         },
         {
           key:
-            process.env.NODE_ENV === 'development' &&
+            import.meta.env.MODE === 'development' &&
             'getFacetedUniqueValues_' + columnId,
           debug: () => table.options.debugAll ?? table.options.debugTable,
           onChange: () => {},

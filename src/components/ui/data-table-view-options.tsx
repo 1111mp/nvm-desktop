@@ -1,6 +1,5 @@
 'use no memo';
 
-import { Table } from '@tanstack/react-table';
 import { Waypoints } from 'lucide-react';
 import { Button } from './button';
 import {
@@ -13,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from './dropdown-menu';
 import { useTranslation } from 'react-i18next';
+
+import { type Table } from '@tanstack/react-table';
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>;

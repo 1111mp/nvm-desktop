@@ -4,19 +4,19 @@
 
 import { useState } from 'react';
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
   getSortedRowModel,
   getFilteredRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  type ColumnDef,
   type SortingState,
   type ColumnFiltersState,
   type VisibilityState,
   type Table as StackTable,
-  getFacetedRowModel,
-  Row,
-  getFacetedUniqueValues,
+  type Row,
 } from '@tanstack/react-table';
 import {
   Table,
@@ -32,13 +32,13 @@ import { GripHorizontal } from 'lucide-react';
 import {
   closestCenter,
   DndContext,
-  DragEndEvent,
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
-  UniqueIdentifier,
   useSensor,
   useSensors,
+  type DragEndEvent,
+  type UniqueIdentifier,
 } from '@dnd-kit/core';
 import {
   restrictToVerticalAxis,

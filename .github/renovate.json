@@ -43,6 +43,11 @@
       "description": "Group all GitHub Actions updates into a single PR",
       "matchManagers": ["github-actions"],
       "groupName": "github actions"
+    },
+    {
+      "matchDatasources": ["github-actions"],
+      "matchPackageNames": ["ubuntu-22.04", "ubuntu-24.04"],
+      "enabled": false
     }
   ],
   "postUpdateOptions": ["pnpmDedupe"],

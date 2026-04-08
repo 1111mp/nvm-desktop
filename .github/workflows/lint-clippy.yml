@@ -74,4 +74,4 @@ jobs:
 
       - name: Run Clippy
         working-directory: ./src-tauri
-        run: cargo clippy-all
+        run: cargo clippy --all-targets --all-features --locked

@@ -203,7 +203,7 @@ pub async fn change_with_group(name: &str, group_name: &str) -> Result<()> {
         let version = Config::groups()
             .await
             .edit_draft(|d| d.update_projects_version(&project_path, group_name))?
-            .ok_or_else(|| anyhow!("failed to find the group version \"name:{}\"", &group_name))?;
+            .ok_or_else(|| anyhow!("failed to find the group version \"name:{}\"", group_name))?;
 
         sync_project_version(PathBuf::from(&project_path), &version).await?;
 

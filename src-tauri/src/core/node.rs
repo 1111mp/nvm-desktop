@@ -96,17 +96,14 @@ pub async fn set_current(version: Option<String>) -> Result<()> {
 }
 
 /// update current version from menu
-pub async fn update_current_from_menu(version: Option<String>) -> Result<()> {
+pub async fn update_current_from_menu(version: &str) -> Result<()> {
     Config::node().await.edit_draft(|d| {
-        d.update_current(version.clone());
+        d.update_current(Some(version.to_owned()));
     });
 
     let process_result: std::result::Result<(), anyhow::Error> = {
-        handle::Handle::update_tray_part_and_emit(
-            "nvm-desktop://refresh-version-info",
-            &version.unwrap_or_default(),
-        )
-        .await?;
+        handle::Handle::update_tray_part_and_emit("nvm-desktop://refresh-version-info", version)
+            .await?;
         Ok(())
     };
 

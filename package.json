@@ -81,13 +81,13 @@
     "fs-extra": "^11.3.4",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
-    "oxlint": "^1.58.0",
-    "oxlint-tsgolint": "^0.19.0",
+    "oxlint": "^1.59.0",
+    "oxlint-tsgolint": "^0.20.0",
     "prettier": "^3.8.1",
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2",
     "undici": "^8.0.2",
-    "vite": "^8.0.3",
+    "vite": "^8.0.5",
     "vite-plugin-html": "^3.2.2"
   },
   "packageManager": "pnpm@10.33.0"

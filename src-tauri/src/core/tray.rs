@@ -384,10 +384,7 @@ fn on_menu_event(_: &AppHandle, event: MenuEvent) {
                     return;
                 };
                 if name == "global" {
-                    logging_error!(
-                        Type::Tray,
-                        node::update_current_from_menu(Some(version.to_owned())).await
-                    );
+                    logging_error!(Type::Tray, node::update_current_from_menu(version).await);
                 } else {
                     logging_error!(
                         Type::Tray,
@@ -402,7 +399,7 @@ fn on_menu_event(_: &AppHandle, event: MenuEvent) {
 
                 logging_error!(
                     Type::Tray,
-                    project::change_with_group(&name, &group_name).await
+                    project::change_with_group(name, group_name).await
                 );
             }
             _ => {

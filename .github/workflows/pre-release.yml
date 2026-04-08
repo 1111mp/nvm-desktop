@@ -303,7 +303,7 @@ jobs:
 
   update_alpha_notes:
     name: Update alpha notes
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [alpha, alpha-for-linux-arm64, alpha-for-fixed-webview2]
     steps:
       - name: Checkout repository

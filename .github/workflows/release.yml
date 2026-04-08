@@ -290,7 +290,7 @@ jobs:
           files: src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*setup*
 
   release-update:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [release, release-for-linux-arm64]
     steps:
       - name: Checkout repository
@@ -315,7 +315,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release-update-for-fixed-webview2:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [release-for-fixed-webview2]
     steps:
       - name: Checkout repository
@@ -341,7 +341,7 @@ jobs:
 
   update_release_notes:
     name: Update release notes
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [release, release-for-linux-arm64, release-for-fixed-webview2]
     steps:
       - name: Checkout repository

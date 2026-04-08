@@ -15,6 +15,7 @@ async_zip = { version = "0.0.18", default-features = false, features = [
 cfg-if = "1"
 futures-lite = "2"
 futures-util = "0.3"
+hex = { version = "0.4", features = ["std"] }
 node-semver = "2"
 reqwest = { version = "0.13", features = ["json", "rustls", "stream"] }
 serde = { version = "1", features = ["derive"] }

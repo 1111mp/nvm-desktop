@@ -270,7 +270,9 @@ async fn sha256_file(file_path: &Path) -> Result<String> {
         hasher.update(&buffer[..read]);
     }
 
-    Ok(format!("{:x}", hasher.finalize()))
+    let digest = hasher.finalize();
+
+    Ok(hex::encode(digest))
 }
 
 pub(super) async fn verify_archive_checksum(

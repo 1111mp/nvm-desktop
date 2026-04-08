@@ -48,6 +48,7 @@ jobs:
       - name: Pnpm install and check
         run: |
           pnpm i --frozen-lockfile
+          pnpm run check
           pnpm run ui:build
 
       - name: Rust Cache

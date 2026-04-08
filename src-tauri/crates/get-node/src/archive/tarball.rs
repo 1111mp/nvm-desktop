@@ -7,7 +7,7 @@ use tokio::{
     fs::{remove_dir_all, remove_file, rename, File},
     io::BufReader,
 };
-use tokio_tar::Archive;
+use tokio_tar::ArchiveBuilder;
 
 use super::{
     cleanup_stale_partial_archives, create_client, download_archive, ensure_not_cancelled,
@@ -69,7 +69,9 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
     // Initialize the GzipDecoder
     let decoded = GzipDecoder::new(reader);
     // Initialize the tar archive with the decoded reader
-    let mut tarball = Archive::new(decoded);
+    let mut tarball = ArchiveBuilder::new(decoded)
+        .set_preserve_permissions(true)
+        .build();
     // Unpack the tarball to the destination directory and report progress
     let mut entries = tarball.entries()?;
     let mut unpacked_size = 0;

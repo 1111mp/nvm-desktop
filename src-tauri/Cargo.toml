@@ -22,6 +22,9 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 anyhow = "1.0"
+bitflags = { version = "2.11" }
+# Use the git repo until the next release after v2.0.0.
+dark-light = { git = "https://github.com/rust-dark-light/dark-light" }
 dotenvy = "0.15"
 dirs = "6.0"
 futures = "0.3"
@@ -43,7 +46,7 @@ tauri-plugin-dialog = "2"
 tauri-plugin-log = { version = "2", features = ["colored"] }
 tauri-plugin-shell = "2"
 tauri-plugin-single-instance = "2"
-tauri-plugin-window-state = { path = "crates/window-state" }
+tauri-plugin-window-state = "2"
 tauri-plugin-updater = "2"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
@@ -53,9 +56,6 @@ warp = "0.3"
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.59", features = ["Win32_System_Threading"] }
-
-[target.'cfg(target_os = "linux")'.dependencies]
-openssl = { version = "0.10", features = ["vendored"] }
 
 [profile.release]
 codegen-units = 1 # Allows LLVM to perform better optimization.

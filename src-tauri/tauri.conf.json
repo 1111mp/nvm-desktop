@@ -12,10 +12,12 @@
   },
   "app": {
     "macOSPrivateApi": true,
-    "windows": [],
     "security": {
       "csp": {
         "default-src": "blob: data: filesystem: ws: wss: http: https: tauri: asset: 'unsafe-eval' 'unsafe-inline' 'self'",
+        "style-src": "'self' 'unsafe-inline'",
+        "style-src-elem": "'self' 'unsafe-inline'",
+        "style-src-attr": "'self' 'unsafe-inline'",
         "connect-src": "ipc: http://ipc.localhost"
       },
       "assetProtocol": {

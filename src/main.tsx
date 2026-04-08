@@ -4,10 +4,9 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './app';
 
-import { getSettings } from '@/services/cmds';
-import { getSystemCurrentTheme } from '@/services/api';
+import { getAppInitialData } from '@/services/api';
 import { applyTheme } from './lib/utils';
-import { Themes } from './types';
+import { SystemTheme, Themes } from './types';
 
 /**
  * Get user settings data & system theme in advance.
@@ -17,13 +16,14 @@ import { Themes } from './types';
  * The delay is always within `15ms` (in development).
  */
 (async () => {
-  const [settings, sysTheme] = await Promise.all([
-    getSettings(),
-    getSystemCurrentTheme(),
-  ]);
+  const [settings, sysTheme] = await getAppInitialData();
 
   // Set the theme in advance to prevent flickering.
-  applyTheme(settings.theme !== Themes.System ? settings.theme : sysTheme);
+  applyTheme(
+    settings.theme !== Themes.System
+      ? (settings.theme as unknown as SystemTheme)
+      : sysTheme,
+  );
   if (OS_PLATFORM !== 'darwin') {
     document.documentElement.classList.add('beauty-scrollbar');
   }

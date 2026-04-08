@@ -1,6 +1,5 @@
 'use no memo';
 
-import { Column } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ChevronsUpDown, EyeOff } from 'lucide-react';
 import {
   DropdownMenu,
@@ -13,6 +12,8 @@ import { Button } from './button';
 
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
+
+import { type Column } from '@tanstack/react-table';
 
 interface DataTableColumnHeaderProps<
   TData,

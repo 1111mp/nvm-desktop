@@ -49,6 +49,7 @@ async function resolveUpdater() {
       'darwin-x86_64': { signature: '', url: '' },
       'linux-x86_64': { signature: '', url: '' },
       'linux-aarch64': { signature: '', url: '' },
+      'linux-armv7': { signature: '', url: '' },
       'windows-x86_64': { signature: '', url: '' },
       'windows-aarch64': { signature: '', url: '' },
     },
@@ -93,6 +94,7 @@ async function resolveUpdater() {
       // Enable Linux to check for updates
       updateData.platforms['linux-x86_64'].url = browser_download_url;
       updateData.platforms['linux-aarch64'].url = browser_download_url;
+      updateData.platforms['linux-armv7'].url = browser_download_url;
     }
     // darwin signature (aarch)
     if (name.endsWith('aarch64.app.tar.gz.sig')) {
@@ -101,6 +103,7 @@ async function resolveUpdater() {
       // Enable Linux to check for updates
       updateData.platforms['linux-x86_64'].signature = sig;
       updateData.platforms['linux-aarch64'].signature = sig;
+      updateData.platforms['linux-armv7'].signature = sig;
     }
   });
 

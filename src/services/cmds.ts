@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import { SystemTheme } from '@/types';
 
 /**
  * @description: Get app settings data
@@ -50,7 +51,19 @@ export function versionList(fetch: boolean = false) {
  * @return {Promise<Array<string>>} An array containing the node version number
  */
 export function installedList(fetch: boolean = false) {
-  return invoke<Array<string>>('installed_list', { fetch });
+  return invoke<Array<string>>('installed_list', { fetch, tray: false });
+}
+
+/**
+ * @description: Get a list of installed nodes & refresh tray
+ * @param {boolean} need_refresh_tray Whether to refresh tray
+ * @return {Promise<Array<string>>} An array containing the node version number
+ */
+export function installedListWithTray(need_refresh_tray: boolean = false) {
+  return invoke<Array<string>>('installed_list', {
+    fetch: true,
+    tray: need_refresh_tray,
+  });
 }
 
 /**
@@ -90,11 +103,11 @@ export function projectList(fetch: boolean = false) {
 }
 
 /**
- * @description: Select projects
- * @return {Promise<Array<Nvmd.PInfo>>}
+ * @description: Add projects
+ * @return {Promise<void>}
  */
-export function selectProjects() {
-  return invoke<Array<Nvmd.PInfo>>('select_projects');
+export function addProjects(projects: Nvmd.Project[]) {
+  return invoke<void>('add_projects', { projects });
 }
 
 /**
@@ -103,7 +116,19 @@ export function selectProjects() {
  * @return {Promise<void>}
  */
 export function updateProjects(list: Nvmd.Project[], path?: string) {
-  return invoke<void>('update_projects', { list, path });
+  return invoke<void>('update_projects', { payload: { list }, path });
+}
+
+/**
+ * @description: Update projects data don't need refresh tray
+ * @param {Array<Nvmd.Project>} list projects list
+ * @return {Promise<void>}
+ */
+export function updateProjectsWithoutTray(list: Nvmd.Project[], path?: string) {
+  return invoke<void>('update_projects_without_tray', {
+    payload: { list },
+    path,
+  });
 }
 
 /**
@@ -194,6 +219,14 @@ export function openWithVSCode(path: string) {
  */
 export function openDir(dir: string) {
   return invoke<void>('open_dir', { dir });
+}
+
+/**
+ * @description: Get native theme of system
+ * @returns {Promise<SystemTheme>}
+ */
+export function getSystemTheme() {
+  return invoke<SystemTheme>('get_system_theme');
 }
 
 /**

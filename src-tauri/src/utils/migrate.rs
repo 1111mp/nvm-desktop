@@ -9,42 +9,50 @@ use tokio::time::{sleep, Duration};
 const CURRENT_MIGRATION_VERSION: i16 = 30;
 const NODE_DEFAULT_EXECUTE: [&str; 4] = ["node", "npm", "npx", "corepack"];
 
-pub fn init() -> Result<()> {
+pub fn init() {
     AsyncHandler::spawn(|| async {
         if let Err(err) = update_schema().await {
             logging_error!(Type::Migrate, true, "{}", err);
 
             // Delay 1s before sending events to the window
             sleep(Duration::from_secs(1)).await;
-            if let Some(window) = handle::Handle::global().get_window() {
+            if let Some(window) = handle::Handle::global().get_main_window() {
                 let _ = window.emit("nvm-desktop://app-migration-error", ());
             }
         }
     });
-
-    Ok(())
 }
 
 async fn update_schema() -> Result<()> {
-    let schema_version = get_schema_version().unwrap_or_else(|err| {
+    let schema_version = get_schema_version().await.unwrap_or_else(|err| {
         logging_error!(Type::Migrate, true, "{}", err);
         0 // default version 0
     });
+
+    eprintln!("schema_version: {}", schema_version);
 
     if schema_version < CURRENT_MIGRATION_VERSION {
         if schema_version == 0 {
             update_schema_from_basic().await?;
         }
         update_schema_to_last().await?;
+
+        // ⭐ macOS self-heal
+        #[cfg(target_os = "macos")]
+        if let Err(err) = self_heal().await {
+            logging_error!(Type::Migrate, false, "self-heal failed: {}", err);
+        }
     }
 
     Ok(())
 }
 
 /// get schema version
-fn get_schema_version() -> Result<i16> {
-    let version_str = dirs::migration_path().and_then(|path| help::read_string(&path))?;
-    version_str.parse::<i16>().map_err(|e| e.into())
+async fn get_schema_version() -> Result<i16> {
+    let path = dirs::migration_path()?;
+    let content = help::read_string(&path).await?;
+    let version = content.trim().parse::<i16>()?;
+    Ok(version)
 }
 
 #[cfg(windows)]
@@ -67,7 +75,7 @@ async fn update_schema_from_basic() -> Result<()> {
 
 #[cfg(unix)]
 async fn update_schema_from_basic() -> Result<()> {
-    use std::os::unix::fs::symlink;
+    use tokio::fs::symlink;
 
     let res_dir = dirs::app_resources_dir()?;
     let bin_path = ensure_bin_path_exists().await?;
@@ -75,7 +83,7 @@ async fn update_schema_from_basic() -> Result<()> {
 
     fs::copy(res_dir.join("nvmd"), &nvmd_exe_path).await?;
     for name in NODE_DEFAULT_EXECUTE {
-        symlink(&nvmd_exe_path, bin_path.join(name))?;
+        symlink(&nvmd_exe_path, bin_path.join(name)).await?;
     }
     save_schema_version(CURRENT_MIGRATION_VERSION).await?;
     Ok(())
@@ -108,21 +116,60 @@ async fn update_schema_to_last() -> Result<()> {
 async fn update_schema_to_last() -> Result<()> {
     let res_dir = dirs::app_resources_dir()?;
     let bin_path = ensure_bin_path_exists().await?;
+    let target = bin_path.join("nvmd");
 
-    fs::copy(res_dir.join("nvmd"), bin_path.join("nvmd")).await?;
+    fs::copy(res_dir.join("nvmd"), &target).await?;
+
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let mut perms = std::fs::metadata(&target)?.permissions();
+        perms.set_mode(0o755);
+        tokio::fs::set_permissions(&target, perms).await?;
+    }
+
     save_schema_version(CURRENT_MIGRATION_VERSION).await?;
     Ok(())
 }
 
 async fn ensure_bin_path_exists() -> Result<std::path::PathBuf> {
     let bin_path = dirs::bin_path()?;
-    if !bin_path.exists() {
+    if !fs::try_exists(&bin_path).await.unwrap_or(false) {
         fs::create_dir_all(&bin_path).await?;
     }
     Ok(bin_path)
 }
 
 async fn save_schema_version(version: i16) -> Result<()> {
-    help::async_save_string(&dirs::migration_path()?, &version.to_string()).await?;
+    help::save_string(&dirs::migration_path()?, &version.to_string()).await?;
+    Ok(())
+}
+
+#[cfg(target_os = "macos")]
+async fn self_heal() -> Result<()> {
+    use std::process::Command;
+
+    let bin_path = dirs::bin_path()?; // ~/.nvmd/bin
+    let nvmd_path = bin_path.join("nvmd");
+
+    if !fs::try_exists(&nvmd_path).await.unwrap_or(false) {
+        return Ok(()); // nothing to heal
+    }
+
+    // 1️⃣ remove quarantine
+    let _ = Command::new("xattr")
+        .args(["-d", "com.apple.quarantine", nvmd_path.to_str().unwrap()])
+        .output();
+
+    // 2️⃣ ad-hoc sign nvmd
+    let _ = Command::new("codesign")
+        .args([
+            "--force",
+            "--deep",
+            "--sign",
+            "-",
+            nvmd_path.to_str().unwrap(),
+        ])
+        .output();
+
     Ok(())
 }

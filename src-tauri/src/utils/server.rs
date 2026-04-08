@@ -1,6 +1,6 @@
 use crate::{
     config::Config,
-    core::{handle::Handle, node::refresh_installed, project::update_from_notice},
+    core::{handle::Handle, node, project, tray},
     log_err, logging,
     process::AsyncHandler,
     utils::logging::Type,
@@ -27,9 +27,9 @@ enum Source {
 }
 
 pub fn start_embed_server() {
-    logging!(info, Type::Server, true, "Start the embed server...");
-
     AsyncHandler::spawn(|| async move {
+        logging!(info, Type::Server, "Start the embed server...");
+
         async fn notice_handler(message: Message) -> Result<impl warp::Reply, Infallible> {
             let event_name = match &message.source {
                 Source::Current => "nvm-desktop://refresh-version-info",
@@ -38,28 +38,35 @@ pub fn start_embed_server() {
             };
 
             AsyncHandler::spawn(move || async move {
-                match &message.source {
+                let Message {
+                    source,
+                    name,
+                    version,
+                } = message;
+                match source {
                     Source::Current => {
-                        if let Some(version) = &message.version {
-                            let _ = Config::node().draft_mut().update_current(version);
-                            Config::node().apply();
+                        if let Some(version) = version.as_ref() {
+                            Config::node().await.edit_draft(|d| {
+                                d.update_current(Some(version.clone()));
+                            });
+                            Config::node().await.apply();
                         }
                     }
                     Source::Version => {
-                        let _ = refresh_installed().await;
+                        let _ = node::fetch_installed_with_sync(None).await;
                     }
                     Source::Project => {
-                        if let (Some(name), Some(version)) = (&message.name, &message.version) {
-                            let _ = update_from_notice(name, version).await;
+                        if let (Some(name), Some(version)) = (name.as_ref(), version.as_ref()) {
+                            let _ = project::update_from_notice(name, version).await;
                         }
                     }
                 };
 
-                if let Some(window) = Handle::global().get_window() {
-                    let _ = window.emit(event_name, &message.version);
+                if let Some(window) = Handle::global().get_main_window() {
+                    let _ = window.emit(event_name, &version);
                 }
 
-                log_err!(Handle::update_systray_part());
+                log_err!(tray::Tray::global().update_part().await);
             });
 
             Ok(StatusCode::OK)

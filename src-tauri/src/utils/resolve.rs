@@ -1,40 +1,62 @@
 use crate::{
-    config::Config,
+    config::{Config, ISettingsResponse},
     core::{handle, tray},
-    log_err, logging, trace_err,
+    log_err, logging, logging_error,
+    process::AsyncHandler,
+    trace_err,
     utils::{logging::Type, migrate, server},
 };
 use anyhow::Result;
-use tauri::AppHandle;
+use dark_light::{detect as detect_system_theme, Mode as SystemTheme};
+use tauri::{utils::config::Color, Theme};
+
+const DARK_BACKGROUND_COLOR: Color = Color(0, 0, 0, 255); // #000000
+const LIGHT_BACKGROUND_COLOR: Color = Color(255, 255, 255, 255); // #ffffff
+
+#[cfg(any(target_os = "windows", target_os = "linux"))]
+const DEFAULT_DECORATIONS: bool = false;
+#[cfg(target_os = "macos")]
+const DEFAULT_DECORATIONS: bool = true;
 
 /// handle something when start app
-pub async fn resolve_setup_async(app_handle: &AppHandle) {
-    logging!(
-        info,
-        Type::Setup,
-        true,
-        "Start executing asynchronous setup tasks..."
-    );
+pub fn resolve_setup_async() {
+    AsyncHandler::spawn(|| async {
+        logging!(
+            info,
+            Type::Setup,
+            "Start executing asynchronous setup tasks..."
+        );
+
+        init_window().await;
+
+        // Start the embedded server
+        server::start_embed_server();
+        // migrate
+        migrate::init();
+        // tary
+        logging_error!(Type::Setup, tray::Tray::global().init().await);
+        logging_error!(Type::Setup, tray::Tray::global().update_part().await);
+    });
+}
+
+pub async fn init_window() {
+    let app_handle = handle::Handle::app_handle();
 
     #[cfg(target_os = "macos")]
     let _ = app_handle.set_activation_policy(tauri::ActivationPolicy::Regular);
 
-    // Start the embedded server
-    server::start_embed_server();
-
-    log_err!(migrate::init());
-    log_err!(tray::Tray::create_systray());
-
-    let silent_start = { Config::settings().latest_ref().enable_silent_start };
-    if !silent_start.unwrap_or(false) {
-        log_err!(create_window());
+    let silent_start = Config::settings()
+        .await
+        .data_arc()
+        .enable_silent_start
+        .unwrap_or(false);
+    if !silent_start {
+        log_err!(create_window().await);
     }
-
-    log_err!(handle::Handle::update_systray_part());
 }
 
 /// create main window
-pub fn create_window() -> Result<()> {
+pub async fn create_window() -> Result<()> {
     logging!(
         info,
         Type::Window,
@@ -42,9 +64,9 @@ pub fn create_window() -> Result<()> {
         "Start creating and displaying the main window."
     );
 
-    let app_handle = handle::Handle::global().app_handle().unwrap();
+    let app_handle = handle::Handle::app_handle();
 
-    if let Some(window) = handle::Handle::global().get_window() {
+    if let Some(window) = handle::Handle::global().get_main_window() {
         logging!(
             info,
             Type::Window,
@@ -60,39 +82,66 @@ pub fn create_window() -> Result<()> {
         return Ok(());
     }
 
+    let settings = Config::settings().await.data_arc().into_response();
+    let initial_theme_mode = match settings.theme.as_deref() {
+        Some("dark") => "dark",
+        Some("light") => "light",
+        _ => "system",
+    };
+
+    let system_theme = detect_system_theme().ok();
+    let resolved_theme = match initial_theme_mode {
+        "dark" => Some(Theme::Dark),
+        "light" => Some(Theme::Light),
+        _ => match system_theme {
+            Some(SystemTheme::Dark) => Some(Theme::Dark),
+            Some(SystemTheme::Light) | Some(SystemTheme::Unspecified) | None => Some(Theme::Light),
+        },
+    };
+
+    let prefers_dark_background = matches!(resolved_theme, Some(Theme::Dark));
+    let background_color = if prefers_dark_background {
+        DARK_BACKGROUND_COLOR
+    } else {
+        LIGHT_BACKGROUND_COLOR
+    };
+
+    let initial_theme_str = match resolved_theme {
+        Some(Theme::Dark) => "dark",
+        Some(Theme::Light) => "light",
+        _ => "light",
+    };
+
+    let initial_script = build_window_initial_script(settings, initial_theme_str);
+
     let mut builder = tauri::WebviewWindowBuilder::new(
-        &app_handle,
+        app_handle,
         "main",
         tauri::WebviewUrl::App("index.html".into()),
     )
     .title("NVM-Desktop")
-    .visible(false)
     .fullscreen(false)
     .inner_size(1024.0, 728.0)
     .min_inner_size(1024.0, 728.0)
     .resizable(true)
-    .center();
+    .center()
+    .decorations(DEFAULT_DECORATIONS)
+    // waiting `window-state` plugin ready, it'll show the window
+    .visible(false)
+    .initialization_script(&initial_script);
 
-    #[cfg(target_os = "windows")]
-    {
-        builder = builder
-		.decorations(false)
-		.additional_browser_args("--enable-features=msWebView2EnableDraggableRegions --disable-features=OverscrollHistoryNavigation,msExperimentalScrolling")
-		.transparent(true);
-    }
     #[cfg(target_os = "macos")]
     {
         builder = builder
-            .decorations(true)
-            .transparent(true)
             .hidden_title(true)
-            .shadow(true)
             .title_bar_style(tauri::TitleBarStyle::Overlay);
     }
-    #[cfg(target_os = "linux")]
-    {
-        builder = builder.decorations(false).transparent(true);
+
+    if let Some(theme) = resolved_theme {
+        builder = builder.theme(Some(theme));
     }
+
+    builder = builder.background_color(background_color);
 
     match builder.build() {
         Ok(window) => {
@@ -118,4 +167,24 @@ pub fn create_window() -> Result<()> {
     }
 
     Ok(())
+}
+
+fn build_window_initial_script(settings: ISettingsResponse, resolved_theme: &str) -> String {
+    let settings_json = serde_json::to_string(&settings).unwrap_or_default();
+    let script = r##"
+        if (sessionStorage.getItem('__NVMD_INITIAL__') === null) {
+            sessionStorage.setItem('__NVMD_INITIAL__', 'no');
+        }
+    "##;
+    format!(
+        r##"
+		window.__NVMD_INITIAL_SETTINGS__ = {settings_json};
+        window.__NVMD_INITIAL_THEME__ = "{resolved_theme}";
+
+        {script}
+        "##,
+        settings_json = settings_json,
+        resolved_theme = resolved_theme,
+        script = script,
+    )
 }

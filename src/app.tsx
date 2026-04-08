@@ -6,7 +6,6 @@ import { Toaster, TooltipProvider } from '@/components/ui';
 
 import { router } from '@/routes';
 import { AppProvider } from '@/app-context';
-import { getCurrent } from '@/services/api';
 import { SystemTheme } from '@/types';
 
 export default function App({
@@ -16,15 +15,6 @@ export default function App({
   settings: Nvmd.Setting;
   sysTheme: SystemTheme;
 }) {
-  useEffect(() => {
-    // open main webview window
-    setTimeout(() => {
-      const webviewWindow = getCurrent();
-      webviewWindow.show();
-      webviewWindow.setFocus();
-    });
-  }, []);
-
   /// Disable right-click context menu
   useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => {

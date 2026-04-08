@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 import { memo, type ColumnDef, type Table } from '@tanstack/react-table';
 import { toast } from 'sonner';
-import { Modal, ModalRef } from './modal';
+import { Modal, type ModalRef } from './modal';
 
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -46,6 +46,7 @@ import {
   versionList,
   uninstallNode,
   vSetCurrent,
+  installedListWithTray,
 } from '@/services/cmds';
 import { checkSupportive } from '@/lib/utils';
 import { getCurrent } from '@/services/api';
@@ -105,7 +106,7 @@ export const Versions: React.FC = () => {
 
   useEffect(() => {
     const fetcher = async () => {
-      const iVersions = await installedList(false);
+      const iVersions = await installedList();
       setInstalledVersions(iVersions);
     };
     fetcher();
@@ -326,7 +327,7 @@ export const Versions: React.FC = () => {
                         await uninstallNode(version.slice(1));
                         const [currentVersion, versions] = await Promise.all([
                           vCurrent(),
-                          installedList(true),
+                          installedListWithTray(true),
                         ]);
                         setCurrent(currentVersion);
                         setInstalledVersions(versions);
@@ -390,7 +391,7 @@ export const Versions: React.FC = () => {
         },
         {
           key:
-            process.env.NODE_ENV === 'development' &&
+            import.meta.env.MODE === 'development' &&
             'getFacetedUniqueValues_' + columnId,
           debug: () => table.options.debugAll ?? table.options.debugTable,
           onChange: () => {},
@@ -437,7 +438,7 @@ export const Versions: React.FC = () => {
   const onInstalledRefresh = async () => {
     const [current, versions] = await Promise.all([
       vCurrent(true),
-      installedList(true),
+      installedListWithTray(true),
     ]);
 
     setCurrent(current);

@@ -72,7 +72,7 @@ pub fn default_install_dir() -> PathBuf {
 
 /// get the resources dir
 pub fn app_resources_dir() -> Result<PathBuf> {
-    let app_handle = handle::Handle::global().app_handle().unwrap();
+    let app_handle = handle::Handle::app_handle();
     match app_handle.path().resource_dir() {
         Ok(dir) => Ok(dir.join("resources")),
         Err(e) => {
@@ -84,7 +84,7 @@ pub fn app_resources_dir() -> Result<PathBuf> {
 
 /// get the logs dir
 pub fn app_config_dir() -> Result<PathBuf> {
-    let app_handle = handle::Handle::global().app_handle().unwrap();
+    let app_handle = handle::Handle::app_handle();
     match app_handle.path().app_config_dir() {
         Ok(dir) => Ok(dir),
         Err(e) => {
@@ -96,7 +96,7 @@ pub fn app_config_dir() -> Result<PathBuf> {
 
 /// get the logs dir
 pub fn app_logs_dir() -> Result<PathBuf> {
-    let app_handle = handle::Handle::global().app_handle().unwrap();
+    let app_handle = handle::Handle::app_handle();
     match app_handle.path().app_log_dir() {
         Ok(dir) => Ok(dir),
         Err(e) => {

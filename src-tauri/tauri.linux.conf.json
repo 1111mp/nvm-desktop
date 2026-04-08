@@ -1,24 +1,18 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "identifier": "io.github.1111mp.nvm-desktop",
-  "app": {
-    "trayIcon": {
-      "id": "main",
-      "iconPath": "icons/icon.ico"
-    }
-  },
   "bundle": {
     "targets": ["deb", "rpm"],
     "linux": {
       "deb": {
-        "depends": ["openssl"],
+        "depends": ["openssl", "libayatana-appindicator3-1"],
         "desktopTemplate": "./templates/nvm-desktop.desktop",
         "provides": ["nvm-desktop"],
         "conflicts": ["nvm-desktop"],
         "replaces": ["nvm-desktop"]
       },
       "rpm": {
-        "depends": ["openssl"],
+        "depends": ["openssl", "libayatana-appindicator3-1"],
         "desktopTemplate": "./templates/nvm-desktop.desktop",
         "provides": ["nvm-desktop"],
         "conflicts": ["nvm-desktop"],

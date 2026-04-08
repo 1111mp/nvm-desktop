@@ -1,10 +1,13 @@
-use std::cmp::Ordering;
-
-use crate::utils::{dirs, help};
+use crate::{
+    core::node,
+    logging,
+    utils::{dirs, help, logging::Type},
+};
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::cmp::Ordering;
 use version_compare::{compare, Cmp};
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
@@ -45,68 +48,88 @@ pub struct INode {
 }
 
 impl INode {
-    pub fn new(directory: Option<String>) -> Self {
+    pub async fn new(directory: Option<String>) -> Self {
         // get current version from `default`
-        let current = dirs::default_version_path()
-            .and_then(|path| help::read_string(&path))
-            .map(Some)
-            .unwrap_or_else(|err| {
-                log::error!(target: "app", "{err}");
-                None
-            });
+        let current_fut = async {
+            match dirs::default_version_path() {
+                Ok(path) => match help::read_string(&path).await {
+                    Ok(v) => Some(v),
+                    Err(err) => {
+                        logging!(error, Type::Config, "{err}");
+                        None
+                    }
+                },
+                Err(err) => {
+                    logging!(error, Type::Config, "{err}");
+                    None
+                }
+            }
+        };
         // get list from `versions.json`
-        let list = dirs::version_list_path()
-            .and_then(|path| help::read_json::<Vec<NVersion>>(&path))
-            .map(Some)
-            .unwrap_or_else(|err| {
-                log::error!(target: "app", "{err}");
+        let list_fut = async {
+            match dirs::version_list_path() {
+                Ok(path) => match help::read_json::<Vec<NVersion>>(&path).await {
+                    Ok(v) => Some(v),
+                    Err(err) => {
+                        logging!(error, Type::Config, "{err}");
+                        Some(vec![])
+                    }
+                },
+                Err(err) => {
+                    logging!(error, Type::Config, "{err}");
+                    Some(vec![])
+                }
+            }
+        };
+        // get had installed list
+        let installed_fut = async {
+            if let Some(path) = directory {
+                match node::read_installed(&path).await {
+                    Ok(v) => Some(v),
+                    Err(err) => {
+                        logging!(error, Type::Config, "{err}");
+                        Some(vec![])
+                    }
+                }
+            } else {
                 Some(vec![])
-            });
+            }
+        };
 
-        let mut installed = directory
-            .map(|path| {
-                help::read_installed(&path).unwrap_or_else(|err| {
-                    log::error!(target: "app", "{err}");
-                    vec![]
-                })
-            })
-            .unwrap_or(vec![]);
-        installed.sort_by(|a, b| match compare(b, a) {
-            Ok(Cmp::Lt) => Ordering::Less,
-            Ok(Cmp::Eq) => Ordering::Equal,
-            Ok(Cmp::Gt) => Ordering::Greater,
-            _ => unreachable!(),
-        });
+        let (current, list, mut installed) = tokio::join!(current_fut, list_fut, installed_fut);
+        if let Some(ref mut i) = installed {
+            i.sort_by(|a, b| match compare(b, a) {
+                Ok(Cmp::Lt) => Ordering::Less,
+                Ok(Cmp::Eq) => Ordering::Equal,
+                Ok(Cmp::Gt) => Ordering::Greater,
+                _ => unreachable!(),
+            });
+        }
 
         Self {
             current,
             list,
-            installed: Some(installed),
+            installed,
         }
     }
 
+    pub fn patch(&mut self, patch: &Self) {
+        macro_rules! patch {
+            ($key: tt) => {
+                if patch.$key.is_some() {
+                    self.$key = patch.$key.clone();
+                }
+            };
+        }
+
+        patch!(current);
+        patch!(list);
+        patch!(installed);
+    }
+
     /// save list to file
-    pub fn save_file(&self) -> Result<()> {
-        help::save_json(&dirs::version_list_path()?, &self.list, None)
-    }
-
-    /// save current to `default` file
-    pub fn save_current(&self) -> Result<()> {
-        let content = self.current.as_deref().unwrap_or("");
-        help::save_string(&dirs::default_version_path()?, content)
-    }
-
-    /// sync current version from `default`
-    pub fn sync_current(&mut self) -> Result<()> {
-        let current = dirs::default_version_path()
-            .and_then(|path| help::read_string(&path))
-            .map(Some)
-            .unwrap_or_else(|err| {
-                log::error!(target: "app", "{err}");
-                None
-            });
-        self.current = current;
-        Ok(())
+    pub async fn save_file(&self) -> Result<()> {
+        help::save_json(&dirs::version_list_path()?, &self.list, None).await
     }
 
     /// get current version
@@ -125,20 +148,17 @@ impl INode {
     }
 
     /// update current
-    pub fn update_current(&mut self, current: &str) -> Result<()> {
-        self.current = Some(current.to_string());
-        Ok(())
+    pub fn update_current(&mut self, current: Option<String>) {
+        self.current = current;
     }
 
     /// update version list
-    pub fn update_list(&mut self, list: &Vec<NVersion>) -> Result<()> {
-        self.list = Some(list.clone());
-        Ok(())
+    pub fn update_list(&mut self, list: Vec<NVersion>) {
+        self.list = Some(list);
     }
 
     /// update installed
-    pub fn update_installed(&mut self, installed: &Vec<String>) -> Result<()> {
-        self.installed = Some(installed.clone());
-        Ok(())
+    pub fn update_installed(&mut self, installed: Vec<String>) {
+        self.installed = Some(installed);
     }
 }

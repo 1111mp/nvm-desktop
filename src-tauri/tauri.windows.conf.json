@@ -1,11 +1,5 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "app": {
-    "trayIcon": {
-      "id": "main",
-      "iconPath": "icons/icon.png"
-    }
-  },
   "bundle": {
     "targets": ["nsis"],
     "windows": {

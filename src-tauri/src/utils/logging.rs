@@ -3,8 +3,10 @@ use std::fmt;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Type {
     Cmd,
+    Config,
     Migrate,
     Setup,
+    Tray,
     Window,
     Server,
 }
@@ -13,8 +15,10 @@ impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Type::Cmd => write!(f, "[Cmd]"),
+            Type::Config => write!(f, "[Config]"),
             Type::Migrate => write!(f, "[Migrate]"),
             Type::Setup => write!(f, "[Setup]"),
+            Type::Tray => write!(f, "[Tray]"),
             Type::Window => write!(f, "[Window]"),
             Type::Server => write!(f, "[Server]"),
         }

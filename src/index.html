@@ -5,6 +5,21 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NVM-Desktop</title>
+    <style type="text/css">
+      :root {
+        --background: #ffffff;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --background: #000000;
+        }
+      }
+
+      body {
+        background-color: var(--background);
+      }
+    </style>
     <% if (NODE_ENV === "development") { %>
     <script src="http://localhost:8097"></script>
     <% } %>

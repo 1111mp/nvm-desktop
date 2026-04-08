@@ -38,7 +38,7 @@ function LabelCopyable({
 
   const [, copy] = useCopyToClipboard();
 
-  const timer = useRef<NodeJS.Timeout | null>(null);
+  const timer = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {

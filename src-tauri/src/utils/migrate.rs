@@ -29,8 +29,6 @@ async fn update_schema() -> Result<()> {
         0 // default version 0
     });
 
-    eprintln!("schema_version: {}", schema_version);
-
     if schema_version < CURRENT_MIGRATION_VERSION {
         if schema_version == 0 {
             update_schema_from_basic().await?;

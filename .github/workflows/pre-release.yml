@@ -50,7 +50,7 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: '24.14.1'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v5
@@ -111,7 +111,7 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: '24.14.1'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v5
@@ -237,7 +237,7 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: '24.14.1'
 
       - uses: pnpm/action-setup@v5
         name: Install pnpm
@@ -323,7 +323,7 @@ jobs:
       - run: |
           cat > release.txt << 'EOF'
           ## Which version should I download?
-            
+
           Choose the version that matches your **operating system** and **CPU architecture**.
 
           ### macOS

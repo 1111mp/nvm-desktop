@@ -1,3 +1,20 @@
+## v4.3.2
+
+### Features
+
+- Support resumable downloads and automatic retry on errors for `Node.js` downloads
+- Improve startup speed, optimize performance, and reduce memory usage
+
+### Bug Fixes
+
+- Fix the `auto-complete` component not being clickable or interactive
+- Prevent panic in the `single-instance` plugin caused by an invalid `D-Bus` name
+- Fix `Node.js` extraction issues on Linux
+- On Windows, change the installer to write the shim directory to the user environment variables instead of the system environment variables
+- On macOS, add a self-healing mechanism that automatically removes `quarantine` and signs `nvmd` after upgrades, fixing the `zsh: killed nvmd issue`
+
+---
+
 ## v4.3.1
 
 ### Bug Fixes

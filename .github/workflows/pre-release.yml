@@ -53,7 +53,7 @@ jobs:
           node-version: '24.14.1'
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
         with:
           run_install: false
 
@@ -114,7 +114,7 @@ jobs:
           node-version: '24.14.1'
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v6
         with:
           run_install: false
 
@@ -239,7 +239,7 @@ jobs:
         with:
           node-version: '24.14.1'
 
-      - uses: pnpm/action-setup@v5
+      - uses: pnpm/action-setup@v6
         name: Install pnpm
         with:
           run_install: false
@@ -303,7 +303,7 @@ jobs:
 
   update_alpha_notes:
     name: Update alpha notes
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [alpha, alpha-for-linux-arm64, alpha-for-fixed-webview2]
     steps:
       - name: Checkout repository

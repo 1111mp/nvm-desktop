@@ -192,7 +192,7 @@ jobs:
           echo "BUILDTIME=$(TZ=Asia/Shanghai date)" >> $GITHUB_ENV
 
       - name: Upload Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{env.VERSION}}
           name: 'NVM Desktop v${{env.VERSION}}'
@@ -281,7 +281,7 @@ jobs:
           }
 
       - name: Upload Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{steps.build.outputs.appVersion}}
           name: 'NVM Desktop v${{steps.build.outputs.appVersion}}'
@@ -424,7 +424,7 @@ jobs:
           EOF
 
       - name: Upload Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ env.VERSION }}
           name: 'NVM Desktop v${{env.VERSION}}'

@@ -57,7 +57,7 @@ importers:
         specifier: ^1.11.20
         version: 1.11.20
       i18next:
-        specifier: ^26.0.3
+        specifier: 26.0.4
         version: 26.0.4(typescript@6.0.2)
       intro.js:
         specifier: ^8.3.2
@@ -66,7 +66,7 @@ importers:
         specifier: ^4.18.1
         version: 4.18.1
       lucide-react:
-        specifier: ^1.7.0
+        specifier: 1.8.0
         version: 1.8.0(react@19.2.5)
       motion:
         specifier: 12.38.0
@@ -75,13 +75,13 @@ importers:
         specifier: ^1.4.3
         version: 1.4.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       react:
-        specifier: ^19.2.4
+        specifier: 19.2.5
         version: 19.2.5
       react-circular-progressbar:
         specifier: ^2.2.0
         version: 2.2.0(react@19.2.5)
       react-dom:
-        specifier: ^19.2.4
+        specifier: 19.2.5
         version: 19.2.5(react@19.2.5)
       react-hook-form:
         specifier: ^7.72.1
@@ -99,7 +99,7 @@ importers:
         specifier: ^7.7.4
         version: 7.7.4
       shadcn:
-        specifier: ^4.1.2
+        specifier: 4.2.0
         version: 4.2.0(@types/node@25.6.0)(typescript@6.0.2)
       sonner:
         specifier: ^2.0.7
@@ -118,7 +118,7 @@ importers:
         version: 5.0.0(zod@4.3.6)
     devDependencies:
       '@actions/github':
-        specifier: ^9.0.0
+        specifier: 9.1.0
         version: 9.1.0
       '@commitlint/cli':
         specifier: ^20.5.0
@@ -148,7 +148,7 @@ importers:
         specifier: ^4.17.24
         version: 4.17.24
       '@types/node':
-        specifier: ^25.5.2
+        specifier: 25.6.0
         version: 25.6.0
       '@types/react':
         specifier: ^19.2.14
@@ -181,7 +181,7 @@ importers:
         specifier: ^0.20.0
         version: 0.20.0
       prettier:
-        specifier: ^3.8.1
+        specifier: 3.8.2
         version: 3.8.2
       tailwindcss:
         specifier: ^4.2.2
@@ -190,10 +190,10 @@ importers:
         specifier: ^6.0.2
         version: 6.0.2
       undici:
-        specifier: ^8.0.2
+        specifier: 8.0.3
         version: 8.0.3
       vite:
-        specifier: ^8.0.5
+        specifier: 8.0.8
         version: 8.0.8(@types/node@25.6.0)(jiti@2.6.1)(terser@5.46.1)(yaml@2.8.3)
       vite-plugin-html:
         specifier: ^3.2.2

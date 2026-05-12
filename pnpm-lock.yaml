@@ -100,7 +100,7 @@ importers:
         version: 7.8.0
       shadcn:
         specifier: 4.7.0
-        version: 4.7.0(@types/node@25.6.2)(typescript@6.0.3)
+        version: 4.7.0(@types/node@25.7.0)(typescript@6.0.3)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -122,7 +122,7 @@ importers:
         version: 9.1.1
       '@commitlint/cli':
         specifier: ^21.0.0
-        version: 21.0.0(@types/node@25.6.2)(conventional-commits-parser@6.4.0)(typescript@6.0.3)
+        version: 21.0.0(@types/node@25.7.0)(conventional-commits-parser@6.4.0)(typescript@6.0.3)
       '@commitlint/config-conventional':
         specifier: ^21.0.0
         version: 21.0.0
@@ -131,10 +131,10 @@ importers:
         version: 21.0.0
       '@rolldown/plugin-babel':
         specifier: ^0.2.3
-        version: 0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0)(vite@8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))
+        version: 0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0)(vite@8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))
       '@tailwindcss/vite':
         specifier: ^4.2.4
-        version: 4.3.0(vite@8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))
+        version: 4.3.0(vite@8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))
       '@tauri-apps/cli':
         specifier: 2.11.1
         version: 2.11.1
@@ -148,8 +148,8 @@ importers:
         specifier: ^4.17.24
         version: 4.17.24
       '@types/node':
-        specifier: 25.6.2
-        version: 25.6.2
+        specifier: 25.7.0
+        version: 25.7.0
       '@types/react':
         specifier: ^19.2.14
         version: 19.2.14
@@ -161,7 +161,7 @@ importers:
         version: 7.7.1
       '@vitejs/plugin-react':
         specifier: ^6.0.1
-        version: 6.0.1(@rolldown/plugin-babel@0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0)(vite@8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)))(babel-plugin-react-compiler@1.0.0)(vite@8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))
+        version: 6.0.1(@rolldown/plugin-babel@0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0)(vite@8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)))(babel-plugin-react-compiler@1.0.0)(vite@8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))
       babel-plugin-react-compiler:
         specifier: ^1.0.0
         version: 1.0.0
@@ -194,10 +194,10 @@ importers:
         version: 8.2.0
       vite:
         specifier: 8.0.12
-        version: 8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)
+        version: 8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)
       vite-plugin-html:
         specifier: ^3.2.2
-        version: 3.2.2(vite@8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))
+        version: 3.2.2(vite@8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))
 
 packages:
 
@@ -1927,8 +1927,8 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/node@25.6.2':
-    resolution: {integrity: sha512-sokuT28dxf9JT5Kady1fsXOvI4HVpjZa95NKT5y9PNTIrs2AsobR4GFAA90ZG8M+nxVRLysCXsVj6eGC7Vbrlw==}
+  '@types/node@25.7.0':
+    resolution: {integrity: sha512-z+pdZyxE+RTQE9AcboAZCb4otwcrvgHD+GlBpPgn0emDVt0ohrTMhAwlr2Wd9nZ+nihhYFxO2pThz3C5qSu2Eg==}
 
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
@@ -3800,8 +3800,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  undici-types@7.19.2:
-    resolution: {integrity: sha512-qYVnV5OEm2AW8cJMCpdV20CDyaN3g0AjDlOGf1OW4iaDEx8MwdtChUp4zu4H0VP3nDRF/8RKWH+IPp9uW0YGZg==}
+  undici-types@7.21.0:
+    resolution: {integrity: sha512-w9IMgQrz4O0YN1LtB7K5P63vhlIOvC7opSmouCJ+ZywlPAlO9gIkJ+otk6LvGpAs2wg4econaCz3TvQ9xPoyuQ==}
 
   undici@6.25.0:
     resolution: {integrity: sha512-ZgpWDC5gmNiuY9CnLVXEH8rl50xhRCuLNA97fAUnKi8RRuV4E6KG31pDTsLVUKnohJE0I3XDrTeEydAXRw47xg==}
@@ -4264,11 +4264,11 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.14
 
-  '@commitlint/cli@21.0.0(@types/node@25.6.2)(conventional-commits-parser@6.4.0)(typescript@6.0.3)':
+  '@commitlint/cli@21.0.0(@types/node@25.7.0)(conventional-commits-parser@6.4.0)(typescript@6.0.3)':
     dependencies:
       '@commitlint/format': 21.0.0
       '@commitlint/lint': 21.0.0
-      '@commitlint/load': 21.0.0(@types/node@25.6.2)(typescript@6.0.3)
+      '@commitlint/load': 21.0.0(@types/node@25.7.0)(typescript@6.0.3)
       '@commitlint/read': 21.0.0(conventional-commits-parser@6.4.0)
       '@commitlint/types': 21.0.0
       tinyexec: 1.1.2
@@ -4313,14 +4313,14 @@ snapshots:
       '@commitlint/rules': 21.0.0
       '@commitlint/types': 21.0.0
 
-  '@commitlint/load@21.0.0(@types/node@25.6.2)(typescript@6.0.3)':
+  '@commitlint/load@21.0.0(@types/node@25.7.0)(typescript@6.0.3)':
     dependencies:
       '@commitlint/config-validator': 21.0.0
       '@commitlint/execute-rule': 21.0.0
       '@commitlint/resolve-extends': 21.0.0
       '@commitlint/types': 21.0.0
       cosmiconfig: 9.0.1(typescript@6.0.3)
-      cosmiconfig-typescript-loader: 6.3.0(@types/node@25.6.2)(cosmiconfig@9.0.1(typescript@6.0.3))(typescript@6.0.3)
+      cosmiconfig-typescript-loader: 6.3.0(@types/node@25.7.0)(cosmiconfig@9.0.1(typescript@6.0.3))(typescript@6.0.3)
       es-toolkit: 1.46.1
       is-plain-obj: 4.1.0
       picocolors: 1.1.1
@@ -4473,30 +4473,30 @@ snapshots:
 
   '@inquirer/ansi@2.0.5': {}
 
-  '@inquirer/confirm@6.0.13(@types/node@25.6.2)':
+  '@inquirer/confirm@6.0.13(@types/node@25.7.0)':
     dependencies:
-      '@inquirer/core': 11.1.10(@types/node@25.6.2)
-      '@inquirer/type': 4.0.5(@types/node@25.6.2)
+      '@inquirer/core': 11.1.10(@types/node@25.7.0)
+      '@inquirer/type': 4.0.5(@types/node@25.7.0)
     optionalDependencies:
-      '@types/node': 25.6.2
+      '@types/node': 25.7.0
 
-  '@inquirer/core@11.1.10(@types/node@25.6.2)':
+  '@inquirer/core@11.1.10(@types/node@25.7.0)':
     dependencies:
       '@inquirer/ansi': 2.0.5
       '@inquirer/figures': 2.0.5
-      '@inquirer/type': 4.0.5(@types/node@25.6.2)
+      '@inquirer/type': 4.0.5(@types/node@25.7.0)
       cli-width: 4.1.0
       fast-wrap-ansi: 0.2.0
       mute-stream: 3.0.0
       signal-exit: 4.1.0
     optionalDependencies:
-      '@types/node': 25.6.2
+      '@types/node': 25.7.0
 
   '@inquirer/figures@2.0.5': {}
 
-  '@inquirer/type@4.0.5(@types/node@25.6.2)':
+  '@inquirer/type@4.0.5(@types/node@25.7.0)':
     optionalDependencies:
-      '@types/node': 25.6.2
+      '@types/node': 25.7.0
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -5532,14 +5532,14 @@ snapshots:
   '@rolldown/binding-win32-x64-msvc@1.0.0':
     optional: true
 
-  '@rolldown/plugin-babel@0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0)(vite@8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))':
+  '@rolldown/plugin-babel@0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0)(vite@8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))':
     dependencies:
       '@babel/core': 7.29.0
       picomatch: 4.0.4
       rolldown: 1.0.0
     optionalDependencies:
       '@babel/runtime': 7.29.2
-      vite: 8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)
+      vite: 8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)
 
   '@rolldown/pluginutils@1.0.0': {}
 
@@ -5623,12 +5623,12 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.3.0
       '@tailwindcss/oxide-win32-x64-msvc': 4.3.0
 
-  '@tailwindcss/vite@4.3.0(vite@8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))':
+  '@tailwindcss/vite@4.3.0(vite@8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))':
     dependencies:
       '@tailwindcss/node': 4.3.0
       '@tailwindcss/oxide': 4.3.0
       tailwindcss: 4.3.0
-      vite: 8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)
+      vite: 8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)
 
   '@tanstack/react-table@8.21.3(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     dependencies:
@@ -5752,7 +5752,7 @@ snapshots:
   '@types/fs-extra@11.0.4':
     dependencies:
       '@types/jsonfile': 6.1.4
-      '@types/node': 25.6.2
+      '@types/node': 25.7.0
 
   '@types/hast@3.0.4':
     dependencies:
@@ -5760,7 +5760,7 @@ snapshots:
 
   '@types/jsonfile@6.1.4':
     dependencies:
-      '@types/node': 25.6.2
+      '@types/node': 25.7.0
 
   '@types/lodash@4.17.24': {}
 
@@ -5770,9 +5770,9 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
-  '@types/node@25.6.2':
+  '@types/node@25.7.0':
     dependencies:
-      undici-types: 7.19.2
+      undici-types: 7.21.0
 
   '@types/react-dom@19.2.3(@types/react@19.2.14)':
     dependencies:
@@ -5786,7 +5786,7 @@ snapshots:
 
   '@types/set-cookie-parser@2.4.10':
     dependencies:
-      '@types/node': 25.6.2
+      '@types/node': 25.7.0
 
   '@types/statuses@2.0.6': {}
 
@@ -5798,12 +5798,12 @@ snapshots:
 
   '@ungap/structured-clone@1.3.1': {}
 
-  '@vitejs/plugin-react@6.0.1(@rolldown/plugin-babel@0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0)(vite@8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)))(babel-plugin-react-compiler@1.0.0)(vite@8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))':
+  '@vitejs/plugin-react@6.0.1(@rolldown/plugin-babel@0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0)(vite@8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)))(babel-plugin-react-compiler@1.0.0)(vite@8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-rc.7
-      vite: 8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)
+      vite: 8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)
     optionalDependencies:
-      '@rolldown/plugin-babel': 0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0)(vite@8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))
+      '@rolldown/plugin-babel': 0.2.3(@babel/core@7.29.0)(@babel/runtime@7.29.2)(rolldown@1.0.0)(vite@8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4))
       babel-plugin-react-compiler: 1.0.0
 
   accepts@2.0.0:
@@ -6049,9 +6049,9 @@ snapshots:
       object-assign: 4.1.1
       vary: 1.1.2
 
-  cosmiconfig-typescript-loader@6.3.0(@types/node@25.6.2)(cosmiconfig@9.0.1(typescript@6.0.3))(typescript@6.0.3):
+  cosmiconfig-typescript-loader@6.3.0(@types/node@25.7.0)(cosmiconfig@9.0.1(typescript@6.0.3))(typescript@6.0.3):
     dependencies:
-      '@types/node': 25.6.2
+      '@types/node': 25.7.0
       cosmiconfig: 9.0.1(typescript@6.0.3)
       jiti: 2.6.1
       typescript: 6.0.3
@@ -7033,9 +7033,9 @@ snapshots:
 
   ms@2.1.3: {}
 
-  msw@2.14.5(@types/node@25.6.2)(typescript@6.0.3):
+  msw@2.14.5(@types/node@25.7.0)(typescript@6.0.3):
     dependencies:
-      '@inquirer/confirm': 6.0.13(@types/node@25.6.2)
+      '@inquirer/confirm': 6.0.13(@types/node@25.7.0)
       '@mswjs/interceptors': 0.41.8
       '@open-draft/deferred-promise': 3.0.0
       '@types/statuses': 2.0.6
@@ -7541,7 +7541,7 @@ snapshots:
 
   setprototypeof@1.2.0: {}
 
-  shadcn@4.7.0(@types/node@25.6.2)(typescript@6.0.3):
+  shadcn@4.7.0(@types/node@25.7.0)(typescript@6.0.3):
     dependencies:
       '@babel/core': 7.29.0
       '@babel/parser': 7.29.3
@@ -7562,7 +7562,7 @@ snapshots:
       fuzzysort: 3.1.0
       https-proxy-agent: 7.0.6
       kleur: 4.1.5
-      msw: 2.14.5(@types/node@25.6.2)(typescript@6.0.3)
+      msw: 2.14.5(@types/node@25.7.0)(typescript@6.0.3)
       node-fetch: 3.3.2
       open: 11.0.0
       ora: 8.2.0
@@ -7781,7 +7781,7 @@ snapshots:
 
   typescript@6.0.3: {}
 
-  undici-types@7.19.2: {}
+  undici-types@7.21.0: {}
 
   undici@6.25.0: {}
 
@@ -7871,7 +7871,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-plugin-html@3.2.2(vite@8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)):
+  vite-plugin-html@3.2.2(vite@8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)):
     dependencies:
       '@rollup/pluginutils': 4.2.1
       colorette: 2.0.20
@@ -7885,9 +7885,9 @@ snapshots:
       html-minifier-terser: 6.1.0
       node-html-parser: 5.4.2
       pathe: 0.2.0
-      vite: 8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)
+      vite: 8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4)
 
-  vite@8.0.12(@types/node@25.6.2)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4):
+  vite@8.0.12(@types/node@25.7.0)(jiti@2.7.0)(terser@5.47.1)(yaml@2.8.4):
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.4
@@ -7895,7 +7895,7 @@ snapshots:
       rolldown: 1.0.0
       tinyglobby: 0.2.16
     optionalDependencies:
-      '@types/node': 25.6.2
+      '@types/node': 25.7.0
       fsevents: 2.3.3
       jiti: 2.7.0
       terser: 5.47.1

@@ -68,7 +68,7 @@
     "@commitlint/types": "^21.0.0",
     "@rolldown/plugin-babel": "^0.2.3",
     "@tailwindcss/vite": "^4.2.4",
-    "@tauri-apps/cli": "2.11.1",
+    "@tauri-apps/cli": "2.11.2",
     "@types/babel__core": "^7.20.5",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.24",

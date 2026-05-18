@@ -82,7 +82,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.0.0",
     "oxlint": "^1.62.0",
-    "oxlint-tsgolint": "^0.22.1",
+    "oxlint-tsgolint": "^0.23.0",
     "prettier": "3.8.3",
     "tailwindcss": "^4.2.4",
     "typescript": "^6.0.3",

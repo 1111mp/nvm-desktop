@@ -3,8 +3,11 @@ use crate::config::Config;
 use crate::config::{Group, Project};
 use crate::core::{app, node, project};
 use crate::process::AsyncHandler;
-use crate::utils::logging::Type;
-use crate::utils::resolve;
+use crate::utils::{
+    i18n::{tr, Locale},
+    logging::Type,
+    resolve,
+};
 use crate::{logging, logging_error};
 use anyhow::Result;
 use tauri::menu::{AboutMetadataBuilder, CheckMenuItem, MenuItem};
@@ -133,7 +136,7 @@ impl Tray {
         };
 
         let settings = Config::settings().await.latest_arc();
-        let zh = settings.locale.as_deref() == Some("zh-CN");
+        let locale = Locale::from_str(settings.locale.as_deref());
 
         let node = Config::node().await.latest_arc();
         let current = { node.current.as_deref() }.unwrap_or_default();
@@ -150,7 +153,7 @@ impl Tray {
             tray.set_menu(Some(
                 create_tray_menu(
                     app_handle,
-                    zh,
+                    &locale,
                     current,
                     installed_versions,
                     projects_list,
@@ -189,22 +192,12 @@ fn build_check_menu_items(
 
 async fn create_tray_menu(
     app_handle: &AppHandle,
-    zh: bool,
+    locale: &Locale,
     current: &str,
     installed_versions: &[String],
     projects: &[Project],
     groups: &[Group],
 ) -> Result<tauri::menu::Menu<Wry>> {
-    macro_rules! t {
-        ($en: expr, $zh: expr) => {
-            if zh {
-                $zh
-            } else {
-                $en
-            }
-        };
-    }
-
     let app_info = app_handle.package_info();
 
     let open_window =
@@ -276,7 +269,7 @@ async fn create_tray_menu(
     let open_config_dir = &MenuItem::with_id(
         app_handle,
         "open_config_dir",
-        t!("Config Dir", "配置目录"),
+        tr(locale, "menu.open_config_dir"),
         true,
         None::<&str>,
     )?;
@@ -284,7 +277,7 @@ async fn create_tray_menu(
     let open_data_dir = &MenuItem::with_id(
         app_handle,
         "open_data_dir",
-        t!("Data Dir", "数据目录"),
+        tr(locale, "menu.open_data_dir"),
         true,
         None::<&str>,
     )?;
@@ -292,7 +285,7 @@ async fn create_tray_menu(
     let open_logs_dir = &MenuItem::with_id(
         app_handle,
         "open_logs_dir",
-        t!("Logs Dir", "日志目录"),
+        tr(locale, "menu.open_logs_dir"),
         true,
         None::<&str>,
     )?;
@@ -300,7 +293,7 @@ async fn create_tray_menu(
     let open_dir = &Submenu::with_id_and_items(
         app_handle,
         "open_dir",
-        t!("Open Dir", "打开目录"),
+        tr(locale, "menu.open_dir"),
         true,
         &[open_config_dir, open_data_dir, open_logs_dir],
     )?;
@@ -308,7 +301,7 @@ async fn create_tray_menu(
     let devtools = &MenuItem::with_id(
         app_handle,
         "open_dev_tools",
-        t!("Open Dev Tools", "开发者工具"),
+        tr(locale, "menu.open_dev_tools"),
         true,
         None::<&str>,
     )?;
@@ -316,7 +309,7 @@ async fn create_tray_menu(
     let icon_path = app_handle.path().resource_dir()?.join("icons/icon.png");
     let about = &PredefinedMenuItem::about(
         app_handle,
-        Some(t!("About NVM-Desktop", "关于 NVM-Desktop")),
+        Some(tr(locale, "menu.about")),
         Some(
             AboutMetadataBuilder::new()
                 .version(Some(app_info.version.to_string()))
@@ -330,7 +323,7 @@ async fn create_tray_menu(
     let quit = &MenuItem::with_id(
         app_handle,
         "quit",
-        t!("Quit NVM-Desktop", "退出 NVM-Desktop"),
+        tr(locale, "menu.quit"),
         true,
         Some("CmdOrCtrl+Q"),
     )?;

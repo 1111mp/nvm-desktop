@@ -272,6 +272,7 @@ const Setting: React.FC<Props> = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value='zh-CN'>简体中文</SelectItem>
+                        <SelectItem value='pl'>Polski</SelectItem>
                         <SelectItem value='en'>English</SelectItem>
                       </SelectContent>
                     </Select>

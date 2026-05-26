@@ -57,8 +57,8 @@ importers:
         specifier: ^1.11.20
         version: 1.11.20
       i18next:
-        specifier: 26.2.0
-        version: 26.2.0(typescript@6.0.3)
+        specifier: 26.3.0
+        version: 26.3.0(typescript@6.0.3)
       intro.js:
         specifier: ^8.3.2
         version: 8.3.2
@@ -88,7 +88,7 @@ importers:
         version: 7.76.1(react@19.2.6)
       react-i18next:
         specifier: ^17.0.6
-        version: 17.0.8(i18next@26.2.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
+        version: 17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
       react-markdown:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.2.15)(react@19.2.6)
@@ -99,8 +99,8 @@ importers:
         specifier: ^7.7.4
         version: 7.8.1
       shadcn:
-        specifier: 4.8.0
-        version: 4.8.0(@types/node@25.9.1)(typescript@6.0.3)
+        specifier: 4.8.1
+        version: 4.8.1(@types/node@25.9.1)(typescript@6.0.3)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -2720,8 +2720,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  i18next@26.2.0:
-    resolution: {integrity: sha512-zwBHldHdTmwN7r6UNc7lC6GWNN+YYg3DrRSeHR5PRRBf5QnJZcYHrQc0uaU26qZeYxR7iFZD+Y315dPnKP47wA==}
+  i18next@26.3.0:
+    resolution: {integrity: sha512-gHSgGpUXVmuqE2El1W61DmxeyeTlFfZgdJRWMo9jScAn5pu7TuTuiccb1zh3E2J9hEBVGJ23+96x0ieBhfuIHA==}
     peerDependencies:
       typescript: ^5 || ^6
     peerDependenciesMeta:
@@ -3599,8 +3599,8 @@ packages:
   setprototypeof@1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
 
-  shadcn@4.8.0:
-    resolution: {integrity: sha512-LAm3I/1FdoU/zu5GVG8Hbna4X9zlzEG5TeeCPXqsopkjvGk8QUF9OFhqeRN8oM6Oh/ynUI/yQHZxQAO3Ymcqsg==}
+  shadcn@4.8.1:
+    resolution: {integrity: sha512-B2J63uYwqfLJPNzZk2AAlonXG1aJhwv8xmXlUag8OZdV61CQB6570nkXLjU1u9XN1qXm0LpJhSFQ0ZhlOruA4Q==}
     hasBin: true
 
   shebang-command@2.0.0:
@@ -6544,7 +6544,7 @@ snapshots:
 
   husky@9.1.7: {}
 
-  i18next@26.2.0(typescript@6.0.3):
+  i18next@26.3.0(typescript@6.0.3):
     optionalDependencies:
       typescript: 6.0.3
 
@@ -7370,11 +7370,11 @@ snapshots:
     dependencies:
       react: 19.2.6
 
-  react-i18next@17.0.8(i18next@26.2.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3):
+  react-i18next@17.0.8(i18next@26.3.0(typescript@6.0.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.2
       html-parse-stringify: 3.0.1
-      i18next: 26.2.0(typescript@6.0.3)
+      i18next: 26.3.0(typescript@6.0.3)
       react: 19.2.6
       use-sync-external-store: 1.6.0(react@19.2.6)
     optionalDependencies:
@@ -7560,7 +7560,7 @@ snapshots:
 
   setprototypeof@1.2.0: {}
 
-  shadcn@4.8.0(@types/node@25.9.1)(typescript@6.0.3):
+  shadcn@4.8.1(@types/node@25.9.1)(typescript@6.0.3):
     dependencies:
       '@babel/core': 7.29.0
       '@babel/parser': 7.29.3

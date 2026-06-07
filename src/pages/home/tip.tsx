@@ -187,7 +187,10 @@ function Tip() {
                   </p>
                   <p>
                     使用 list 或者 ls 查看所有已安装的版本：
-                    <span className='text-muted-foreground'> nvmd list</span> or
+                    <span className='text-muted-foreground'>
+                      {' '}
+                      nvmd list
+                    </span> or
                     <span className='text-muted-foreground'> nvmd ls</span>
                   </p>
                   <p>
@@ -230,7 +233,10 @@ function Tip() {
                   </p>
                   <p>
                     List all installed versions using list or ls:
-                    <span className='text-muted-foreground'> nvmd list</span> or
+                    <span className='text-muted-foreground'>
+                      {' '}
+                      nvmd list
+                    </span> or
                     <span className='text-muted-foreground'> nvmd ls</span>
                   </p>
                   <p>

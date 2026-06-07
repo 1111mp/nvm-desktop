@@ -1,7 +1,7 @@
 ---
 name: Bug Report
 about: Create a report to help us improve
-title: "[BUG]"
+title: '[BUG]'
 labels: bug
 assignees: ''
 ---
@@ -11,6 +11,7 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce the behavior:
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
@@ -23,9 +24,10 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Desktop (please complete the following information):**
- - OS: [e.g. macOS]
- - Arch: [e.g. arm64]
- - Version [e.g. 4.0.0]
+
+- OS: [e.g. macOS]
+- Arch: [e.g. arm64]
+- Version [e.g. 4.0.0]
 
 **Additional context**
 Add any other context about the problem here.
@@ -37,6 +39,7 @@ Add any other context about the problem here.
 
 **重现步骤**
 重现该行为的步骤：
+
 1. 进入 '...'
 2. 点击 '....'
 3. 向下滚动到 '....'
@@ -49,9 +52,10 @@ Add any other context about the problem here.
 如果适用，请添加截图以帮助解释您的问题。
 
 **桌面设备（请填写以下信息）：**
- - 操作系统: [例如 macOS]
- - 架构: [例如 arm64]
- - 版本: [例如 4.0.0]
+
+- 操作系统: [例如 macOS]
+- 架构: [例如 arm64]
+- 版本: [例如 4.0.0]
 
 **附加上下文**
 在此添加有关问题的任何其他上下文。

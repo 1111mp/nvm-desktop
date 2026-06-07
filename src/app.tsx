@@ -1,11 +1,11 @@
 import './styles/global.css';
 
+import { Toaster, TooltipProvider } from '@/components/ui';
 import { useEffect } from 'react';
 import { RouterProvider } from 'react-router';
-import { Toaster, TooltipProvider } from '@/components/ui';
 
-import { router } from '@/routes';
 import { AppProvider } from '@/app-context';
+import { router } from '@/routes';
 import { SystemTheme } from '@/types';
 
 export default function App({

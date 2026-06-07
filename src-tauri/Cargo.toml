@@ -6,60 +6,64 @@ authors = ["The1111mp@outlook.com"]
 license = "MIT"
 repository = "https://github.com/1111mp/nvm-desktop.git"
 default-run = "nvm-desktop"
-edition = "2021"
+edition = "2024"
+rust-version = "1.95"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
+crate-type = ["cdylib", "rlib", "staticlib"]
 # The `_lib` suffix may seem redundant but it is necessary
 # to make the lib name unique and wouldn't conflict with the bin name.
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
 name = "nvm_desktop_lib"
-crate-type = ["staticlib", "cdylib", "rlib"]
-
-[build-dependencies]
-tauri-build = { version = "2", features = [] }
 
 [dependencies]
-anyhow = "1.0"
-bitflags = { version = "2.11" }
+anyhow = "1.0.102"
+bitflags = { version = "2.13.0" }
 # Use the git repo until the next release after v2.0.0.
 dark-light = { git = "https://github.com/rust-dark-light/dark-light" }
-dotenvy = "0.15"
-dirs = "6.0"
-futures = "0.3"
+dirs = "6.0.0"
+dotenvy = "0.15.7"
+futures = "0.3.32"
 get-node = { path = "crates/get-node" }
-log = "0.4"
-once_cell = "1"
-open = "5"
-parking_lot = "0.12"
-tauri = { version = "2", features = [
-	"image-ico",
-	"image-png",
-	"macos-private-api",
-	"protocol-asset",
-	"tray-icon",
-	"devtools",
-] }
-tauri-plugin-devtools = "2"
-tauri-plugin-dialog = "2"
-tauri-plugin-log = { version = "2", features = ["colored"] }
-tauri-plugin-shell = "2"
-tauri-plugin-single-instance = "2"
-tauri-plugin-window-state = "2"
-tauri-plugin-updater = "2"
-tokio = { version = "1", features = ["full"] }
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-version-compare = "0.2"
-warp = { version = "0.4", features = ["server"] }
+log = "0.4.32"
+once_cell = "1.21.4"
+open = "5.3.5"
+parking_lot = "0.12.5"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.150"
+tauri = {
+  version = "2.11.2",
+  features = [
+    "devtools",
+    "image-ico",
+    "image-png",
+    "macos-private-api",
+    "protocol-asset",
+    "tray-icon",
+  ]
+}
+tauri-plugin-devtools = "2.1.0"
+tauri-plugin-dialog = "2.7.1"
+tauri-plugin-log = { version = "2.8.0", features = ["colored"] }
+tauri-plugin-shell = "2.3.5"
+tauri-plugin-single-instance = "2.4.2"
+tauri-plugin-updater = "2.10.1"
+tauri-plugin-window-state = "2.4.1"
+tokio = { version = "1.52.3", features = ["full"] }
+version-compare = "0.2.1"
+warp = { version = "0.4.3", features = ["server"] }
+
+[build-dependencies]
+tauri-build = { version = "2.6.2", features = [] }
 
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.62", features = ["Win32_System_Threading"] }
+windows = { version = "0.62.2", features = ["Win32_System_Threading"] }
 
 [profile.release]
-codegen-units = 1 # Allows LLVM to perform better optimization.
-lto = true        # Enables link-time-optimizations.
-opt-level = "s"   # Prioritizes small binary size. Use `3` if you prefer speed.
-panic = "abort"   # Higher performance by disabling panic handlers.
-strip = true      # Ensures debug symbols are removed.
+opt-level = "s"  # Prioritizes small binary size. Use `3` if you prefer speed.
+strip = true  # Ensures debug symbols are removed.
+lto = true  # Enables link-time-optimizations.
+panic = "abort"  # Higher performance by disabling panic handlers.
+codegen-units = 1  # Allows LLVM to perform better optimization.

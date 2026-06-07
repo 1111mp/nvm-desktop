@@ -15,6 +15,9 @@
     "shared/**"
   ],
   "rangeStrategy": "replace",
+  "npm": {
+    "minimumReleaseAge": "24 hours"
+  },
   "packageRules": [
     {
       "matchUpdateTypes": ["patch"],

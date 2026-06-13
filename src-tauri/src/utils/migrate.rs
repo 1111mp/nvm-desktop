@@ -4,9 +4,9 @@ use crate::{core::handle, logging_error, process::AsyncHandler};
 use anyhow::Result;
 use tauri::Emitter;
 use tokio::fs;
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 
-const CURRENT_MIGRATION_VERSION: i16 = 31;
+const CURRENT_MIGRATION_VERSION: i16 = 32;
 const NODE_DEFAULT_EXECUTE: [&str; 4] = ["node", "npm", "npx", "corepack"];
 
 pub fn init() {

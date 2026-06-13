@@ -1,3 +1,13 @@
+## v4.3.3
+
+### Features
+
+- Add `shim` subcommand to manage executable shims
+- Support Liquid Glass icons on macOS platform
+- Support Polish language
+
+---
+
 ## v4.3.2
 
 ### Features

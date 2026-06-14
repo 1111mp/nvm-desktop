@@ -98,7 +98,7 @@ declare global {
       projects: string[];
     }
 
-    interface ConfigrationExport {
+    interface ConfigurationExport {
       baseColor?: string;
       color?: string;
       radius?: string;
@@ -107,7 +107,7 @@ declare global {
       setting?: boolean;
     }
 
-    interface ConfigrationImport {
+    interface ConfigurationImport {
       baseColor?: string;
       color?: string;
       radius?: string;

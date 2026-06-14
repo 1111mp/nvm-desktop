@@ -76,8 +76,8 @@ pub fn run() {
             cmd::group::update_groups,
             cmd::group::update_group_version,
             // configuration
-            cmd::configration::configration_export,
-            cmd::configration::configration_import,
+            cmd::configuration::configuration_export,
+            cmd::configuration::configuration_import,
             // app
             cmd::app::open_dir,
             cmd::app::restart,

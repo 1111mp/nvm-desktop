@@ -180,25 +180,25 @@ export function updateGroupVersion(name: string, version: string) {
 }
 
 /**
- * @description: Export configration data.
+ * @description: Export configuration data.
  * @param {string} outputPath	Output file path
- * @param {Nvmd.ConfigrationExport} configration Decide which data to export
+ * @param {Nvmd.ConfigurationExport} configuration Decide which data to export
  * @returns {Promise<void>}
  */
-export function configrationExport(
+export function configurationExport(
   outputPath: string,
-  configration: Nvmd.ConfigrationExport,
+  configuration: Nvmd.ConfigurationExport,
 ) {
-  return invoke<void>('configration_export', { outputPath, configration });
+  return invoke<void>('configuration_export', { outputPath, configuration });
 }
 
 /**
- * @description: Import configration data.
+ * @description: Import configuration data.
  * @param {boolean} sync Is need to sync `.nvmdrc` file content for projects
- * @returns {Promise<Nvmd.ConfigrationImport | undefined>}
+ * @returns {Promise<Nvmd.ConfigurationImport | undefined>}
  */
-export function configrationImport(sync: boolean = false) {
-  return invoke<Nvmd.ConfigrationImport | undefined>('configration_import', {
+export function configurationImport(sync: boolean = false) {
+  return invoke<Nvmd.ConfigurationImport | undefined>('configuration_import', {
     sync,
   });
 }

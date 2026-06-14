@@ -93,7 +93,7 @@ impl IGroups {
         Ok(false)
     }
 
-    pub fn exsist(&self, name: &str) -> bool {
+    pub fn exists(&self, name: &str) -> bool {
         self.list.as_ref().map_or(false, |groups| {
             groups.iter().any(|group| group.name == name)
         })

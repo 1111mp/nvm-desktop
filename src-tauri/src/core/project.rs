@@ -245,7 +245,7 @@ pub async fn update_from_notice(name: &str, version: &str) -> Result<()> {
         let project_path = Config::projects()
             .await
             .edit_draft(|d| d.update_version(name, version))?;
-        let need_update_groups = if Config::groups().await.data_arc().exsist(version) {
+        let need_update_groups = if Config::groups().await.data_arc().exists(version) {
             Config::groups()
                 .await
                 .edit_draft(|d| d.update_projects_version(&project_path, version))?;

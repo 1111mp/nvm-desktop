@@ -38,7 +38,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useAppContext } from '@/app-context';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { configrationExport, configrationImport } from '@/services/cmds';
+import { configurationExport, configurationImport } from '@/services/cmds';
 
 const items = [
   {
@@ -61,7 +61,7 @@ const FormSchema = z.object({
   }),
 });
 
-const Configration: React.FC = () => {
+const Configuration: React.FC = () => {
   const { t } = useTranslation();
 
   const exporter = useRef<Exporter>(null);
@@ -83,7 +83,7 @@ const Configration: React.FC = () => {
     };
   }, []);
 
-  const title = t('Configration'),
+  const title = t('Configuration'),
     platform = OS_PLATFORM;
 
   return (
@@ -102,7 +102,7 @@ const Configration: React.FC = () => {
                 exporter.current?.alert();
               }}
             >
-              {t('Configration-export')}
+              {t('Configuration-export')}
               <DropdownMenuShortcut>
                 ⇧{platform === 'win32' ? '⊞' : '⌘'}E
               </DropdownMenuShortcut>
@@ -112,7 +112,7 @@ const Configration: React.FC = () => {
                 importer.current?.alert();
               }}
             >
-              {t('Configration-import')}
+              {t('Configuration-import')}
               <DropdownMenuShortcut>
                 ⇧{platform === 'win32' ? '⊞' : '⌘'}I
               </DropdownMenuShortcut>
@@ -121,8 +121,8 @@ const Configration: React.FC = () => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ConfigrationExport ref={exporter} />
-      <ConfigrationImport ref={importer} />
+      <ConfigurationExport ref={exporter} />
+      <ConfigurationImport ref={importer} />
     </>
   );
 };
@@ -131,11 +131,11 @@ type Exporter = {
   alert: () => void;
 };
 
-type ConfigrationExportProps = {
+type ConfigurationExportProps = {
   ref?: React.RefObject<Exporter | null>;
 };
 
-const ConfigrationExport: React.FC<ConfigrationExportProps> = ({ ref }) => {
+const ConfigurationExport: React.FC<ConfigurationExportProps> = ({ ref }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -169,10 +169,10 @@ const ConfigrationExport: React.FC<ConfigrationExportProps> = ({ ref }) => {
     try {
       const filename = `${path}${
         OS_PLATFORM === 'win32' ? '\\' : '/'
-      }configration_${Date.now()}.json`;
+      }configuration_${Date.now()}.json`;
       const exportSetting = items.includes('setting');
 
-      await configrationExport(filename, {
+      await configurationExport(filename, {
         baseColor: items.includes('color') ? color.baseColor : void 0,
         color: items.includes('color') ? color.theme : void 0,
         radius: items.includes('color') ? color.radius : void 0,
@@ -182,7 +182,7 @@ const ConfigrationExport: React.FC<ConfigrationExportProps> = ({ ref }) => {
           ? localStorage.getItem('nvmd-mirror') || void 0
           : void 0,
       });
-      toast.success(t('Configration-export-success', { filename }), {
+      toast.success(t('Configuration-export-success', { filename }), {
         duration: 5000,
       });
       setOpen(false);
@@ -206,9 +206,9 @@ const ConfigrationExport: React.FC<ConfigrationExportProps> = ({ ref }) => {
           <AlertDialogMedia>
             <SquareArrowRightExit />
           </AlertDialogMedia>
-          <AlertDialogTitle>{t('Configration-export')}</AlertDialogTitle>
+          <AlertDialogTitle>{t('Configuration-export')}</AlertDialogTitle>
           <AlertDialogDescription>
-            {t('Configration-export-tip')}
+            {t('Configuration-export-tip')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <form
@@ -250,11 +250,11 @@ const ConfigrationExport: React.FC<ConfigrationExportProps> = ({ ref }) => {
                             {item.label}
                             {item.id === 'setting' ? (
                               <span className='text-muted-foreground'>
-                                {t('Configration-export-setting')}
+                                {t('Configuration-export-setting')}
                               </span>
                             ) : item.id === 'projects' ? (
                               <span className='text-muted-foreground'>
-                                {t('Configration-export-projects')}
+                                {t('Configuration-export-projects')}
                               </span>
                             ) : null}
                           </FieldLabel>
@@ -286,11 +286,11 @@ type Importer = {
   alert: () => void;
 };
 
-type ConfigrationImportProps = {
+type ConfigurationImportProps = {
   ref?: React.RefObject<Importer | null>;
 };
 
-const ConfigrationImport: React.FC<ConfigrationImportProps> = ({ ref }) => {
+const ConfigurationImport: React.FC<ConfigurationImportProps> = ({ ref }) => {
   const [open, setOpen] = useState<boolean>(false);
 
   const { updateColor, updateSetting } = useAppContext();
@@ -304,9 +304,9 @@ const ConfigrationImport: React.FC<ConfigrationImportProps> = ({ ref }) => {
     setOpen(true);
   };
 
-  const onConfigrationImport = async (sync: boolean) => {
+  const onConfigurationImport = async (sync: boolean) => {
     try {
-      const data = await configrationImport(sync);
+      const data = await configurationImport(sync);
       if (!data) return;
 
       const { baseColor, color, radius, mirrors, setting } = data;
@@ -327,7 +327,7 @@ const ConfigrationImport: React.FC<ConfigrationImportProps> = ({ ref }) => {
       }
 
       setOpen(false);
-      toast.success(t('Configration-import-success'), { duration: 5000 });
+      toast.success(t('Configuration-import-success'), { duration: 5000 });
     } catch (err) {
       toast.error(err?.message || err.toString());
     }
@@ -345,23 +345,23 @@ const ConfigrationImport: React.FC<ConfigrationImportProps> = ({ ref }) => {
           <AlertDialogMedia>
             <SquareArrowRightEnter />
           </AlertDialogMedia>
-          <AlertDialogTitle>{t('Configration-import')}</AlertDialogTitle>
+          <AlertDialogTitle>{t('Configuration-import')}</AlertDialogTitle>
           <AlertDialogDescription>
-            {t('Configration-import-tip')}
+            {t('Configuration-import-tip')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel variant='outline'>{t('Cancel')}</AlertDialogCancel>
           <Button
             variant='secondary'
-            onClick={() => onConfigrationImport(false)}
+            onClick={() => onConfigurationImport(false)}
           >
             {t('Import-only')}
           </Button>
           <AlertDialogAction
             onClick={(evt) => {
               evt.preventDefault();
-              onConfigrationImport(true);
+              onConfigurationImport(true);
             }}
           >
             {t('Import-and-sync')}
@@ -372,4 +372,4 @@ const ConfigrationImport: React.FC<ConfigrationImportProps> = ({ ref }) => {
   );
 };
 
-export default Configration;
+export default Configuration;

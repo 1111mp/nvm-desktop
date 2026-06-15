@@ -3,7 +3,7 @@ use crate::{
     log_err, logging,
     utils::{help, logging::Type},
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use tauri::{Emitter, Manager};

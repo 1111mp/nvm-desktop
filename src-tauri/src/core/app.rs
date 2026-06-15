@@ -4,7 +4,7 @@ use crate::{
     utils::{dirs, logging::Type},
 };
 use anyhow::Result;
-use dark_light::{detect as detect_system_theme, Mode as SystemTheme};
+use dark_light::{Mode as SystemTheme, detect as detect_system_theme};
 
 pub fn open_dir(dir: String) -> Result<()> {
     open::that(&dir)?;

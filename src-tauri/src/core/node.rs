@@ -5,10 +5,10 @@ use crate::{
     process::AsyncHandler,
     utils::{help, logging::Type},
 };
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use get_node::{
-    archive::{fetch_native, FetchConfig},
-    list::{version_list, ListConfig},
+    archive::{FetchConfig, fetch_native},
+    list::{ListConfig, version_list},
 };
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
@@ -20,7 +20,7 @@ use std::{
 };
 use tauri::Emitter;
 use tokio::{sync::watch, time::Instant};
-use version_compare::{compare, Cmp};
+use version_compare::{Cmp, compare};
 
 static CANCEL_SENDER: Lazy<Arc<Mutex<Option<watch::Sender<bool>>>>> =
     Lazy::new(|| Arc::new(Mutex::new(None)));

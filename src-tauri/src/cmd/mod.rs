@@ -2,7 +2,7 @@ pub type CmdResult<T = ()> = Result<T, String>;
 
 // Command modules
 pub mod app;
-pub mod configration;
+pub mod configuration;
 pub mod group;
 pub mod node;
 pub mod project;

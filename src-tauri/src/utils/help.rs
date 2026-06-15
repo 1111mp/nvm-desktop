@@ -1,7 +1,7 @@
 use super::dirs;
 use crate::{logging, utils::logging::Type};
-use anyhow::{bail, Context, Result};
-use serde::{de::DeserializeOwned, Serialize};
+use anyhow::{Context, Result, bail};
+use serde::{Serialize, de::DeserializeOwned};
 use std::path::PathBuf;
 
 pub async fn read_string(path: &PathBuf) -> Result<String> {

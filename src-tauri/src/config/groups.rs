@@ -2,7 +2,7 @@ use crate::{
     logging,
     utils::{dirs, help, logging::Type},
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
@@ -93,7 +93,7 @@ impl IGroups {
         Ok(false)
     }
 
-    pub fn exsist(&self, name: &str) -> bool {
+    pub fn exists(&self, name: &str) -> bool {
         self.list.as_ref().map_or(false, |groups| {
             groups.iter().any(|group| group.name == name)
         })

@@ -28,7 +28,7 @@ import { getCurrent, windowClose, windowMinimize } from '@/services/api';
 import { useTour } from '@/hooks';
 
 const Tip = lazy(() => import('./tip'));
-const Configration = lazy(() => import('./configration'));
+const Configuration = lazy(() => import('./configuration'));
 const Setting = lazy(() => import('./setting'));
 
 const Home: React.FC = () => {
@@ -472,7 +472,7 @@ const Home: React.FC = () => {
             <Updater />
             <ThemeCustomizer />
             <Tip />
-            <Configration />
+            <Configuration />
             <Setting />
           </div>
         </header>
@@ -536,7 +536,7 @@ const Home: React.FC = () => {
               <Updater />
               <ThemeCustomizer />
               <Tip />
-              <Configration />
+              <Configuration />
               <Setting />
             </div>
             <div className='flex items-center gap-1'>

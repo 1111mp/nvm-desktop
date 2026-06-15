@@ -9,7 +9,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::convert::Infallible;
 use tauri::Emitter;
-use warp::{http::StatusCode, Filter};
+use warp::{Filter, http::StatusCode};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 struct Message {

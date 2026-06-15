@@ -1,4 +1,4 @@
-use crate::{logging, utils::logging::Type, APP_HANDLE};
+use crate::{APP_HANDLE, logging, utils::logging::Type};
 use anyhow::Result;
 use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::{AppHandle, Emitter, Manager, WebviewWindow};

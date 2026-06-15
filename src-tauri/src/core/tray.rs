@@ -4,7 +4,7 @@ use crate::config::{Group, Project};
 use crate::core::{app, node, project};
 use crate::process::AsyncHandler;
 use crate::utils::{
-    i18n::{tr, Locale},
+    i18n::{Locale, tr},
     logging::Type,
     resolve,
 };
@@ -14,9 +14,9 @@ use tauri::menu::{AboutMetadataBuilder, CheckMenuItem, MenuItem};
 use tauri::tray::TrayIconBuilder;
 use tauri::tray::{MouseButton, TrayIcon, TrayIconEvent};
 use tauri::{
+    AppHandle, Manager, Wry,
     image::Image,
     menu::{IsMenuItem, MenuEvent, PredefinedMenuItem, Submenu, SubmenuBuilder},
-    AppHandle, Manager, Wry,
 };
 
 #[derive(Default)]

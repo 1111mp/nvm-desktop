@@ -8,7 +8,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::cmp::Ordering;
-use version_compare::{compare, Cmp};
+use version_compare::{Cmp, compare};
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct NVersion {

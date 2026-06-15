@@ -7,8 +7,8 @@ use crate::{
     utils::{logging::Type, migrate, server},
 };
 use anyhow::Result;
-use dark_light::{detect as detect_system_theme, Mode as SystemTheme};
-use tauri::{utils::config::Color, Theme};
+use dark_light::{Mode as SystemTheme, detect as detect_system_theme};
+use tauri::{Theme, utils::config::Color};
 
 const DARK_BACKGROUND_COLOR: Color = Color(0, 0, 0, 255); // #000000
 const LIGHT_BACKGROUND_COLOR: Color = Color(255, 255, 255, 255); // #ffffff

@@ -4,8 +4,8 @@ use crate::{
     log_err, logging,
     utils::{dirs, help, logging::Type},
 };
-use anyhow::{anyhow, bail, Result};
-use futures::{stream, StreamExt, TryStreamExt};
+use anyhow::{Result, anyhow, bail};
+use futures::{StreamExt, TryStreamExt, stream};
 use std::{
     path::{Path, PathBuf},
     process::Command,

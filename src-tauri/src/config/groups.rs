@@ -2,7 +2,7 @@ use crate::{
     logging,
     utils::{dirs, help, logging::Type},
 };
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]

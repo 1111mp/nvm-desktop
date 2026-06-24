@@ -44,7 +44,7 @@
     "intro.js": "^8.3.2",
     "lodash": "^4.18.1",
     "lucide-react": "1.21.0",
-    "motion": "12.40.0",
+    "motion": "12.41.0",
     "radix-ui": "^1.5.0",
     "react": "19.2.7",
     "react-circular-progressbar": "^2.2.0",
@@ -87,7 +87,7 @@
     "tailwindcss": "^4.3.1",
     "typescript": "^6.0.3",
     "undici": "8.5.0",
-    "vite": "8.0.16",
+    "vite": "8.1.0",
     "vite-plugin-html": "^3.2.2"
   },
   "packageManager": "pnpm@11.6.0"

@@ -11,6 +11,7 @@ use tokio::{
     io::BufReader,
 };
 use tokio_util::compat::{TokioAsyncReadCompatExt, TokioAsyncWriteCompatExt};
+use futures_lite::AsyncWriteExt;
 
 use super::{
     cleanup_stale_partial_archives, create_client, download_archive, ensure_not_cancelled,
@@ -129,7 +130,9 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
                 .create_new(true)
                 .open(&path)
                 .await?;
-            futures_lite::io::copy(&mut entry_reader, &mut writer.compat_write()).await?;
+            let mut writer = writer.compat_write();
+            futures_lite::io::copy(&mut entry_reader, &mut writer).await?;
+            writer.close().await?;
         }
 
         on_progress("unzip", index + 1, total_entries);
@@ -139,6 +142,8 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
         let _ = remove_dir_all(dest.join(&name)).await;
         bail!("Unzipping was cancelled");
     }
+
+    drop(reader);
 
     finalize_extraction(&dest.join(&name), &dest.join(&version), &temp_file_path).await
 }

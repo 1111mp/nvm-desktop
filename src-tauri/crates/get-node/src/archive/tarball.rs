@@ -104,5 +104,8 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
         on_progress("unzip", unpacked_size as usize, unpacked_size as usize);
     }
 
+    drop(entries);
+    drop(tarball);
+
     finalize_extraction(&dest.join(&name), &dest.join(&version), &temp_file_path).await
 }

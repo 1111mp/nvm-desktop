@@ -11,7 +11,7 @@ use std::{
     time::{Duration, SystemTime},
 };
 use tokio::{
-    fs::{File, OpenOptions},
+    fs::{metadata, remove_dir_all, remove_file, rename, File, OpenOptions},
     io::{AsyncReadExt, AsyncWriteExt},
 };
 
@@ -25,6 +25,47 @@ const DOWNLOAD_MAX_RETRIES: usize = 3;
 const DOWNLOAD_RETRY_DELAY_MS: u64 = 800;
 const NODE_SHASUMS_FILE: &str = "SHASUMS256.txt";
 const STALE_PARTIAL_MAX_AGE: Duration = Duration::from_secs(60 * 60 * 24 * 7);
+
+pub(super) async fn finalize_extraction(
+    extracted_dir: &Path,
+    version_dir: &Path,
+    archive_path: &Path,
+) -> Result<String> {
+    if metadata(version_dir).await.is_ok() {
+        let _ = remove_dir_all(extracted_dir).await;
+        let _ = remove_file(archive_path).await;
+        return Ok(version_dir.to_string_lossy().to_string());
+    }
+
+    let mut last_error = None;
+    for attempt in 0..5 {
+        match rename(extracted_dir, version_dir).await {
+            Ok(_) => {
+                let _ = remove_file(archive_path).await;
+                return Ok(version_dir.to_string_lossy().to_string());
+            }
+            Err(err) => {
+                if metadata(version_dir).await.is_ok() {
+                    let _ = remove_dir_all(extracted_dir).await;
+                    let _ = remove_file(archive_path).await;
+                    return Ok(version_dir.to_string_lossy().to_string());
+                }
+
+                last_error = Some(err);
+                if attempt < 4 {
+                    tokio::time::sleep(Duration::from_millis(200)).await;
+                }
+            }
+        }
+    }
+
+    let err = last_error.expect("rename should have been attempted");
+    anyhow::bail!(
+        "Failed to rename extracted Node.js directory from '{}' to '{}': {err}",
+        extracted_dir.display(),
+        version_dir.display()
+    );
+}
 
 pub struct FetchConfig {
     /// output dir

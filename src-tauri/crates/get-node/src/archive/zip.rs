@@ -5,13 +5,13 @@ use std::{
 
 use anyhow::{anyhow, bail, Result};
 use async_zip::base::read::seek::ZipFileReader;
+use futures_lite::AsyncWriteExt;
 use node_semver::Version;
 use tokio::{
     fs::{create_dir_all, remove_dir_all, File, OpenOptions},
     io::BufReader,
 };
 use tokio_util::compat::{TokioAsyncReadCompatExt, TokioAsyncWriteCompatExt};
-use futures_lite::AsyncWriteExt;
 
 use super::{
     cleanup_stale_partial_archives, create_client, download_archive, ensure_not_cancelled,

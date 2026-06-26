@@ -44,7 +44,7 @@
     "intro.js": "^8.3.2",
     "lodash": "^4.18.1",
     "lucide-react": "1.21.0",
-    "motion": "12.41.0",
+    "motion": "12.42.0",
     "radix-ui": "^1.5.0",
     "react": "19.2.7",
     "react-circular-progressbar": "^2.2.0",

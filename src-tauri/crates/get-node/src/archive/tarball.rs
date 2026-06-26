@@ -4,14 +4,14 @@ use futures_util::StreamExt;
 use node_semver::Version;
 use std::{path::PathBuf, time::Duration};
 use tokio::{
-    fs::{remove_dir_all, remove_file, rename, File},
+    fs::{remove_dir_all, File},
     io::BufReader,
 };
 use tokio_tar::ArchiveBuilder;
 
 use super::{
     cleanup_stale_partial_archives, create_client, download_archive, ensure_not_cancelled,
-    get_temp_archive_path, node::*, verify_archive_checksum, FetchConfig,
+    finalize_extraction, get_temp_archive_path, node::*, verify_archive_checksum, FetchConfig,
 };
 
 pub async fn fetch(config: FetchConfig) -> Result<String> {
@@ -104,11 +104,5 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
         on_progress("unzip", unpacked_size as usize, unpacked_size as usize);
     }
 
-    let (_rename_future, _remove_future) = tokio::join!(
-        rename(dest.join(&name), dest.join(&version)),
-        remove_file(temp_file_path)
-    );
-
-    let path = dest.join(&version).to_string_lossy().to_string();
-    Ok(path)
+    finalize_extraction(&dest.join(&name), &dest.join(&version), &temp_file_path).await
 }

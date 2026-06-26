@@ -5,6 +5,7 @@ use std::{
 
 use anyhow::{anyhow, bail, Result};
 use async_zip::base::read::seek::ZipFileReader;
+use futures_lite::AsyncWriteExt;
 use node_semver::Version;
 use tokio::{
     fs::{create_dir_all, remove_dir_all, File, OpenOptions},
@@ -129,7 +130,9 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
                 .create_new(true)
                 .open(&path)
                 .await?;
-            futures_lite::io::copy(&mut entry_reader, &mut writer.compat_write()).await?;
+            let mut writer = writer.compat_write();
+            futures_lite::io::copy(&mut entry_reader, &mut writer).await?;
+            writer.close().await?;
         }
 
         on_progress("unzip", index + 1, total_entries);
@@ -139,6 +142,8 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
         let _ = remove_dir_all(dest.join(&name)).await;
         bail!("Unzipping was cancelled");
     }
+
+    drop(reader);
 
     finalize_extraction(&dest.join(&name), &dest.join(&version), &temp_file_path).await
 }

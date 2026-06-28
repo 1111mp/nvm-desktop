@@ -46,6 +46,11 @@ pub struct ISettings {
     /// node version config file name
     /// default: `.nvmdrc`
     pub node_version_file: Option<String>,
+
+    /// embed server port
+    /// default: 53333
+    #[serde(default = "default_embed_server_port")]
+    pub embed_server_port: Option<u16>,
 }
 
 #[cfg(windows)]
@@ -56,6 +61,10 @@ fn default_coder() -> Option<String> {
 #[cfg(unix)]
 fn default_coder() -> Option<String> {
     Some("code".to_string())
+}
+
+fn default_embed_server_port() -> Option<u16> {
+    Some(53333)
 }
 
 impl ISettings {
@@ -135,6 +144,7 @@ impl ISettings {
         patch!(proxy);
         patch!(no_proxy);
         patch!(theme);
+        patch!(embed_server_port);
     }
 }
 
@@ -150,6 +160,7 @@ pub struct ISettingsResponse {
     pub no_proxy: Option<bool>,
     pub theme: Option<String>,
     pub node_version_file: Option<String>,
+    pub embed_server_port: Option<u16>,
 }
 
 impl From<ISettings> for ISettingsResponse {
@@ -165,6 +176,7 @@ impl From<ISettings> for ISettingsResponse {
             no_proxy: settings.no_proxy,
             theme: settings.theme,
             node_version_file: settings.node_version_file,
+            embed_server_port: settings.embed_server_port,
         }
     }
 }

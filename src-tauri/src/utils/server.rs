@@ -27,8 +27,6 @@ enum Source {
     Project,
 }
 
-const EMBED_SERVER_ADDR: ([u8; 4], u16) = ([127, 0, 0, 1], 53333);
-
 pub fn start_embed_server() {
     AsyncHandler::spawn(|| async move {
         logging!(info, Type::Server, "Start the embed server...");
@@ -81,7 +79,12 @@ pub fn start_embed_server() {
             .and(warp::body::json())
             .and_then(notice_handler);
 
-        let addr = SocketAddr::from(EMBED_SERVER_ADDR);
+        let port = Config::settings()
+            .await
+            .data_arc()
+            .embed_server_port
+            .unwrap_or(53333);
+        let addr = SocketAddr::from(([127, 0, 0, 1], port));
         let listener = match TcpListener::bind(addr).await {
             Ok(listener) => listener,
             Err(err) => {

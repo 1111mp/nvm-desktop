@@ -1,4 +1,4 @@
-import { Closer, Themes, SystemTheme } from '@/types';
+import { Closer, SystemTheme, Themes } from '@/types';
 
 type Platform =
   | 'aix'
@@ -30,8 +30,8 @@ declare global {
   /**
    * defines in `vite.config.ts`
    */
-  declare const OS_ARCH: Architecture;
-  declare const OS_PLATFORM: Platform;
+  const OS_ARCH: Architecture;
+  const OS_PLATFORM: Platform;
 
   interface Window {
     __NVMD_INITIAL_SETTINGS__: Nvmd.Setting;
@@ -73,6 +73,7 @@ declare global {
       no_proxy?: boolean;
       theme: Themes;
       node_version_file?: string;
+      embed_server_port?: number;
     }
 
     // type UpdateInfo = ElectronUpdateInfo | "update-not-available";

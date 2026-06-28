@@ -1,9 +1,19 @@
-import { useRef, useState } from 'react';
 import {
+  AutoComplete,
   Button,
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldTitle,
+  Input,
+  IpInput,
   LabelCopyable,
   RadioGroup,
   RadioGroupItem,
+  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
@@ -11,42 +21,32 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  Switch,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-  SheetDescription,
-  Input,
-  IpInput,
-  Switch,
-  FieldGroup,
-  Field,
-  FieldLabel,
-  FieldError,
-  FieldContent,
-  FieldDescription,
-  FieldTitle,
-  Select,
-  AutoComplete,
 } from '@/components/ui';
+import { open as openDialog } from '@tauri-apps/plugin-dialog';
 import {
   InfoIcon,
   LoaderCircle,
   SettingsIcon,
   SquarePenIcon,
 } from 'lucide-react';
-import { open as openDialog } from '@tauri-apps/plugin-dialog';
+import { useRef, useState } from 'react';
 
-import { Controller, useForm, useWatch } from 'react-hook-form';
-import { useTranslation } from 'react-i18next';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppContext } from '@/app-context';
 import { compareObject } from '@/lib/utils';
-import { Closer, Themes } from '@/types';
 import { z } from '@/lib/zod';
+import { Closer, Themes } from '@/types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 type Props = unknown;
 
@@ -94,6 +94,11 @@ const formSchema = z.object({
         });
       }
     }),
+  embed_server_port: z
+    .number()
+    .int('Port must be an integer')
+    .min(3000, 'Port must be between 3000 and 65535.')
+    .max(65535, 'Port must be between 3000 and 65535.'),
 });
 
 const Setting: React.FC<Props> = () => {
@@ -114,6 +119,7 @@ const Setting: React.FC<Props> = () => {
     ...settings,
     node_version_file: settings.node_version_file ?? '.nvmdrc',
     proxy: settings.proxy || { enabled: false, ip: '', port: '' },
+    embed_server_port: settings.embed_server_port ?? 53333,
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -136,6 +142,7 @@ const Setting: React.FC<Props> = () => {
       directory: newDirectory,
       mirror: newMirror,
       proxy: newProxy,
+      embed_server_port: newEmbedServerPort,
     } = values;
     if (
       settings.locale === newLocale &&
@@ -145,7 +152,8 @@ const Setting: React.FC<Props> = () => {
       settings.node_version_file === newNodeVersionFile &&
       settings.directory === newDirectory &&
       settings.mirror === newMirror &&
-      compareObject(settings.proxy, newProxy)
+      compareObject(settings.proxy, newProxy) &&
+      settings.embed_server_port === newEmbedServerPort
     ) {
       setLoading(false);
       setOpen(false);
@@ -192,6 +200,7 @@ const Setting: React.FC<Props> = () => {
         directory: newDirectory,
         mirror: newMirror,
         proxy: newProxy,
+        embed_server_port: newEmbedServerPort,
       });
     } finally {
       setLoading(false);
@@ -574,6 +583,33 @@ const Setting: React.FC<Props> = () => {
                         </div>
                       </div>
                     </div>
+                  </Field>
+                )}
+              />
+              <Controller
+                name='embed_server_port'
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel
+                      className='text-muted-foreground'
+                      htmlFor='form-setting-port'
+                    >
+                      {t('Embedded-Server-Port')}
+                    </FieldLabel>
+                    <Input
+                      value={field.value}
+                      onChange={(evt) => {
+                        field.onChange(evt.target.valueAsNumber);
+                      }}
+                      type='number'
+                      id='form-setting-port'
+                      className='max-w-32'
+                    />
+                    <FieldDescription>{t('Restart-Required')}</FieldDescription>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
                   </Field>
                 )}
               />

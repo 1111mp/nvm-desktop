@@ -145,5 +145,7 @@
   "VSCode-Code-Command-tip": "W większości przypadków domyślna wartość 'code' jest wystarczająca. Na macOS należy jednak podać pełną ścieżkę, np. '/usr/local/bin/code' (możesz ją uzyskać poleceniem 'where code')",
   "VSCode-code-command-not-found": "Nie znaleziono komendy 'code' VS Code",
   "Node-Version-File": "Plik wersji Node.js",
-  "Node-Version-File-Tip": "Plik używany do przechowywania wersji Node.js (np. '.nvmdrc', '.nvmrc', '.node-version')"
+  "Node-Version-File-Tip": "Plik używany do przechowywania wersji Node.js (np. '.nvmdrc', '.nvmrc', '.node-version')",
+  "Embedded-Server-Port": "Port wbudowanego serwera",
+  "Restart-Required": "Wymagane ponowne uruchomienie"
 }

@@ -20,7 +20,7 @@
   "Documentation": "Documentation",
   "Search-Issues": "Search-Issues",
   "Setting": "Setting",
-  "Setting-Desc": "Make changes to your setting here. Click save when you&apos;re done.",
+  "Setting-Desc": "Make changes to your setting here. Click save when you're done.",
   "Tip": "Tip",
   "OK": "OK",
   "Cancel": "Cancel",
@@ -145,5 +145,7 @@
   "VSCode-Code-Command-tip": "In most cases the default value of 'code' is sufficient. However, on MacOS you must fill in the full path, for example: '/usr/local/bin/code' ( you can get it by running 'where code' )",
   "VSCode-code-command-not-found": "VSCode 'code' command not found",
   "Node-Version-File": "Node.js Version File",
-  "Node-Version-File-Tip": "The file used to store the Node.js version (e.g. '.nvmdrc', '.nvmrc', '.node-version')"
+  "Node-Version-File-Tip": "The file used to store the Node.js version (e.g. '.nvmdrc', '.nvmrc', '.node-version')",
+  "Embedded-Server-Port": "Embedded Server Port",
+  "Restart-Required": "Restart required"
 }

@@ -7,8 +7,9 @@ use crate::{
 };
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use std::convert::Infallible;
+use std::{convert::Infallible, net::SocketAddr};
 use tauri::Emitter;
+use tokio::net::TcpListener;
 use warp::{Filter, http::StatusCode};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -78,13 +79,27 @@ pub fn start_embed_server() {
             .and(warp::body::json())
             .and_then(notice_handler);
 
-        logging!(
-            info,
-            Type::Server,
-            true,
-            "Listening on http://127.0.0.1:53333"
-        );
+        let port = Config::settings()
+            .await
+            .data_arc()
+            .embed_server_port
+            .unwrap_or(53333);
+        let addr = SocketAddr::from(([127, 0, 0, 1], port));
+        let listener = match TcpListener::bind(addr).await {
+            Ok(listener) => listener,
+            Err(err) => {
+                logging!(
+                    error,
+                    Type::Server,
+                    true,
+                    "Failed to bind embedded server on http://{addr}: {err}"
+                );
+                return;
+            }
+        };
 
-        warp::serve(routes).run(([127, 0, 0, 1], 53333)).await;
+        logging!(info, Type::Server, true, "Listening on http://{addr}");
+
+        warp::serve(routes).incoming(listener).run().await;
     });
 }

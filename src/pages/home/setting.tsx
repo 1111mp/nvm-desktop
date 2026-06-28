@@ -119,7 +119,7 @@ const Setting: React.FC<Props> = () => {
     ...settings,
     node_version_file: settings.node_version_file ?? '.nvmdrc',
     proxy: settings.proxy || { enabled: false, ip: '', port: '' },
-    embed_server_port: 53333,
+    embed_server_port: settings.embed_server_port ?? 53333,
   };
 
   const form = useForm<z.infer<typeof formSchema>>({

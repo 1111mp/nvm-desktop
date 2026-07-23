@@ -83,7 +83,7 @@
     "lint-staged": "^17.0.7",
     "oxfmt": "^0.60.0",
     "oxlint": "^1.69.0",
-    "oxlint-tsgolint": "^0.25.0",
+    "oxlint-tsgolint": "^7.0.0",
     "tailwindcss": "^4.3.1",
     "typescript": "^7.0.0",
     "undici": "8.8.0",

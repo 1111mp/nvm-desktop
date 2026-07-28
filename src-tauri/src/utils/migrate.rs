@@ -6,7 +6,7 @@ use tauri::Emitter;
 use tokio::fs;
 use tokio::time::{Duration, sleep};
 
-const CURRENT_MIGRATION_VERSION: i16 = 32;
+const CURRENT_MIGRATION_VERSION: i16 = 33;
 const NODE_DEFAULT_EXECUTE: [&str; 4] = ["node", "npm", "npx", "corepack"];
 
 pub fn init() {

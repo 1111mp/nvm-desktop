@@ -1,3 +1,16 @@
+## v4.4.0
+
+### Features
+
+- Support partial Node.js version resolution
+- Allow users to configure the port used by the embedded service
+
+### Bug Fixes
+
+- Fix application crash when the embedded service fails to start due to a port conflict
+
+---
+
 ## v4.3.3
 
 ### Features

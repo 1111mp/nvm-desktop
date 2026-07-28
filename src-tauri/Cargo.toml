@@ -1,6 +1,6 @@
 [package]
 name = "nvm-desktop"
-version = "4.3.3"
+version = "4.4.0"
 description = "Node Version Manager Desktop - A desktop application to manage multiple active node.js versions."
 authors = ["The1111mp@outlook.com"]
 license = "MIT"
@@ -55,7 +55,7 @@ warp = { version = "0.4.3", features = ["server"] }
 [build-dependencies]
 tauri-build = { version = "2.6.2", features = [] }
 
-[target.'cfg(windows)'.dependencies]
+[target."cfg(windows)".dependencies]
 windows = { version = "0.62.2", features = ["Win32_System_Threading"] }
 
 [profile.release]

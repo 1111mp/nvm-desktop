@@ -76,6 +76,26 @@ jobs:
           tauriScript: pnpm
           args: --target ${{ matrix.target }}
 
+      - name: Attest Windows bundles
+        if: matrix.os == 'windows-latest'
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*setup*
+
+      - name: Attest macOS bundles
+        if: matrix.os == 'macos-latest'
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+
+      - name: Attest Linux bundles
+        if: matrix.os == 'ubuntu-22.04'
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: |
+            src-tauri/target/${{ matrix.target }}/release/bundle/deb/*.deb
+            src-tauri/target/${{ matrix.target }}/release/bundle/rpm/*.rpm
+
   release-for-linux-arm64:
     strategy:
       fail-fast: false
@@ -184,6 +204,13 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
+      - name: Attest Linux bundles
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: |
+            src-tauri/target/${{ matrix.target }}/release/bundle/deb/*.deb
+            src-tauri/target/${{ matrix.target }}/release/bundle/rpm/*.rpm
+
       - name: Get Version
         run: |
           sudo apt-get update
@@ -279,6 +306,11 @@ jobs:
             $newName = $file.Name -replace "-setup\.exe\.sig$", "_fixed_webview2-setup.exe.sig"
             Rename-Item $file.FullName $newName
           }
+
+      - name: Attest Windows bundles
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*setup*
 
       - name: Upload Release
         uses: softprops/action-gh-release@v3

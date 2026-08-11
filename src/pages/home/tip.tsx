@@ -1,3 +1,4 @@
+import { useAppContext } from '@/app-context';
 import {
   Button,
   LabelCopyable,
@@ -9,10 +10,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui';
-import { SparklesIcon, InfoIcon } from 'lucide-react';
-import { toast } from 'sonner';
+import { InfoIcon, SparklesIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useAppContext } from '@/app-context';
+import { toast } from 'sonner';
 
 function Tip() {
   const { settings } = useAppContext();
@@ -187,10 +187,7 @@ function Tip() {
                   </p>
                   <p>
                     使用 list 或者 ls 查看所有已安装的版本：
-                    <span className='text-muted-foreground'>
-                      {' '}
-                      nvmd list
-                    </span> or
+                    <span className='text-muted-foreground'> nvmd list</span> or
                     <span className='text-muted-foreground'> nvmd ls</span>
                   </p>
                   <p>
@@ -233,10 +230,7 @@ function Tip() {
                   </p>
                   <p>
                     List all installed versions using list or ls:
-                    <span className='text-muted-foreground'>
-                      {' '}
-                      nvmd list
-                    </span> or
+                    <span className='text-muted-foreground'> nvmd list</span> or
                     <span className='text-muted-foreground'> nvmd ls</span>
                   </p>
                   <p>

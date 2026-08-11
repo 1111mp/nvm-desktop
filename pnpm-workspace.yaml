@@ -19,3 +19,5 @@ minimumReleaseAgeExclude:
   - lucide-react@1.18.0
   - react-hook-form@7.79.0
   - tailwindcss@4.3.1
+  - framer-motion@13.1.0
+  - motion@13.1.0

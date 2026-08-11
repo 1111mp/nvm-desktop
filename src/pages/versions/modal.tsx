@@ -1,4 +1,3 @@
-import { useEffect, useImperativeHandle, useState, useRef } from 'react';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -26,15 +25,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui';
+import { useEffect, useImperativeHandle, useRef, useState } from 'react';
 
-import { toast } from 'sonner';
-import { useTranslation } from 'react-i18next';
+import { z } from '@/lib/zod';
 import { getCurrent } from '@/services/api';
 import { installNode, installNodeCancel, vSetCurrent } from '@/services/cmds';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { CloudDownload, LoaderCircle } from 'lucide-react';
 import { Controller, useForm } from 'react-hook-form';
-import { z } from '@/lib/zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 export type ModalRef = {
   show: (data: Nvmd.Version) => void;

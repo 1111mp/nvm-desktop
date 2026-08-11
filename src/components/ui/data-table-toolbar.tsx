@@ -1,20 +1,19 @@
-'use no memo';
-
 import { CircleX } from 'lucide-react';
 import { Button } from './button';
-import { Input } from './input';
 import { DataTableViewOptions } from './data-table-view-options';
+import { Input } from './input';
 
-import { type Table } from '@tanstack/react-table';
+import { type RowData } from '@tanstack/react-table';
+import { type DataTableInstance } from './data-table-features';
 
+import { useTranslation } from 'react-i18next';
 import {
   DataTableFacetedFilter,
   type Options,
 } from './data-table-faceted-filter';
-import { useTranslation } from 'react-i18next';
 
-interface DataTableToolbarProps<TData> {
-  table: Table<TData>;
+interface DataTableToolbarProps<TData extends RowData> {
+  table: DataTableInstance<TData>;
   filterName?: string;
   status?: boolean;
   options?: Options;
@@ -26,7 +25,7 @@ const FILTER_NAME_FIELD: Record<string, string> = {
   'Group-Name': 'name',
 };
 
-export function DataTableToolbar<TData>({
+export function DataTableToolbar<TData extends RowData>({
   table,
   filterName = 'Version',
   status = true,
@@ -34,7 +33,7 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const { t } = useTranslation();
 
-  const isFiltered = table.getState().columnFilters.length > 0;
+  const isFiltered = table.state.columnFilters.length > 0;
 
   return (
     <div className='flex flex-1 items-center justify-between p-px'>

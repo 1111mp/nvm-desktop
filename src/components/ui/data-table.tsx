@@ -1,20 +1,19 @@
-// 'use no memo';
-
-import { useRef, useState } from 'react';
 import {
   flexRender,
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  getFilteredRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
+  useTable,
   type ColumnDef,
-  type SortingState,
-  type ColumnFiltersState,
-  type VisibilityState,
-  type Table as StackTable,
+  type RowData,
 } from '@tanstack/react-table';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { AnimatePresence, motion } from 'motion/react';
+import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Bars } from './bars-icon';
+import {
+  dataTableFeatures,
+  type DataTableFeatures,
+  type DataTableInstance,
+} from './data-table-features';
 import {
   Table,
   TableBody,
@@ -23,57 +22,33 @@ import {
   TableHeader,
   TableRow,
 } from './table';
-import { motion, AnimatePresence } from 'motion/react';
-import { Bars } from './bars-icon';
-import { useTranslation } from 'react-i18next';
-import { useVirtualizer } from '@tanstack/react-virtual';
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+interface DataTableProps<TData extends RowData> {
+  columns: ColumnDef<DataTableFeatures, TData, any>[];
   data: TData[];
-  toolbar?: (table: StackTable<TData>) => React.ReactNode;
+  toolbar?: (table: DataTableInstance<TData>) => React.ReactNode;
   loading?: boolean;
-  getFacetedUniqueValues?: () => (
-    table: StackTable<TData>,
-    columnId: string,
-  ) => () => Map<unknown, number>;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends RowData>({
   columns,
   data,
   toolbar,
   loading = false,
-  getFacetedUniqueValues: getFacetedUniqueValuesProp,
-}: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
+}: DataTableProps<TData>) {
   // The virtualizer needs to know the scrollable container element
   const tableContainerRef = useRef<HTMLTableSectionElement>(null);
 
   const { t } = useTranslation();
 
-  const table = useReactTable({
-    data,
-    columns,
-    state: {
-      sorting,
-      columnVisibility,
-      columnFilters,
+  const table = useTable(
+    {
+      features: dataTableFeatures,
+      data,
+      columns,
     },
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValuesProp
-      ? getFacetedUniqueValuesProp()
-      : getFacetedUniqueValues(),
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
-  });
+    (state) => state,
+  );
 
   const { rows } = table.getRowModel();
 
@@ -162,7 +137,6 @@ export function DataTable<TData, TValue>({
                     key={row.id}
                     data-index={virtualRow.index} //needed for dynamic row height measurement
                     ref={(node) => rowVirtualizer.measureElement(node)} //measure dynamic row height
-                    data-state={row.getIsSelected() && 'selected'}
                     className='w-full flex absolute'
                     style={{
                       transform: `translateY(${virtualRow.start}px)`, //this should always be a `style` as it changes on scroll

@@ -1,5 +1,3 @@
-import { useState, useEffect } from 'react';
-import { useLoaderData } from 'react-router';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,6 +11,7 @@ import {
   AlertDialogTrigger,
   Button,
   DataDndTable,
+  type DataTableFeatures,
   DataTableToolbar,
   LabelCopyable,
   Select,
@@ -27,28 +26,30 @@ import {
   TooltipTrigger,
 } from '@/components/ui';
 import { VsCodeLogo } from '@/components/vscode-logo';
-import { FolderSync, PackagePlus, TrashIcon } from 'lucide-react';
-import { toast } from 'sonner';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
+import { FolderSync, PackagePlus, TrashIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useLoaderData } from 'react-router';
+import { toast } from 'sonner';
 
 import { useAppContext } from '@/app-context';
-import { useTranslation } from 'react-i18next';
+import { cn } from '@/lib/utils';
+import { getCurrent } from '@/services/api';
 import {
   addProjects,
   groupList,
   installedList,
-  projectList,
-  updateGroups,
-  updateProjects,
-  syncProjectVersion,
   openDir,
   openWithVSCode,
+  projectList,
+  syncProjectVersion,
+  updateGroups,
+  updateProjects,
   updateProjectsWithoutTray,
 } from '@/services/cmds';
-import { getCurrent } from '@/services/api';
-import { cn } from '@/lib/utils';
-import type { ColumnDef } from '@tanstack/react-table';
 import type { UniqueIdentifier } from '@dnd-kit/core';
+import type { ColumnDef } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
 
 export async function loader() {
   const versions = await Promise.all([
@@ -115,7 +116,7 @@ export const Component: React.FC = () => {
     fetcher();
   }, [directory]);
 
-  const columns: ColumnDef<Nvmd.Project>[] = [
+  const columns: ColumnDef<DataTableFeatures, Nvmd.Project>[] = [
     {
       accessorKey: 'name',
       header: t('Project-Name'),
@@ -420,13 +421,11 @@ export const Component: React.FC = () => {
 
   const reorderRow = (draggedRowIndex: number, targetRowIndex: number) => {
     setProjects((previous) => {
-      previous.splice(
-        targetRowIndex,
-        0,
-        previous.splice(draggedRowIndex, 1)[0],
-      );
-
       const newProject = [...previous];
+      const [draggedProject] = newProject.splice(draggedRowIndex, 1);
+      if (!draggedProject) return previous;
+
+      newProject.splice(targetRowIndex, 0, draggedProject);
       updateProjects(newProject);
 
       return newProject;

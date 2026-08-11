@@ -1,5 +1,3 @@
-'use no memo';
-
 import { Check, CirclePlus } from 'lucide-react';
 import { Badge } from './badge';
 import { Button } from './button';
@@ -18,10 +16,11 @@ import { Separator } from './separator';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 
-import { type Column } from '@tanstack/react-table';
+import { type Column, type RowData } from '@tanstack/react-table';
+import { type DataTableFeatures } from './data-table-features';
 
-export interface DataTableFacetedFilterProps<TData, TValue> {
-  column?: Column<TData, TValue>;
+export interface DataTableFacetedFilterProps<TData extends RowData, TValue> {
+  column?: Column<DataTableFeatures, TData, TValue>;
   title?: string;
   options: Options;
 }
@@ -32,7 +31,7 @@ export type Options = {
   icon?: React.ComponentType<{ className?: string }>;
 }[];
 
-export function DataTableFacetedFilter<TData, TValue>({
+export function DataTableFacetedFilter<TData extends RowData, TValue>({
   column,
   title,
   options,

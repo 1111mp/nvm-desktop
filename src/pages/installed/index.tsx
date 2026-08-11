@@ -1,6 +1,3 @@
-import { useEffect, useState } from 'react';
-import { useLoaderData } from 'react-router';
-import { toast } from 'sonner';
 import {
   Badge,
   Button,
@@ -16,8 +13,9 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  type DataTableFeatures,
 } from '@/components/ui';
-import { type ColumnDef, type Table, memo } from '@tanstack/react-table';
+import { type ColumnDef } from '@tanstack/react-table';
 import {
   CircleCheckBig,
   CircleChevronDownIcon,
@@ -28,10 +26,12 @@ import {
   MousePointerClick,
   TrashIcon,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useLoaderData } from 'react-router';
+import { toast } from 'sonner';
 
-import dayjs from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import { useAppContext } from '@/app-context';
+import { getCurrent } from '@/services/api';
 import {
   installedList,
   installedListWithTray,
@@ -40,7 +40,8 @@ import {
   versionList,
   vSetCurrent,
 } from '@/services/cmds';
-import { getCurrent } from '@/services/api';
+import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 
 type VersionsResult = [string, Nvmd.Versions, Array<string>];
 
@@ -114,7 +115,7 @@ export const Component: React.FC = () => {
     fetcher();
   }, [directory, allVersions]);
 
-  const columns: ColumnDef<Nvmd.Version>[] = [
+  const columns: ColumnDef<DataTableFeatures, Nvmd.Version>[] = [
     {
       accessorKey: 'version',
       header: ({ column }) => (
@@ -207,7 +208,9 @@ export const Component: React.FC = () => {
       cell: ({ row }) => dayjs(row.original.date).format('ll'),
     },
     {
-      accessorKey: 'status',
+      id: 'status',
+      accessorFn: ({ version }) =>
+        current && version.includes(current) ? 'Current' : 'Installed',
       header: t('Status'),
       meta: {
         label: t('Status'),
@@ -334,46 +337,6 @@ export const Component: React.FC = () => {
     },
   ];
 
-  const getFacetedUniqueValues: () => (
-    table: Table<Nvmd.Version>,
-    columnId: string,
-  ) => () => Map<unknown, number> = () => {
-    return (table, columnId) =>
-      memo(
-        () => [table.getColumn(columnId)?.getFacetedRowModel()],
-        (facetedRowModel) => {
-          if (!facetedRowModel) return new Map();
-
-          const facetedUniqueValues = new Map<unknown, number>();
-
-          for (let i = 0; i < facetedRowModel.flatRows.length; i++) {
-            const { version } = facetedRowModel.flatRows[i]!.original;
-
-            let key: string = 'Installed';
-            if (version.includes(current)) key = 'Current';
-
-            if (facetedUniqueValues.has(key)) {
-              facetedUniqueValues.set(
-                key,
-                (facetedUniqueValues.get(key) ?? 0) + 1,
-              );
-            } else {
-              facetedUniqueValues.set(key, 1);
-            }
-          }
-
-          return facetedUniqueValues;
-        },
-        {
-          key:
-            import.meta.env.MODE === 'development' &&
-            'getFacetedUniqueValues_' + columnId,
-          debug: () => table.options.debugAll ?? table.options.debugTable,
-          onChange: () => {},
-        },
-      );
-  };
-
   const onPageReload = async () => {
     setLoading(true);
     try {
@@ -424,7 +387,6 @@ export const Component: React.FC = () => {
             </Button>
           </div>
         )}
-        getFacetedUniqueValues={getFacetedUniqueValues}
       />
     </div>
   );

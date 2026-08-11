@@ -1,6 +1,5 @@
-'use no memo';
-
 import { Waypoints } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from './button';
 import {
   DropdownMenu,
@@ -11,15 +10,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './dropdown-menu';
-import { useTranslation } from 'react-i18next';
 
-import { type Table } from '@tanstack/react-table';
+import { type RowData } from '@tanstack/react-table';
+import { type DataTableInstance } from './data-table-features';
 
-interface DataTableViewOptionsProps<TData> {
-  table: Table<TData>;
+interface DataTableViewOptionsProps<TData extends RowData> {
+  table: DataTableInstance<TData>;
 }
 
-export function DataTableViewOptions<TData>({
+export function DataTableViewOptions<TData extends RowData>({
   table,
 }: DataTableViewOptionsProps<TData>) {
   const { t } = useTranslation();
@@ -40,24 +39,29 @@ export function DataTableViewOptions<TData>({
         <DropdownMenuGroup>
           <DropdownMenuLabel>{t('Toggle-Columns')}</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {table
-            .getAllColumns()
-            .filter(
-              (column) =>
-                typeof column.accessorFn !== 'undefined' && column.getCanHide(),
-            )
-            .map((column) => {
-              return (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className='capitalize'
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  {column.columnDef.meta?.label}
-                </DropdownMenuCheckboxItem>
-              );
-            })}
+          <table.Subscribe source={table.atoms.columnVisibility}>
+            {() =>
+              table
+                .getAllColumns()
+                .filter(
+                  (column) =>
+                    typeof column.accessorFn !== 'undefined' &&
+                    column.getCanHide(),
+                )
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className='capitalize'
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {column.columnDef.meta?.label}
+                  </DropdownMenuCheckboxItem>
+                ))
+            }
+          </table.Subscribe>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

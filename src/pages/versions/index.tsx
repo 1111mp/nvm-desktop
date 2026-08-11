@@ -1,5 +1,3 @@
-import { useEffect, useRef, useState } from 'react';
-import { useLoaderData } from 'react-router';
 import {
   Badge,
   Button,
@@ -15,7 +13,9 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  type DataTableFeatures,
 } from '@/components/ui';
+import { type ColumnDef } from '@tanstack/react-table';
 import {
   CircleCheckBig,
   CircleChevronDown,
@@ -31,25 +31,26 @@ import {
   ThumbsUp,
   Trash,
 } from 'lucide-react';
-import { memo, type ColumnDef, type Table } from '@tanstack/react-table';
+import { useEffect, useRef, useState } from 'react';
+import { useLoaderData } from 'react-router';
 import { toast } from 'sonner';
 import { Modal, type ModalRef } from './modal';
 
+import { useAppContext } from '@/app-context';
+import { checkSupportive } from '@/lib/utils';
+import { getCurrent } from '@/services/api';
+import {
+  installedList,
+  installedListWithTray,
+  uninstallNode,
+  vCurrent,
+  versionList,
+  vSetCurrent,
+} from '@/services/cmds';
+import { open } from '@tauri-apps/plugin-shell';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import { useTranslation } from 'react-i18next';
-import { open } from '@tauri-apps/plugin-shell';
-import { useAppContext } from '@/app-context';
-import {
-  vCurrent,
-  installedList,
-  versionList,
-  uninstallNode,
-  vSetCurrent,
-  installedListWithTray,
-} from '@/services/cmds';
-import { checkSupportive } from '@/lib/utils';
-import { getCurrent } from '@/services/api';
 
 dayjs.extend(localizedFormat);
 
@@ -112,7 +113,7 @@ export const Versions: React.FC = () => {
     fetcher();
   }, [directory]);
 
-  const columns: ColumnDef<Nvmd.Version>[] = [
+  const columns: ColumnDef<DataTableFeatures, Nvmd.Version>[] = [
     {
       accessorKey: 'version',
       header: ({ column }) => (
@@ -210,7 +211,11 @@ export const Versions: React.FC = () => {
       cell: ({ row }) => dayjs(row.original.date).format('ll'),
     },
     {
-      accessorKey: 'status',
+      id: 'status',
+      accessorFn: ({ version, files }) => {
+        if (installedVersions.includes(version.slice(1))) return 'Installed';
+        return checkSupportive(files) ? 'Supported' : 'UnSupported';
+      },
       header: t('Status'),
       meta: {
         label: t('Status'),
@@ -355,50 +360,6 @@ export const Versions: React.FC = () => {
     },
   ];
 
-  const getFacetedUniqueValues: () => (
-    table: Table<Nvmd.Version>,
-    columnId: string,
-  ) => () => Map<unknown, number> = () => {
-    return (table, columnId) =>
-      memo(
-        () => [table.getColumn(columnId)?.getFacetedRowModel()],
-        (facetedRowModel) => {
-          if (!facetedRowModel) return new Map();
-
-          const facetedUniqueValues = new Map<unknown, number>();
-
-          for (let i = 0; i < facetedRowModel.flatRows.length; i++) {
-            const { version, files } = facetedRowModel.flatRows[i]!.original;
-
-            let key: string | undefined;
-            if (installedVersions.includes(version.slice(1))) key = 'Installed';
-
-            if (key === void 0 && checkSupportive(files)) key = 'Supported';
-
-            if (key === void 0) key = 'UnSupported';
-
-            if (facetedUniqueValues.has(key)) {
-              facetedUniqueValues.set(
-                key,
-                (facetedUniqueValues.get(key) ?? 0) + 1,
-              );
-            } else {
-              facetedUniqueValues.set(key, 1);
-            }
-          }
-
-          return facetedUniqueValues;
-        },
-        {
-          key:
-            import.meta.env.MODE === 'development' &&
-            'getFacetedUniqueValues_' + columnId,
-          debug: () => table.options.debugAll ?? table.options.debugTable,
-          onChange: () => {},
-        },
-      );
-  };
-
   const onPageReload = async () => {
     seLocaltLoading(true);
     try {
@@ -500,7 +461,6 @@ export const Versions: React.FC = () => {
               </div>
             </div>
           )}
-          getFacetedUniqueValues={getFacetedUniqueValues}
         />
       </div>
       <Modal ref={modal} onRefrresh={onInstalledRefresh} />

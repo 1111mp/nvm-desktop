@@ -1,34 +1,5 @@
 /// https://tanstack.com/table/latest/docs/framework/react/examples/row-dnd
 
-'use no memo';
-
-import { useState } from 'react';
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  getFilteredRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  type ColumnDef,
-  type SortingState,
-  type ColumnFiltersState,
-  type VisibilityState,
-  type Table as StackTable,
-  type Row,
-} from '@tanstack/react-table';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from './table';
-import { Bars } from './bars-icon';
-import { Button } from './button';
-import { GripHorizontal } from 'lucide-react';
 import {
   closestCenter,
   DndContext,
@@ -41,8 +12,8 @@ import {
   type UniqueIdentifier,
 } from '@dnd-kit/core';
 import {
-  restrictToVerticalAxis,
   restrictToParentElement,
+  restrictToVerticalAxis,
 } from '@dnd-kit/modifiers';
 import {
   SortableContext,
@@ -50,33 +21,56 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { motion, AnimatePresence } from 'motion/react';
+import {
+  flexRender,
+  useTable,
+  type Cell,
+  type ColumnDef,
+  type Row,
+  type RowData,
+} from '@tanstack/react-table';
+import { GripHorizontal } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
+import { Bars } from './bars-icon';
+import { Button } from './button';
+import {
+  dataTableFeatures,
+  type DataTableFeatures,
+  type DataTableInstance,
+} from './data-table-features';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from './table';
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+interface DataTableProps<TData extends RowData> {
+  columns: ColumnDef<DataTableFeatures, TData, any>[];
   data: TData[];
-  items: (
-    | UniqueIdentifier
-    | {
-        id: UniqueIdentifier;
-      }
-  )[];
-  toolbar?: (table: StackTable<TData>) => React.ReactNode;
+  items: UniqueIdentifier[];
+  toolbar?: (table: DataTableInstance<TData>) => React.ReactNode;
   loading?: boolean;
-  getRowId?: (originalRow: TData, index: number, parent?: Row<TData>) => string;
+  getRowId?: (
+    originalRow: TData,
+    index: number,
+    parent?: Row<DataTableFeatures, TData>,
+  ) => string;
   reorderRow: (draggedRowIndex: number, targetRowIndex: number) => void;
-  getFacetedUniqueValues?: () => (
-    table: StackTable<TData>,
-    columnId: string,
-  ) => () => Map<any, number>;
 }
 
-type DraggableRowProps<TData = any> = {
-  row: Row<TData>;
+type DraggableRowProps<TData extends RowData> = {
+  row: Row<DataTableFeatures, TData>;
+  cells: Cell<DataTableFeatures, TData, any>[];
 };
 
-function DraggableRow<TData>({ row }: DraggableRowProps<TData>) {
+function DraggableRow<TData extends RowData>({
+  row,
+  cells,
+}: DraggableRowProps<TData>) {
   const {
     attributes,
     listeners,
@@ -100,7 +94,6 @@ function DraggableRow<TData>({ row }: DraggableRowProps<TData>) {
     <TableRow
       ref={setNodeRef}
       key={row.id}
-      data-state={row.getIsSelected() && 'selected'}
       className='w-full flex'
       style={style}
     >
@@ -115,7 +108,7 @@ function DraggableRow<TData>({ row }: DraggableRowProps<TData>) {
           <GripHorizontal />
         </Button>
       </TableCell>
-      {row.getVisibleCells().map((cell) => {
+      {cells.map((cell) => {
         const { maxSize, meta } = cell.column.columnDef;
 
         return (
@@ -135,7 +128,7 @@ function DraggableRow<TData>({ row }: DraggableRowProps<TData>) {
   );
 }
 
-export function DataDndTable<TData, TValue>({
+export function DataDndTable<TData extends RowData>({
   columns,
   data,
   items,
@@ -143,34 +136,18 @@ export function DataDndTable<TData, TValue>({
   toolbar,
   reorderRow,
   getRowId,
-  getFacetedUniqueValues: getFacetedUniqueValuesProp,
-}: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
+}: DataTableProps<TData>) {
   const { t } = useTranslation();
 
-  const table = useReactTable({
-    columns,
-    data,
-    state: {
-      sorting,
-      columnVisibility,
-      columnFilters,
+  const table = useTable(
+    {
+      features: dataTableFeatures,
+      columns,
+      data,
+      getRowId,
     },
-    getRowId,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValuesProp
-      ? getFacetedUniqueValuesProp()
-      : getFacetedUniqueValues(),
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
-  });
+    (state) => state,
+  );
 
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
@@ -178,11 +155,14 @@ export function DataDndTable<TData, TValue>({
     useSensor(KeyboardSensor, {}),
   );
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (active && over && active.id !== over.id) {
-      reorderRow?.(items.indexOf(active.id), items.indexOf(over.id));
-    }
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) return;
+
+    const draggedRowIndex = items.indexOf(active.id);
+    const targetRowIndex = items.indexOf(over.id);
+
+    if (draggedRowIndex < 0 || targetRowIndex < 0) return;
+    reorderRow(draggedRowIndex, targetRowIndex);
   };
 
   return (
@@ -217,61 +197,73 @@ export function DataDndTable<TData, TValue>({
           transition={{ duration: 0.3 }}
         >
           <Table>
-            <TableHeader className='sticky top-0 z-10 bg-muted'>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow
-                  key={headerGroup.id}
-                  className='w-full flex items-center [&>*:not(:last-child)]:relative [&>*:not(:last-child)]:after:absolute [&>*:not(:last-child)]:after:right-0 [&>*:not(:last-child)]:after:w-px [&>*:not(:last-child)]:after:h-5 [&>*:not(:last-child)]:after:bg-zinc-300 dark:[&>*:not(:last-child)]:after:bg-zinc-700'
-                >
-                  <TableHead className='w-12 flex items-center' />
-                  {headerGroup.headers.map((header) => {
-                    const { maxSize } = header.column.columnDef;
-                    return (
-                      <TableHead
-                        key={header.id}
-                        className='flex flex-1 items-center'
-                        colSpan={header.colSpan}
-                        style={{
-                          maxWidth:
-                            maxSize !== Number.MAX_SAFE_INTEGER
-                              ? maxSize
-                              : void 0,
-                          width: header.getSize(),
-                        }}
+            <table.Subscribe source={table.atoms.columnVisibility}>
+              {() => (
+                <>
+                  <TableHeader className='sticky top-0 z-10 bg-muted'>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <TableRow
+                        key={headerGroup.id}
+                        className='w-full flex items-center [&>*:not(:last-child)]:relative [&>*:not(:last-child)]:after:absolute [&>*:not(:last-child)]:after:right-0 [&>*:not(:last-child)]:after:w-px [&>*:not(:last-child)]:after:h-5 [&>*:not(:last-child)]:after:bg-zinc-300 dark:[&>*:not(:last-child)]:after:bg-zinc-700'
                       >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              <SortableContext
-                items={items}
-                strategy={verticalListSortingStrategy}
-              >
-                {table.getRowModel().rows.length ? (
-                  table
-                    .getRowModel()
-                    .rows.map((row) => <DraggableRow key={row.id} row={row} />)
-                ) : (
-                  <TableRow className='flex'>
-                    <TableCell
-                      colSpan={columns.length}
-                      className='flex flex-1 h-24 items-center justify-center'
+                        <TableHead className='w-12 flex items-center' />
+                        {headerGroup.headers.map((header) => {
+                          const { maxSize } = header.column.columnDef;
+                          return (
+                            <TableHead
+                              key={header.id}
+                              className='flex flex-1 items-center'
+                              colSpan={header.colSpan}
+                              style={{
+                                maxWidth:
+                                  maxSize !== Number.MAX_SAFE_INTEGER
+                                    ? maxSize
+                                    : void 0,
+                                width: header.getSize(),
+                              }}
+                            >
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext(),
+                                  )}
+                            </TableHead>
+                          );
+                        })}
+                      </TableRow>
+                    ))}
+                  </TableHeader>
+                  <TableBody>
+                    <SortableContext
+                      items={items}
+                      strategy={verticalListSortingStrategy}
                     >
-                      {t('No-results')}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </SortableContext>
-            </TableBody>
+                      {table.getRowModel().rows.length ? (
+                        table
+                          .getRowModel()
+                          .rows.map((row) => (
+                            <DraggableRow
+                              key={row.id}
+                              row={row}
+                              cells={row.getVisibleCells()}
+                            />
+                          ))
+                      ) : (
+                        <TableRow className='flex'>
+                          <TableCell
+                            colSpan={columns.length}
+                            className='flex flex-1 h-24 items-center justify-center'
+                          >
+                            {t('No-results')}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </SortableContext>
+                  </TableBody>
+                </>
+              )}
+            </table.Subscribe>
           </Table>
         </motion.div>
       </div>

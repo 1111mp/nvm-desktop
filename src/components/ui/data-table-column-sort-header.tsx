@@ -1,6 +1,5 @@
-'use no memo';
-
 import { ArrowDown, ArrowUp, ChevronsUpDown, EyeOff } from 'lucide-react';
+import { Button } from './button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,22 +7,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './dropdown-menu';
-import { Button } from './button';
 
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 
-import { type Column } from '@tanstack/react-table';
+import { type Column, type RowData } from '@tanstack/react-table';
+import { type DataTableFeatures } from './data-table-features';
 
 interface DataTableColumnHeaderProps<
-  TData,
+  TData extends RowData,
   TValue,
 > extends React.HTMLAttributes<HTMLDivElement> {
-  column: Column<TData, TValue>;
+  column: Column<DataTableFeatures, TData, TValue>;
   title: string;
 }
 
-export function DataTableColumnSortHeader<TData, TValue>({
+export function DataTableColumnSortHeader<TData extends RowData, TValue>({
   column,
   title,
   className,

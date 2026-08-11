@@ -22,6 +22,7 @@ import {
   ComboboxList,
   ComboboxValue,
   DataDndTable,
+  type DataTableFeatures,
   DataTableToolbar,
   Select,
   SelectContent,
@@ -118,7 +119,7 @@ export const Component: React.FC = () => {
     fetcher();
   }, [directory]);
 
-  const columns: ColumnDef<Nvmd.Group>[] = [
+  const columns: ColumnDef<DataTableFeatures, Nvmd.Group>[] = [
     {
       accessorKey: 'name',
       header: t('Group-Name'),
@@ -296,13 +297,11 @@ export const Component: React.FC = () => {
 
   const reorderRow = (draggedRowIndex: number, targetRowIndex: number) => {
     setGroups((previous) => {
-      previous.splice(
-        targetRowIndex,
-        0,
-        previous.splice(draggedRowIndex, 1)[0],
-      );
-
       const newGroups = [...previous];
+      const [draggedGroup] = newGroups.splice(draggedRowIndex, 1);
+      if (!draggedGroup) return previous;
+
+      newGroups.splice(targetRowIndex, 0, draggedGroup);
       updateGroups(newGroups);
 
       return newGroups;

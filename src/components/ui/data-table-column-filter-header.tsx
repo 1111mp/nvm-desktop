@@ -1,36 +1,39 @@
-'use no memo';
-
-import { useRef } from 'react';
-import { Search, CircleX } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { CircleX, Search } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from './button';
 import { Input } from './input';
-import { Popover, PopoverTrigger, PopoverContent } from './popover';
+import { Popover, PopoverContent, PopoverTrigger } from './popover';
 
-import { type Column } from '@tanstack/react-table';
+import { type Column, type RowData } from '@tanstack/react-table';
+import { type DataTableFeatures } from './data-table-features';
 
 import { cn } from '@/lib/utils';
 
 interface DataTableColumnHeaderProps<
-  TData,
+  TData extends RowData,
   TValue,
 > extends React.HTMLAttributes<HTMLDivElement> {
-  column: Column<TData, TValue>;
+  column: Column<DataTableFeatures, TData, TValue>;
   title: string;
 }
 
-export function DataTableColumnFilterHeader<TData, TValue>({
+export function DataTableColumnFilterHeader<TData extends RowData, TValue>({
   column,
   title,
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
   const input = useRef<HTMLInputElement>(null);
+  const columnValue = (column.getFilterValue() as string | undefined) ?? '';
+  const [value, setValue] = useState(columnValue);
+
+  useEffect(() => {
+    setValue(columnValue);
+  }, [columnValue]);
 
   if (!column.getCanFilter()) {
     return <div className={cn(className)}>{title}</div>;
   }
-
-  const value = column.getFilterValue() as string;
 
   return (
     <div className={cn('flex items-center space-x-2', className)}>
@@ -51,7 +54,7 @@ export function DataTableColumnFilterHeader<TData, TValue>({
               ref={input}
               className='w-40 h-7'
               placeholder={`Filter ${title}`}
-              value={value ?? ''}
+              value={value}
               onChange={(event) => column.setFilterValue(event.target.value)}
             />
             <AnimatePresence>
@@ -65,7 +68,8 @@ export function DataTableColumnFilterHeader<TData, TValue>({
                   onClick={(evt) => {
                     evt.stopPropagation();
                     input.current?.focus();
-                    column.setFilterValue('');
+                    setValue('');
+                    column.setFilterValue(undefined);
                   }}
                 >
                   <CircleX className='size-4' />

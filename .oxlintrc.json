@@ -122,6 +122,7 @@
     "react/no-unescaped-entities": "warn",
     "react/no-unknown-property": "warn",
     "react/react-in-jsx-scope": "off",
-    "react-hooks/rules-of-hooks": "error"
+    "react-hooks/rules-of-hooks": "error",
+    "react/refs": "off"
   }
 }

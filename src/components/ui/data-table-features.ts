@@ -8,7 +8,9 @@ import {
   createFacetedUniqueValues,
   createFilteredRowModel,
   createSortedRowModel,
+  filterFn_equalsString,
   filterFn_includesString,
+  metaHelper,
   rowSortingFeature,
   sortFn_alphanumeric,
   sortFn_datetime,
@@ -16,6 +18,11 @@ import {
   tableFeatures,
   type RowData,
 } from '@tanstack/react-table';
+
+interface TableColumnMeta {
+  label?: string;
+  className?: string;
+}
 
 /** The features shared by every application data table. */
 export const dataTableFeatures = tableFeatures({
@@ -28,6 +35,7 @@ export const dataTableFeatures = tableFeatures({
   facetedUniqueValues: createFacetedUniqueValues(),
   filterFns: {
     includesString: filterFn_includesString,
+    equalsString: filterFn_equalsString,
   },
   // v9 does not register built-in sort functions automatically. `sortFn:
   // 'auto'` resolves to these names, so register the functions it can select.
@@ -38,6 +46,7 @@ export const dataTableFeatures = tableFeatures({
   },
   filteredRowModel: createFilteredRowModel(),
   sortedRowModel: createSortedRowModel(),
+  columnMeta: metaHelper<TableColumnMeta>(),
 });
 
 export type DataTableFeatures = typeof dataTableFeatures;

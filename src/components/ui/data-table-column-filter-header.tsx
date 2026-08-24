@@ -1,6 +1,7 @@
+import { useSelector } from '@tanstack/react-store';
 import { CircleX, Search } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Button } from './button';
 import { Input } from './input';
 import { Popover, PopoverContent, PopoverTrigger } from './popover';
@@ -15,21 +16,23 @@ interface DataTableColumnHeaderProps<
   TValue,
 > extends React.HTMLAttributes<HTMLDivElement> {
   column: Column<DataTableFeatures, TData, TValue>;
-  title: string;
 }
 
 export function DataTableColumnFilterHeader<TData extends RowData, TValue>({
   column,
-  title,
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
   const input = useRef<HTMLInputElement>(null);
-  const columnValue = (column.getFilterValue() as string | undefined) ?? '';
-  const [value, setValue] = useState(columnValue);
 
-  useEffect(() => {
-    setValue(columnValue);
-  }, [columnValue]);
+  const columnValue = useSelector(
+    column.table.atoms.columnFilters,
+    (filters) =>
+      (filters.find((filter) => filter.id === column.id)?.value as
+        | string
+        | undefined) ?? '',
+  );
+
+  const title = (column.columnDef.header as string) ?? '';
 
   if (!column.getCanFilter()) {
     return <div className={cn(className)}>{title}</div>;
@@ -54,11 +57,11 @@ export function DataTableColumnFilterHeader<TData extends RowData, TValue>({
               ref={input}
               className='w-40 h-7'
               placeholder={`Filter ${title}`}
-              value={value}
+              value={columnValue}
               onChange={(event) => column.setFilterValue(event.target.value)}
             />
             <AnimatePresence>
-              {value && (
+              {columnValue ? (
                 <motion.span
                   className='absolute top-1/2 right-1 -translate-y-1/2 cursor-pointer'
                   initial={{ opacity: 0 }}
@@ -68,13 +71,12 @@ export function DataTableColumnFilterHeader<TData extends RowData, TValue>({
                   onClick={(evt) => {
                     evt.stopPropagation();
                     input.current?.focus();
-                    setValue('');
                     column.setFilterValue(undefined);
                   }}
                 >
                   <CircleX className='size-4' />
                 </motion.span>
-              )}
+              ) : null}
             </AnimatePresence>
           </div>
         </PopoverContent>

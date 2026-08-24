@@ -2,8 +2,6 @@ import {
   Badge,
   Button,
   DataTable,
-  DataTableColumnFilterHeader,
-  DataTableColumnSortHeader,
   DataTableToolbar,
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +13,7 @@ import {
   TooltipTrigger,
   type DataTableFeatures,
 } from '@/components/ui';
-import { type ColumnDef } from '@tanstack/react-table';
+import { createColumnHelper } from '@tanstack/react-table';
 import {
   CircleCheckBig,
   CircleChevronDown,
@@ -55,6 +53,8 @@ import { useTranslation } from 'react-i18next';
 dayjs.extend(localizedFormat);
 
 type VersionsResult = [string, Nvmd.Versions, Array<string>];
+
+const columnHelper = createColumnHelper<DataTableFeatures, Nvmd.Version>();
 
 export async function loader() {
   const versions = await Promise.all([
@@ -113,13 +113,12 @@ export const Versions: React.FC = () => {
     fetcher();
   }, [directory]);
 
-  const columns: ColumnDef<DataTableFeatures, Nvmd.Version>[] = [
-    {
-      accessorKey: 'version',
-      header: ({ column }) => (
-        <DataTableColumnSortHeader column={column} title={t('Version')} />
-      ),
+  const columns = columnHelper.columns([
+    columnHelper.accessor('version', {
+      header: t('Version'),
       enableHiding: false,
+      enableColumnFilter: false,
+      enableSorting: true,
       filterFn: (row, _columnId, filterValue: string) => {
         const { version, lts } = row.original;
         if ('lts'.includes(filterValue.toLocaleLowerCase())) return !!lts;
@@ -170,129 +169,122 @@ export const Versions: React.FC = () => {
           </div>
         );
       },
-    },
-    {
-      accessorKey: 'v8',
-      header: ({ column }) => (
-        <DataTableColumnFilterHeader
-          column={column}
-          title={`V8 ${t('Version')}`}
-        />
-      ),
+    }),
+    columnHelper.accessor('v8', {
+      header: `V8 ${t('Version')}`,
+      enableSorting: false,
       meta: {
         label: `V8 ${t('Version')}`,
         className: 'flex items-center text-muted-foreground',
       },
+    }),
+    columnHelper.accessor('npm', {
+      header: `NPM ${t('Version')}`,
       enableSorting: false,
-    },
-    {
-      accessorKey: 'npm',
-      header: ({ column }) => (
-        <DataTableColumnFilterHeader
-          column={column}
-          title={`NPM ${t('Version')}`}
-        />
-      ),
       meta: {
         label: `NPM ${t('Version')}`,
         className: 'flex items-center text-muted-foreground',
       },
-      enableSorting: false,
-    },
-    {
-      accessorKey: 'date',
-      header: ({ column }) => (
-        <DataTableColumnSortHeader column={column} title={t('Release-Date')} />
-      ),
+    }),
+    columnHelper.accessor('date', {
+      header: t('Release-Date'),
+      enableColumnFilter: false,
+      enableSorting: true,
       meta: {
         label: t('Release-Date'),
         className: 'flex items-center text-muted-foreground',
       },
       cell: ({ row }) => dayjs(row.original.date).format('ll'),
-    },
-    {
-      id: 'status',
-      accessorFn: ({ version, files }) => {
-        if (installedVersions.includes(version.slice(1))) return 'Installed';
-        return checkSupportive(files) ? 'Supported' : 'UnSupported';
+    }),
+    columnHelper.accessor(
+      ({ version, files }) => {
+        {
+          if (installedVersions.includes(version.slice(1))) return 'Installed';
+          return checkSupportive(files) ? 'Supported' : 'UnSupported';
+        }
       },
-      header: t('Status'),
-      meta: {
-        label: t('Status'),
-        className: 'flex items-center',
-      },
-      enableSorting: false,
-      filterFn: (row, _columnId, filterValue: string[]) => {
-        const { version, files } = row.original;
-        const rets = filterValue.map((value) => {
-          switch (value) {
-            case 'Installed': {
-              return !!installedVersions.find(
-                (installed) => version === `v${installed}`,
-              );
+      {
+        id: 'status',
+        header: t('Status'),
+        enableSorting: false,
+        enableColumnFilter: false,
+        meta: {
+          label: t('Status'),
+          className: 'flex items-center',
+        },
+        filterFn: (row, _columnId, filterValue: string[]) => {
+          const { version, files } = row.original;
+          const rets = filterValue.map((value) => {
+            switch (value) {
+              case 'Installed': {
+                return !!installedVersions.find(
+                  (installed) => version === `v${installed}`,
+                );
+              }
+              case 'Supported': {
+                return checkSupportive(files);
+              }
+              case 'UnSupported': {
+                return !checkSupportive(files);
+              }
+              default:
+                return false;
             }
-            case 'Supported': {
-              return checkSupportive(files);
-            }
-            case 'UnSupported': {
-              return !checkSupportive(files);
-            }
-            default:
-              return false;
+          });
+          return rets.includes(true);
+        },
+        cell: ({ row }) => {
+          const { version, files } = row.original;
+          const installed = installedVersions.find(
+            (installed) => `v${installed}` === version,
+          );
+
+          // the current version
+          if (installed && current && version === `v${current}`) {
+            return (
+              <Badge>
+                <CircleCheckBig />
+                {t('Current')}
+              </Badge>
+            );
           }
-        });
-        return rets.includes(true);
+
+          // the installed version
+          if (installed) {
+            return (
+              <Badge variant='secondary'>
+                <CircleCheckBig />
+                {t('Installed')}
+              </Badge>
+            );
+          }
+
+          const support = checkSupportive(files);
+          // the unsupport version
+          if (!support) {
+            return (
+              <Badge variant='destructive'>
+                <CircleX />
+                {t('Not-Supported')}
+              </Badge>
+            );
+          }
+
+          // default => not installed
+          return (
+            <Badge variant='outline'>
+              <CircleSlash />
+              {t('Not-Installed')}
+            </Badge>
+          );
+        },
       },
-      cell: ({ row }) => {
-        const { version, files } = row.original;
-        const installed = installedVersions.find(
-          (installed) => `v${installed}` === version,
-        );
-
-        // the current version
-        if (installed && current && version === `v${current}`) {
-          return (
-            <Badge>
-              <CircleCheckBig />
-              {t('Current')}
-            </Badge>
-          );
-        }
-
-        // the installed version
-        if (installed) {
-          return (
-            <Badge variant='secondary'>
-              <CircleCheckBig />
-              {t('Installed')}
-            </Badge>
-          );
-        }
-
-        const support = checkSupportive(files);
-        // the unsupport version
-        if (!support) {
-          return (
-            <Badge variant='destructive'>
-              <CircleX />
-              {t('Not-Supported')}
-            </Badge>
-          );
-        }
-
-        // default => not installed
-        return (
-          <Badge variant='outline'>
-            <CircleSlash />
-            {t('Not-Installed')}
-          </Badge>
-        );
-      },
-    },
-    {
+    ),
+    columnHelper.accessor(() => undefined, {
       header: t('Operation'),
       enableHiding: false,
       enableSorting: false,
+      enableColumnFilter: false,
       meta: {
         className: 'flex items-center',
       },
@@ -357,8 +349,8 @@ export const Versions: React.FC = () => {
           </Button>
         );
       },
-    },
-  ];
+    }),
+  ]);
 
   const onPageReload = async () => {
     seLocaltLoading(true);

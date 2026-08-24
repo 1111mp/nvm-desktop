@@ -72,6 +72,23 @@ export const Modal: React.FC<ModalProps> = ({ ref, onRefrresh }) => {
     },
   });
 
+  const onShow: ModalRef['show'] = (data) => {
+    const { files } = data,
+      platform = OS_PLATFORM;
+    const newArchs = archOption.current.filter((arch) => {
+      const name =
+        platform === 'darwin'
+          ? `osx-${arch}`
+          : platform === 'win32'
+            ? `win-${arch}`
+            : `${platform}-${arch}`;
+      return files.find((file) => file.includes(name));
+    });
+    record.current = data;
+    archOption.current = newArchs;
+    setOpen(true);
+  };
+
   useImperativeHandle(ref, () => ({
     show: onShow,
   }));
@@ -106,23 +123,6 @@ export const Modal: React.FC<ModalProps> = ({ ref, onRefrresh }) => {
       unlisted.then((fn) => fn());
     };
   }, []);
-
-  const onShow: ModalRef['show'] = (data) => {
-    const { files } = data,
-      platform = OS_PLATFORM;
-    const newArchs = archOption.current.filter((arch) => {
-      const name =
-        platform === 'darwin'
-          ? `osx-${arch}`
-          : platform === 'win32'
-            ? `win-${arch}`
-            : `${platform}-${arch}`;
-      return files.find((file) => file.includes(name));
-    });
-    record.current = data;
-    archOption.current = newArchs;
-    setOpen(true);
-  };
 
   const onStart = async (value: z.infer<typeof managerSchema>) => {
     const { arch } = value;

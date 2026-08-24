@@ -1,5 +1,3 @@
-import { useState, useEffect } from 'react';
-import { useLoaderData } from 'react-router';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +20,6 @@ import {
   ComboboxList,
   ComboboxValue,
   DataDndTable,
-  type DataTableFeatures,
   DataTableToolbar,
   Select,
   SelectContent,
@@ -33,26 +30,31 @@ import {
   TooltipContent,
   TooltipTrigger,
   useComboboxAnchor,
+  type DataTableFeatures,
 } from '@/components/ui';
-import { toast } from 'sonner';
 import { FolderSync, TrashIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useLoaderData } from 'react-router';
+import { toast } from 'sonner';
 import { GroupCreator } from './group-creator';
 
-import { useTranslation } from 'react-i18next';
 import { useAppContext } from '@/app-context';
+import { compareArray } from '@/lib/utils';
+import { getCurrent } from '@/services/api';
 import {
-  projectList,
-  installedList,
-  groupList,
-  updateGroups,
   batchUpdateProjectVersion,
+  groupList,
+  installedList,
+  projectList,
+  updateGroups,
   updateGroupVersion,
   updateProjectsWithoutTray,
 } from '@/services/cmds';
-import { compareArray } from '@/lib/utils';
-import { getCurrent } from '@/services/api';
-import type { ColumnDef } from '@tanstack/react-table';
 import type { UniqueIdentifier } from '@dnd-kit/core';
+import { createColumnHelper } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
+
+const columnHelper = createColumnHelper<DataTableFeatures, Nvmd.Group>();
 
 export async function loader() {
   const loadData = await Promise.all([
@@ -119,18 +121,16 @@ export const Component: React.FC = () => {
     fetcher();
   }, [directory]);
 
-  const columns: ColumnDef<DataTableFeatures, Nvmd.Group>[] = [
-    {
-      accessorKey: 'name',
+  const columns = columnHelper.columns([
+    columnHelper.accessor('name', {
       header: t('Group-Name'),
       maxSize: 160,
       enableHiding: false,
       meta: {
         className: 'flex items-center',
       },
-    },
-    {
-      accessorKey: 'desc',
+    }),
+    columnHelper.accessor('desc', {
       header: t('Group-Desc'),
       meta: {
         className: 'flex items-center text-muted-foreground',
@@ -152,9 +152,8 @@ export const Component: React.FC = () => {
           </Tooltip>
         );
       },
-    },
-    {
-      accessorKey: 'version',
+    }),
+    columnHelper.accessor('version', {
       header: t('Version'),
       meta: {
         label: t('Version'),
@@ -196,9 +195,8 @@ export const Component: React.FC = () => {
           </Select>
         );
       },
-    },
-    {
-      accessorKey: 'projects',
+    }),
+    columnHelper.accessor('projects', {
       header: t('Projects'),
       meta: {
         label: t('Projects'),
@@ -220,8 +218,8 @@ export const Component: React.FC = () => {
           />
         );
       },
-    },
-    {
+    }),
+    columnHelper.accessor(() => undefined, {
       header: t('Operation'),
       maxSize: 120,
       enableHiding: false,
@@ -290,8 +288,8 @@ export const Component: React.FC = () => {
           </AlertDialog>
         );
       },
-    },
-  ];
+    }),
+  ]);
 
   const dataIds: UniqueIdentifier[] = groups?.map(({ name }) => name);
 

@@ -19,15 +19,15 @@ interface DataTableColumnHeaderProps<
   TValue,
 > extends React.HTMLAttributes<HTMLDivElement> {
   column: Column<DataTableFeatures, TData, TValue>;
-  title: string;
 }
 
 export function DataTableColumnSortHeader<TData extends RowData, TValue>({
   column,
-  title,
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
   const { t } = useTranslation();
+
+  const title = (column.columnDef.header as string) ?? '';
 
   if (!column.getCanSort()) {
     return <div className={cn(className)}>{title}</div>;

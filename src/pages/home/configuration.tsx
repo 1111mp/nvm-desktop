@@ -1,4 +1,3 @@
-import { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,21 +23,22 @@ import {
   FieldLabel,
   FieldSet,
 } from '@/components/ui';
+import { open as openDialog } from '@tauri-apps/plugin-dialog';
 import {
   LoaderCircle,
   Share2Icon,
   SquareArrowRightEnter,
   SquareArrowRightExit,
 } from 'lucide-react';
-import { open as openDialog } from '@tauri-apps/plugin-dialog';
+import { useEffect, useImperativeHandle, useRef, useState } from 'react';
 
-import { z } from 'zod';
-import { toast } from 'sonner';
+import { useAppContext } from '@/app-context';
+import { configurationExport, configurationImport } from '@/services/cmds';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useAppContext } from '@/app-context';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { configurationExport, configurationImport } from '@/services/cmds';
+import { toast } from 'sonner';
+import { z } from 'zod';
 
 const items = [
   {
@@ -149,13 +149,13 @@ const ConfigurationExport: React.FC<ConfigurationExportProps> = ({ ref }) => {
     },
   });
 
-  useImperativeHandle(ref, () => ({
-    alert: onAlert,
-  }));
-
   const onAlert = () => {
     setOpen(true);
   };
+
+  useImperativeHandle(ref, () => ({
+    alert: onAlert,
+  }));
 
   const onExportSubmit = async (values: z.infer<typeof FormSchema>) => {
     const path = await openDialog({
@@ -167,9 +167,11 @@ const ConfigurationExport: React.FC<ConfigurationExportProps> = ({ ref }) => {
     const { items } = values;
     setLoading(true);
     try {
+      // oxlint-disable-next-line react/purity
+      const now = Date.now();
       const filename = `${path}${
         OS_PLATFORM === 'win32' ? '\\' : '/'
-      }configuration_${Date.now()}.json`;
+      }configuration_${now}.json`;
       const exportSetting = items.includes('setting');
 
       await configurationExport(filename, {
@@ -296,13 +298,13 @@ const ConfigurationImport: React.FC<ConfigurationImportProps> = ({ ref }) => {
   const { updateColor, updateSetting } = useAppContext();
   const { t } = useTranslation();
 
-  useImperativeHandle(ref, () => ({
-    alert: onAlert,
-  }));
-
   const onAlert = () => {
     setOpen(true);
   };
+
+  useImperativeHandle(ref, () => ({
+    alert: onAlert,
+  }));
 
   const onConfigurationImport = async (sync: boolean) => {
     try {

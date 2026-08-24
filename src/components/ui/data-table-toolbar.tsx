@@ -6,6 +6,7 @@ import { Input } from './input';
 import { type RowData } from '@tanstack/react-table';
 import { type DataTableInstance } from './data-table-features';
 
+import { useSelector } from '@tanstack/react-store';
 import { useTranslation } from 'react-i18next';
 import {
   DataTableFacetedFilter,
@@ -33,7 +34,10 @@ export function DataTableToolbar<TData extends RowData>({
 }: DataTableToolbarProps<TData>) {
   const { t } = useTranslation();
 
-  const isFiltered = table.state.columnFilters.length > 0;
+  const isFiltered = useSelector(
+    table.atoms.columnFilters,
+    (filters) => filters.length > 0,
+  );
 
   return (
     <div className='flex flex-1 items-center justify-between p-px'>

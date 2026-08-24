@@ -1,7 +1,7 @@
 import {
-  flexRender,
   useTable,
   type ColumnDef,
+  type Header,
   type RowData,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -9,6 +9,8 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Bars } from './bars-icon';
+import { DataTableColumnFilterHeader } from './data-table-column-filter-header';
+import { DataTableColumnSortHeader } from './data-table-column-sort-header';
 import {
   dataTableFeatures,
   type DataTableFeatures,
@@ -44,14 +46,15 @@ export function DataTable<TData extends RowData>({
   const table = useTable(
     {
       features: dataTableFeatures,
-      data,
       columns,
+      data,
     },
     (state) => state,
   );
 
   const { rows } = table.getRowModel();
 
+  // oxlint-disable-next-line react/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     estimateSize: () => 40, // estimate row height for accurate scrollbar dragging
@@ -62,8 +65,25 @@ export function DataTable<TData extends RowData>({
       navigator.userAgent.indexOf('Firefox') === -1
         ? (element) => element?.getBoundingClientRect().height
         : undefined,
+    directDomUpdates: true,
     overscan: 5,
   });
+
+  const renderHeader = (header: Header<DataTableFeatures, TData, any>) => {
+    if (header.isPlaceholder) {
+      return null;
+    }
+
+    if (header.column.getCanFilter()) {
+      return <DataTableColumnFilterHeader column={header.column} />;
+    }
+
+    if (header.column.getCanSort()) {
+      return <DataTableColumnSortHeader column={header.column} />;
+    }
+
+    return <table.FlexRender header={header} />;
+  };
 
   return (
     <div className='relative flex flex-col flex-1 space-y-2 rounded-md overflow-hidden'>
@@ -112,12 +132,7 @@ export function DataTable<TData extends RowData>({
                         width: header.getSize(),
                       }}
                     >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                      {renderHeader(header)}
                     </TableHead>
                   );
                 })}
@@ -126,7 +141,7 @@ export function DataTable<TData extends RowData>({
           </TableHeader>
           <TableBody
             className='w-full grid relative'
-            style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+            ref={rowVirtualizer.containerRef}
           >
             {table.getRowModel().rows.length ? (
               rowVirtualizer.getVirtualItems().map((virtualRow) => {
@@ -137,10 +152,7 @@ export function DataTable<TData extends RowData>({
                     key={row.id}
                     data-index={virtualRow.index} //needed for dynamic row height measurement
                     ref={(node) => rowVirtualizer.measureElement(node)} //measure dynamic row height
-                    className='w-full flex absolute'
-                    style={{
-                      transform: `translateY(${virtualRow.start}px)`, //this should always be a `style` as it changes on scroll
-                    }}
+                    className='w-full flex absolute top-0 left-0'
                   >
                     {row.getVisibleCells().map((cell) => {
                       const { maxSize, meta } = cell.column.columnDef;
@@ -156,10 +168,7 @@ export function DataTable<TData extends RowData>({
                             width: cell.column.getSize(),
                           }}
                         >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
+                          <table.FlexRender cell={cell} />
                         </TableCell>
                       );
                     })}
@@ -169,7 +178,7 @@ export function DataTable<TData extends RowData>({
             ) : (
               <TableRow className='flex'>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={table.getAllColumns().length}
                   className='flex flex-1 h-24 items-center justify-center'
                 >
                   {t('No-results')}

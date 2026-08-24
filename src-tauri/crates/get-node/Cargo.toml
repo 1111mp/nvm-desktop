@@ -9,7 +9,7 @@ async-compression = { version = "0.4", default-features = false, features = [
   "tokio",
   "gzip",
 ] }
-async_zip = { version = "0.0.18", default-features = false, features = [
+async_zip = { version = "0.0.19", default-features = false, features = [
   "deflate",
 ] }
 cfg-if = "1"

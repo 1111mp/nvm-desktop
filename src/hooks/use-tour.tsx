@@ -1,6 +1,6 @@
-import { useEffect, useRef, isValidElement } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 import introJs from 'intro.js';
+import { isValidElement, useEffect, useRef } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 import type { Tour } from 'intro.js/src/packages/tour';
 import type { TourOptions } from 'intro.js/src/packages/tour/option';
@@ -16,7 +16,9 @@ export function useTour(options: Options) {
   const tour = useRef<Tour>(null);
   const optionsRef = useRef<Options>(options);
 
-  optionsRef.current = options;
+  useEffect(() => {
+    optionsRef.current = options;
+  }, [options]);
 
   useEffect(() => {
     const { steps = [], ...options } = optionsRef.current;

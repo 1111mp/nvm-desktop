@@ -11,7 +11,6 @@ import {
   AlertDialogTrigger,
   Button,
   DataDndTable,
-  type DataTableFeatures,
   DataTableToolbar,
   LabelCopyable,
   Select,
@@ -24,6 +23,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  type DataTableFeatures,
 } from '@/components/ui';
 import { VsCodeLogo } from '@/components/vscode-logo';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
@@ -48,8 +48,10 @@ import {
   updateProjectsWithoutTray,
 } from '@/services/cmds';
 import type { UniqueIdentifier } from '@dnd-kit/core';
-import type { ColumnDef } from '@tanstack/react-table';
+import { createColumnHelper } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
+
+const columnHelper = createColumnHelper<DataTableFeatures, Nvmd.Project>();
 
 export async function loader() {
   const versions = await Promise.all([
@@ -116,9 +118,8 @@ export const Component: React.FC = () => {
     fetcher();
   }, [directory]);
 
-  const columns: ColumnDef<DataTableFeatures, Nvmd.Project>[] = [
-    {
-      accessorKey: 'name',
+  const columns = columnHelper.columns([
+    columnHelper.accessor('name', {
       header: t('Project-Name'),
       maxSize: 240,
       enableHiding: false,
@@ -136,9 +137,8 @@ export const Component: React.FC = () => {
           </Tooltip>
         );
       },
-    },
-    {
-      accessorKey: 'path',
+    }),
+    columnHelper.accessor('path', {
       header: t('Project-Path'),
       enableHiding: false,
       meta: {
@@ -185,9 +185,8 @@ export const Component: React.FC = () => {
           </div>
         );
       },
-    },
-    {
-      accessorKey: 'version',
+    }),
+    columnHelper.accessor('version', {
       header: t('Version'),
       meta: {
         label: t('Version'),
@@ -307,10 +306,11 @@ export const Component: React.FC = () => {
           </Select>
         );
       },
-    },
-    {
+    }),
+    columnHelper.accessor(() => undefined, {
       header: t('Operation'),
       maxSize: 120,
+      enableHiding: false,
       meta: {
         className: 'flex items-center',
       },
@@ -381,8 +381,8 @@ export const Component: React.FC = () => {
           </AlertDialog>
         );
       },
-    },
-  ];
+    }),
+  ]);
 
   const dataIds: UniqueIdentifier[] = projects?.map(({ path }) => path);
 

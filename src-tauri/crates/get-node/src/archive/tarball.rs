@@ -96,7 +96,9 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
         None => entries.next().await,
     } {
         let mut entry = entry?;
-        let entry_size = entry.header().size()?;
+        // `effective_size` includes PAX size overrides and is the public read API
+        // provided by astral-tokio-tar 0.7.
+        let entry_size = entry.effective_size();
         entry.unpack_in(&dest).await?;
         unpacked_size += entry_size;
 

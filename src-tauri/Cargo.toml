@@ -23,7 +23,7 @@ anyhow = "1.0.102"
 bitflags = { version = "2.13.0" }
 # Use the git repo until the next release after v2.0.0.
 dark-light = { git = "https://github.com/rust-dark-light/dark-light" }
-dirs = "6.0.0"
+dirs = "7.0.0"
 dotenvy = "0.15.7"
 futures = "0.3.32"
 get-node = { path = "crates/get-node" }

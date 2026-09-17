@@ -72,8 +72,8 @@ importers:
         specifier: 1.46.0
         version: 1.46.0(react@19.3.0)
       motion:
-        specifier: 13.3.0
-        version: 13.3.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: 13.4.0
+        version: 13.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       radix-ui:
         specifier: ^1.6.7
         version: 1.6.7(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -2759,8 +2759,8 @@ packages:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
     engines: {node: '>= 0.6'}
 
-  framer-motion@13.3.0:
-    resolution: {integrity: sha512-nry9figMPgd/7tTy9zzGRsD+kJ9tjZ74sKJ3jFBa7j6DTBIM04T6eBgneFLXCB0151wychIxsiojPlcG4JxeoA==}
+  framer-motion@13.4.0:
+    resolution: {integrity: sha512-HCpqKM9BTu6UYKtj0u6J1QNxojnnirNcghcSDZ+SkpiL3myxvtsgXPS3ZGEELC2eSma7YiA937rAEXtRyydSXQ==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
@@ -3425,8 +3425,8 @@ packages:
   motion-utils@13.3.0:
     resolution: {integrity: sha512-sgSschQp7EseHInIlR7hBbMuvet3RA0bs28KPZAXJcGKGdxHGvh1ogpYDilY3bOMtl73EqPNmp75sAKHYPU5sg==}
 
-  motion@13.3.0:
-    resolution: {integrity: sha512-WHLzq1EQCoJO9S+HSDl9WlJYUpCsSAGYPoI0R4qO9ZScx7uLhpYzpoF8iobYvG248idzkl35pAShfWftEUjsdQ==}
+  motion@13.4.0:
+    resolution: {integrity: sha512-aiNSA29N+vgV5p5cJSB5cFzx8KTuuxB99z8zGtxsaqlwKtBK6sq8YgPRpkVQLkbJMOcLDU0q/ShdT95qpBy/0g==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
@@ -6585,7 +6585,7 @@ snapshots:
 
   forwarded@0.2.0: {}
 
-  framer-motion@13.3.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  framer-motion@13.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
       motion-dom: 13.3.0
       motion-utils: 13.3.0
@@ -7259,9 +7259,9 @@ snapshots:
 
   motion-utils@13.3.0: {}
 
-  motion@13.3.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  motion@13.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
-      framer-motion: 13.3.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      framer-motion: 13.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       tslib: 2.8.1
     optionalDependencies:
       react: 19.3.0

@@ -60,8 +60,8 @@ importers:
         specifier: ^1.11.23
         version: 1.11.23
       i18next:
-        specifier: 26.5.8
-        version: 26.5.8(typescript@7.0.2)
+        specifier: 26.5.10
+        version: 26.5.10(typescript@7.0.2)
       intro.js:
         specifier: ^8.5.0
         version: 8.6.0
@@ -91,7 +91,7 @@ importers:
         version: 7.90.0(@types/react@19.3.0)(react@19.3.1)
       react-i18next:
         specifier: ^17.0.12
-        version: 17.1.0(i18next@26.5.8(typescript@7.0.2))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@7.0.2)
+        version: 17.1.0(i18next@26.5.10(typescript@7.0.2))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@7.0.2)
       react-markdown:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.3.0)(react@19.3.1)
@@ -2904,8 +2904,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  i18next@26.5.8:
-    resolution: {integrity: sha512-EQx2RyhwINMekbykhZpAJQ2ILeJqnYOpRjWEkSVv45pR8yeVbb0thr2zxQ+dOo365OIb7h06BKPtt16WE8Wliw==}
+  i18next@26.5.10:
+    resolution: {integrity: sha512-YS4EiLQhhk0wGThm4Zy+BL2c9rBNIK+kAbksi4l/B+D6kVRQLIFZgu2b/MU2LibJJHwWNTYoOYR52T+jfV8kPQ==}
     peerDependencies:
       typescript: ^5 || ^6 || ^7
     peerDependenciesMeta:
@@ -6786,7 +6786,7 @@ snapshots:
 
   husky@9.1.7: {}
 
-  i18next@26.5.8(typescript@7.0.2):
+  i18next@26.5.10(typescript@7.0.2):
     optionalDependencies:
       typescript: 7.0.2
 
@@ -7669,11 +7669,11 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  react-i18next@17.1.0(i18next@26.5.8(typescript@7.0.2))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@7.0.2):
+  react-i18next@17.1.0(i18next@26.5.10(typescript@7.0.2))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@7.0.2):
     dependencies:
       '@babel/runtime': 7.29.10
       html-parse-stringify: 4.0.1
-      i18next: 26.5.8(typescript@7.0.2)
+      i18next: 26.5.10(typescript@7.0.2)
       react: 19.3.1
       use-sync-external-store: 1.7.0(react@19.3.1)
     optionalDependencies:

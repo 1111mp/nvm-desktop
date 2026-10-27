@@ -1,18 +1,13 @@
+import { WorkspaceRemoveDialog } from '@/components/workspace-remove-dialog';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+  WorkspaceOverview,
+  workspaceStyles,
+} from '@/components/workspace-layout';
+import {
   Button,
   DataDndTable,
   DataTableToolbar,
-  LabelCopyable,
   Select,
   SelectContent,
   SelectGroup,
@@ -27,7 +22,15 @@ import {
 } from '@/components/ui';
 import { VsCodeLogo } from '@/components/vscode-logo';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
-import { FolderSync, PackagePlus, TrashIcon } from 'lucide-react';
+import {
+  LoaderCircle,
+  RefreshCw,
+  PackagePlus,
+  Folder,
+  Copy,
+  Check,
+  TriangleAlert,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLoaderData } from 'react-router';
 import { toast } from 'sonner';
@@ -75,6 +78,7 @@ export const Component: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const { t } = useTranslation();
+  const [copiedPath, copyPath] = useCopyToClipboard();
   const { settings } = useAppContext();
   const { directory } = settings;
 
@@ -121,9 +125,9 @@ export const Component: React.FC = () => {
   const columns = columnHelper.columns([
     columnHelper.accessor('name', {
       header: t('Project-Name'),
-      maxSize: 240,
       enableHiding: false,
       meta: {
+        layoutClassName: 'basis-48 grow-0 shrink-0',
         className: 'flex items-center',
       },
       cell: ({ row }) => {
@@ -131,7 +135,20 @@ export const Component: React.FC = () => {
         return (
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className='truncate'>{name}</span>
+              <span className='flex min-w-0 items-center gap-2.5'>
+                <span className='grid size-8 shrink-0 place-items-center rounded-lg bg-primary/8 text-muted-foreground'>
+                  <Folder className='size-3.5' />
+                </span>
+                <span className='min-w-0 truncate text-sm font-medium'>
+                  {name}
+                </span>
+                {!row.original.active && (
+                  <TriangleAlert
+                    className='size-3.5 shrink-0 text-destructive'
+                    aria-label={t('Invalid-project-path')}
+                  />
+                )}
+              </span>
             </TooltipTrigger>
             <TooltipContent>{name}</TooltipContent>
           </Tooltip>
@@ -142,35 +159,53 @@ export const Component: React.FC = () => {
       header: t('Project-Path'),
       enableHiding: false,
       meta: {
+        layoutClassName: 'min-w-56 flex-[1.4_1_0%]',
         className: 'flex items-center text-muted-foreground',
       },
       cell: ({ row }) => {
         const path = row.original.path;
         return (
-          <div className='flex items-center gap-1'>
-            <LabelCopyable
-              rootClassName='flex'
-              className={cn(
-                'max-w-77.5 xl:max-w-125 2xl:max-w-200 leading-6 inline-block truncate cursor-pointer hover:text-primary',
-                {
-                  'line-through': !row.original.active,
-                },
-              )}
-              title={path}
-              onClick={async () => {
-                if (!row.original.active) return;
-                try {
-                  await openDir(path);
-                } catch {
-                  toast.error(t('Invalid-project-path'));
-                }
-              }}
-            >
-              {path}
-            </LabelCopyable>
+          <div className='flex w-full min-w-0 items-center gap-1'>
             <Tooltip>
               <TooltipTrigger asChild>
-                <VsCodeLogo
+                <button
+                  type='button'
+                  disabled={!row.original.active}
+                  className={cn(
+                    'min-w-0 flex-1 cursor-pointer truncate rounded-md text-left font-mono text-xs leading-6 text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default',
+                    !row.original.active && 'line-through opacity-60',
+                  )}
+                  onClick={async () => {
+                    try {
+                      await openDir(path);
+                    } catch {
+                      toast.error(t('Invalid-project-path'));
+                    }
+                  }}
+                >
+                  {path}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className='max-w-sm break-all'>
+                {path}
+              </TooltipContent>
+            </Tooltip>
+            <Button
+              variant='ghost'
+              size='icon-xs'
+              title={t('Copy-Path')}
+              aria-label={t('Copy-Path')}
+              onClick={() => copyPath(path)}
+              className='shrink-0 text-muted-foreground'
+            >
+              {copiedPath === path ? <Check /> : <Copy />}
+            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant='ghost'
+                  size='icon-xs'
+                  aria-label={t('open-with-vscode')}
                   onClick={async () => {
                     try {
                       await openWithVSCode(path);
@@ -178,7 +213,9 @@ export const Component: React.FC = () => {
                       toast.error(t('VSCode-code-command-not-found'));
                     }
                   }}
-                />
+                >
+                  <VsCodeLogo className='size-3.5 text-muted-foreground' />
+                </Button>
               </TooltipTrigger>
               <TooltipContent>{t('open-with-vscode')}</TooltipContent>
             </Tooltip>
@@ -190,13 +227,13 @@ export const Component: React.FC = () => {
       header: t('Version'),
       meta: {
         label: t('Version'),
+        layoutClassName: 'basis-44 grow-0 shrink-0',
       },
-      maxSize: 200,
       cell: ({ row }) => {
         const { version, path } = row.original;
         return (
           <Select
-            defaultValue={version ?? ''}
+            value={version ?? ''}
             onValueChange={async (newVersion) => {
               // fromGroup: whether to switch from group, need to remove
               // toGroup: whether to switch to group, need to add
@@ -274,22 +311,33 @@ export const Component: React.FC = () => {
               }
             }}
           >
-            <SelectTrigger className='w-full'>
-              <SelectValue placeholder='Select version' />
+            <SelectTrigger
+              className={workspaceStyles.select}
+              aria-label={t('Select-Version')}
+            >
+              <SelectValue placeholder={t('Select-Version')} />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent
+              position='popper'
+              align='start'
+              className={`${workspaceStyles.popover} max-h-[min(22rem,var(--radix-select-content-available-height))] max-w-[calc(100dvw-2rem)]`}
+            >
               <SelectGroup>
-                <SelectLabel className='text-muted-foreground'>
+                <SelectLabel className='px-2 py-2 text-[0.625rem] font-medium text-muted-foreground'>
                   {t('Versions')}
                 </SelectLabel>
                 {installedVersions.map((version) => (
-                  <SelectItem key={version} value={version}>
+                  <SelectItem
+                    key={version}
+                    value={version}
+                    className={`${workspaceStyles.option} font-mono`}
+                  >
                     v{version}
                   </SelectItem>
                 ))}
               </SelectGroup>
               <SelectGroup>
-                <SelectLabel className='text-muted-foreground'>
+                <SelectLabel className='px-2 py-2 text-[0.625rem] font-medium text-muted-foreground'>
                   {t('Groups')}
                 </SelectLabel>
                 {groups.map(({ name, desc }) => (
@@ -297,6 +345,7 @@ export const Component: React.FC = () => {
                     key={name}
                     value={name}
                     title={`${name} (${desc})`}
+                    className={workspaceStyles.option}
                   >
                     {name}
                   </SelectItem>
@@ -309,76 +358,62 @@ export const Component: React.FC = () => {
     }),
     columnHelper.accessor(() => undefined, {
       header: t('Operation'),
-      maxSize: 120,
       enableHiding: false,
       meta: {
+        layoutClassName: 'basis-28 grow-0 shrink-0',
         className: 'flex items-center',
       },
       cell: ({ row }) => {
         const { name, path, version } = row.original;
         return (
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button size='xs' variant='destructive'>
-                <TrashIcon />
-                {t('Remove')}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className='top-1/3' size='sm'>
-              <AlertDialogHeader>
-                <AlertDialogMedia className='bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive'>
-                  <TrashIcon />
-                </AlertDialogMedia>
-                <AlertDialogTitle>{name}</AlertDialogTitle>
-                <AlertDialogDescription>
-                  {t('Project-Delete')}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel variant='outline'>
-                  {t('Cancel')}
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  variant='destructive'
-                  onClick={async () => {
-                    const needUpdateGroups = [...groups];
-                    let needUpdate: boolean = false;
-                    needUpdateGroups.forEach((group) => {
-                      if (group.name === version) {
-                        needUpdate = true;
-                        const projects = [...group.projects];
-                        group.projects = projects.filter(
-                          (proPath) => proPath !== path,
-                        );
-                      }
-                    });
+          <WorkspaceRemoveDialog
+            kind='project'
+            name={name}
+            details={[
+              { label: t('Project-Path'), value: path },
+              {
+                label: t('Version'),
+                value: groups.find((group) => group.name === version)?.version
+                  ? `${version} · v${groups.find((group) => group.name === version)!.version}`
+                  : version
+                    ? `v${version}`
+                    : '—',
+              },
+            ]}
+            onConfirm={async () => {
+              const needUpdateGroups = [...groups];
+              let needUpdate: boolean = false;
+              needUpdateGroups.forEach((group) => {
+                if (group.name === version) {
+                  needUpdate = true;
+                  const projects = [...group.projects];
+                  group.projects = projects.filter(
+                    (proPath) => proPath !== path,
+                  );
+                }
+              });
 
-                    const [newProjects, newGroups] = await Promise.all([
-                      (async () => {
-                        const newProjects = projects.filter(
-                          ({ path: source }) => source !== path,
-                        );
-                        if (needUpdate) {
-                          await updateProjectsWithoutTray(newProjects, path);
-                        } else {
-                          await updateProjects(newProjects, path);
-                        }
-                        return newProjects;
-                      })(),
-                      (async () => {
-                        if (needUpdate) await updateGroups(needUpdateGroups);
-                        return needUpdate ? needUpdateGroups : undefined;
-                      })(),
-                    ]);
-                    setProjects(newProjects);
-                    if (newGroups) setGroups(newGroups);
-                  }}
-                >
-                  {t('OK')}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+              const [newProjects, newGroups] = await Promise.all([
+                (async () => {
+                  const newProjects = projects.filter(
+                    ({ path: source }) => source !== path,
+                  );
+                  if (needUpdate) {
+                    await updateProjectsWithoutTray(newProjects, path);
+                  } else {
+                    await updateProjects(newProjects, path);
+                  }
+                  return newProjects;
+                })(),
+                (async () => {
+                  if (needUpdate) await updateGroups(needUpdateGroups);
+                  return needUpdate ? needUpdateGroups : undefined;
+                })(),
+              ]);
+              setProjects(newProjects);
+              if (newGroups) setGroups(newGroups);
+            }}
+          />
         );
       },
     }),
@@ -444,40 +479,93 @@ export const Component: React.FC = () => {
       setGroups(allGroups);
       setInstalledVersions(installedVersions);
       toast.success(t('Refresh-successful'));
+    } catch (error) {
+      toast.error(error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className='h-full flex flex-col space-y-2'>
-      <DataDndTable
-        columns={columns}
-        data={projects}
-        items={dataIds}
-        loading={loading}
-        toolbar={(table) => (
-          <div className='flex items-center gap-2'>
-            <DataTableToolbar
-              table={table}
-              filterName='Project-Name'
-              status={false}
-            />
-            <div className='flex items-center gap-2'>
-              <Button size='sm' disabled={loading} onClick={onPageReload}>
-                <FolderSync />
-                {t('Page-Reload')}
-              </Button>
-              <Button size='sm' disabled={loading} onClick={onAddProject}>
-                <PackagePlus />
-                {t('Add-Project')}
-              </Button>
-            </div>
-          </div>
-        )}
-        getRowId={(row) => row.path}
-        reorderRow={reorderRow}
+    <div className='flex h-full min-h-0 min-w-0 flex-col gap-5'>
+      <div className='flex shrink-0 flex-wrap items-start justify-between gap-3'>
+        <div>
+          <h1 className='mb-1.5 text-2xl leading-tight font-semibold tracking-tight'>
+            {t('Projects')}
+          </h1>
+          <p className='text-sm leading-relaxed text-muted-foreground'>
+            {t('Projects-Description')}
+          </p>
+        </div>
+        <Button
+          variant='secondary'
+          className={workspaceStyles.primaryAction}
+          disabled={loading}
+          onClick={onAddProject}
+        >
+          <PackagePlus className='size-4' />
+          {t('Add-Project')}
+        </Button>
+      </div>
+      <WorkspaceOverview
+        projectCount={projects.length}
+        groupCount={groups.length}
+        installedCount={installedVersions.length}
+        mode='projects'
       />
+      <div className='flex min-h-0 flex-1 flex-col overflow-hidden'>
+        <div className='flex flex-wrap items-baseline justify-between gap-2 pb-4'>
+          <h2 className='text-sm font-semibold'>{t('Project-Catalog')}</h2>
+          <span className='text-xs text-muted-foreground'>
+            {t('Drag-To-Reorder')}
+          </span>
+        </div>
+        <DataDndTable
+          columns={columns}
+          data={projects}
+          items={dataIds}
+          loading={loading}
+          emptyState={
+            <div className='flex min-h-48 flex-col items-center justify-center gap-2 px-4 py-6 text-center'>
+              <span className='mb-1 grid size-11 place-items-center rounded-xl bg-primary/8 text-muted-foreground'>
+                <Folder className='size-5' strokeWidth={1.5} />
+              </span>
+              <p className='text-sm font-medium'>{t('Projects-Empty')}</p>
+              <p className='max-w-72 whitespace-normal text-xs leading-relaxed text-muted-foreground'>
+                {t('Projects-Empty-Description')}
+              </p>
+            </div>
+          }
+          toolbar={(table) => (
+            <div className='flex shrink-0 flex-wrap items-center gap-2 pb-3'>
+              <DataTableToolbar
+                table={table}
+                filterName='Project-Name'
+                status={false}
+              />
+              <div className='flex items-center gap-2'>
+                <Button
+                  size='sm'
+                  variant='ghost'
+                  className={workspaceStyles.refreshAction}
+                  aria-busy={loading}
+                  disabled={loading}
+                  onClick={onPageReload}
+                >
+                  {loading ? (
+                    <LoaderCircle className='size-3.5 animate-spin motion-reduce:animate-none' />
+                  ) : (
+                    <RefreshCw className='size-3.5 transition-transform group-hover:rotate-45 motion-reduce:transition-none' />
+                  )}
+                  {t('Page-Reload')}
+                </Button>
+              </div>
+            </div>
+          )}
+          getRowId={(row) => row.path}
+          reorderRow={reorderRow}
+        />
+      </div>
     </div>
   );
 };

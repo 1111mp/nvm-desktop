@@ -1,14 +1,9 @@
+import { WorkspaceRemoveDialog } from '@/components/workspace-remove-dialog';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+  WorkspaceOverview,
+  workspaceStyles,
+} from '@/components/workspace-layout';
+import {
   Button,
   Combobox,
   ComboboxChip,
@@ -32,7 +27,7 @@ import {
   useComboboxAnchor,
   type DataTableFeatures,
 } from '@/components/ui';
-import { FolderSync, TrashIcon } from 'lucide-react';
+import { LoaderCircle, RefreshCw, Boxes } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLoaderData } from 'react-router';
 import { toast } from 'sonner';
@@ -124,15 +119,29 @@ export const Component: React.FC = () => {
   const columns = columnHelper.columns([
     columnHelper.accessor('name', {
       header: t('Group-Name'),
-      maxSize: 160,
       enableHiding: false,
       meta: {
+        layoutClassName: 'basis-40 grow-0 shrink-0',
         className: 'flex items-center',
       },
+      cell: ({ row }) => (
+        <span className='flex min-w-0 items-center gap-2.5'>
+          <span className='grid size-8 shrink-0 place-items-center rounded-lg bg-primary/8 text-muted-foreground'>
+            <Boxes className='size-3.5' />
+          </span>
+          <span
+            className='truncate text-sm font-medium'
+            title={row.original.name}
+          >
+            {row.original.name}
+          </span>
+        </span>
+      ),
     }),
     columnHelper.accessor('desc', {
       header: t('Group-Desc'),
       meta: {
+        layoutClassName: 'min-w-40 flex-1',
         className: 'flex items-center text-muted-foreground',
       },
       enableHiding: false,
@@ -142,10 +151,10 @@ export const Component: React.FC = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <span
-                className='max-w-52 xl:max-w-100 2xl:max-w-150 inline-block truncate'
+                className='min-w-0 truncate text-xs leading-relaxed'
                 title={desc}
               >
-                {desc}
+                {desc || '—'}
               </span>
             </TooltipTrigger>
             <TooltipContent className='max-w-2xl'>{desc}</TooltipContent>
@@ -157,13 +166,13 @@ export const Component: React.FC = () => {
       header: t('Version'),
       meta: {
         label: t('Version'),
+        layoutClassName: 'basis-36 grow-0 shrink-0',
       },
-      maxSize: 170,
       cell: ({ row }) => {
         const { projects, name, version } = row.original;
         return (
           <Select
-            defaultValue={version}
+            value={version}
             onValueChange={async (newVersion) => {
               try {
                 const newGroups = [...groups];
@@ -182,12 +191,23 @@ export const Component: React.FC = () => {
               }
             }}
           >
-            <SelectTrigger className='w-full'>
+            <SelectTrigger
+              className={workspaceStyles.select}
+              aria-label={t('Select-Version')}
+            >
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent
+              position='popper'
+              align='start'
+              className={`${workspaceStyles.popover} max-h-[min(22rem,var(--radix-select-content-available-height))] max-w-[calc(100dvw-2rem)]`}
+            >
               {installedVersions.map((version) => (
-                <SelectItem key={version} value={version}>
+                <SelectItem
+                  key={version}
+                  value={version}
+                  className={`${workspaceStyles.option} font-mono`}
+                >
                   v{version}
                 </SelectItem>
               ))}
@@ -200,8 +220,8 @@ export const Component: React.FC = () => {
       header: t('Projects'),
       meta: {
         label: t('Projects'),
+        layoutClassName: 'min-w-56 flex-[1.4_1_0%]',
       },
-      maxSize: 240,
       cell: ({ row }) => {
         const { name, projects: defaultProjects, version } = row.original;
         return (
@@ -221,71 +241,53 @@ export const Component: React.FC = () => {
     }),
     columnHelper.accessor(() => undefined, {
       header: t('Operation'),
-      maxSize: 120,
       enableHiding: false,
       meta: {
+        layoutClassName: 'basis-28 grow-0 shrink-0',
         className: 'flex items-center',
       },
       cell: ({ row }) => {
-        const { name, projects: groupProjects } = row.original;
+        const { name, version, projects: groupProjects } = row.original;
         return (
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button size='xs' variant='destructive'>
-                <TrashIcon />
-                {t('Remove')}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className='top-1/3' size='sm'>
-              <AlertDialogHeader>
-                <AlertDialogMedia className='bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive'>
-                  <TrashIcon />
-                </AlertDialogMedia>
-                <AlertDialogTitle>{name}</AlertDialogTitle>
-                <AlertDialogDescription>
-                  {t('Group-Delete')}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel variant='outline'>
-                  {t('Cancel')}
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  variant='destructive'
-                  onClick={async () => {
-                    const [newProjects, newGroups] = await Promise.all([
-                      (async () => {
-                        const newProjects = [...projects];
-                        newProjects.forEach((project) => {
-                          if (groupProjects.includes(project.path)) {
-                            project.version = '';
-                          }
-                        });
+          <WorkspaceRemoveDialog
+            kind='group'
+            name={name}
+            details={[
+              { label: t('Version'), value: `v${version}` },
+              {
+                label: t('Projects'),
+                value: t('Project-Count', { count: groupProjects.length }),
+              },
+            ]}
+            onConfirm={async () => {
+              const [newProjects, newGroups] = await Promise.all([
+                (async () => {
+                  const newProjects = [...projects];
+                  newProjects.forEach((project) => {
+                    if (groupProjects.includes(project.path)) {
+                      project.version = '';
+                    }
+                  });
 
-                        await Promise.all([
-                          batchUpdateProjectVersion(groupProjects, ''),
-                          updateProjectsWithoutTray(newProjects),
-                        ]);
+                  await Promise.all([
+                    batchUpdateProjectVersion(groupProjects, ''),
+                    updateProjectsWithoutTray(newProjects),
+                  ]);
 
-                        return newProjects;
-                      })(),
-                      (async () => {
-                        const newGroups = [...groups].filter(
-                          ({ name: groupName }) => name !== groupName,
-                        );
-                        await updateGroups(newGroups);
-                        return newGroups;
-                      })(),
-                    ]);
-                    setProjects(newProjects);
-                    setGroups(newGroups);
-                  }}
-                >
-                  {t('OK')}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                  return newProjects;
+                })(),
+                (async () => {
+                  const newGroups = [...groups].filter(
+                    ({ name: groupName }) => name !== groupName,
+                  );
+                  await updateGroups(newGroups);
+                  return newGroups;
+                })(),
+              ]);
+              setProjects(newProjects);
+              setGroups(newGroups);
+            }}
+          />
         );
       },
     }),
@@ -319,6 +321,8 @@ export const Component: React.FC = () => {
       setGroups(allGroups);
       setInstalledVersions(installedVersions);
       toast.success(t('Refresh-successful'));
+    } catch (error) {
+      toast.error(error);
     } finally {
       setLoading(false);
     }
@@ -357,22 +361,18 @@ export const Component: React.FC = () => {
       })(),
       // update groups
       (async () => {
-        // If the project is already in another group, you need to remove it from the group.
-        if (projects && projects.length) {
-          const dGroups = [...groups];
-          dGroups.forEach((group) => {
-            const gProjects = [...group.projects];
-            group.projects = gProjects.filter((project) => {
-              return !groupProjects.includes(project);
-            });
-          });
-
-          const newGroups = [group, ...dGroups];
-          await updateGroups(newGroups);
-          return newGroups;
-        }
-
-        return Promise.resolve(undefined);
+        // Persist even without projects, so a group can be created from an empty workspace.
+        const newGroups = [
+          group,
+          ...groups.map((existing) => ({
+            ...existing,
+            projects: existing.projects.filter(
+              (path) => !groupProjects.includes(path),
+            ),
+          })),
+        ];
+        await updateGroups(newGroups);
+        return newGroups;
       })(),
     ]);
 
@@ -381,38 +381,85 @@ export const Component: React.FC = () => {
   };
 
   return (
-    <div className='h-full flex flex-col space-y-2'>
-      <DataDndTable
-        key='page-groups-table'
-        columns={columns}
-        data={groups}
-        items={dataIds}
-        loading={loading}
-        toolbar={(table) => (
-          <div className='flex items-center gap-2'>
-            <DataTableToolbar
-              key='page-groups-table-tool'
-              table={table}
-              filterName='Group-Name'
-              status={false}
-            />
-            <div className='flex items-center gap-2'>
-              <Button size='sm' disabled={loading} onClick={onPageReload}>
-                <FolderSync />
-                {t('Page-Reload')}
-              </Button>
-              <GroupCreator
-                projects={projects}
-                groups={groups}
-                versions={installedVersions}
-                onSubmit={onSubmit}
-              />
-            </div>
-          </div>
-        )}
-        getRowId={(row) => row.name}
-        reorderRow={reorderRow}
+    <div className='flex h-full min-h-0 min-w-0 flex-col gap-5'>
+      <div className='flex shrink-0 flex-wrap items-start justify-between gap-3'>
+        <div>
+          <h1 className='mb-1.5 text-2xl leading-tight font-semibold tracking-tight'>
+            {t('Groups')}
+          </h1>
+          <p className='text-sm leading-relaxed text-muted-foreground'>
+            {t('Groups-Description')}
+          </p>
+        </div>
+        <GroupCreator
+          projects={projects}
+          groups={groups}
+          versions={installedVersions}
+          onSubmit={onSubmit}
+          disabled={loading}
+        />
+      </div>
+      <WorkspaceOverview
+        projectCount={projects.length}
+        groupCount={groups.length}
+        installedCount={installedVersions.length}
+        mode='groups'
       />
+      <div className='flex min-h-0 flex-1 flex-col overflow-hidden'>
+        <div className='flex flex-wrap items-baseline justify-between gap-2 pb-4'>
+          <h2 className='text-sm font-semibold'>{t('Group-Catalog')}</h2>
+          <span className='text-xs text-muted-foreground'>
+            {t('Drag-To-Reorder')}
+          </span>
+        </div>
+        <DataDndTable
+          key='page-groups-table'
+          columns={columns}
+          data={groups}
+          items={dataIds}
+          loading={loading}
+          emptyState={
+            <div className='flex min-h-48 flex-col items-center justify-center gap-2 px-4 py-6 text-center'>
+              <span className='mb-1 grid size-11 place-items-center rounded-xl bg-primary/8 text-muted-foreground'>
+                <Boxes className='size-5' strokeWidth={1.5} />
+              </span>
+              <p className='text-sm font-medium'>{t('Groups-Empty')}</p>
+              <p className='max-w-72 whitespace-normal text-xs leading-relaxed text-muted-foreground'>
+                {t('Groups-Empty-Description')}
+              </p>
+            </div>
+          }
+          toolbar={(table) => (
+            <div className='flex shrink-0 flex-wrap items-center gap-2 pb-3'>
+              <DataTableToolbar
+                key='page-groups-table-tool'
+                table={table}
+                filterName='Group-Name'
+                status={false}
+              />
+              <div className='flex items-center gap-2'>
+                <Button
+                  size='sm'
+                  variant='ghost'
+                  className={workspaceStyles.refreshAction}
+                  aria-busy={loading}
+                  disabled={loading}
+                  onClick={onPageReload}
+                >
+                  {loading ? (
+                    <LoaderCircle className='size-3.5 animate-spin motion-reduce:animate-none' />
+                  ) : (
+                    <RefreshCw className='size-3.5 transition-transform group-hover:rotate-45 motion-reduce:transition-none' />
+                  )}
+                  {t('Page-Reload')}
+                </Button>
+              </div>
+            </div>
+          )}
+          getRowId={(row) => row.name}
+          reorderRow={reorderRow}
+        />
+      </div>
     </div>
   );
 };
@@ -435,12 +482,13 @@ function MultiSelectProject({
   onSubmit?: (projects: Nvmd.Project[], groups: Nvmd.Group[]) => void;
 }) {
   const anchor = useComboboxAnchor();
+  const { t } = useTranslation();
 
   return (
     <Combobox
       multiple
       autoHighlight
-      defaultValue={value}
+      value={value}
       items={projects.map((p) => p.path)}
       onValueChange={async (projectsPaths) => {
         const { added, removed } = compareArray(value, projectsPaths);
@@ -501,28 +549,52 @@ function MultiSelectProject({
         onSubmit?.(newProjects, newGroups);
       }}
     >
-      <ComboboxChips ref={anchor} className='w-full max-h-14 overflow-y-auto'>
+      <ComboboxChips
+        ref={anchor}
+        className='w-full max-h-20 overflow-y-auto rounded-lg border-0 bg-muted/50 text-xs shadow-none'
+      >
         <ComboboxValue>
           {(values: string[]) => (
             <>
               {values.map((value: string) => (
-                <ComboboxChip key={value}>
-                  {projects.find((p) => p.path === value)?.name}
+                <ComboboxChip
+                  key={value}
+                  className='max-w-full gap-1 rounded-md bg-primary/8 text-xs [&>button]:shrink-0'
+                >
+                  <span className='max-w-28 truncate'>
+                    {projects.find((p) => p.path === value)?.name ?? value}
+                  </span>
                 </ComboboxChip>
               ))}
               <ComboboxChipsInput
-                placeholder={values.length === 0 ? 'Select projects' : void 0}
+                placeholder={
+                  values.length === 0 ? t('Select-Projects') : void 0
+                }
               />
             </>
           )}
         </ComboboxValue>
       </ComboboxChips>
-      <ComboboxContent anchor={anchor} className='isolate z-100'>
-        <ComboboxEmpty>No items found.</ComboboxEmpty>
+      <ComboboxContent
+        anchor={anchor}
+        className={`${workspaceStyles.popover} isolate z-100`}
+      >
+        <ComboboxEmpty>{t('No-results')}</ComboboxEmpty>
         <ComboboxList>
           {(item: string) => (
-            <ComboboxItem key={item} value={item}>
-              {projects.find((p) => p.path === item)?.name}
+            <ComboboxItem
+              key={item}
+              value={item}
+              className={workspaceStyles.option}
+            >
+              <span className='flex min-w-0 flex-col gap-1'>
+                <span className='truncate font-medium'>
+                  {projects.find((p) => p.path === item)?.name}
+                </span>
+                <span className='truncate font-mono text-[0.625rem] text-muted-foreground'>
+                  {item}
+                </span>
+              </span>
             </ComboboxItem>
           )}
         </ComboboxList>

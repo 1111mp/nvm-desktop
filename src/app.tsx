@@ -31,7 +31,7 @@ export default function App({
       <TooltipProvider delayDuration={200}>
         <RouterProvider router={router} />
       </TooltipProvider>
-      <Toaster position='top-center' />
+      <Toaster position='top-center' richColors />
     </AppProvider>
   );
 }

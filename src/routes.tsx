@@ -1,7 +1,7 @@
 import { createMemoryRouter, type RouteObject } from 'react-router';
 
-import Home from '@/pages/home';
 import { ErrorBoundary } from '@/components/error-boundary';
+import Home from '@/pages/home';
 import { Versions, loader as VersionsLoader } from './pages/versions';
 
 const routes: RouteObject[] = [
@@ -9,6 +9,7 @@ const routes: RouteObject[] = [
     path: '/',
     element: <Home />,
     hydrateFallbackElement: <div />,
+    errorElement: <ErrorBoundary />,
     children: [
       {
         path: 'versions',

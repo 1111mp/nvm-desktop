@@ -31,3 +31,5 @@ dist-ssr
 AGENTS.md
 
 .pnpm-store
+
+.agents

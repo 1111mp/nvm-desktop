@@ -1,3 +1,4 @@
+import { VersionEnvironment } from '@/components/version-environment';
 import {
   Badge,
   Button,
@@ -7,6 +8,8 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
   Tooltip,
   TooltipContent,
@@ -16,15 +19,15 @@ import {
 import { createColumnHelper } from '@tanstack/react-table';
 import {
   CircleCheckBig,
-  CircleChevronDown,
+  Ellipsis,
   CircleSlash,
   CircleX,
   CloudDownload,
   CloudSync,
-  FolderSync,
+  LoaderCircle,
+  RefreshCw,
   Frown,
   HardDrive,
-  LoaderCircle,
   MousePointerClick,
   ThumbsUp,
   Trash,
@@ -54,6 +57,11 @@ dayjs.extend(localizedFormat);
 
 type VersionsResult = [string, Nvmd.Versions, Array<string>];
 
+const statusBadgeClassName =
+  'h-6 gap-1.5 rounded-lg border-0 px-2 text-xs font-medium';
+const rowActionClassName =
+  'h-7 min-w-20 gap-1.5 rounded-lg border-0 px-2.5 text-xs font-medium';
+
 const columnHelper = createColumnHelper<DataTableFeatures, Nvmd.Version>();
 
 export async function loader() {
@@ -62,7 +70,7 @@ export async function loader() {
     versionList(),
     installedList(),
   ]).catch(() => {
-    return [[], [], ''];
+    return ['', [], []];
   });
 
   return versions;
@@ -116,6 +124,7 @@ export const Versions: React.FC = () => {
   const columns = columnHelper.columns([
     columnHelper.accessor('version', {
       header: t('Version'),
+      meta: { layoutClassName: 'min-w-52 xl:flex-[1.1_1_0%]' },
       enableHiding: false,
       enableColumnFilter: false,
       enableSorting: true,
@@ -137,11 +146,12 @@ export const Versions: React.FC = () => {
       cell: ({ row }) => {
         const { version, lts, date } = row.original;
         return (
-          <div className='relative flex gap-1 items-center'>
+          <div className='relative flex items-center gap-2 whitespace-nowrap'>
             <Tooltip disableHoverableContent={true}>
               <TooltipTrigger asChild>
-                <a
-                  className='h-6 p-0 leading-6 text-md text-foreground font-medium cursor-pointer hover:text-primary hover:underline'
+                <button
+                  type='button'
+                  className='cursor-pointer rounded-md p-0 font-mono text-sm font-semibold leading-6 text-foreground underline-offset-4 outline-none transition-colors hover:text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring'
                   onClick={async () => {
                     await open(
                       `https://github.com/nodejs/node/releases/tag/${version}`,
@@ -149,7 +159,7 @@ export const Versions: React.FC = () => {
                   }}
                 >
                   {version}
-                </a>
+                </button>
               </TooltipTrigger>
               <TooltipContent
                 className='bg-primary text-primary-foreground'
@@ -159,9 +169,21 @@ export const Versions: React.FC = () => {
               </TooltipContent>
             </Tooltip>
             {lts ? (
-              <span className='text-muted-foreground'>({lts})</span>
+              <Badge
+                variant='secondary'
+                title={`LTS · ${lts}`}
+                className='h-5 gap-1 rounded-md border-0 bg-primary/8 px-1.5 text-[0.625rem] font-medium text-foreground'
+              >
+                <span className='size-1 rounded-full bg-primary' />
+                {lts}
+              </Badge>
             ) : row.index === 0 ? (
-              <span className='text-muted-foreground'>({t('latest')})</span>
+              <Badge
+                variant='secondary'
+                className='h-5 rounded-md border-0 bg-muted px-1.5 text-[0.625rem] font-medium text-muted-foreground'
+              >
+                {t('latest')}
+              </Badge>
             ) : null}
             {dayjs().diff(date, 'day') <= 3 ? (
               <span className='inline-block absolute w-1 h-1 top-1 -left-1.5 rounded-full bg-primary' />
@@ -175,7 +197,8 @@ export const Versions: React.FC = () => {
       enableSorting: false,
       meta: {
         label: `V8 ${t('Version')}`,
-        className: 'flex items-center text-muted-foreground',
+        layoutClassName: 'min-w-32 xl:flex-[1_1_0%]',
+        className: 'flex items-center font-mono text-xs text-muted-foreground',
       },
     }),
     columnHelper.accessor('npm', {
@@ -183,7 +206,8 @@ export const Versions: React.FC = () => {
       enableSorting: false,
       meta: {
         label: `NPM ${t('Version')}`,
-        className: 'flex items-center text-muted-foreground',
+        layoutClassName: 'min-w-28 xl:flex-[0.8_1_0%]',
+        className: 'flex items-center font-mono text-xs text-muted-foreground',
       },
     }),
     columnHelper.accessor('date', {
@@ -192,6 +216,7 @@ export const Versions: React.FC = () => {
       enableSorting: true,
       meta: {
         label: t('Release-Date'),
+        layoutClassName: 'xl:basis-36 xl:grow-0 xl:shrink-0',
         className: 'flex items-center text-muted-foreground',
       },
       cell: ({ row }) => dayjs(row.original.date).format('ll'),
@@ -210,6 +235,7 @@ export const Versions: React.FC = () => {
         enableColumnFilter: false,
         meta: {
           label: t('Status'),
+          layoutClassName: 'xl:basis-40 xl:grow-0 xl:shrink-0',
           className: 'flex items-center',
         },
         filterFn: (row, _columnId, filterValue: string[]) => {
@@ -242,7 +268,10 @@ export const Versions: React.FC = () => {
           // the current version
           if (installed && current && version === `v${current}`) {
             return (
-              <Badge>
+              <Badge
+                variant='secondary'
+                className={`${statusBadgeClassName} status-current bg-primary/12 text-foreground`}
+              >
                 <CircleCheckBig />
                 {t('Current')}
               </Badge>
@@ -252,7 +281,10 @@ export const Versions: React.FC = () => {
           // the installed version
           if (installed) {
             return (
-              <Badge variant='secondary'>
+              <Badge
+                variant='secondary'
+                className={`${statusBadgeClassName} bg-muted/70 text-foreground`}
+              >
                 <CircleCheckBig />
                 {t('Installed')}
               </Badge>
@@ -263,7 +295,7 @@ export const Versions: React.FC = () => {
           // the unsupport version
           if (!support) {
             return (
-              <Badge variant='destructive'>
+              <Badge variant='destructive' className={statusBadgeClassName}>
                 <CircleX />
                 {t('Not-Supported')}
               </Badge>
@@ -272,7 +304,10 @@ export const Versions: React.FC = () => {
 
           // default => not installed
           return (
-            <Badge variant='outline'>
+            <Badge
+              variant='ghost'
+              className={`${statusBadgeClassName} bg-transparent px-0 font-normal text-muted-foreground hover:bg-transparent`}
+            >
               <CircleSlash />
               {t('Not-Installed')}
             </Badge>
@@ -286,6 +321,7 @@ export const Versions: React.FC = () => {
       enableSorting: false,
       enableColumnFilter: false,
       meta: {
+        layoutClassName: 'xl:basis-32 xl:grow-0 xl:shrink-0',
         className: 'flex items-center',
       },
       cell: ({ row }) => {
@@ -295,14 +331,32 @@ export const Versions: React.FC = () => {
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size='xs' variant='outline'>
-                  <CircleChevronDown />
+                <Button
+                  size='xs'
+                  variant='ghost'
+                  aria-label={`${t('More')} ${version}`}
+                  className={`${rowActionClassName} bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground data-[state=open]:bg-muted data-[state=open]:text-foreground`}
+                >
+                  <Ellipsis className='size-3.5' />
                   {t('More')}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
+              <DropdownMenuContent
+                align='end'
+                className='w-52 rounded-xl p-1.5'
+              >
+                <DropdownMenuLabel className='flex items-center justify-between gap-2 px-2 py-2.5'>
+                  <span className='font-mono text-xs font-semibold'>
+                    {version}
+                  </span>
+                  <span className='text-[0.625rem] font-normal text-muted-foreground'>
+                    {t(version === `v${current}` ? 'Current' : 'Installed')}
+                  </span>
+                </DropdownMenuLabel>
                 <DropdownMenuGroup>
                   <DropdownMenuItem
+                    disabled={version === `v${current}`}
+                    className='gap-2.5 rounded-lg px-2 py-2.5'
                     onSelect={async () => {
                       try {
                         const curVersion = version.slice(1);
@@ -317,7 +371,9 @@ export const Versions: React.FC = () => {
                     <MousePointerClick />
                     {t('Apply')}
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator className='mx-1 my-1 bg-muted' />
                   <DropdownMenuItem
+                    className='gap-2.5 rounded-lg px-2 py-2.5'
                     variant='destructive'
                     onSelect={async () => {
                       try {
@@ -343,7 +399,13 @@ export const Versions: React.FC = () => {
           );
 
         return (
-          <Button size='xs' onClick={() => modal.current?.show(row.original)}>
+          <Button
+            size='xs'
+            variant='secondary'
+            className={`${rowActionClassName} bg-primary/10 text-foreground hover:bg-primary/18`}
+            aria-label={`${t('Install')} ${version}`}
+            onClick={() => modal.current?.show(row.original)}
+          >
             <CloudDownload />
             {t('Install')}
           </Button>
@@ -400,60 +462,99 @@ export const Versions: React.FC = () => {
 
   return (
     <>
-      <div className='h-full flex flex-col space-y-2'>
-        <DataTable
-          key='page-versions-table'
-          columns={columns}
-          data={versions}
-          loading={loading || localLoading}
-          toolbar={(table) => (
-            <div className='flex items-center gap-2'>
-              <DataTableToolbar
-                key='page-versions-table-tool'
-                table={table}
-                options={[
-                  {
-                    label: t('Installed'),
-                    value: 'Installed',
-                    icon: HardDrive,
-                  },
-                  {
-                    label: t('Supported'),
-                    value: 'Supported',
-                    icon: ThumbsUp,
-                  },
-                  {
-                    label: t('Not-Supported'),
-                    value: 'UnSupported',
-                    icon: Frown,
-                  },
-                ]}
-              />
-              <div className='flex items-center gap-2'>
-                <Button
-                  size='sm'
-                  disabled={localLoading || loading}
-                  onClick={onPageReload}
-                >
-                  <FolderSync />
-                  {t('Page-Reload')}
-                </Button>
-                <Button
-                  size='sm'
-                  disabled={loading || localLoading}
-                  onClick={onDataUpdate}
-                >
-                  {loading ? (
-                    <LoaderCircle className='animate-spin' />
-                  ) : (
-                    <CloudSync />
-                  )}
-                  {t('Data-Update')}
-                </Button>
-              </div>
-            </div>
-          )}
+      <div className='flex h-full min-h-0 min-w-0 flex-col gap-5'>
+        <div className='flex shrink-0 flex-wrap items-start justify-between gap-3'>
+          <div>
+            <h1 className='mb-1.5 text-2xl leading-tight font-semibold tracking-tight'>
+              {t('Versions')}
+            </h1>
+            <p className='text-sm leading-relaxed text-muted-foreground'>
+              {t('Versions-Description')}
+            </p>
+          </div>
+          <Button
+            variant='secondary'
+            className='group h-9 gap-2 rounded-xl border-0 bg-primary/10 bg-linear-to-br from-primary/5 to-transparent pr-3.5 pl-1.5 text-xs text-foreground shadow-xs shadow-primary/5 hover:bg-primary/15 hover:shadow-sm hover:shadow-primary/10'
+            title={t('Data-Update-Description')}
+            aria-busy={loading}
+            disabled={loading || localLoading}
+            onClick={onDataUpdate}
+          >
+            <span className='grid size-6 place-items-center rounded-lg bg-primary/10'>
+              {loading ? (
+                <LoaderCircle className='size-3.5 animate-spin motion-reduce:animate-none' />
+              ) : (
+                <CloudSync className='size-3.5' />
+              )}
+            </span>
+            {t('Data-Update')}
+          </Button>
+        </div>
+        <VersionEnvironment
+          current={current}
+          installedCount={installedVersions.length}
+          releaseCount={versions.length}
         />
+        <div
+          id='version-catalog'
+          className='flex min-h-0 flex-1 flex-col overflow-hidden'
+        >
+          <div className='flex items-baseline justify-between gap-3 pb-4'>
+            <h2 className='text-sm font-semibold'>{t('Release-Catalog')}</h2>
+            <span className='text-xs text-muted-foreground tabular-nums'>
+              {t('Available-Releases', { count: versions.length })}
+            </span>
+          </div>
+          <DataTable
+            key='page-versions-table'
+            columns={columns}
+            data={versions}
+            loading={loading || localLoading}
+            toolbar={(table) => (
+              <div className='flex shrink-0 flex-wrap items-center gap-2 pb-3'>
+                <DataTableToolbar
+                  key='page-versions-table-tool'
+                  table={table}
+                  options={[
+                    {
+                      label: t('Installed'),
+                      value: 'Installed',
+                      icon: HardDrive,
+                    },
+                    {
+                      label: t('Supported'),
+                      value: 'Supported',
+                      icon: ThumbsUp,
+                    },
+                    {
+                      label: t('Not-Supported'),
+                      value: 'UnSupported',
+                      icon: Frown,
+                    },
+                  ]}
+                />
+                <div className='flex items-center gap-2'>
+                  <Button
+                    size='sm'
+                    variant='ghost'
+                    className='group h-8 gap-2 rounded-lg border-0 bg-muted/40 px-3 text-xs font-medium text-muted-foreground hover:bg-muted/80 hover:text-foreground'
+                    title={t('Page-Reload-Description')}
+                    aria-busy={localLoading}
+                    disabled={localLoading || loading}
+                    onClick={onPageReload}
+                  >
+                    {localLoading ? (
+                      <LoaderCircle className='size-3.5 animate-spin motion-reduce:animate-none' />
+                    ) : (
+                      <RefreshCw className='size-3.5 transition-transform group-hover:rotate-45 motion-reduce:transition-none' />
+                    )}
+                    {t('Page-Reload')}
+                  </Button>
+                </div>
+              </div>
+            )}
+          />
+        </div>
       </div>
       <Modal ref={modal} onRefrresh={onInstalledRefresh} />
     </>

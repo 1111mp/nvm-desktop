@@ -1,3 +1,5 @@
+import { cn } from '@/lib/utils';
+import { workspaceStyles } from '@/components/workspace-layout';
 import { useState } from 'react';
 import {
   Button,
@@ -43,6 +45,7 @@ type Props = {
   groups?: Nvmd.Group[];
   versions?: string[];
   onSubmit?: (group: Nvmd.Group) => Promise<void>;
+  disabled?: boolean;
 };
 
 export const GroupCreator: React.FC<Props> = ({
@@ -50,6 +53,7 @@ export const GroupCreator: React.FC<Props> = ({
   groups: groupsProp = [],
   versions = [],
   onSubmit: onSubmitProp,
+  disabled = false,
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -60,14 +64,14 @@ export const GroupCreator: React.FC<Props> = ({
   const formSchema = z.object({
     name: z
       .string()
-      .min(1, 'Group name is invalid')
-      .max(16, 'Group name is invalid')
       .trim()
+      .min(1, t('Group-Name-Invalid'))
+      .max(16, t('Group-Name-Invalid'))
       .refine((val) => !groupsProp.find(({ name }) => name === val), {
-        message: 'Group name already exists',
+        message: t('Group-Name-Exists'),
       }),
     desc: z.string(),
-    version: z.string().min(1, { message: 'Please select a version' }),
+    version: z.string().min(1, { message: t('Select-Version') }),
     projects: z.array(z.string()),
   });
 
@@ -99,27 +103,48 @@ export const GroupCreator: React.FC<Props> = ({
     <Dialog
       open={open}
       onOpenChange={(open) => {
-        form.reset({ name: '', version: '', desc: '', projects: [] });
+        if (loading) return;
+        if (open) form.reset({ name: '', version: '', desc: '', projects: [] });
         setOpen(open);
       }}
     >
       <DialogTrigger asChild>
-        <Button size='sm'>
+        <Button
+          variant='secondary'
+          className={workspaceStyles.primaryAction}
+          disabled={disabled}
+        >
           <LayersPlus />
           {t('Create-Group')}
         </Button>
       </DialogTrigger>
-      <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
-        <DialogHeader>
-          <DialogTitle>{t('Create-Group')}</DialogTitle>
-          <DialogDescription></DialogDescription>
+      <DialogContent
+        className={cn(workspaceStyles.dialog, 'gap-0 overflow-visible p-0')}
+        // Portal multi-select options into the dialog, outside its scrolling form.
+        ref={setContainer}
+        showCloseButton={false}
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(event) => {
+          if (loading) event.preventDefault();
+        }}
+      >
+        <DialogHeader className='shrink-0 gap-2 rounded-t-2xl bg-muted/40 bg-linear-to-br from-primary/8 to-transparent p-5 sm:p-6'>
+          <span className='mb-1 grid size-10 place-items-center rounded-xl bg-primary/10 text-primary'>
+            <LayersPlus className='size-5' />
+          </span>
+          <DialogTitle className='text-lg font-semibold tracking-tight'>
+            {t('Create-Group')}
+          </DialogTitle>
+          <DialogDescription className='text-xs leading-relaxed'>
+            {t('Create-Group-Description')}
+          </DialogDescription>
         </DialogHeader>
         <form
           id='create-group'
-          ref={setContainer}
+          className='min-h-0 overflow-y-auto overscroll-contain p-5 sm:p-6'
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          <FieldGroup className='gap-2'>
+          <FieldGroup className='gap-4'>
             <Field>
               <Controller
                 name='name'
@@ -127,7 +152,7 @@ export const GroupCreator: React.FC<Props> = ({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel
-                      className='text-muted-foreground'
+                      className='text-xs font-medium'
                       htmlFor='create-group-name'
                     >
                       {t('Group-Name')}
@@ -136,7 +161,9 @@ export const GroupCreator: React.FC<Props> = ({
                       {...field}
                       id='create-group-name'
                       aria-invalid={fieldState.invalid}
-                      placeholder='name'
+                      placeholder={t('Group-Name')}
+                      disabled={loading}
+                      className='h-9 rounded-lg border-0 bg-muted/50 text-sm shadow-none'
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -150,7 +177,7 @@ export const GroupCreator: React.FC<Props> = ({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel
-                      className='text-muted-foreground'
+                      className='text-xs font-medium'
                       htmlFor='create-group-desc'
                     >
                       {t('Group-Desc')}
@@ -158,7 +185,9 @@ export const GroupCreator: React.FC<Props> = ({
                     <Input
                       {...field}
                       id='create-group-desc'
-                      placeholder='description'
+                      placeholder={t('Group-Desc')}
+                      disabled={loading}
+                      className='h-9 rounded-lg border-0 bg-muted/50 text-sm shadow-none'
                       aria-invalid={fieldState.invalid}
                     />
                     {fieldState.invalid && (
@@ -175,25 +204,35 @@ export const GroupCreator: React.FC<Props> = ({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel
-                      className='text-muted-foreground'
+                      className='text-xs font-medium'
                       htmlFor='create-group-version'
                     >
                       {t('Version')}
                     </FieldLabel>
                     <Select
+                      disabled={loading}
                       name={field.name}
                       value={field.value}
                       onValueChange={field.onChange}
                     >
                       <SelectTrigger
                         id='create-group-version'
+                        className={workspaceStyles.select}
                         aria-invalid={fieldState.invalid}
                       >
-                        <SelectValue placeholder='version' />
+                        <SelectValue placeholder={t('Select-Version')} />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent
+                        position='popper'
+                        align='start'
+                        className={workspaceStyles.popover}
+                      >
                         {versions.map((version) => (
-                          <SelectItem key={version} value={version}>
+                          <SelectItem
+                            key={version}
+                            value={version}
+                            className={`${workspaceStyles.option} font-mono`}
+                          >
                             v{version}
                           </SelectItem>
                         ))}
@@ -211,12 +250,13 @@ export const GroupCreator: React.FC<Props> = ({
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel
-                      className='text-muted-foreground'
+                      className='text-xs font-medium'
                       htmlFor='create-group-projects'
                     >
                       {t('Projects')}
                     </FieldLabel>
                     <Combobox
+                      disabled={loading}
                       multiple
                       autoHighlight
                       value={field.value ?? []}
@@ -227,13 +267,16 @@ export const GroupCreator: React.FC<Props> = ({
                     >
                       <ComboboxChips
                         ref={anchor}
-                        className='max-h-14 overflow-y-auto'
+                        className='max-h-24 overflow-y-auto border-0 bg-muted/50 text-xs shadow-none'
                       >
                         <ComboboxValue>
                           {(values: string[]) => (
                             <>
                               {values.map((value: string) => (
-                                <ComboboxChip key={value}>
+                                <ComboboxChip
+                                  key={value}
+                                  className='max-w-full rounded-md bg-primary/8 text-xs'
+                                >
                                   {
                                     projectsProp.find((p) => p.path === value)
                                       ?.name
@@ -244,7 +287,9 @@ export const GroupCreator: React.FC<Props> = ({
                                 id='create-group-projects'
                                 aria-invalid={fieldState.invalid}
                                 placeholder={
-                                  values.length === 0 ? 'projects' : void 0
+                                  values.length === 0
+                                    ? t('Select-Projects')
+                                    : void 0
                                 }
                               />
                             </>
@@ -253,14 +298,28 @@ export const GroupCreator: React.FC<Props> = ({
                       </ComboboxChips>
                       <ComboboxContent
                         anchor={anchor}
-                        className='isolate z-100'
+                        className={`${workspaceStyles.popover} isolate z-100`}
                         container={container ?? undefined}
                       >
-                        <ComboboxEmpty>No items found.</ComboboxEmpty>
+                        <ComboboxEmpty>{t('No-results')}</ComboboxEmpty>
                         <ComboboxList>
                           {(item: string) => (
-                            <ComboboxItem key={item} value={item}>
-                              {projectsProp.find((p) => p.path === item)?.name}
+                            <ComboboxItem
+                              key={item}
+                              value={item}
+                              className={workspaceStyles.option}
+                            >
+                              <span className='flex min-w-0 flex-col gap-1'>
+                                <span className='truncate font-medium'>
+                                  {
+                                    projectsProp.find((p) => p.path === item)
+                                      ?.name
+                                  }
+                                </span>
+                                <span className='truncate font-mono text-[0.625rem] text-muted-foreground'>
+                                  {item}
+                                </span>
+                              </span>
                             </ComboboxItem>
                           )}
                         </ComboboxList>
@@ -275,15 +334,22 @@ export const GroupCreator: React.FC<Props> = ({
             </Field>
           </FieldGroup>
         </form>
-        <DialogFooter>
+        <DialogFooter
+          className={`${workspaceStyles.footer} rounded-t-none rounded-b-2xl px-5 py-4 sm:px-6`}
+        >
           <DialogClose asChild>
-            <Button size='sm' disabled={loading} variant='secondary'>
+            <Button disabled={loading} variant='ghost'>
               {t('Cancel')}
             </Button>
           </DialogClose>
-          <Button size='sm' disabled={loading} form='create-group'>
+          <Button
+            type='submit'
+            disabled={loading || !versions.length}
+            form='create-group'
+            className='min-w-24 border-0'
+          >
             {loading && <LoaderCircle className='animate-spin' />}
-            {t('OK')}
+            {t('Create-Group')}
           </Button>
         </DialogFooter>
       </DialogContent>

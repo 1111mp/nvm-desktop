@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Label as LabelPrimitive } from 'radix-ui';
-import { CopyIcon } from 'lucide-react';
+import { CheckIcon, CopyIcon } from 'lucide-react';
+import { Button } from './button';
+import { useTranslation } from 'react-i18next';
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
 
 import { useCopyToClipboard } from '@/hooks';
@@ -33,7 +35,7 @@ function LabelCopyable({
   rootClassName?: string;
   title?: string;
 }) {
-  const [open, setOpen] = useState<boolean>(false);
+  const { t } = useTranslation();
   const [did, setDid] = useState<boolean>(false);
 
   const [, copy] = useCopyToClipboard();
@@ -47,7 +49,9 @@ function LabelCopyable({
   }, []);
 
   return (
-    <span className={cn('inline-block items-center space-x-1', rootClassName)}>
+    <span
+      className={cn('inline-flex min-w-0 items-center gap-1.5', rootClassName)}
+    >
       <>
         <LabelPrimitive.Root
           ref={ref}
@@ -60,29 +64,30 @@ function LabelCopyable({
         >
           {children}
         </LabelPrimitive.Root>
-        <Tooltip open={open}>
+        <Tooltip>
           <TooltipTrigger asChild>
-            <CopyIcon
-              className='inline-block size-4 text-primary cursor-pointer hover:opacity-70 active:opacity-80'
-              onClick={(evt) => {
-                evt.stopPropagation();
-                copy((children as unknown as string) || title || '');
+            <Button
+              type='button'
+              variant='ghost'
+              size='icon-xs'
+              className='shrink-0 text-muted-foreground'
+              aria-label={t(did ? 'Clipboard-Copied' : 'Clipboard-Copy')}
+              onClick={async (event) => {
+                event.stopPropagation();
+                const text =
+                  typeof children === 'string' ? children : title || '';
+                if (!(await copy(text))) return;
                 setDid(true);
-
                 if (timer.current) clearTimeout(timer.current);
-                timer.current = setTimeout(() => {
-                  setDid(false);
-                }, 3000);
+                timer.current = setTimeout(() => setDid(false), 3000);
               }}
-              onMouseOver={() => {
-                setOpen(true);
-              }}
-              onMouseLeave={() => {
-                setOpen(false);
-              }}
-            />
+            >
+              {did ? <CheckIcon /> : <CopyIcon />}
+            </Button>
           </TooltipTrigger>
-          <TooltipContent>{did ? 'Copied' : 'Copy'}</TooltipContent>
+          <TooltipContent>
+            {t(did ? 'Clipboard-Copied' : 'Clipboard-Copy')}
+          </TooltipContent>
         </Tooltip>
       </>
     </span>

@@ -22,6 +22,8 @@ import {
 interface TableColumnMeta {
   label?: string;
   className?: string;
+  /** Shared by the header and cells so responsive column widths stay aligned. */
+  layoutClassName?: string;
 }
 
 /** The features shared by every application data table. */

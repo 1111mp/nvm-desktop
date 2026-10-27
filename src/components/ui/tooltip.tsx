@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Tooltip as TooltipPrimitive } from 'radix-ui';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/index';
 
 function TooltipProvider({
   delayDuration = 0,
@@ -45,7 +45,7 @@ function TooltipContent({
         data-slot='tooltip-content'
         sideOffset={sideOffset}
         className={cn(
-          'z-50 inline-flex w-fit max-w-xs origin-(--radix-tooltip-content-transform-origin) items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-xs text-accent-foreground has-data-[slot=kbd]:pr-1.5 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
+          'z-50 inline-flex w-fit max-w-xs origin-(--radix-tooltip-content-transform-origin) items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-xs text-accent-foreground shadow-lg shadow-black/15 dark:shadow-black/40 has-data-[slot=kbd]:pr-1.5 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
           className,
         )}
         {...props}
@@ -54,7 +54,7 @@ function TooltipContent({
         {showArrow && (
           <TooltipPrimitive.Arrow
             className={cn(
-              'z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-accent fill-accent',
+              'z-50 size-2.5 translate-y-[calc(-50%_-_0.125rem)] rotate-45 rounded-xs bg-accent fill-accent',
               arrowClassName,
             )}
           />

@@ -1,3 +1,5 @@
+import { VersionEnvironment } from '@/components/version-environment';
+import { open } from '@tauri-apps/plugin-shell';
 import {
   Badge,
   Button,
@@ -7,6 +9,8 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
   Tooltip,
   TooltipContent,
@@ -16,9 +20,10 @@ import {
 import { createColumnHelper } from '@tanstack/react-table';
 import {
   CircleCheckBig,
-  CircleChevronDownIcon,
+  Ellipsis,
   CircleSlash,
-  FolderSync,
+  LoaderCircle,
+  RefreshCw,
   HardDriveIcon,
   LightbulbIcon,
   MousePointerClick,
@@ -43,6 +48,11 @@ import { useTranslation } from 'react-i18next';
 
 type VersionsResult = [string, Nvmd.Versions, Array<string>];
 
+const statusBadgeClassName =
+  'h-6 gap-1.5 rounded-lg border-0 px-2 text-xs font-medium';
+const rowActionClassName =
+  'h-7 min-w-20 gap-1.5 rounded-lg border-0 px-2.5 text-xs font-medium';
+
 const columnHelper = createColumnHelper<DataTableFeatures, Nvmd.Version>();
 
 export async function loader() {
@@ -55,7 +65,7 @@ export async function loader() {
 
     return versions;
   } catch {
-    return [[], [], ''];
+    return ['', [], []];
   }
 }
 
@@ -118,6 +128,7 @@ export const Component: React.FC = () => {
   const columns = columnHelper.columns([
     columnHelper.accessor('version', {
       header: t('Version'),
+      meta: { layoutClassName: 'min-w-52 xl:flex-[1.1_1_0%]' },
       enableHiding: false,
       enableColumnFilter: false,
       enableSorting: true,
@@ -139,17 +150,20 @@ export const Component: React.FC = () => {
       cell: ({ row }) => {
         const { version, lts } = row.original;
         return (
-          <div className='flex gap-1 items-center'>
-            <Tooltip>
+          <div className='relative flex items-center gap-2 whitespace-nowrap'>
+            <Tooltip disableHoverableContent={true}>
               <TooltipTrigger asChild>
-                <a
-                  className='h-6 p-0 leading-6 text-md text-foreground font-medium hover:text-primary hover:underline'
-                  href={`https://github.com/nodejs/node/releases/tag/${version}`}
-                  rel='noreferrer'
-                  target='_blank'
+                <button
+                  type='button'
+                  className='cursor-pointer rounded-md p-0 font-mono text-sm font-semibold leading-6 text-foreground underline-offset-4 outline-none transition-colors hover:text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring'
+                  onClick={() =>
+                    open(
+                      `https://github.com/nodejs/node/releases/tag/${version}`,
+                    )
+                  }
                 >
                   {version}
-                </a>
+                </button>
               </TooltipTrigger>
               <TooltipContent
                 className='bg-primary text-primary-foreground'
@@ -159,9 +173,21 @@ export const Component: React.FC = () => {
               </TooltipContent>
             </Tooltip>
             {lts ? (
-              <span className='text-muted-foreground'>({lts})</span>
-            ) : row.index === 0 ? (
-              <span className='text-muted-foreground'>({t('latest')})</span>
+              <Badge
+                variant='secondary'
+                title={`LTS · ${lts}`}
+                className='h-5 gap-1 rounded-md border-0 bg-primary/8 px-1.5 text-[0.625rem] font-medium text-foreground'
+              >
+                <span className='size-1 rounded-full bg-primary' />
+                {lts}
+              </Badge>
+            ) : version === allVersions[0]?.version ? (
+              <Badge
+                variant='secondary'
+                className='h-5 rounded-md border-0 bg-muted px-1.5 text-[0.625rem] font-medium text-muted-foreground'
+              >
+                {t('latest')}
+              </Badge>
             ) : null}
           </div>
         );
@@ -172,7 +198,8 @@ export const Component: React.FC = () => {
       enableSorting: false,
       meta: {
         label: `V8 ${t('Version')}`,
-        className: 'flex items-center text-muted-foreground',
+        layoutClassName: 'min-w-32 xl:flex-[1_1_0%]',
+        className: 'flex items-center font-mono text-xs text-muted-foreground',
       },
     }),
     columnHelper.accessor('npm', {
@@ -180,7 +207,8 @@ export const Component: React.FC = () => {
       enableSorting: false,
       meta: {
         label: `NPM ${t('Version')}`,
-        className: 'flex items-center text-muted-foreground',
+        layoutClassName: 'min-w-28 xl:flex-[0.8_1_0%]',
+        className: 'flex items-center font-mono text-xs text-muted-foreground',
       },
     }),
     columnHelper.accessor('date', {
@@ -189,18 +217,20 @@ export const Component: React.FC = () => {
       enableSorting: true,
       meta: {
         label: t('Release-Date'),
+        layoutClassName: 'xl:basis-36 xl:grow-0 xl:shrink-0',
         className: 'flex items-center text-muted-foreground',
       },
       cell: ({ row }) => dayjs(row.original.date).format('ll'),
     }),
     columnHelper.accessor(
       ({ version }) =>
-        current && version.includes(current) ? 'Current' : 'Installed',
+        current && version === `v${current}` ? 'Current' : 'Installed',
       {
         id: 'status',
         header: t('Status'),
         meta: {
           label: t('Status'),
+          layoutClassName: 'xl:basis-40 xl:grow-0 xl:shrink-0',
           className: 'flex items-center',
         },
         enableSorting: false,
@@ -210,11 +240,11 @@ export const Component: React.FC = () => {
           const rets = filterValue.map((value) => {
             switch (value) {
               case 'Current': {
-                return version.includes(current);
+                return version === `v${current}`;
               }
               case 'Installed': {
-                return !!installedVersions.find((installed) =>
-                  version.includes(installed),
+                return !!installedVersions.find(
+                  (installed) => version === `v${installed}`,
                 );
               }
               default:
@@ -225,14 +255,17 @@ export const Component: React.FC = () => {
         },
         cell: ({ row }) => {
           const { version } = row.original;
-          const installed = installedVersions.find((installed) =>
-            version.includes(installed),
+          const installed = installedVersions.find(
+            (installed) => version === `v${installed}`,
           );
 
           // the current version
-          if (installed && current && version.includes(current)) {
+          if (installed && current && version === `v${current}`) {
             return (
-              <Badge>
+              <Badge
+                variant='secondary'
+                className={`${statusBadgeClassName} status-current bg-primary/12 text-foreground`}
+              >
                 <CircleCheckBig />
                 {t('Current')}
               </Badge>
@@ -242,7 +275,10 @@ export const Component: React.FC = () => {
           // the installed version
           if (installed) {
             return (
-              <Badge variant='secondary'>
+              <Badge
+                variant='secondary'
+                className={`${statusBadgeClassName} bg-muted/70 text-foreground`}
+              >
                 <CircleCheckBig />
                 {t('Installed')}
               </Badge>
@@ -251,7 +287,10 @@ export const Component: React.FC = () => {
 
           // default => not installed
           return (
-            <Badge variant='outline'>
+            <Badge
+              variant='ghost'
+              className={`${statusBadgeClassName} bg-transparent px-0 font-normal text-muted-foreground hover:bg-transparent`}
+            >
               <CircleSlash />
               {t('Not-Installed')}
             </Badge>
@@ -265,6 +304,7 @@ export const Component: React.FC = () => {
       enableSorting: false,
       enableColumnFilter: false,
       meta: {
+        layoutClassName: 'xl:basis-32 xl:grow-0 xl:shrink-0',
         className: 'flex items-center',
       },
       cell: ({ row }) => {
@@ -272,14 +312,29 @@ export const Component: React.FC = () => {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size='xs' variant='outline'>
-                <CircleChevronDownIcon />
+              <Button
+                size='xs'
+                variant='ghost'
+                aria-label={`${t('More')} ${version}`}
+                className={`${rowActionClassName} bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground data-[state=open]:bg-muted data-[state=open]:text-foreground`}
+              >
+                <Ellipsis className='size-3.5' />
                 {t('More')}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+            <DropdownMenuContent align='end' className='w-52 rounded-xl p-1.5'>
+              <DropdownMenuLabel className='flex items-center justify-between gap-2 px-2 py-2.5'>
+                <span className='font-mono text-xs font-semibold'>
+                  {version}
+                </span>
+                <span className='text-[0.625rem] font-normal text-muted-foreground'>
+                  {t(version === `v${current}` ? 'Current' : 'Installed')}
+                </span>
+              </DropdownMenuLabel>
               <DropdownMenuGroup>
                 <DropdownMenuItem
+                  disabled={version === `v${current}`}
+                  className='gap-2.5 rounded-lg px-2 py-2.5'
                   onSelect={async () => {
                     try {
                       const curVersion = version.slice(1);
@@ -294,7 +349,9 @@ export const Component: React.FC = () => {
                   <MousePointerClick />
                   {t('Apply')}
                 </DropdownMenuItem>
+                <DropdownMenuSeparator className='mx-1 my-1 bg-muted' />
                 <DropdownMenuItem
+                  className='gap-2.5 rounded-lg px-2 py-2.5'
                   variant='destructive'
                   onSelect={async () => {
                     try {
@@ -349,35 +406,70 @@ export const Component: React.FC = () => {
   };
 
   return (
-    <div className='h-full flex flex-col space-y-2'>
-      <DataTable
-        columns={columns}
-        data={versions}
-        loading={loading}
-        toolbar={(table) => (
-          <div className='flex items-center gap-2'>
-            <DataTableToolbar
-              table={table}
-              options={[
-                {
-                  label: t('Current'),
-                  value: 'Current',
-                  icon: LightbulbIcon,
-                },
-                {
-                  label: t('Installed'),
-                  value: 'Installed',
-                  icon: HardDriveIcon,
-                },
-              ]}
-            />
-            <Button size='sm' disabled={loading} onClick={onPageReload}>
-              <FolderSync />
-              {t('Page-Reload')}
-            </Button>
-          </div>
-        )}
+    <div className='flex h-full min-h-0 min-w-0 flex-col gap-5'>
+      <div className='flex shrink-0 flex-wrap items-start justify-between gap-3'>
+        <div>
+          <h1 className='mb-1.5 text-2xl leading-tight font-semibold tracking-tight'>
+            {t('Installed')}
+          </h1>
+          <p className='text-sm leading-relaxed text-muted-foreground'>
+            {t('Installed-Description')}
+          </p>
+        </div>
+      </div>
+      <VersionEnvironment
+        current={current}
+        installedCount={installedVersions.length}
+        releaseCount={allVersions.length}
+        destination='/versions'
       />
+      <div className='flex min-h-0 flex-1 flex-col overflow-hidden'>
+        <div className='flex items-baseline justify-between gap-3 pb-4'>
+          <h2 className='text-sm font-semibold'>{t('Installed-Catalog')}</h2>
+          <span className='text-xs text-muted-foreground tabular-nums'>
+            {t('Installed-Count', { count: versions.length })}
+          </span>
+        </div>
+        <DataTable
+          columns={columns}
+          data={versions}
+          loading={loading}
+          toolbar={(table) => (
+            <div className='flex shrink-0 flex-wrap items-center gap-2 pb-3'>
+              <DataTableToolbar
+                table={table}
+                options={[
+                  {
+                    label: t('Current'),
+                    value: 'Current',
+                    icon: LightbulbIcon,
+                  },
+                  {
+                    label: t('Installed'),
+                    value: 'Installed',
+                    icon: HardDriveIcon,
+                  },
+                ]}
+              />
+              <Button
+                size='sm'
+                variant='ghost'
+                className='group h-8 gap-2 rounded-lg border-0 bg-muted/40 px-3 text-xs font-medium text-muted-foreground hover:bg-muted/80 hover:text-foreground'
+                aria-busy={loading}
+                disabled={loading}
+                onClick={onPageReload}
+              >
+                {loading ? (
+                  <LoaderCircle className='size-3.5 animate-spin motion-reduce:animate-none' />
+                ) : (
+                  <RefreshCw className='size-3.5 transition-transform group-hover:rotate-45 motion-reduce:transition-none' />
+                )}
+                {t('Page-Reload')}
+              </Button>
+            </div>
+          )}
+        />
+      </div>
     </div>
   );
 };

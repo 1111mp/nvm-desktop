@@ -20,6 +20,7 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { cn } from '@/lib/utils';
 import { CSS } from '@dnd-kit/utilities';
 import {
   flexRender,
@@ -29,7 +30,7 @@ import {
   type Row,
   type RowData,
 } from '@tanstack/react-table';
-import { GripHorizontal } from 'lucide-react';
+import { GripVertical } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
 import { Bars } from './bars-icon';
@@ -54,6 +55,7 @@ interface DataTableProps<TData extends RowData> {
   items: UniqueIdentifier[];
   toolbar?: (table: DataTableInstance<TData>) => React.ReactNode;
   loading?: boolean;
+  emptyState?: React.ReactNode;
   getRowId?: (
     originalRow: TData,
     index: number,
@@ -71,6 +73,7 @@ function DraggableRow<TData extends RowData>({
   row,
   cells,
 }: DraggableRowProps<TData>) {
+  const { t } = useTranslation();
   const {
     attributes,
     listeners,
@@ -97,15 +100,19 @@ function DraggableRow<TData extends RowData>({
       className='w-full flex'
       style={style}
     >
-      <TableCell key={row.id} className='w-12 flex items-center'>
+      <TableCell
+        key={row.id}
+        className='flex w-10 shrink-0 items-center justify-center px-1!'
+      >
         <Button
           {...attributes}
-          className='cursor-move'
+          className='size-7 cursor-grab text-muted-foreground/50 hover:text-foreground active:cursor-grabbing'
+          aria-label={t('Drag-To-Reorder')}
           size='sm'
           variant='ghost'
           {...listeners}
         >
-          <GripHorizontal />
+          <GripVertical />
         </Button>
       </TableCell>
       {cells.map((cell) => {
@@ -114,7 +121,11 @@ function DraggableRow<TData extends RowData>({
         return (
           <TableCell
             key={cell.id}
-            className={`flex-1 ${meta?.className ?? ''}`}
+            className={cn(
+              'min-w-0 flex-1',
+              meta?.layoutClassName,
+              meta?.className,
+            )}
             style={{
               maxWidth: maxSize !== Number.MAX_SAFE_INTEGER ? maxSize : void 0,
               width: cell.column.getSize(),
@@ -133,6 +144,7 @@ export function DataDndTable<TData extends RowData>({
   data,
   items,
   loading = false,
+  emptyState,
   toolbar,
   reorderRow,
   getRowId,
@@ -172,7 +184,7 @@ export function DataDndTable<TData extends RowData>({
       sensors={sensors}
       onDragEnd={handleDragEnd}
     >
-      <div className='relative flex flex-col flex-1 space-y-2 rounded-md overflow-hidden'>
+      <div className='relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden'>
         {toolbar?.(table)}
         <AnimatePresence>
           {loading && (
@@ -188,7 +200,7 @@ export function DataDndTable<TData extends RowData>({
           )}
         </AnimatePresence>
         <motion.div
-          className='w-full flex-1 rounded-md overflow-x-hidden overflow-y-auto'
+          className='min-h-0 w-full flex-1 overflow-auto rounded-lg bg-muted/20'
           animate={loading ? 'hidden' : 'visible'}
           variants={{
             visible: { opacity: 1 },
@@ -196,23 +208,26 @@ export function DataDndTable<TData extends RowData>({
           }}
           transition={{ duration: 0.3 }}
         >
-          <Table>
+          <Table className='min-w-240'>
             <table.Subscribe source={table.atoms.columnVisibility}>
               {() => (
                 <>
-                  <TableHeader className='sticky top-0 z-10 bg-muted'>
+                  <TableHeader className='sticky top-0 z-10 bg-muted xl:bg-card xl:bg-linear-to-b xl:from-muted/80 xl:to-muted/60'>
                     {table.getHeaderGroups().map((headerGroup) => (
                       <TableRow
                         key={headerGroup.id}
-                        className='w-full flex items-center [&>*:not(:last-child)]:relative [&>*:not(:last-child)]:after:absolute [&>*:not(:last-child)]:after:right-0 [&>*:not(:last-child)]:after:w-px [&>*:not(:last-child)]:after:h-5 [&>*:not(:last-child)]:after:bg-zinc-300 dark:[&>*:not(:last-child)]:after:bg-zinc-700'
+                        className='w-full flex items-center'
                       >
-                        <TableHead className='w-12 flex items-center' />
+                        <TableHead className='flex w-10 shrink-0 items-center justify-center px-1!' />
                         {headerGroup.headers.map((header) => {
-                          const { maxSize } = header.column.columnDef;
+                          const { maxSize, meta } = header.column.columnDef;
                           return (
                             <TableHead
                               key={header.id}
-                              className='flex flex-1 items-center'
+                              className={cn(
+                                'flex min-w-0 flex-1 items-center',
+                                meta?.layoutClassName,
+                              )}
                               colSpan={header.colSpan}
                               style={{
                                 maxWidth:
@@ -252,10 +267,12 @@ export function DataDndTable<TData extends RowData>({
                       ) : (
                         <TableRow className='flex'>
                           <TableCell
-                            colSpan={columns.length}
-                            className='flex flex-1 h-24 items-center justify-center'
+                            colSpan={columns.length + 1}
+                            className='flex min-h-24 flex-1 items-center justify-center'
                           >
-                            {t('No-results')}
+                            {data.length === 0 && emptyState
+                              ? emptyState
+                              : t('No-results')}
                           </TableCell>
                         </TableRow>
                       )}

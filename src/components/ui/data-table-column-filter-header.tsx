@@ -1,15 +1,14 @@
 import { useSelector } from '@tanstack/react-store';
-import { CircleX, Search } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
-import { useRef } from 'react';
-import { Button } from './button';
-import { Input } from './input';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
-
-import { type Column, type RowData } from '@tanstack/react-table';
-import { type DataTableFeatures } from './data-table-features';
-
+import type { Column, RowData } from '@tanstack/react-table';
+import { Search, RotateCcw } from 'lucide-react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
+import { Button } from './button';
+import type { DataTableFeatures } from './data-table-features';
+import { tableFilterStyles } from './data-table-filter-styles';
+import { DataTableSearch } from './data-table-search';
+import { Popover, PopoverContent, PopoverTrigger } from './popover';
 
 interface DataTableColumnHeaderProps<
   TData extends RowData,
@@ -22,62 +21,81 @@ export function DataTableColumnFilterHeader<TData extends RowData, TValue>({
   column,
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
-  const input = useRef<HTMLInputElement>(null);
-
-  const columnValue = useSelector(
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const value = useSelector(
     column.table.atoms.columnFilters,
     (filters) =>
       (filters.find((filter) => filter.id === column.id)?.value as
         | string
         | undefined) ?? '',
   );
-
-  const title = (column.columnDef.header as string) ?? '';
-
-  if (!column.getCanFilter()) {
-    return <div className={cn(className)}>{title}</div>;
-  }
-
+  const title =
+    column.columnDef.meta?.label ||
+    (typeof column.columnDef.header === 'string'
+      ? column.columnDef.header
+      : column.id);
+  if (!column.getCanFilter()) return <span className={className}>{title}</span>;
   return (
-    <div className={cn('flex items-center space-x-2', className)}>
-      <Popover>
+    <div className={cn('flex min-w-0 items-center', className)}>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant='ghost'
-            size='sm'
-            className='text-sm font-light -translate-x-1.75'
+            className={cn(
+              tableFilterStyles.headerTrigger,
+              '-ml-2',
+              value && tableFilterStyles.activeTrigger,
+            )}
+            aria-label={t('Table-Filter-Column', { field: title })}
           >
             <span>{title}</span>
-            <Search className='ml-2 size-4' />
+            <Search className='size-3 opacity-60' />
+            {value && (
+              <span
+                aria-hidden='true'
+                className='size-1 rounded-full bg-primary'
+              />
+            )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent align='start' className='w-fit p-2'>
-          <div className='relative'>
-            <Input
-              ref={input}
-              className='w-40 h-7'
-              placeholder={`Filter ${title}`}
-              value={columnValue}
-              onChange={(event) => column.setFilterValue(event.target.value)}
+        <PopoverContent
+          align='start'
+          aria-label={t('Table-Filter-Column', { field: title })}
+          className={cn(
+            tableFilterStyles.popover,
+            'w-64 max-w-[calc(100dvw-2rem)]',
+          )}
+        >
+          <div className='space-y-3 p-3'>
+            <h3 className='text-xs font-semibold'>{title}</h3>
+            <DataTableSearch
+              autoFocus
+              className='w-full'
+              value={value}
+              placeholder={t('Table-Search', { field: title })}
+              onChange={(value) => column.setFilterValue(value || undefined)}
             />
-            <AnimatePresence>
-              {columnValue ? (
-                <motion.span
-                  className='absolute top-1/2 right-1 -translate-y-1/2 cursor-pointer'
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  onClick={(evt) => {
-                    evt.stopPropagation();
-                    input.current?.focus();
-                    column.setFilterValue(undefined);
-                  }}
-                >
-                  <CircleX className='size-4' />
-                </motion.span>
-              ) : null}
-            </AnimatePresence>
+          </div>
+          <div className={tableFilterStyles.footer}>
+            <Button
+              variant='ghost'
+              size='xs'
+              disabled={!value}
+              className='gap-1.5 border-0 text-xs text-muted-foreground'
+              onClick={() => column.setFilterValue(undefined)}
+            >
+              <RotateCcw className='size-3' />
+              {t('Clear-Filters')}
+            </Button>
+            <Button
+              variant='secondary'
+              size='xs'
+              className='border-0 text-xs'
+              onClick={() => setOpen(false)}
+            >
+              {t('OK')}
+            </Button>
           </div>
         </PopoverContent>
       </Popover>

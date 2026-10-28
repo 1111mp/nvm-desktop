@@ -38,8 +38,10 @@ pnpm test:e2e --spec test/e2e/smoke.spec.ts
 ```
 
 The WebdriverIO runner uses the embedded Tauri driver, matching Workrun.
-WebdriverIO is pinned to version 9 to satisfy the Tauri service peer dependency;
-version 10 removes the `executeAsync` API still used by the service. The `e2e`
+WebdriverIO 10 is used without dependency patches, matching Workrun.
+With `@wdio/tauri-service@1.5.1`, smoke tests can pass while the service logs
+an initialization error when binding the removed `executeAsync` method. Check
+service logs as well as test results when assessing compatibility. The `e2e`
 Cargo feature adds the test bridge only to the explicitly built test app. Normal
 builds do not include it. The runner launches a copied test executable under
 `src-tauri/target/e2e`; macOS uses the complete app bundle for resource lookup.

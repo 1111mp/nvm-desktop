@@ -47,6 +47,23 @@ describe('Desktop smoke tests', () => {
     await expect(browser.$('[role="dialog"]')).not.toExist();
   });
 
+  it('mocks IPC through the test bridge and restores the real handler', async () => {
+    const mock = await browser.tauri.mock('read_settings');
+    try {
+      await mock.mockReturnValue({ locale: 'bridge-probe' });
+      const result = await browser.tauri.execute(({ core }) =>
+        core.invoke('read_settings'),
+      );
+      expect(result).toEqual({ locale: 'bridge-probe' });
+    } finally {
+      await mock.mockRestore();
+    }
+    const settings = await browser.tauri.execute(({ core }) =>
+      core.invoke('read_settings'),
+    );
+    expect(settings).toMatchObject({ locale: 'en' });
+  });
+
   it('captures a screenshot from the native WebView', async () => {
     const screenshot = await browser.takeScreenshot();
     expect(Buffer.from(screenshot, 'base64').subarray(0, 8)).toEqual(

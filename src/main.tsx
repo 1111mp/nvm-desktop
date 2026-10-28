@@ -16,6 +16,11 @@ import { SystemTheme, Themes } from './types';
  * The delay is always within `15ms` (in development).
  */
 (async () => {
+  // The test bridge is bundled only in E2E mode, alongside the Rust e2e feature.
+  if (import.meta.env.MODE === 'e2e') {
+    await import('@wdio/tauri-plugin');
+  }
+
   const [settings, sysTheme] = await getAppInitialData();
 
   // Set the theme in advance to prevent flickering.

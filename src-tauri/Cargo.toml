@@ -19,6 +19,8 @@ crate-type = ["cdylib", "rlib", "staticlib"]
 name = "nvm_desktop_lib"
 
 [dependencies]
+tauri-plugin-wdio = { version = "1.5.0", optional = true }
+tauri-plugin-wdio-webdriver = { version = "1.5.0", optional = true }
 anyhow = "1.0.102"
 bitflags = { version = "2.13.0" }
 # Use the git repo until the next release after v2.0.0.
@@ -51,6 +53,9 @@ tauri-plugin-window-state = "2.4.1"
 tokio = { version = "1.52.3", features = ["full"] }
 version-compare = "0.2.1"
 warp = { version = "0.4.3", features = ["server"] }
+
+[features]
+e2e = ["dep:tauri-plugin-wdio", "dep:tauri-plugin-wdio-webdriver"]
 
 [build-dependencies]
 tauri-build = { version = "2.6.2", features = [] }

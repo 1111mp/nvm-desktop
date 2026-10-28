@@ -152,7 +152,7 @@ pub async fn create_window() -> Result<()> {
                 "The main window instance was created successfully."
             );
 
-            #[cfg(debug_assertions)]
+            #[cfg(all(debug_assertions, not(feature = "e2e")))]
             window.open_devtools();
         }
         Err(err) => {

@@ -1,26 +1,25 @@
-import assert from 'node:assert/strict';
-import { afterEach, beforeEach, test } from 'node:test';
+import { assert, afterEach, beforeEach, test } from 'vitest';
 import {
   markOnboardingSeen,
   resetOnboarding,
   shouldShowOnboarding,
-} from '../src/lib/onboarding.ts';
+} from './onboarding.ts';
 
 const originalStorage = Object.getOwnPropertyDescriptor(
   globalThis,
   'localStorage',
 );
 const originalWindow = Object.getOwnPropertyDescriptor(globalThis, 'window');
-let values;
+let values: Map<string, string>;
 
 beforeEach(() => {
   values = new Map();
   Object.defineProperty(globalThis, 'localStorage', {
     configurable: true,
     value: {
-      getItem: (key) => values.get(key) ?? null,
-      setItem: (key, value) => values.set(key, value),
-      removeItem: (key) => values.delete(key),
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => values.set(key, value),
+      removeItem: (key: string) => values.delete(key),
     },
   });
   Object.defineProperty(globalThis, 'window', {
@@ -33,7 +32,7 @@ afterEach(() => {
   for (const [name, descriptor] of [
     ['localStorage', originalStorage],
     ['window', originalWindow],
-  ]) {
+  ] as const) {
     if (descriptor) Object.defineProperty(globalThis, name, descriptor);
     else Reflect.deleteProperty(globalThis, name);
   }

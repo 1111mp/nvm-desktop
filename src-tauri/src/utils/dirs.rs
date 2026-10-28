@@ -7,10 +7,17 @@ use crate::core::handle;
 
 /// get the nvmd home dir
 pub fn nvmd_home_dir() -> Result<PathBuf> {
+    #[cfg(feature = "e2e")]
+    return Ok(PathBuf::from(env::var_os("NVMD_E2E_DATA_DIR").ok_or_else(
+        || anyhow::anyhow!("missing isolated E2E data directory"),
+    )?));
+
+    #[cfg(not(feature = "e2e"))]
     let home_dir = match env::var_os("NVMD_HOME") {
         Some(home) => PathBuf::from(home),
         None => defaul_home_dir()?,
     };
+    #[cfg(not(feature = "e2e"))]
     Ok(home_dir)
 }
 

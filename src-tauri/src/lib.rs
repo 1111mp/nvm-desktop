@@ -16,6 +16,12 @@ use tauri::{AppHandle, Manager};
 pub static APP_HANDLE: OnceCell<AppHandle> = OnceCell::new();
 
 pub fn run() {
+    // Test builds must never fall back to the user's ~/.nvmd directory.
+    #[cfg(feature = "e2e")]
+    assert!(
+        std::env::var_os("NVMD_E2E_DATA_DIR").is_some(),
+        "E2E builds must be launched through pnpm test:e2e"
+    );
     #[cfg(target_os = "linux")]
     utils::linux::workarounds::apply_nvidia_dmabuf_renderer_workaround();
 
@@ -29,7 +35,11 @@ pub fn run() {
             tauri_plugin_single_instance::Builder::new()
                 // Set a custom D-Bus ID, used on Linux
                 // Defaults to the app's bundle identifier set in tauri.conf.json.
-                .dbus_id("io.github.mp1111.nvm_desktop")
+                .dbus_id(if cfg!(feature = "e2e") {
+                    "io.github.mp1111.nvm_desktop.e2e"
+                } else {
+                    "io.github.mp1111.nvm_desktop"
+                })
                 .callback(|app_handle, _argc, _cwd| {
                     if let Some(window) = app_handle.get_webview_window("main") {
                         let _ = window.show();
@@ -45,6 +55,9 @@ pub fn run() {
                 .expect("failed to set global app handle");
 
             logging!(info, Type::Setup, "Starting application initialization...");
+
+            #[cfg(feature = "e2e")]
+            app.handle().plugin(tauri_plugin_wdio::init())?;
 
             resolve::resolve_setup_async();
 
@@ -84,7 +97,12 @@ pub fn run() {
             cmd::app::get_system_theme,
         ]);
 
-    #[cfg(debug_assertions)]
+    #[cfg(feature = "e2e")]
+    {
+        builder = builder.plugin(tauri_plugin_wdio_webdriver::init());
+    }
+
+    #[cfg(all(debug_assertions, not(feature = "e2e")))]
     {
         let devtools = tauri_plugin_devtools::init();
         builder = builder.plugin(devtools);

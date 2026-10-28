@@ -1,13 +1,21 @@
-import assert from 'node:assert/strict';
-import { test } from 'node:test';
-import { saveGroupProjects } from '../src/lib/group-projects.ts';
+import { assert, expect, test } from 'vitest';
+import { saveGroupProjects } from './group-projects.ts';
 
 function fixture() {
   return {
     name: 'target',
     version: '22.0.0',
     selected: ['/deleted'],
-    projects: [{ name: 'deleted', path: '/deleted', version: 'old' }],
+    projects: [
+      {
+        name: 'deleted',
+        path: '/deleted',
+        version: 'old',
+        active: false,
+        createAt: '2026-01-01',
+        updateAt: '2026-01-01',
+      },
+    ],
     groups: [
       { name: 'target', version: '22.0.0', projects: [] },
       { name: 'old', version: '20.0.0', projects: ['/deleted'] },
@@ -20,7 +28,7 @@ test('missing project write rejects before persisting or mutating membership', a
   const snapshot = structuredClone(input);
   const error = new Error('failed to write /deleted/.node-version');
   let saves = 0;
-  await assert.rejects(
+  await expect(
     saveGroupProjects(input, {
       clearVersions: async () => {},
       writeVersions: async () => {
@@ -33,8 +41,7 @@ test('missing project write rejects before persisting or mutating membership', a
         saves++;
       },
     }),
-    error,
-  );
+  ).rejects.toThrow(error);
   assert.equal(saves, 0);
   assert.deepEqual(input, snapshot);
 });
@@ -42,7 +49,7 @@ test('missing project write rejects before persisting or mutating membership', a
 test('successful move writes the file before saving project and group membership', async () => {
   const input = fixture();
   const snapshot = structuredClone(input);
-  const calls = [];
+  const calls: unknown[][] = [];
   const result = await saveGroupProjects(input, {
     clearVersions: async () => {},
     writeVersions: async (paths, version) => {
@@ -70,9 +77,9 @@ test('successful move writes the file before saving project and group membership
 
 test('membership save failure attempts to restore both config snapshots', async () => {
   const input = fixture();
-  const projectSaves = [];
-  const groupSaves = [];
-  await assert.rejects(
+  const projectSaves: Nvmd.Project[][] = [];
+  const groupSaves: Nvmd.Group[][] = [];
+  await expect(
     saveGroupProjects(input, {
       clearVersions: async () => {},
       writeVersions: async () => {},
@@ -84,8 +91,7 @@ test('membership save failure attempts to restore both config snapshots', async 
         if (groupSaves.length === 1) throw new Error('save failed');
       },
     }),
-    /save failed/,
-  );
+  ).rejects.toThrow(/save failed/);
   assert.deepEqual(projectSaves.at(-1), input.projects);
   assert.deepEqual(groupSaves.at(-1), input.groups);
 });

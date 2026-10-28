@@ -1,4 +1,8 @@
 allowBuilds:
+  # Embedded Tauri WebDriver does not use browser-driver installers.
+  edgedriver: false
+  esbuild: true
+  geckodriver: false
   msw: false
 minimumReleaseAgeExclude:
   - '@types/react-dom@19.2.5'

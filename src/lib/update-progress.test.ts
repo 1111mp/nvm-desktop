@@ -1,11 +1,10 @@
-import assert from 'node:assert/strict';
-import { test } from 'node:test';
+import { assert, test } from 'vitest';
 import {
   emptyUpdateProgress,
   formatDownloadSize,
   reduceUpdateProgress,
   updatePercentage,
-} from '../src/lib/update-progress.ts';
+} from './update-progress.ts';
 
 test('known-size downloads accumulate chunks and clamp progress to 100 percent', () => {
   let state = reduceUpdateProgress(emptyUpdateProgress, {

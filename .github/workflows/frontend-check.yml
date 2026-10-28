@@ -19,7 +19,10 @@ jobs:
         with:
           filters: |
             frontend:
+              - '.github/workflows/frontend-check.yml'
               - 'src/**'
+              - 'scripts/**'
+              - 'test/**'
               - '**/*.js'
               - '**/*.ts'
               - '**/*.tsx'
@@ -74,4 +77,22 @@ jobs:
 
       - name: Run TypeScript typecheck
         if: steps.check_frontend.outputs.frontend == 'true'
-        run: pnpm type-check
+        run: |
+          pnpm type-check
+          pnpm type-check:e2e
+          pnpm exec tsc --noEmit -p tsconfig.node.json
+
+      - name: Run frontend tests
+        if: steps.check_frontend.outputs.frontend == 'true'
+        run: |
+          mkdir -p test-results/frontend
+          set -o pipefail
+          pnpm test 2>&1 | tee test-results/frontend/vitest.log
+
+      - name: Upload frontend test diagnostics
+        if: failure() && steps.check_frontend.outputs.frontend == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-test-results
+          path: test-results/frontend/
+          if-no-files-found: ignore

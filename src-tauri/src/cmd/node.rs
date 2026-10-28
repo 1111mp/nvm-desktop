@@ -57,12 +57,32 @@ pub async fn install_node(
 
 /// install node
 #[tauri::command]
-pub async fn install_node_cancel() -> CmdResult {
-    node::install_node_cancel().await.stringify_err()
+pub async fn install_node_cancel(window: tauri::Window) -> CmdResult {
+    node::install_node_cancel(window).await.stringify_err()
 }
 
 /// uninstall node
 #[tauri::command]
 pub async fn uninstall_node(version: String) -> CmdResult {
     node::uninstall_node(version).await.stringify_err()
+}
+
+#[tauri::command]
+pub async fn enqueue_installs(
+    window: tauri::Window,
+    requests: Vec<crate::core::install_queue::InstallRequest>,
+) -> CmdResult<Vec<crate::core::install_queue::InstallTask>> {
+    crate::core::install_queue::enqueue(window, requests, false)
+        .await
+        .stringify_err()
+}
+
+#[tauri::command]
+pub fn install_tasks() -> Vec<crate::core::install_queue::InstallTask> {
+    crate::core::install_queue::snapshot()
+}
+
+#[tauri::command]
+pub fn cancel_install_task(window: tauri::Window, id: Option<u64>) {
+    crate::core::install_queue::cancel(&window, id, false);
 }

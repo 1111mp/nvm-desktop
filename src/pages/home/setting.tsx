@@ -1,3 +1,5 @@
+import { useInstallTasks } from '@/components/install-tasks';
+import { isInstallActive } from '@/lib/install-tasks';
 import {
   AutoComplete,
   Button,
@@ -177,6 +179,8 @@ const Setting: React.FC<Props> = () => {
     return optStr ? optStr.split('__') : [];
   });
 
+  const { tasks } = useInstallTasks();
+  const installBusy = tasks.some(isInstallActive);
   const { settings, updateSetting } = useAppContext();
   const defaultSettings = {
     ...settings,
@@ -701,6 +705,7 @@ const Setting: React.FC<Props> = () => {
                             size='xs'
                             type='button'
                             variant='ghost'
+                            disabled={installBusy || loading}
                             aria-label={t('Directory-Select')}
                             onClick={async (evt) => {
                               evt.preventDefault();
@@ -730,6 +735,11 @@ const Setting: React.FC<Props> = () => {
                   <Network className='size-3.5 text-muted-foreground' />
                   {t('Settings-Network')}
                 </h3>
+                {installBusy && (
+                  <p role='status' className='text-xs text-muted-foreground'>
+                    {t('Batch-Settings-Locked')}
+                  </p>
+                )}
                 <FieldGroup className='gap-4'>
                   <Controller
                     name='mirror'
@@ -750,7 +760,7 @@ const Setting: React.FC<Props> = () => {
                           id='form-setting-mirror'
                           title={t('Mirror-Url')}
                           icon={Globe2}
-                          disabled={loading}
+                          disabled={loading || installBusy}
                           placeholder={t('Mirror-Url')}
                           aria-invalid={fieldState.invalid}
                           onChange={field.onChange}
@@ -784,6 +794,7 @@ const Setting: React.FC<Props> = () => {
                                 <Switch
                                   checked={field.value}
                                   onCheckedChange={field.onChange}
+                                  disabled={installBusy || loading}
                                   id='form-setting-proxy-enabled'
                                   aria-label={t('Proxy')}
                                   aria-invalid={fieldState.invalid}
@@ -802,13 +813,17 @@ const Setting: React.FC<Props> = () => {
                                 return (
                                   <Field
                                     className='relative w-40'
-                                    data-disabled={!enabled}
+                                    data-disabled={
+                                      !enabled || installBusy || loading
+                                    }
                                     data-invalid={fieldState.invalid}
                                   >
                                     <IpInput
                                       {...field}
                                       className='border-0 bg-inset-70 shadow-none'
-                                      disabled={!enabled}
+                                      disabled={
+                                        !enabled || installBusy || loading
+                                      }
                                     />
                                     {fieldState.invalid && (
                                       <FieldError
@@ -833,7 +848,9 @@ const Setting: React.FC<Props> = () => {
                                     >
                                       <Input
                                         {...field}
-                                        disabled={!enabled}
+                                        disabled={
+                                          !enabled || installBusy || loading
+                                        }
                                         className='border-0 bg-inset-70 shadow-none'
                                         aria-label={t('Settings-Proxy-Port')}
                                       />

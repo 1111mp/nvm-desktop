@@ -8,6 +8,7 @@ permissions:
 
 env:
   HUSKY: 0
+  KEEP_TEST_ARTIFACTS: 1
 
 jobs:
   desktop:
@@ -39,7 +40,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: desktop-e2e-results
-          path: |
-            test-results/
-            .vitest/attachments/
+          path: test-results/
           if-no-files-found: ignore

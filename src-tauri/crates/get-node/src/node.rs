@@ -1,5 +1,3 @@
-use core::arch;
-
 use cfg_if::cfg_if;
 use node_semver::Version;
 
@@ -186,55 +184,68 @@ mod tests {
         );
     }
 
-    #[test]
     #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
-    fn test_fallback_node_archive_basename() {
-        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap(), None);
-        assert_eq!(
-            full_name,
-            format!(
-                "node-v15.2.3-{}-{}",
-                NODE_DISTRO_OS, NODE_DISTRO_ARCH_FALLBACK
-            )
-        );
-    }
-
-    #[test]
+    const ARM64_SUPPORT_MAJOR: u64 = 16;
     #[cfg(all(target_os = "windows", target_arch = "aarch64"))]
+    const ARM64_SUPPORT_MAJOR: u64 = 20;
+
+    #[test]
+    #[cfg(all(
+        target_arch = "aarch64",
+        any(target_os = "macos", target_os = "windows")
+    ))]
     fn test_fallback_node_archive_basename() {
-        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap(), None);
-        assert_eq!(
-            full_name,
-            format!(
-                "node-v19.2.3-{}-{}",
-                NODE_DISTRO_OS, NODE_DISTRO_ARCH_FALLBACK
-            )
-        );
+        // Keep version input and expectations aligned on both sides of the
+        // native ARM64 support boundary; fallback changes only the architecture.
+        for (version, arch) in [
+            (
+                format!("{}.2.3", ARM64_SUPPORT_MAJOR - 1),
+                NODE_DISTRO_ARCH_FALLBACK,
+            ),
+            (format!("{}.0.0", ARM64_SUPPORT_MAJOR), NODE_DISTRO_ARCH),
+        ] {
+            assert_eq!(
+                Node::archive_basename(&Version::parse(&version).unwrap(), None),
+                format!("node-v{version}-{NODE_DISTRO_OS}-{arch}")
+            );
+        }
     }
 
     #[test]
-    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    #[cfg(all(
+        target_arch = "aarch64",
+        any(target_os = "macos", target_os = "windows")
+    ))]
     fn test_fallback_node_archive_filename() {
-        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap(), None);
-        assert_eq!(
-            full_name,
-            format!(
-                "node-v15.2.3-{}-{}.{}",
-                NODE_DISTRO_OS, NODE_DISTRO_ARCH_FALLBACK, NODE_DISTRO_EXTENSION
-            )
-        );
+        for (version, arch) in [
+            (
+                format!("{}.2.3", ARM64_SUPPORT_MAJOR - 1),
+                NODE_DISTRO_ARCH_FALLBACK,
+            ),
+            (format!("{}.0.0", ARM64_SUPPORT_MAJOR), NODE_DISTRO_ARCH),
+        ] {
+            let expected_name = format!("node-v{version}-{NODE_DISTRO_OS}-{arch}");
+            assert_eq!(
+                Node::archive_filename(&Version::parse(&version).unwrap(), None),
+                (
+                    expected_name.clone(),
+                    format!("{expected_name}.{NODE_DISTRO_EXTENSION}")
+                )
+            );
+        }
     }
 
     #[test]
-    #[cfg(all(target_os = "windows", target_arch = "aarch64"))]
-    fn test_fallback_node_archive_filename() {
-        let (_, full_name) = Node::archive_filename(&Version::parse("20.2.3").unwrap(), None);
-        assert_eq!(
-            full_name,
-            format!(
-                "node-v19.2.3-{}-{}.{}",
-                NODE_DISTRO_OS, NODE_DISTRO_ARCH_FALLBACK, NODE_DISTRO_EXTENSION
-            )
-        );
+    fn test_explicit_architecture_overrides_native_default_and_fallback() {
+        for (version, arch) in [("15.2.3", "arm64"), ("20.2.3", "x64")] {
+            let expected_name = format!("node-v{version}-{NODE_DISTRO_OS}-{arch}");
+            assert_eq!(
+                Node::archive_filename(&Version::parse(version).unwrap(), Some(arch.into())),
+                (
+                    expected_name.clone(),
+                    format!("{expected_name}.{NODE_DISTRO_EXTENSION}")
+                )
+            );
+        }
     }
 }

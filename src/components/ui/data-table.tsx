@@ -1,8 +1,11 @@
+import type { Atom } from '@tanstack/react-store';
 import {
   useTable,
   type ColumnDef,
   type Header,
   type RowData,
+  type Row,
+  type RowSelectionState,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { AnimatePresence, motion } from 'motion/react';
@@ -31,6 +34,11 @@ interface DataTableProps<TData extends RowData> {
   data: TData[];
   toolbar?: (table: DataTableInstance<TData>) => React.ReactNode;
   loading?: boolean;
+  rowSelectionAtom?: Atom<RowSelectionState>;
+  enableRowSelection?:
+    | boolean
+    | ((row: Row<DataTableFeatures, TData>) => boolean);
+  getRowId?: (row: TData) => string;
 }
 
 export function DataTable<TData extends RowData>({
@@ -38,6 +46,9 @@ export function DataTable<TData extends RowData>({
   data,
   toolbar,
   loading = false,
+  rowSelectionAtom,
+  enableRowSelection = false,
+  getRowId,
 }: DataTableProps<TData>) {
   // The virtualizer needs to know the scrollable container element
   const tableContainerRef = useRef<HTMLTableSectionElement>(null);
@@ -49,6 +60,11 @@ export function DataTable<TData extends RowData>({
       features: dataTableFeatures,
       columns,
       data,
+      getRowId,
+      enableRowSelection,
+      ...(rowSelectionAtom
+        ? { atoms: { rowSelection: rowSelectionAtom } }
+        : {}),
     },
     (state) => state,
   );
@@ -157,7 +173,9 @@ export function DataTable<TData extends RowData>({
                     key={row.id}
                     data-index={virtualRow.index} //needed for dynamic row height measurement
                     ref={(node) => rowVirtualizer.measureElement(node)} //measure dynamic row height
-                    className='w-full flex absolute top-0 left-0'
+                    // Isolate each virtual row so WebKit paints positioned
+                    // controls above its hover background.
+                    className='isolate w-full flex absolute top-0 left-0'
                   >
                     {row.getVisibleCells().map((cell) => {
                       const { maxSize, meta } = cell.column.columnDef;

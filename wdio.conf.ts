@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -39,6 +39,11 @@ export const config: WebdriverIO.Config = {
   waitforTimeout: 15000,
   connectionRetryCount: 0,
   mochaOpts: { timeout: 30000 },
+  async onComplete() {
+    if (process.env.KEEP_TEST_ARTIFACTS !== '1') {
+      await rm(artifacts, { recursive: true, force: true });
+    }
+  },
   async afterTest(test, _context, { passed }) {
     if (passed) return;
     await mkdir(artifacts, { recursive: true });

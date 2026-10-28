@@ -5,25 +5,11 @@ use crate::{
     process::AsyncHandler,
     utils::{help, logging::Type},
 };
-use anyhow::{Context, Result, anyhow, bail};
-use get_node::{
-    archive::{FetchConfig, fetch_native},
-    list::{ListConfig, version_list},
-};
-use once_cell::sync::Lazy;
+use anyhow::{Context, Result, bail};
+use get_node::list::{ListConfig, version_list};
 use serde::{Deserialize, Serialize};
-use std::{
-    cmp::Ordering,
-    path::PathBuf,
-    sync::{Arc, Mutex},
-    time::Duration,
-};
-use tauri::Emitter;
-use tokio::{sync::watch, time::Instant};
+use std::{cmp::Ordering, path::PathBuf, time::Duration};
 use version_compare::{Cmp, compare};
-
-static CANCEL_SENDER: Lazy<Arc<Mutex<Option<watch::Sender<bool>>>>> =
-    Lazy::new(|| Arc::new(Mutex::new(None)));
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]
 pub struct ProgressData<'a> {
@@ -210,68 +196,65 @@ pub async fn install_node(
         bail!("version should not be null");
     };
 
-    let settings = Config::settings().await.data_arc();
-    let Some(directory) = settings.get_directory() else {
-        bail!("directory should not be null");
-    };
-    let Some(mirror) = settings.mirror.clone() else {
-        bail!("mirror should not be null");
-    };
-
-    let last_emit_time = Arc::new(Mutex::new(Instant::now()));
-
-    let (cancel_sender, cancel_receiver) = watch::channel(false);
-    {
-        let mut sender_lock = CANCEL_SENDER.lock().unwrap();
-        *sender_lock = Some(cancel_sender);
+    let arch = arch.unwrap_or_else(|| {
+        let major = version
+            .split('.')
+            .next()
+            .and_then(|part| part.parse::<u64>().ok())
+            .unwrap_or_default();
+        // Preserve the download library's historical ARM fallback for callers
+        // that omit the architecture (the UI selects architectures explicitly).
+        if (cfg!(all(target_os = "macos", target_arch = "aarch64")) && major < 16)
+            || (cfg!(all(target_os = "windows", target_arch = "aarch64")) && major < 20)
+        {
+            return "x64".into();
+        }
+        match std::env::consts::ARCH {
+            "aarch64" => "arm64",
+            "x86" => "x86",
+            _ => "x64",
+        }
+        .into()
+    });
+    let task = super::install_queue::enqueue(
+        window,
+        vec![super::install_queue::InstallRequest {
+            version,
+            arch,
+            directory: None,
+        }],
+        true,
+    )
+    .await?
+    .remove(0);
+    loop {
+        let current = super::install_queue::snapshot()
+            .into_iter()
+            .find(|item| item.id == task.id)
+            .unwrap();
+        match current.phase.as_str() {
+            "complete" => return Ok(current.path.unwrap()),
+            "failed" => bail!("{}", current.error.unwrap_or_default()),
+            "cancelled" => bail!("Installation was cancelled"),
+            _ => tokio::time::sleep(Duration::from_millis(100)).await,
+        }
     }
-
-    let config = FetchConfig {
-        dest: directory,
-        mirror: mirror,
-        arch,
-        version: version,
-        no_proxy: settings.no_proxy,
-        proxy: settings.proxy.clone(),
-        cancel_signal: Some(cancel_receiver),
-        connect_timeout: None,
-        read_timeout: None,
-        on_progress: Box::new({
-            move |source: &str, transferred: usize, total: usize| {
-                let mut last_emit_time = last_emit_time.lock().unwrap();
-                let now = Instant::now();
-                if now.duration_since(*last_emit_time) >= Duration::from_millis(300) {
-                    *last_emit_time = now;
-                    let _ = window.emit(
-                        "nvm-desktop://node-download-progress",
-                        ProgressData {
-                            source,
-                            transferred,
-                            total,
-                        },
-                    );
-                }
-            }
-        }),
-    };
-
-    fetch_native(config).await
 }
 
-/// cancel install node
-pub async fn install_node_cancel() -> Result<()> {
-    if let Some(sender) = CANCEL_SENDER
-        .lock()
-        .map_err(|err| anyhow!(err.to_string()))?
-        .as_ref()
-    {
-        let _ = sender.send(true);
-    }
+pub async fn install_node_cancel(window: tauri::Window) -> Result<()> {
+    super::install_queue::cancel(&window, None, true);
     Ok(())
 }
 
 /// uninstall node
 pub async fn uninstall_node(version: String) -> Result<()> {
+    let _admission = super::install_queue::ADMISSION.lock().await;
+    if super::install_queue::snapshot()
+        .iter()
+        .any(|task| task.active() && task.version == version)
+    {
+        bail!("This version has an active installation task");
+    }
     let draft = Config::settings().await.data_arc();
     let directory = draft.get_directory();
     let Some(directory) = directory else {

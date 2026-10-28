@@ -51,14 +51,57 @@ build requires `NVMD_E2E_DATA_DIR` and uses it instead of the user's NVMD direct
 It also uses a separate bundle identifier and Linux single-instance ID. Fixtures
 select an ephemeral embedded-server port and skip CLI migration. Smoke tests cover
 real Rust settings/project IPC, onboarding dismissal across reload, and screenshots.
-They do not download Node or change the user's shell configuration. The smoke spec
+The installation-queue spec uses a loopback-only mirror to test concurrent
+admission, duplicate rejection, settings protection, cancellation, failure
+isolation, retry, and saved-directory checks through real Rust commands. It does
+not install a real runtime. Tests do not download Node or change the user's shell
+configuration. The smoke spec
 clears WebView storage before running so repeated runs start with onboarding.
 
 Failed tests collect screenshots, page source, workspace metadata, and backend /
-frontend logs under `test-results/desktop`. Temporary workspaces remain available
+frontend logs under `test-results/desktop` (retained with `KEEP_TEST_ARTIFACTS=1`).
+Temporary workspaces remain available
 for inspection. `pnpm type-check:e2e` checks the runner and specs.
 
 The manually triggered **Desktop E2E** GitHub workflow runs browser and native
 smoke tests on macOS. Windows and Linux configurations are provided, but should be
 validated on those platforms before adding them as required CI jobs. Linux needs
 a graphical session (for example, Xvfb) and Tauri's system dependencies.
+
+## Batch Node installation
+
+`pnpm test` covers task event/snapshot ordering, independent task updates, task
+visibility after hiding the dialog, and targeted cancellation IPC.
+`pnpm test:browser` covers filtered selection, architecture confirmation, task
+progress, and light/dark/small-window dialog screenshots.
+
+Run the download pipeline tests with:
+
+```sh
+cargo test --manifest-path src-tauri/crates/get-node/Cargo.toml archive::
+```
+
+The HTTP integration test starts a loopback-only server and installs two tiny
+fixture archives into a temporary directory. It verifies overlapping downloads,
+SHA-256 validation, extraction, and final files without downloading Node or
+changing the user's runtime installation. Stage tests check the two-download,
+one-extraction limits and independent cancellation of waiting tasks.
+
+## Test artifacts
+
+Vitest screenshots and attachments are written only under
+`test-results/vitest/<run-id>/`. Each run gets its own directory so concurrent
+commands cannot delete each other's diagnostics. Desktop E2E diagnostics use
+`test-results/desktop/`.
+
+Test artifacts are automatically removed when the test run finishes, including
+failed runs. To retain screenshots and logs for debugging, run:
+
+```sh
+KEEP_TEST_ARTIFACTS=1 pnpm test:browser
+KEEP_TEST_ARTIFACTS=1 pnpm test:e2e
+```
+
+The same option applies when invoking Vitest directly. Source directories do not
+receive screenshot output. Reference snapshots, if added later, are separate
+from these disposable diagnostics and must not be automatically deleted.

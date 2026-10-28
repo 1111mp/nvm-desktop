@@ -49,6 +49,10 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
         on_progress,
     } = config;
 
+    let _pipeline = super::acquire_stage(&super::PIPELINE, &mut cancel_signal).await?;
+    let download_permit = super::acquire_stage(&super::DOWNLOADS, &mut cancel_signal).await?;
+    on_progress("download", 0, 0);
+
     let (name, full_name) = Node::archive_filename(&Version::parse(&version)?, arch);
     let url = format!("{}/v{}/{}", mirror, &version, &full_name);
     // connect_timeout default value is `30s` for establishing connection
@@ -61,6 +65,7 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
     let dest = PathBuf::from(dest);
     let temp_file_path = get_temp_archive_path(&dest, &full_name);
 
+    let _active_archive = super::ActiveArchive::register(&temp_file_path)?;
     cleanup_stale_partial_archives(&dest, &temp_file_path).await?;
 
     download_archive(
@@ -72,6 +77,7 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
     )
     .await?;
 
+    on_progress("verify", 0, 0);
     verify_archive_checksum(
         &client,
         &mirror,
@@ -83,6 +89,17 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
     .await?;
 
     ensure_not_cancelled(cancel_signal.as_ref())?;
+
+    drop(download_permit);
+    on_progress("waiting-extract", 0, 0);
+    let _extraction = super::acquire_stage(&super::EXTRACTIONS, &mut cancel_signal).await?;
+    ensure_not_cancelled(cancel_signal.as_ref())?;
+    // Failed extraction may leave files behind (ZIP uses create_new). Only the
+    // owner of this archive can remove its staging directory before retrying.
+    if tokio::fs::try_exists(dest.join(&name)).await? {
+        remove_dir_all(dest.join(&name)).await?;
+    }
+    on_progress("unzip", 0, 0);
 
     // Create a buffered reader for the compressed data
     let file = File::open(&temp_file_path).await?;
@@ -144,6 +161,11 @@ pub async fn fetch(config: FetchConfig) -> Result<String> {
     }
 
     drop(reader);
+
+    if let Err(error) = ensure_not_cancelled(cancel_signal.as_ref()) {
+        let _ = remove_dir_all(dest.join(&name)).await;
+        return Err(error);
+    }
 
     finalize_extraction(&dest.join(&name), &dest.join(&version), &temp_file_path).await
 }

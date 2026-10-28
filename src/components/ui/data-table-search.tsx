@@ -27,7 +27,7 @@ export function DataTableSearch({
   return (
     <InputGroup
       className={cn(
-        'h-8 w-56 max-w-full rounded-lg border-0 bg-muted/50 shadow-none transition-colors hover:bg-muted/70 has-[[data-slot=input-group-control]:focus-visible]:ring-2 has-[[data-slot=input-group-control]:focus-visible]:ring-primary/20 dark:bg-muted/40',
+        'h-8 w-56 max-w-full rounded-lg border-0 bg-surface-50 shadow-none transition-colors hover:bg-surface-hover-70 has-[[data-slot=input-group-control]:focus-visible]:ring-2 has-[[data-slot=input-group-control]:focus-visible]:ring-primary/20 dark:bg-muted/40',
         className,
       )}
     >

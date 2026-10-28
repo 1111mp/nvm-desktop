@@ -38,7 +38,7 @@ function GuideSection({
   children: ReactNode;
 }) {
   return (
-    <section className='space-y-4 rounded-xl bg-muted/35 p-4'>
+    <section className='space-y-4 rounded-xl bg-surface-35 p-4'>
       <h3 className='flex items-center gap-2 text-sm font-semibold'>
         <Icon className='size-4 text-muted-foreground' />
         {title}
@@ -68,7 +68,7 @@ function Tip() {
       </DrawerTrigger>
       <DrawerContent className='gap-0'>
         <DrawerHandle aria-label={t('Drawer-Drag')} />
-        <DrawerHeader className='shrink-0 gap-3 rounded-t-2xl bg-muted/40 bg-linear-to-br from-primary/8 to-transparent p-5 sm:p-6'>
+        <DrawerHeader className='shrink-0 gap-3 rounded-t-2xl bg-surface-40 bg-linear-to-br from-primary/8 to-transparent p-5 sm:p-6'>
           <div className='flex items-center justify-between gap-3'>
             <span className='grid size-10 place-items-center rounded-xl bg-background text-primary shadow-xs'>
               <Info className='size-5' />
@@ -114,7 +114,7 @@ function Tip() {
           <GuideSection title={t('Guide-Versions')} icon={Layers}>
             <p>{t('Guide-Global')}</p>
             <p>{t('Guide-Project')}</p>
-            <p className='rounded-lg bg-background/60 p-3'>
+            <p className='rounded-lg bg-inset-60 p-3'>
               {t('Guide-Resolution', {
                 file: settings.node_version_file || '.nvmdrc',
               })}
@@ -161,7 +161,7 @@ function Tip() {
             </p>
             <Button
               variant='ghost'
-              className='h-8 border-0 bg-background/70 text-xs hover:bg-background'
+              className='h-8 border-0 bg-inset-70 text-xs hover:bg-surface-hover-70'
               onClick={() => {
                 if (resetOnboarding()) toast.success(t('Tour-Tip'));
                 else toast.error(t('Onboarding-Reset-Failed'));
@@ -172,7 +172,7 @@ function Tip() {
             </Button>
           </section>
         </div>
-        <DrawerFooter className='shrink-0 flex-row justify-end rounded-b-2xl bg-muted/40 px-5 py-4 sm:px-6'>
+        <DrawerFooter className='shrink-0 flex-row justify-end rounded-b-2xl bg-surface-40 px-5 py-4 sm:px-6'>
           <DrawerClose asChild>
             <Button variant='secondary' className='min-w-24 border-0'>
               {t('Close')}

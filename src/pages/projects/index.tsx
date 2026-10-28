@@ -94,7 +94,11 @@ export const Component: React.FC = () => {
         setProjects(projects);
         setGroups(groups);
         if (payload)
-          toast.success(t('Restart-Terminal', { version: `v${payload}` }));
+          toast.success(
+            t('Restart-Terminal', {
+              version: `v${payload}`,
+            }),
+          );
       },
     );
 
@@ -134,22 +138,24 @@ export const Component: React.FC = () => {
         const { name } = row.original;
         return (
           <Tooltip>
-            <TooltipTrigger asChild>
-              <span className='flex min-w-0 items-center gap-2.5'>
-                <span className='grid size-8 shrink-0 place-items-center rounded-lg bg-primary/8 text-muted-foreground'>
-                  <Folder className='size-3.5' />
+            <TooltipTrigger
+              render={
+                <span className='flex min-w-0 items-center gap-2.5'>
+                  <span className='grid size-8 shrink-0 place-items-center rounded-lg bg-primary/8 text-muted-foreground'>
+                    <Folder className='size-3.5' />
+                  </span>
+                  <span className='min-w-0 truncate text-sm font-medium'>
+                    {name}
+                  </span>
+                  {!row.original.active && (
+                    <TriangleAlert
+                      className='size-3.5 shrink-0 text-destructive'
+                      aria-label={t('Invalid-project-path')}
+                    />
+                  )}
                 </span>
-                <span className='min-w-0 truncate text-sm font-medium'>
-                  {name}
-                </span>
-                {!row.original.active && (
-                  <TriangleAlert
-                    className='size-3.5 shrink-0 text-destructive'
-                    aria-label={t('Invalid-project-path')}
-                  />
-                )}
-              </span>
-            </TooltipTrigger>
+              }
+            />
             <TooltipContent>{name}</TooltipContent>
           </Tooltip>
         );
@@ -167,25 +173,27 @@ export const Component: React.FC = () => {
         return (
           <div className='flex w-full min-w-0 items-center gap-1'>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type='button'
-                  disabled={!row.original.active}
-                  className={cn(
-                    'min-w-0 flex-1 cursor-pointer truncate rounded-md text-left font-mono text-xs leading-6 text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default',
-                    !row.original.active && 'line-through opacity-60',
-                  )}
-                  onClick={async () => {
-                    try {
-                      await openDir(path);
-                    } catch {
-                      toast.error(t('Invalid-project-path'));
-                    }
-                  }}
-                >
-                  {path}
-                </button>
-              </TooltipTrigger>
+              <TooltipTrigger
+                render={
+                  <button
+                    type='button'
+                    disabled={!row.original.active}
+                    className={cn(
+                      'min-w-0 flex-1 cursor-pointer truncate rounded-md text-left font-mono text-xs leading-6 text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default',
+                      !row.original.active && 'line-through opacity-60',
+                    )}
+                    onClick={async () => {
+                      try {
+                        await openDir(path);
+                      } catch {
+                        toast.error(t('Invalid-project-path'));
+                      }
+                    }}
+                  >
+                    {path}
+                  </button>
+                }
+              />
               <TooltipContent className='max-w-sm break-all'>
                 {path}
               </TooltipContent>
@@ -201,22 +209,24 @@ export const Component: React.FC = () => {
               {copiedPath === path ? <Check /> : <Copy />}
             </Button>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant='ghost'
-                  size='icon-xs'
-                  aria-label={t('open-with-vscode')}
-                  onClick={async () => {
-                    try {
-                      await openWithVSCode(path);
-                    } catch {
-                      toast.error(t('VSCode-code-command-not-found'));
-                    }
-                  }}
-                >
-                  <VsCodeLogo className='size-3.5 text-muted-foreground' />
-                </Button>
-              </TooltipTrigger>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant='ghost'
+                    size='icon-xs'
+                    aria-label={t('open-with-vscode')}
+                    onClick={async () => {
+                      try {
+                        await openWithVSCode(path);
+                      } catch {
+                        toast.error(t('VSCode-code-command-not-found'));
+                      }
+                    }}
+                  >
+                    <VsCodeLogo className='size-3.5 text-muted-foreground' />
+                  </Button>
+                }
+              />
               <TooltipContent>{t('open-with-vscode')}</TooltipContent>
             </Tooltip>
           </div>
@@ -233,8 +243,16 @@ export const Component: React.FC = () => {
         const { version, path } = row.original;
         return (
           <Select
+            items={[
+              ...installedVersions.map((value) => ({
+                value,
+                label: `v${value}`,
+              })),
+              ...groups.map(({ name }) => ({ value: name, label: name })),
+            ]}
             value={version ?? ''}
             onValueChange={async (newVersion) => {
+              if (newVersion === null) return;
               // fromGroup: whether to switch from group, need to remove
               // toGroup: whether to switch to group, need to add
               const fromGroup = groups.find(({ name }) => name === version),
@@ -303,7 +321,9 @@ export const Component: React.FC = () => {
 
                 if (code === 200)
                   toast.success(
-                    t('Restart-Terminal', { version: `v${targetVersion}` }),
+                    t('Restart-Terminal', {
+                      version: `v${targetVersion}`,
+                    }),
                   );
                 else toast.error(`Project not found, please check it`);
               } catch {
@@ -318,9 +338,9 @@ export const Component: React.FC = () => {
               <SelectValue placeholder={t('Select-Version')} />
             </SelectTrigger>
             <SelectContent
-              position='popper'
+              alignItemWithTrigger={false}
               align='start'
-              className={`${workspaceStyles.popover} max-h-[min(22rem,var(--radix-select-content-available-height))] max-w-[calc(100dvw-2rem)]`}
+              className={`${workspaceStyles.popover} max-h-[min(22rem,var(--available-height))] max-w-[calc(100dvw-2rem)]`}
             >
               <SelectGroup>
                 <SelectLabel className='px-2 py-2 text-[0.625rem] font-medium text-muted-foreground'>
@@ -370,7 +390,10 @@ export const Component: React.FC = () => {
             kind='project'
             name={name}
             details={[
-              { label: t('Project-Path'), value: path },
+              {
+                label: t('Project-Path'),
+                value: path,
+              },
               {
                 label: t('Version'),
                 value: groups.find((group) => group.name === version)?.version

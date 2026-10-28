@@ -6,6 +6,7 @@
 @import './theme.css';
 @import './full-theme.css';
 @import './radius.css';
+@import './surfaces.css';
 
 @custom-variant dark (&:is(.dark *));
 

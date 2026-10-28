@@ -277,11 +277,31 @@ const THEME_DATA = [
   },
 ];
 export const RADII = [
-  { name: 'default', label: 'Default', value: '' },
-  { name: 'none', label: 'None', value: '0' },
-  { name: 'small', label: 'Small', value: '0.45rem' },
-  { name: 'medium', label: 'Medium', value: '0.625rem' },
-  { name: 'large', label: 'Large', value: '0.875rem' },
+  {
+    name: 'default',
+    label: 'Default',
+    value: '',
+  },
+  {
+    name: 'none',
+    label: 'None',
+    value: '0',
+  },
+  {
+    name: 'small',
+    label: 'Small',
+    value: '0.45rem',
+  },
+  {
+    name: 'medium',
+    label: 'Medium',
+    value: '0.625rem',
+  },
+  {
+    name: 'large',
+    label: 'Large',
+    value: '0.875rem',
+  },
 ];
 
 // Local theme classes let each preset preview its own semantic tokens in either mode.
@@ -325,17 +345,19 @@ export function ThemeCustomizer() {
           );
       }}
     >
-      <PopoverTrigger asChild>
-        <Button
-          id='theme-customizer'
-          size='sm'
-          title={t('Theme')}
-          aria-label={t('Theme')}
-          variant='ghost'
-        >
-          <Palette />
-        </Button>
-      </PopoverTrigger>
+      <PopoverTrigger
+        render={
+          <Button
+            id='theme-customizer'
+            size='sm'
+            title={t('Theme')}
+            aria-label={t('Theme')}
+            variant='ghost'
+          >
+            <Palette />
+          </Button>
+        }
+      />
       <PopoverContent
         side='right'
         align='end'
@@ -347,9 +369,9 @@ export function ThemeCustomizer() {
           left: remSize,
         }}
         aria-label={t('Theme')}
-        className='z-40 w-[clamp(25rem,32vw,32rem)] max-w-[calc(100dvw-2rem)] max-h-[min(85dvh,var(--radix-popover-content-available-height))] gap-0 overflow-hidden rounded-2xl p-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] ring-0 dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]'
+        className='z-40 w-[clamp(25rem,32vw,32rem)] max-w-[calc(100dvw-2rem)] max-h-[min(85dvh,var(--available-height))] gap-0 overflow-hidden rounded-2xl p-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] ring-0 dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]'
       >
-        <div className='flex shrink-0 items-center justify-between gap-3 bg-muted/50 bg-linear-to-br from-primary/8 to-transparent px-[clamp(1.25rem,1.5vw,1.5rem)] py-4 xl:py-5'>
+        <div className='flex shrink-0 items-center justify-between gap-3 bg-surface-50 bg-linear-to-br from-primary/8 to-transparent px-[clamp(1.25rem,1.5vw,1.5rem)] py-4 xl:py-5'>
           <div className='flex items-center gap-3'>
             <span className='grid size-9 place-items-center rounded-xl bg-background text-primary shadow-xs'>
               <Palette className='size-4' />
@@ -367,7 +389,11 @@ export function ThemeCustomizer() {
             title={t('Reset')}
             aria-label={t('Reset')}
             onClick={() =>
-              updateColor({ baseColor: 'neutral', theme: '', radius: '' })
+              updateColor({
+                baseColor: 'neutral',
+                theme: '',
+                radius: '',
+              })
             }
           >
             <RotateCcw className='size-3.5' />
@@ -393,7 +419,11 @@ export function ThemeCustomizer() {
                       );
                       updateColor({
                         baseColor: name,
-                        ...(isFullTheme ? { theme: '' } : {}),
+                        ...(isFullTheme
+                          ? {
+                              theme: '',
+                            }
+                          : {}),
                       });
                     }}
                     className={cn(
@@ -442,10 +472,14 @@ export function ThemeCustomizer() {
                     key={name}
                     type='button'
                     aria-pressed={isActive}
-                    onClick={() => updateColor({ theme: isActive ? '' : name })}
+                    onClick={() =>
+                      updateColor({
+                        theme: isActive ? '' : name,
+                      })
+                    }
                     className={cn(
                       selectionClassName,
-                      'group cursor-pointer rounded-lg bg-muted/40 p-1.5 text-left hover:bg-muted',
+                      'group cursor-pointer rounded-lg bg-surface-40 p-1.5 text-left hover:bg-muted',
                       isActive && 'bg-primary/10',
                     )}
                   >
@@ -482,7 +516,11 @@ export function ThemeCustomizer() {
                     title={label}
                     aria-label={label}
                     aria-pressed={isActive}
-                    onClick={() => updateColor({ theme: isActive ? '' : name })}
+                    onClick={() =>
+                      updateColor({
+                        theme: isActive ? '' : name,
+                      })
+                    }
                     // CSS variables resolve the swatch mode with the same dark variant as the app, including system mode.
                     style={
                       {
@@ -515,7 +553,7 @@ export function ThemeCustomizer() {
           </fieldset>
           <fieldset className='space-y-3'>
             <legend className='text-xs font-medium'>{t('Radius')}</legend>
-            <div className='grid grid-cols-5 gap-1 rounded-xl bg-muted/60 p-1'>
+            <div className='grid grid-cols-5 gap-1 rounded-xl bg-surface-60 p-1'>
               {RADII.map(({ name, label, value }) => {
                 const isActive = (color.radius || 'default') === name;
                 return (
@@ -523,7 +561,11 @@ export function ThemeCustomizer() {
                     key={name}
                     type='button'
                     aria-pressed={isActive}
-                    onClick={() => updateColor({ radius: name })}
+                    onClick={() =>
+                      updateColor({
+                        radius: name,
+                      })
+                    }
                     className={cn(
                       selectionClassName,
                       'flex cursor-pointer flex-col items-center gap-2 rounded-lg px-1 py-2.5 text-muted-foreground hover:text-foreground',
@@ -533,7 +575,9 @@ export function ThemeCustomizer() {
                     <span
                       aria-hidden='true'
                       className='size-5 bg-current/15'
-                      style={{ borderRadius: value || '0.625rem' }}
+                      style={{
+                        borderRadius: value || '0.625rem',
+                      }}
                     />
                     <span className='text-[0.625rem]'>{t(label)}</span>
                   </button>

@@ -26,7 +26,7 @@ function TableFooter({ className, ...props }: React.ComponentProps<'tfoot'>) {
   return (
     <tfoot
       data-slot='table-footer'
-      className={cn('bg-muted/50 font-medium', className)}
+      className={cn('bg-surface-50 font-medium', className)}
       {...props}
     />
   );
@@ -37,7 +37,7 @@ function TableRow({ className, ...props }: React.ComponentProps<'tr'>) {
     <tr
       data-slot='table-row'
       className={cn(
-        'transition-colors even:bg-muted/25 hover:bg-muted/50 xl:even:bg-muted/10 xl:hover:bg-primary/5 data-[state=selected]:bg-muted has-[.status-current]:bg-primary/4',
+        'transition-colors even:bg-surface-row-25 hover:bg-surface-hover-50 xl:even:bg-surface-row-10 xl:hover:bg-surface-primary-hover-5 data-[state=selected]:bg-surface-selected-100 has-[.status-current]:bg-primary/4',
         className,
       )}
       {...props}

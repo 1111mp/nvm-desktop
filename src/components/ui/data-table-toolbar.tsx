@@ -52,7 +52,7 @@ export function DataTableToolbar<TData extends RowData>({
         {filters.length > 0 && (
           <Button
             variant='ghost'
-            className='h-8 gap-1.5 rounded-lg border-0 px-2 text-xs font-normal text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+            className='h-8 gap-1.5 rounded-lg border-0 px-2 text-xs font-normal text-muted-foreground hover:bg-surface-hover-60 hover:text-foreground'
             aria-label={t('Clear-Filters')}
             title={t('Clear-Filters')}
             onClick={() => table.resetColumnFilters()}

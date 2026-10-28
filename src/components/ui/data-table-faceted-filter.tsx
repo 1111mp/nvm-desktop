@@ -25,7 +25,9 @@ export interface DataTableFacetedFilterProps<TData extends RowData, TValue> {
 export type Options = {
   label: string;
   value: string;
-  icon?: React.ComponentType<{ className?: string }>;
+  icon?: React.ComponentType<{
+    className?: string;
+  }>;
 }[];
 
 export function DataTableFacetedFilter<TData extends RowData, TValue>({
@@ -42,25 +44,27 @@ export function DataTableFacetedFilter<TData extends RowData, TValue>({
   const facets = column.getFacetedUniqueValues();
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant='ghost'
-          className={cn(
-            tableFilterStyles.trigger,
-            selected.size > 0 && tableFilterStyles.activeTrigger,
-          )}
-          aria-label={title}
-        >
-          <ListFilter className='size-3.5' />
-          {title}
-          {selected.size > 0 && (
-            <span className='grid min-w-5 place-items-center rounded-md bg-background/75 px-1 py-0.5 text-[0.625rem] tabular-nums'>
-              {selected.size}
-            </span>
-          )}
-          <ChevronDown className='size-3 opacity-50' />
-        </Button>
-      </PopoverTrigger>
+      <PopoverTrigger
+        render={
+          <Button
+            variant='ghost'
+            className={cn(
+              tableFilterStyles.trigger,
+              selected.size > 0 && tableFilterStyles.activeTrigger,
+            )}
+            aria-label={title}
+          >
+            <ListFilter className='size-3.5' />
+            {title}
+            {selected.size > 0 && (
+              <span className='grid min-w-5 place-items-center rounded-md bg-background/75 px-1 py-0.5 text-[0.625rem] tabular-nums'>
+                {selected.size}
+              </span>
+            )}
+            <ChevronDown className='size-3 opacity-50' />
+          </Button>
+        }
+      />
       <PopoverContent
         align='start'
         aria-label={title}
@@ -69,16 +73,22 @@ export function DataTableFacetedFilter<TData extends RowData, TValue>({
           'w-64 max-w-[calc(100dvw-2rem)]',
         )}
       >
-        <div className='flex items-center justify-between gap-3 bg-muted/30 px-3 py-3'>
+        <div className='flex items-center justify-between gap-3 bg-surface-30 px-3 py-3'>
           <h3 className='text-xs font-semibold'>{title}</h3>
           <span className='text-[0.625rem] text-muted-foreground'>
-            {t('Table-Selected', { count: selected.size })}
+            {t('Table-Selected', {
+              count: selected.size,
+            })}
           </span>
         </div>
-        <Command className='rounded-none! p-1.5 [&_[data-slot=input-group]]:border-0 [&_[data-slot=input-group]]:bg-muted/50'>
+        <Command className='rounded-none! p-1.5 [&_[data-slot=input-group]]:border-0 [&_[data-slot=input-group]]:bg-surface-50'>
           <CommandInput
-            placeholder={t('Table-Search', { field: title })}
-            aria-label={t('Table-Search', { field: title })}
+            placeholder={t('Table-Search', {
+              field: title,
+            })}
+            aria-label={t('Table-Search', {
+              field: title,
+            })}
             className='text-xs'
           />
           <CommandList className='max-h-[min(18rem,40dvh)]'>
@@ -111,14 +121,14 @@ export function DataTableFacetedFilter<TData extends RowData, TValue>({
                   >
                     <span
                       className={cn(
-                        'grid size-7 shrink-0 place-items-center rounded-lg bg-muted/50 text-muted-foreground',
+                        'grid size-7 shrink-0 place-items-center rounded-lg bg-surface-50 text-muted-foreground',
                         active && 'bg-primary/10 text-foreground',
                       )}
                     >
                       <Icon className='size-3.5' />
                     </span>
                     <span className='min-w-0 flex-1'>{option.label}</span>
-                    <span className='min-w-5 rounded-md bg-muted/60 px-1 py-0.5 text-center font-mono text-[0.625rem] tabular-nums text-muted-foreground'>
+                    <span className='min-w-5 rounded-md bg-surface-60 px-1 py-0.5 text-center font-mono text-[0.625rem] tabular-nums text-muted-foreground'>
                       {facets.get(option.value) ?? 0}
                     </span>
                   </CommandItem>

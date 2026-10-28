@@ -71,7 +71,9 @@ export const GroupCreator: React.FC<Props> = ({
         message: t('Group-Name-Exists'),
       }),
     desc: z.string(),
-    version: z.string().min(1, { message: t('Select-Version') }),
+    version: z.string().min(1, {
+      message: t('Select-Version'),
+    }),
     projects: z.array(z.string()),
   });
 
@@ -101,34 +103,39 @@ export const GroupCreator: React.FC<Props> = ({
 
   return (
     <Dialog
+      disablePointerDismissal
       open={open}
       onOpenChange={(open) => {
         if (loading) return;
-        if (open) form.reset({ name: '', version: '', desc: '', projects: [] });
+        if (open)
+          form.reset({
+            name: '',
+            version: '',
+            desc: '',
+            projects: [],
+          });
         setOpen(open);
       }}
     >
-      <DialogTrigger asChild>
-        <Button
-          variant='secondary'
-          className={workspaceStyles.primaryAction}
-          disabled={disabled}
-        >
-          <LayersPlus />
-          {t('Create-Group')}
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button
+            variant='secondary'
+            className={workspaceStyles.primaryAction}
+            disabled={disabled}
+          >
+            <LayersPlus />
+            {t('Create-Group')}
+          </Button>
+        }
+      />
       <DialogContent
         className={cn(workspaceStyles.dialog, 'gap-0 overflow-visible p-0')}
         // Portal multi-select options into the dialog, outside its scrolling form.
         ref={setContainer}
         showCloseButton={false}
-        onPointerDownOutside={(e) => e.preventDefault()}
-        onEscapeKeyDown={(event) => {
-          if (loading) event.preventDefault();
-        }}
       >
-        <DialogHeader className='shrink-0 gap-2 rounded-t-2xl bg-muted/40 bg-linear-to-br from-primary/8 to-transparent p-5 sm:p-6'>
+        <DialogHeader className='shrink-0 gap-2 rounded-t-2xl bg-surface-40 bg-linear-to-br from-primary/8 to-transparent p-5 sm:p-6'>
           <span className='mb-1 grid size-10 place-items-center rounded-xl bg-primary/10 text-primary'>
             <LayersPlus className='size-5' />
           </span>
@@ -163,7 +170,7 @@ export const GroupCreator: React.FC<Props> = ({
                       aria-invalid={fieldState.invalid}
                       placeholder={t('Group-Name')}
                       disabled={loading}
-                      className='h-9 rounded-lg border-0 bg-muted/50 text-sm shadow-none'
+                      className='h-9 rounded-lg border-0 bg-surface-50 text-sm shadow-none'
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -187,7 +194,7 @@ export const GroupCreator: React.FC<Props> = ({
                       id='create-group-desc'
                       placeholder={t('Group-Desc')}
                       disabled={loading}
-                      className='h-9 rounded-lg border-0 bg-muted/50 text-sm shadow-none'
+                      className='h-9 rounded-lg border-0 bg-surface-50 text-sm shadow-none'
                       aria-invalid={fieldState.invalid}
                     />
                     {fieldState.invalid && (
@@ -210,6 +217,10 @@ export const GroupCreator: React.FC<Props> = ({
                       {t('Version')}
                     </FieldLabel>
                     <Select
+                      items={versions.map((value) => ({
+                        value,
+                        label: `v${value}`,
+                      }))}
                       disabled={loading}
                       name={field.name}
                       value={field.value}
@@ -223,7 +234,7 @@ export const GroupCreator: React.FC<Props> = ({
                         <SelectValue placeholder={t('Select-Version')} />
                       </SelectTrigger>
                       <SelectContent
-                        position='popper'
+                        alignItemWithTrigger={false}
                         align='start'
                         className={workspaceStyles.popover}
                       >
@@ -267,7 +278,7 @@ export const GroupCreator: React.FC<Props> = ({
                     >
                       <ComboboxChips
                         ref={anchor}
-                        className='max-h-24 overflow-y-auto border-0 bg-muted/50 text-xs shadow-none'
+                        className='max-h-24 overflow-y-auto border-0 bg-surface-50 text-xs shadow-none'
                       >
                         <ComboboxValue>
                           {(values: string[]) => (
@@ -337,11 +348,13 @@ export const GroupCreator: React.FC<Props> = ({
         <DialogFooter
           className={`${workspaceStyles.footer} rounded-t-none rounded-b-2xl px-5 py-4 sm:px-6`}
         >
-          <DialogClose asChild>
-            <Button disabled={loading} variant='ghost'>
-              {t('Cancel')}
-            </Button>
-          </DialogClose>
+          <DialogClose
+            render={
+              <Button disabled={loading} variant='ghost'>
+                {t('Cancel')}
+              </Button>
+            }
+          />
           <Button
             type='submit'
             disabled={loading || !versions.length}

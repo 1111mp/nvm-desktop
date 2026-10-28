@@ -36,13 +36,43 @@ import { cn } from '@/lib/utils';
 // Preview is opt-in for development and is always removed from production builds.
 const PREVIEW_UPDATER =
   import.meta.env.DEV && import.meta.env.VITE_UPDATER_PREVIEW === 'true';
+const previewPhases = [
+  {
+    value: 'available',
+    label: 'Updater-Available',
+  },
+  {
+    value: 'checking',
+    label: 'Updater-Checking',
+  },
+  {
+    value: 'current',
+    label: 'Up-to-date',
+  },
+  {
+    value: 'downloading',
+    label: 'Updater-Downloading',
+  },
+  {
+    value: 'ready',
+    label: 'Updater-Ready',
+  },
+  {
+    value: 'installing',
+    label: 'Updater-Installing',
+  },
+  {
+    value: 'error',
+    label: 'Updater-Failed',
+  },
+];
 
 function ReleaseNotes({ body }: { body?: string }) {
   const { t } = useTranslation();
   return (
     <section className='flex min-w-0 flex-col gap-3'>
       <h3 className='text-xs font-semibold'>{t('Release-Notes')}</h3>
-      <div className='min-h-[min(30dvh,18rem)] max-h-[min(48dvh,32rem)] flex-1 space-y-3 overflow-y-auto overscroll-contain rounded-xl bg-muted/35 p-(--updater-card-padding) text-xs leading-relaxed text-muted-foreground select-text [&_h1]:text-sm [&_h1]:font-semibold [&_h1]:text-foreground [&_h2]:text-sm [&_h2]:font-semibold [&_h2]:text-foreground [&_h3]:text-sm [&_h3]:font-medium [&_h3]:text-foreground [&_p]:my-2 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:space-y-1 [&_ol]:pl-4 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-background/70 [&_pre]:p-3 [&_code]:break-words [&_code]:rounded-sm [&_code]:bg-background/70 [&_code]:px-1 [&_code]:font-mono [&_code]:text-[0.625rem] [&_blockquote]:rounded-lg [&_blockquote]:bg-background/60 [&_blockquote]:p-3 [&_hr]:my-4 [&_hr]:border-0 [&_hr]:bg-muted [&_hr]:h-px [&_img]:max-w-full'>
+      <div className='min-h-[min(30dvh,18rem)] max-h-[min(48dvh,32rem)] flex-1 space-y-3 overflow-y-auto overscroll-contain rounded-xl bg-surface-35 p-(--updater-card-padding) text-xs leading-relaxed text-muted-foreground select-text [&_h1]:text-sm [&_h1]:font-semibold [&_h1]:text-foreground [&_h2]:text-sm [&_h2]:font-semibold [&_h2]:text-foreground [&_h3]:text-sm [&_h3]:font-medium [&_h3]:text-foreground [&_p]:my-2 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:space-y-1 [&_ol]:pl-4 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-inset-70 [&_pre]:p-3 [&_code]:break-words [&_code]:rounded-sm [&_code]:bg-inset-70 [&_code]:px-1 [&_code]:font-mono [&_code]:text-[0.625rem] [&_blockquote]:rounded-lg [&_blockquote]:bg-inset-60 [&_blockquote]:p-3 [&_hr]:my-4 [&_hr]:border-0 [&_hr]:bg-muted [&_hr]:h-px [&_img]:max-w-full'>
         {body?.trim() ? (
           <Markdown
             components={{
@@ -73,7 +103,9 @@ export const Updater: React.FC = () => {
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(PREVIEW_UPDATER);
   const [previewPhase, setPreviewPhase] = useState<UpdatePhase>('available');
-  const live = useAppUpdater({ enabled: !PREVIEW_UPDATER });
+  const live = useAppUpdater({
+    enabled: !PREVIEW_UPDATER,
+  });
   const phase = PREVIEW_UPDATER ? previewPhase : live.phase;
   const previewComplete = phase === 'ready' || phase === 'installing';
   const updateInfo = PREVIEW_UPDATER
@@ -170,29 +202,31 @@ export const Updater: React.FC = () => {
       }}
     >
       <div className='relative flex'>
-        <AlertDialogTrigger asChild>
-          <Button
-            size='sm'
-            variant='ghost'
-            className='module-home-btn'
-            title={t(title === 'Updater-Available' ? 'Check-Update' : title)}
-            aria-label={t(
-              checking || downloading || ready || installing
-                ? title
-                : 'Check-Update',
-            )}
-            aria-busy={checking || downloading || installing}
-            onClick={show}
-          >
-            {checking || downloading || installing ? (
-              <LoaderCircle className='animate-spin motion-reduce:animate-none' />
-            ) : ready ? (
-              <CheckCheck />
-            ) : (
-              <Globe />
-            )}
-          </Button>
-        </AlertDialogTrigger>
+        <AlertDialogTrigger
+          render={
+            <Button
+              size='sm'
+              variant='ghost'
+              className='module-home-btn'
+              title={t(title === 'Updater-Available' ? 'Check-Update' : title)}
+              aria-label={t(
+                checking || downloading || ready || installing
+                  ? title
+                  : 'Check-Update',
+              )}
+              aria-busy={checking || downloading || installing}
+              onClick={show}
+            >
+              {checking || downloading || installing ? (
+                <LoaderCircle className='animate-spin motion-reduce:animate-none' />
+              ) : ready ? (
+                <CheckCheck />
+              ) : (
+                <Globe />
+              )}
+            </Button>
+          }
+        />
         {updateInfo && !downloading && !installing && (
           <span
             aria-hidden='true'
@@ -209,25 +243,21 @@ export const Updater: React.FC = () => {
           <div className='flex shrink-0 flex-wrap items-center justify-between gap-2 bg-primary/10 px-(--updater-padding) py-3 text-xs'>
             <span>{t('Updater-Preview')}</span>
             <Select
+              items={previewPhases.map(({ value, label }) => ({
+                value,
+                label: t(label),
+              }))}
               value={previewPhase}
               onValueChange={(value) => setPreviewPhase(value as UpdatePhase)}
             >
               <SelectTrigger
                 aria-label={t('Updater-Preview-State')}
-                className='h-7 w-40 border-0 bg-background/70 text-xs'
+                className='h-7 w-40 border-0 bg-inset-70 text-xs'
               >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {[
-                  { value: 'available', label: 'Updater-Available' },
-                  { value: 'checking', label: 'Updater-Checking' },
-                  { value: 'current', label: 'Up-to-date' },
-                  { value: 'downloading', label: 'Updater-Downloading' },
-                  { value: 'ready', label: 'Updater-Ready' },
-                  { value: 'installing', label: 'Updater-Installing' },
-                  { value: 'error', label: 'Updater-Failed' },
-                ].map(({ value, label }) => (
+                {previewPhases.map(({ value, label }) => (
                   <SelectItem key={value} value={value}>
                     {t(label)}
                   </SelectItem>
@@ -236,7 +266,7 @@ export const Updater: React.FC = () => {
             </Select>
           </div>
         )}
-        <div className='flex shrink-0 items-start gap-3 bg-muted/40 bg-linear-to-br from-primary/8 to-transparent p-(--updater-padding)'>
+        <div className='flex shrink-0 items-start gap-3 bg-surface-40 bg-linear-to-br from-primary/8 to-transparent p-(--updater-padding)'>
           <span
             className={cn(
               'grid size-10 place-items-center rounded-xl bg-background text-primary shadow-xs',
@@ -283,7 +313,7 @@ export const Updater: React.FC = () => {
         >
           <div className='min-w-0 space-y-(--updater-gap)'>
             {updateInfo ? (
-              <div className='grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-xl bg-muted/40 p-(--updater-card-padding)'>
+              <div className='grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-xl bg-surface-40 p-(--updater-card-padding)'>
                 <div className='min-w-0 space-y-1.5'>
                   <p className='text-[0.625rem] text-muted-foreground'>
                     {t('Current-Version')}
@@ -306,7 +336,7 @@ export const Updater: React.FC = () => {
                 </div>
               </div>
             ) : currentVersion ? (
-              <div className='flex items-center justify-between gap-3 rounded-xl bg-muted/40 p-(--updater-card-padding)'>
+              <div className='flex items-center justify-between gap-3 rounded-xl bg-surface-40 p-(--updater-card-padding)'>
                 <span className='text-xs text-muted-foreground'>
                   {t('Current-Version')}
                 </span>
@@ -316,7 +346,7 @@ export const Updater: React.FC = () => {
               </div>
             ) : null}
             {checking && (
-              <div className='flex items-center gap-3 rounded-xl bg-muted/35 p-(--updater-card-padding) text-xs text-muted-foreground'>
+              <div className='flex items-center gap-3 rounded-xl bg-surface-35 p-(--updater-card-padding) text-xs text-muted-foreground'>
                 <LoaderCircle className='size-4 animate-spin motion-reduce:animate-none' />
                 {t('Updater-Checking-Description')}
               </div>
@@ -325,7 +355,7 @@ export const Updater: React.FC = () => {
               ready ||
               installing ||
               (failed && failureStage !== 'check')) && (
-              <section className='space-y-4 rounded-xl bg-muted/35 p-(--updater-card-padding)'>
+              <section className='space-y-4 rounded-xl bg-surface-35 p-(--updater-card-padding)'>
                 <div className='flex items-center justify-between gap-3 text-xs'>
                   <span className='font-medium'>
                     {t(
@@ -443,7 +473,7 @@ export const Updater: React.FC = () => {
           </div>
           {updateInfo && !checking && <ReleaseNotes body={updateInfo.body} />}
         </div>
-        <AlertDialogFooter className='m-0 shrink-0 flex-row flex-wrap justify-end gap-2 rounded-none border-0 bg-muted/40 px-(--updater-padding) py-[clamp(0.75rem,2dvh,1.25rem)]'>
+        <AlertDialogFooter className='m-0 shrink-0 flex-row flex-wrap justify-end gap-2 rounded-none border-0 bg-surface-40 px-(--updater-padding) py-[clamp(0.75rem,2dvh,1.25rem)]'>
           {!installing && (
             <Button variant='ghost' onClick={() => setOpen(false)}>
               {t(

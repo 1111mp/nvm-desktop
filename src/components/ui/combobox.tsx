@@ -75,13 +75,11 @@ function ComboboxInput({
           <InputGroupButton
             size='icon-xs'
             variant='ghost'
-            asChild
             data-slot='input-group-button'
             className='group-has-data-[slot=combobox-clear]/input-group:hidden data-pressed:bg-transparent'
             disabled={disabled}
-          >
-            <ComboboxTrigger />
-          </InputGroupButton>
+            render={<ComboboxTrigger />}
+          />
         )}
         {showClear && <ComboboxClear disabled={disabled} />}
       </InputGroupAddon>
@@ -236,7 +234,7 @@ function ComboboxChips({
     <ComboboxPrimitive.Chips
       data-slot='combobox-chips'
       className={cn(
-        'flex min-h-8 flex-wrap items-center gap-1 rounded-lg border-0 bg-muted/40 bg-clip-padding px-2.5 py-1 text-sm transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/35 has-aria-invalid:border-destructive has-aria-invalid:ring-3 has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40',
+        'flex min-h-8 flex-wrap items-center gap-1 rounded-lg border-0 bg-surface-40 bg-clip-padding px-2.5 py-1 text-sm transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/35 has-aria-invalid:border-destructive has-aria-invalid:ring-3 has-aria-invalid:ring-destructive/20 has-data-[slot=combobox-chip]:px-1 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40',
         className,
       )}
       {...props}

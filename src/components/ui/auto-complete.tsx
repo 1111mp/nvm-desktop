@@ -66,7 +66,7 @@ function AutoComplete({
         render={
           <InputGroup
             className={cn(
-              'h-9 w-full rounded-lg border-0 bg-muted/40 shadow-none has-[[data-slot=input-group-control]:focus-visible]:ring-2',
+              'h-9 w-full rounded-lg border-0 bg-surface-40 shadow-none has-[[data-slot=input-group-control]:focus-visible]:ring-2',
               className,
             )}
           />
@@ -114,7 +114,7 @@ function AutoComplete({
             )}
           >
             {title && (
-              <div className='bg-muted/30 px-3 py-3 text-xs font-semibold'>
+              <div className='bg-surface-30 px-3 py-3 text-xs font-semibold'>
                 {title}
               </div>
             )}
@@ -153,7 +153,7 @@ function AutoComplete({
             <AutocompletePrimitive.Empty className='px-3 py-4 text-xs text-muted-foreground'>
               {t('No-results')}
             </AutocompletePrimitive.Empty>
-            <p className='bg-muted/30 px-3 py-2.5 text-[0.625rem] leading-relaxed text-muted-foreground'>
+            <p className='bg-surface-30 px-3 py-2.5 text-[0.625rem] leading-relaxed text-muted-foreground'>
               {t('Settings-Custom-Value-Help')}
             </p>
           </AutocompletePrimitive.Popup>

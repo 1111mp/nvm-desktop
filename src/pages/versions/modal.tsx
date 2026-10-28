@@ -203,7 +203,7 @@ export const Modal: React.FC<ModalProps> = ({ ref, onRefrresh }) => {
   return (
     <AlertDialog open={open}>
       <AlertDialogContent className='flex w-[clamp(26rem,calc(22rem+16vw),38rem)] max-w-[calc(100dvw-2rem)]! max-h-[min(90dvh,calc(100dvh-2rem))] [--dialog-padding:clamp(1rem,min(2vw,3dvh),1.75rem)] [--dialog-gap:clamp(1rem,2.5dvh,1.5rem)] flex-col gap-0 overflow-hidden rounded-2xl p-0 ring-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]'>
-        <div className='flex shrink-0 items-start gap-3 bg-muted/40 bg-linear-to-br from-primary/8 to-transparent p-(--dialog-padding)'>
+        <div className='flex shrink-0 items-start gap-3 bg-surface-40 bg-linear-to-br from-primary/8 to-transparent p-(--dialog-padding)'>
           <span className='grid size-10 shrink-0 place-items-center rounded-xl bg-background text-primary shadow-xs'>
             {complete ? (
               <CheckCheck className='size-5' />
@@ -221,7 +221,7 @@ export const Modal: React.FC<ModalProps> = ({ ref, onRefrresh }) => {
           </div>
         </div>
         <div className='min-h-0 space-y-(--dialog-gap) overflow-y-auto overscroll-contain p-(--dialog-padding)'>
-          <div className='flex flex-wrap items-center justify-between gap-3 rounded-xl bg-muted/40 p-[clamp(0.875rem,2dvh,1.25rem)]'>
+          <div className='flex flex-wrap items-center justify-between gap-3 rounded-xl bg-surface-40 p-[clamp(0.875rem,2dvh,1.25rem)]'>
             <div className='space-y-1.5'>
               <span className='text-xs text-muted-foreground'>Node.js</span>
               <p className='font-mono text-2xl font-semibold tracking-tight'>
@@ -257,6 +257,10 @@ export const Modal: React.FC<ModalProps> = ({ ref, onRefrresh }) => {
                     {t('Install-Architecture')}
                   </label>
                   <Select
+                    items={archOptions.map((value) => ({
+                      value,
+                      label: value,
+                    }))}
                     name={field.name}
                     value={field.value}
                     onValueChange={field.onChange}
@@ -265,7 +269,7 @@ export const Modal: React.FC<ModalProps> = ({ ref, onRefrresh }) => {
                     <SelectTrigger
                       id='version-manager-arch'
                       aria-invalid={fieldState.invalid}
-                      className='h-9 w-full border-0 bg-muted/50 shadow-none'
+                      className='h-9 w-full border-0 bg-surface-50 shadow-none'
                     >
                       <SelectValue placeholder={t('Install-No-Architecture')} />
                     </SelectTrigger>
@@ -292,7 +296,7 @@ export const Modal: React.FC<ModalProps> = ({ ref, onRefrresh }) => {
               name='asDefault'
               control={form.control}
               render={({ field }) => (
-                <div className='flex items-center gap-3 rounded-lg bg-muted/25 p-3'>
+                <div className='flex items-center gap-3 rounded-lg bg-surface-25 p-3'>
                   <Checkbox
                     id='version-manager-as-default'
                     disabled={finishing}
@@ -312,7 +316,7 @@ export const Modal: React.FC<ModalProps> = ({ ref, onRefrresh }) => {
           {(loading || complete || failed) && (
             <div
               className={cn(
-                'space-y-4 rounded-xl bg-muted/40 p-[clamp(0.875rem,2dvh,1.25rem)]',
+                'space-y-4 rounded-xl bg-surface-40 p-[clamp(0.875rem,2dvh,1.25rem)]',
                 complete && 'bg-primary/7',
                 failed && 'bg-destructive/5',
               )}
@@ -434,13 +438,13 @@ export const Modal: React.FC<ModalProps> = ({ ref, onRefrresh }) => {
                   {copiedText === path ? <Check /> : <Copy />}
                 </Button>
               </div>
-              <p className='rounded-lg bg-muted/40 p-3 font-mono text-xs leading-relaxed break-all text-muted-foreground select-text'>
+              <p className='rounded-lg bg-surface-40 p-3 font-mono text-xs leading-relaxed break-all text-muted-foreground select-text'>
                 {path}
               </p>
             </div>
           )}
         </div>
-        <AlertDialogFooter className='m-0 shrink-0 flex-row justify-end rounded-none border-0 bg-muted/40 px-(--dialog-padding) py-[clamp(0.75rem,2dvh,1.25rem)]'>
+        <AlertDialogFooter className='m-0 shrink-0 flex-row justify-end rounded-none border-0 bg-surface-40 px-(--dialog-padding) py-[clamp(0.75rem,2dvh,1.25rem)]'>
           {complete ? (
             <Button
               disabled={finishing}

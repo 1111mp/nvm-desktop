@@ -37,26 +37,28 @@ export function DataTableViewOptions<TData extends RowData>({
   ).length;
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant='ghost'
-          className={cn(
-            tableFilterStyles.trigger,
-            'ml-auto',
-            hiddenCount > 0 && tableFilterStyles.activeTrigger,
-          )}
-          aria-label={t('Toggle-Columns')}
-          title={t('Toggle-Columns')}
-        >
-          <Columns3 className='size-3.5' />
-          <span className='hidden sm:inline'>{t('View')}</span>
-          {hiddenCount > 0 && (
-            <span className='rounded-md bg-background/75 px-1.5 py-0.5 text-[0.625rem] tabular-nums'>
-              {hiddenCount}
-            </span>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant='ghost'
+            className={cn(
+              tableFilterStyles.trigger,
+              'ml-auto',
+              hiddenCount > 0 && tableFilterStyles.activeTrigger,
+            )}
+            aria-label={t('Toggle-Columns')}
+            title={t('Toggle-Columns')}
+          >
+            <Columns3 className='size-3.5' />
+            <span className='hidden sm:inline'>{t('View')}</span>
+            {hiddenCount > 0 && (
+              <span className='rounded-md bg-background/75 px-1.5 py-0.5 text-[0.625rem] tabular-nums'>
+                {hiddenCount}
+              </span>
+            )}
+          </Button>
+        }
+      />
       <DropdownMenuContent align='end' className={tableFilterStyles.menu}>
         <DropdownMenuGroup>
           <DropdownMenuLabel className='flex items-center justify-between gap-2 px-2.5 py-2 text-[0.625rem] font-medium text-muted-foreground'>
@@ -74,7 +76,7 @@ export function DataTableViewOptions<TData extends RowData>({
                 column.getIsVisible() && 'bg-primary/4',
               )}
               checked={column.getIsVisible()}
-              onSelect={(event) => event.preventDefault()}
+              closeOnClick={false}
               onCheckedChange={(value) => column.toggleVisibility(!!value)}
             >
               {column.columnDef.meta?.label ||
@@ -88,8 +90,8 @@ export function DataTableViewOptions<TData extends RowData>({
         <DropdownMenuItem
           disabled={!hiddenCount}
           className={cn(tableFilterStyles.option, 'text-muted-foreground')}
-          onSelect={(event) => {
-            event.preventDefault();
+          closeOnClick={false}
+          onClick={() => {
             columns.forEach((column) => column.toggleVisibility(true));
           }}
         >

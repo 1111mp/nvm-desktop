@@ -110,7 +110,7 @@ export function ErrorBoundary() {
             )}
           </div>
         </div>
-        <details className='group mt-8 rounded-xl bg-muted/35 transition-colors hover:bg-muted/55 open:bg-muted/55'>
+        <details className='group mt-8 rounded-xl bg-surface-35 transition-colors hover:bg-surface-hover-55 open:bg-surface-hover-55'>
           <summary className='flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-4 py-3 text-xs font-medium text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden'>
             <span className='flex items-center gap-2.5'>
               <Terminal className='size-3.5 opacity-60' />
@@ -125,7 +125,7 @@ export function ErrorBoundary() {
                 {t(copiedText === details ? 'Error-Copied' : 'Error-Copy')}
               </Button>
             </div>
-            <pre className='max-h-[min(15rem,32dvh)] overflow-auto rounded-lg bg-background/80 p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap break-words text-muted-foreground select-text'>
+            <pre className='max-h-[min(15rem,32dvh)] overflow-auto rounded-lg bg-inset-80 p-4 font-mono text-xs leading-relaxed whitespace-pre-wrap break-words text-muted-foreground select-text'>
               {details}
             </pre>
           </div>

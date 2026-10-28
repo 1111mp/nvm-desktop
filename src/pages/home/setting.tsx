@@ -1,6 +1,15 @@
 import {
   AutoComplete,
   Button,
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHandle,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
   Field,
   FieldContent,
   FieldDescription,
@@ -16,19 +25,10 @@ import {
   Select,
   SelectContent,
   SelectGroup,
-  SelectLabel,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerHandle,
-  DrawerTitle,
-  DrawerTrigger,
   Switch,
   Tooltip,
   TooltipContent,
@@ -36,29 +36,72 @@ import {
 } from '@/components/ui';
 import { open as openDialog } from '@tauri-apps/plugin-dialog';
 import {
-  InfoIcon,
-  FileCode2,
-  Globe2,
-  X,
-  Palette,
-  Folder,
-  Network,
-  SlidersHorizontal,
   Check,
+  FileCode2,
+  Folder,
+  Globe2,
+  InfoIcon,
   LoaderCircle,
+  Network,
+  Palette,
   SettingsIcon,
+  SlidersHorizontal,
   SquarePenIcon,
+  X,
 } from 'lucide-react';
 import { useRef, useState } from 'react';
 
 import { useAppContext } from '@/app-context';
-import { toast } from 'sonner';
 import { compareObject } from '@/lib/utils';
 import { z } from '@/lib/zod';
 import { Closer, Themes } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+const languageOptions = [
+  {
+    value: 'zh-CN',
+    short: '中',
+    label: '简体中文',
+  },
+  {
+    value: 'pl',
+    short: 'PL',
+    label: 'Polski',
+  },
+  {
+    value: 'en',
+    short: 'EN',
+    label: 'English',
+  },
+];
+
+function LanguageOptionLabel({
+  short,
+  label,
+}: {
+  short: string;
+  label: string;
+}) {
+  return (
+    <>
+      <span
+        aria-hidden='true'
+        className='grid size-6 shrink-0 place-items-center rounded-md bg-surface-60 text-[0.625rem] text-muted-foreground'
+      >
+        {short}
+      </span>
+      <span>{label}</span>
+    </>
+  );
+}
+
+// Base UI resolves the closed trigger from items, so share the full visual label.
+const languageItems = languageOptions.map(({ value, short, label }) => ({
+  value,
+  label: <LanguageOptionLabel short={short} label={label} />,
+}));
 
 type Props = unknown;
 
@@ -75,11 +118,18 @@ const formSchema = z.object({
   coder: z.string(),
   node_version_file: z.string(),
   directory: z.string().min(1),
-  mirror: z.url({ message: 'Invalid mirror url' }),
+  mirror: z.url({
+    message: 'Invalid mirror url',
+  }),
   proxy: z
     .object({
       enabled: z.boolean().default(false).optional(),
-      ip: z.ipv4({ message: 'Invalid ip' }).optional().or(z.literal('')),
+      ip: z
+        .ipv4({
+          message: 'Invalid ip',
+        })
+        .optional()
+        .or(z.literal('')),
       port: z
         .string()
         .regex(/^\d+$/, 'Invalid port')
@@ -116,6 +166,7 @@ const formSchema = z.object({
 const Setting: React.FC<Props> = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [languageOpen, setLanguageOpen] = useState(false);
 
   const [versionFileOpts, setVersionFileOptions] = useState<string[]>(() => {
     const optStr = localStorage.getItem('nvmd-version-file');
@@ -130,7 +181,11 @@ const Setting: React.FC<Props> = () => {
   const defaultSettings = {
     ...settings,
     node_version_file: settings.node_version_file ?? '.nvmdrc',
-    proxy: settings.proxy || { enabled: false, ip: '', port: '' },
+    proxy: settings.proxy || {
+      enabled: false,
+      ip: '',
+      port: '',
+    },
     embed_server_port: settings.embed_server_port ?? 53333,
   };
 
@@ -238,7 +293,10 @@ const Setting: React.FC<Props> = () => {
       },
     ],
     mirrorItems = [
-      { value: t('Custom'), items: mirrorOpts },
+      {
+        value: t('Custom'),
+        items: mirrorOpts,
+      },
       {
         value: t('Default'),
         items: DefMirrors,
@@ -256,6 +314,7 @@ const Setting: React.FC<Props> = () => {
       onOpenChange={(open) => {
         if (loading) return;
         if (open) form.reset(defaultSettings);
+        else setLanguageOpen(false);
         setOpen(open);
       }}
     >
@@ -270,9 +329,16 @@ const Setting: React.FC<Props> = () => {
           <SettingsIcon />
         </Button>
       </DrawerTrigger>
-      <DrawerContent ref={drawerContent} className='gap-0'>
+      <DrawerContent
+        ref={drawerContent}
+        className='gap-0'
+        onEscapeKeyDown={(event) => {
+          // Vaul handles Escape in capture before Base UI can dismiss its select.
+          if (languageOpen) event.preventDefault();
+        }}
+      >
         <DrawerHandle aria-label={t('Drawer-Drag')} />
-        <DrawerHeader className='shrink-0 gap-3 rounded-t-2xl bg-muted/40 bg-linear-to-br from-primary/8 to-transparent p-5 sm:p-6'>
+        <DrawerHeader className='shrink-0 gap-3 rounded-t-2xl bg-surface-40 bg-linear-to-br from-primary/8 to-transparent p-5 sm:p-6'>
           <div className='flex items-center justify-between gap-3'>
             <span className='grid size-10 place-items-center rounded-xl bg-background text-primary shadow-xs'>
               <SettingsIcon className='size-5' />
@@ -300,7 +366,7 @@ const Setting: React.FC<Props> = () => {
         <div className='min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 sm:p-6'>
           <form id='form-setting' onSubmit={form.handleSubmit(onSubmit)}>
             <fieldset disabled={loading} className='space-y-5'>
-              <section className='space-y-4 rounded-xl bg-muted/35 p-4'>
+              <section className='space-y-4 rounded-xl bg-surface-35 p-4'>
                 <h3 className='flex items-center gap-2 text-xs font-semibold'>
                   <Palette className='size-3.5 text-muted-foreground' />
                   {t('Settings-Appearance')}
@@ -318,19 +384,23 @@ const Setting: React.FC<Props> = () => {
                           {t('Language')}
                         </FieldLabel>
                         <Select
+                          items={languageItems}
+                          onOpenChange={setLanguageOpen}
                           name={field.name}
                           value={field.value}
                           onValueChange={field.onChange}
                         >
                           <SelectTrigger
-                            className='h-9 w-full border-0 bg-background/70 shadow-none'
+                            className='h-9 w-full border-0 bg-inset-70 shadow-none'
                             id='form-setting-locale'
                             aria-invalid={fieldState.invalid}
                           >
                             <SelectValue placeholder={t('Language')} />
                           </SelectTrigger>
                           <SelectContent
-                            position='popper'
+                            // Keep popup interaction inside Vaul's modal boundary.
+                            container={drawerContent}
+                            alignItemWithTrigger={false}
                             align='start'
                             className='p-1.5'
                           >
@@ -338,29 +408,20 @@ const Setting: React.FC<Props> = () => {
                               <SelectLabel className='px-2.5 py-2 text-[0.625rem]'>
                                 {t('Language')}
                               </SelectLabel>
-                              {[
-                                {
-                                  value: 'zh-CN',
-                                  short: '中',
-                                  label: '简体中文',
-                                },
-                                { value: 'pl', short: 'PL', label: 'Polski' },
-                                { value: 'en', short: 'EN', label: 'English' },
-                              ].map(({ value, short, label }) => (
-                                <SelectItem
-                                  key={value}
-                                  value={value}
-                                  textValue={label}
-                                >
-                                  <span
-                                    aria-hidden='true'
-                                    className='grid size-6 shrink-0 place-items-center rounded-md bg-muted/60 text-[0.625rem] text-muted-foreground'
+                              {languageOptions.map(
+                                ({ value, short, label }) => (
+                                  <SelectItem
+                                    key={value}
+                                    value={value}
+                                    label={label}
                                   >
-                                    {short}
-                                  </span>
-                                  <span>{label}</span>
-                                </SelectItem>
-                              ))}
+                                    <LanguageOptionLabel
+                                      short={short}
+                                      label={label}
+                                    />
+                                  </SelectItem>
+                                ),
+                              )}
                             </SelectGroup>
                           </SelectContent>
                         </Select>
@@ -386,11 +447,11 @@ const Setting: React.FC<Props> = () => {
                         >
                           <FieldLabel
                             htmlFor='form-setting-theme-system'
-                            className='min-w-0 cursor-pointer rounded-lg border-0! bg-background/70 has-data-checked:bg-primary/10! focus-within:ring-2 focus-within:ring-ring'
+                            className='min-w-0 cursor-pointer rounded-lg border-0! bg-inset-70 has-data-checked:bg-primary/10! focus-within:ring-2 focus-within:ring-ring'
                           >
                             <Field
                               orientation='horizontal'
-                              className='gap-2 px-2.5! py-3! [&_[data-slot=field-label]]:text-xs'
+                              className='gap-2 px-2.5! py-3! **:data-[slot=field-label]:text-xs'
                             >
                               <RadioGroupItem
                                 value={Themes.System}
@@ -403,11 +464,11 @@ const Setting: React.FC<Props> = () => {
                           </FieldLabel>
                           <FieldLabel
                             htmlFor='form-setting-theme-light'
-                            className='min-w-0 cursor-pointer rounded-lg border-0! bg-background/70 has-data-checked:bg-primary/10! focus-within:ring-2 focus-within:ring-ring'
+                            className='min-w-0 cursor-pointer rounded-lg border-0! bg-inset-70 has-data-checked:bg-primary/10! focus-within:ring-2 focus-within:ring-ring'
                           >
                             <Field
                               orientation='horizontal'
-                              className='gap-2 px-2.5! py-3! [&_[data-slot=field-label]]:text-xs'
+                              className='gap-2 px-2.5! py-3! **:data-[slot=field-label]:text-xs'
                             >
                               <RadioGroupItem
                                 value={Themes.Light}
@@ -420,11 +481,11 @@ const Setting: React.FC<Props> = () => {
                           </FieldLabel>
                           <FieldLabel
                             htmlFor='form-setting-theme-dark'
-                            className='min-w-0 cursor-pointer rounded-lg border-0! bg-background/70 has-data-checked:bg-primary/10! focus-within:ring-2 focus-within:ring-ring'
+                            className='min-w-0 cursor-pointer rounded-lg border-0! bg-inset-70 has-data-checked:bg-primary/10! focus-within:ring-2 focus-within:ring-ring'
                           >
                             <Field
                               orientation='horizontal'
-                              className='gap-2 px-2.5! py-3! [&_[data-slot=field-label]]:text-xs'
+                              className='gap-2 px-2.5! py-3! **:data-[slot=field-label]:text-xs'
                             >
                               <RadioGroupItem
                                 value={Themes.Dark}
@@ -458,11 +519,11 @@ const Setting: React.FC<Props> = () => {
                         >
                           <FieldLabel
                             htmlFor='form-setting-closer-minimize'
-                            className='min-w-0 cursor-pointer rounded-lg border-0! bg-background/70 has-data-checked:bg-primary/10! focus-within:ring-2 focus-within:ring-ring'
+                            className='min-w-0 cursor-pointer rounded-lg border-0! bg-inset-70 has-data-checked:bg-primary/10! focus-within:ring-2 focus-within:ring-ring'
                           >
                             <Field
                               orientation='horizontal'
-                              className='gap-2 px-2.5! py-3! [&_[data-slot=field-label]]:text-xs'
+                              className='gap-2 px-2.5! py-3! **:data-[slot=field-label]:text-xs'
                             >
                               <RadioGroupItem
                                 value={Closer.Minimize}
@@ -475,11 +536,11 @@ const Setting: React.FC<Props> = () => {
                           </FieldLabel>
                           <FieldLabel
                             htmlFor='form-setting-closer-close'
-                            className='min-w-0 cursor-pointer rounded-lg border-0! bg-background/70 has-data-checked:bg-primary/10! focus-within:ring-2 focus-within:ring-ring'
+                            className='min-w-0 cursor-pointer rounded-lg border-0! bg-inset-70 has-data-checked:bg-primary/10! focus-within:ring-2 focus-within:ring-ring'
                           >
                             <Field
                               orientation='horizontal'
-                              className='gap-2 px-2.5! py-3! [&_[data-slot=field-label]]:text-xs'
+                              className='gap-2 px-2.5! py-3! **:data-[slot=field-label]:text-xs'
                             >
                               <RadioGroupItem
                                 value={Closer.Close}
@@ -499,7 +560,7 @@ const Setting: React.FC<Props> = () => {
                   />
                 </FieldGroup>
               </section>
-              <section className='space-y-4 rounded-xl bg-muted/35 p-4'>
+              <section className='space-y-4 rounded-xl bg-surface-35 p-4'>
                 <h3 className='flex items-center gap-2 text-xs font-semibold'>
                   <Folder className='size-3.5 text-muted-foreground' />
                   {t('Settings-Projects')}
@@ -516,17 +577,19 @@ const Setting: React.FC<Props> = () => {
                         >
                           {t('VSCode-Code-Command')}
                           <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                type='button'
-                                variant='ghost'
-                                size='icon-xs'
-                                className='text-muted-foreground'
-                                aria-label={t('Settings-More-Info')}
-                              >
-                                <InfoIcon className='size-3.5' />
-                              </Button>
-                            </TooltipTrigger>
+                            <TooltipTrigger
+                              render={
+                                <Button
+                                  type='button'
+                                  variant='ghost'
+                                  size='icon-xs'
+                                  className='text-muted-foreground'
+                                  aria-label={t('Settings-More-Info')}
+                                >
+                                  <InfoIcon className='size-3.5' />
+                                </Button>
+                              }
+                            />
                             <TooltipContent className='w-96 max-w-[calc(100dvw-3rem)]'>
                               {t('VSCode-Code-Command-tip')}
                             </TooltipContent>
@@ -537,7 +600,7 @@ const Setting: React.FC<Props> = () => {
                           id='form-setting-coder'
                           aria-invalid={fieldState.invalid}
                           placeholder={t('VSCode-Code-Command')}
-                          className='h-9 border-0 bg-background/70 text-sm shadow-none'
+                          className='h-9 border-0 bg-inset-70 text-sm shadow-none'
                         />
                         {fieldState.invalid && (
                           <FieldError errors={[fieldState.error]} />
@@ -556,17 +619,19 @@ const Setting: React.FC<Props> = () => {
                         >
                           {t('Node-Version-File')}
                           <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                type='button'
-                                variant='ghost'
-                                size='icon-xs'
-                                className='text-muted-foreground'
-                                aria-label={t('Settings-More-Info')}
-                              >
-                                <InfoIcon className='size-3.5' />
-                              </Button>
-                            </TooltipTrigger>
+                            <TooltipTrigger
+                              render={
+                                <Button
+                                  type='button'
+                                  variant='ghost'
+                                  size='icon-xs'
+                                  className='text-muted-foreground'
+                                  aria-label={t('Settings-More-Info')}
+                                >
+                                  <InfoIcon className='size-3.5' />
+                                </Button>
+                              }
+                            />
                             <TooltipContent className='w-96 max-w-[calc(100dvw-3rem)] break-normal'>
                               {t('Node-Version-File-Tip')}
                             </TooltipContent>
@@ -575,7 +640,7 @@ const Setting: React.FC<Props> = () => {
                         <AutoComplete
                           value={field.value}
                           container={drawerContent}
-                          className='h-9 border-0 bg-background/70 shadow-none'
+                          className='h-9 border-0 bg-inset-70 shadow-none'
                           items={versionFileItems}
                           id='form-setting-version_file'
                           title={t('Node-Version-File')}
@@ -599,32 +664,37 @@ const Setting: React.FC<Props> = () => {
                         <FieldLabel className='text-xs font-medium'>
                           {t('Installation-Directory')}
                           <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                type='button'
-                                variant='ghost'
-                                size='icon-xs'
-                                className='text-muted-foreground'
-                                aria-label={t('Settings-More-Info')}
-                              >
-                                <InfoIcon className='size-3.5' />
-                              </Button>
-                            </TooltipTrigger>
+                            <TooltipTrigger
+                              render={
+                                <Button
+                                  type='button'
+                                  variant='ghost'
+                                  size='icon-xs'
+                                  className='text-muted-foreground'
+                                  aria-label={t('Settings-More-Info')}
+                                >
+                                  <InfoIcon className='size-3.5' />
+                                </Button>
+                              }
+                            />
                             <TooltipContent className='w-96 max-w-[calc(100dvw-3rem)]'>
                               {t('Installation-Directory-tip')}
                             </TooltipContent>
                           </Tooltip>
                         </FieldLabel>
-                        <div className='flex min-w-0 items-start justify-between gap-3 rounded-lg bg-background/70 p-3'>
-                          <Tooltip delayDuration={700}>
-                            <TooltipTrigger asChild>
-                              <LabelCopyable
-                                rootClassName='flex min-w-0 flex-1 items-start'
-                                className='min-w-0 flex-1 break-all font-mono text-xs leading-5'
-                              >
-                                {field.value}
-                              </LabelCopyable>
-                            </TooltipTrigger>
+                        <div className='flex min-w-0 items-start justify-between gap-3 rounded-lg bg-inset-70 p-3'>
+                          <Tooltip>
+                            <TooltipTrigger
+                              delay={700}
+                              render={
+                                <LabelCopyable
+                                  rootClassName='flex min-w-0 flex-1 items-start'
+                                  className='min-w-0 flex-1 break-all font-mono text-xs leading-5'
+                                >
+                                  {field.value}
+                                </LabelCopyable>
+                              }
+                            />
                             <TooltipContent>{field.value}</TooltipContent>
                           </Tooltip>
                           <Button
@@ -655,7 +725,7 @@ const Setting: React.FC<Props> = () => {
                   />
                 </FieldGroup>
               </section>
-              <section className='space-y-4 rounded-xl bg-muted/35 p-4'>
+              <section className='space-y-4 rounded-xl bg-surface-35 p-4'>
                 <h3 className='flex items-center gap-2 text-xs font-semibold'>
                   <Network className='size-3.5 text-muted-foreground' />
                   {t('Settings-Network')}
@@ -675,7 +745,7 @@ const Setting: React.FC<Props> = () => {
                         <AutoComplete
                           value={field.value}
                           container={drawerContent}
-                          className='h-9 border-0 bg-background/70 shadow-none'
+                          className='h-9 border-0 bg-inset-70 shadow-none'
                           items={mirrorItems}
                           id='form-setting-mirror'
                           title={t('Mirror-Url')}
@@ -737,7 +807,7 @@ const Setting: React.FC<Props> = () => {
                                   >
                                     <IpInput
                                       {...field}
-                                      className='border-0 bg-background/70 shadow-none'
+                                      className='border-0 bg-inset-70 shadow-none'
                                       disabled={!enabled}
                                     />
                                     {fieldState.invalid && (
@@ -764,7 +834,7 @@ const Setting: React.FC<Props> = () => {
                                       <Input
                                         {...field}
                                         disabled={!enabled}
-                                        className='border-0 bg-background/70 shadow-none'
+                                        className='border-0 bg-inset-70 shadow-none'
                                         aria-label={t('Settings-Proxy-Port')}
                                       />
                                       {fieldState.invalid && (
@@ -785,7 +855,7 @@ const Setting: React.FC<Props> = () => {
                   />
                 </FieldGroup>
               </section>
-              <section className='space-y-4 rounded-xl bg-muted/35 p-4'>
+              <section className='space-y-4 rounded-xl bg-surface-35 p-4'>
                 <h3 className='flex items-center gap-2 text-xs font-semibold'>
                   <SlidersHorizontal className='size-3.5 text-muted-foreground' />
                   {t('Settings-Advanced')}
@@ -809,7 +879,7 @@ const Setting: React.FC<Props> = () => {
                           }}
                           type='number'
                           id='form-setting-port'
-                          className='h-9 max-w-36 border-0 bg-background/70 shadow-none'
+                          className='h-9 max-w-36 border-0 bg-inset-70 shadow-none'
                         />
                         <FieldDescription className='text-xs leading-relaxed'>
                           {t('Restart-Required')}
@@ -825,7 +895,7 @@ const Setting: React.FC<Props> = () => {
             </fieldset>
           </form>
         </div>
-        <DrawerFooter className='shrink-0 flex-row items-center justify-end gap-2 rounded-b-2xl bg-muted/40 px-5 py-4 sm:px-6'>
+        <DrawerFooter className='shrink-0 flex-row items-center justify-end gap-2 rounded-b-2xl bg-surface-40 px-5 py-4 sm:px-6'>
           <DrawerClose asChild>
             <Button variant='ghost' disabled={loading}>
               {t('Cancel')}

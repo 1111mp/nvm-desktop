@@ -15,6 +15,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuGroup,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './dropdown-menu';
@@ -46,56 +47,70 @@ export function DataTableColumnSortHeader<TData extends RowData, TValue>({
   return (
     <div className={cn('flex min-w-0 items-center', className)}>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant='ghost'
-            className={cn(
-              tableFilterStyles.headerTrigger,
-              '-ml-2',
-              direction && tableFilterStyles.activeTrigger,
-            )}
-            aria-label={t('Table-Sort-Column', { field: title })}
-          >
-            <span>{title}</span>
-            {direction === 'desc' ? (
-              <ArrowDown className='size-3' />
-            ) : direction === 'asc' ? (
-              <ArrowUp className='size-3' />
-            ) : (
-              <ChevronsUpDown className='size-3 opacity-50' />
-            )}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align='start' className={tableFilterStyles.menu}>
-          <DropdownMenuLabel className='px-2.5 py-2 text-[0.625rem] font-medium text-muted-foreground'>
-            {title}
-          </DropdownMenuLabel>
-          {[
-            { value: 'asc', label: 'Table-Sort-Ascending', icon: ArrowUp },
-            { value: 'desc', label: 'Table-Sort-Descending', icon: ArrowDown },
-          ].map(({ value, label, icon: Icon }) => (
-            <DropdownMenuItem
-              key={value}
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant='ghost'
               className={cn(
-                tableFilterStyles.option,
-                direction === value && 'bg-primary/8',
+                tableFilterStyles.headerTrigger,
+                '-ml-2',
+                direction && tableFilterStyles.activeTrigger,
               )}
-              onSelect={() => column.toggleSorting(value === 'desc')}
+              aria-label={t('Table-Sort-Column', {
+                field: title,
+              })}
             >
-              <Icon className='size-3.5 text-muted-foreground' />
-              {t(label)}
-              {direction === value && <Check className='ml-auto size-3.5' />}
+              <span>{title}</span>
+              {direction === 'desc' ? (
+                <ArrowDown className='size-3' />
+              ) : direction === 'asc' ? (
+                <ArrowUp className='size-3' />
+              ) : (
+                <ChevronsUpDown className='size-3 opacity-50' />
+              )}
+            </Button>
+          }
+        />
+        <DropdownMenuContent align='start' className={tableFilterStyles.menu}>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className='px-2.5 py-2 text-[0.625rem] font-medium text-muted-foreground'>
+              {title}
+            </DropdownMenuLabel>
+            {[
+              {
+                value: 'asc',
+                label: 'Table-Sort-Ascending',
+                icon: ArrowUp,
+              },
+              {
+                value: 'desc',
+                label: 'Table-Sort-Descending',
+                icon: ArrowDown,
+              },
+            ].map(({ value, label, icon: Icon }) => (
+              <DropdownMenuItem
+                key={value}
+                className={cn(
+                  tableFilterStyles.option,
+                  direction === value && 'bg-primary/8',
+                )}
+                onClick={() => column.toggleSorting(value === 'desc')}
+              >
+                <Icon className='size-3.5 text-muted-foreground' />
+                {t(label)}
+                {direction === value && <Check className='ml-auto size-3.5' />}
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuSeparator className='mx-2 bg-muted' />
+            <DropdownMenuItem
+              disabled={!direction}
+              className={cn(tableFilterStyles.option, 'text-muted-foreground')}
+              onClick={() => column.clearSorting()}
+            >
+              <RotateCcw className='size-3.5' />
+              {t('Table-Clear-Sort')}
             </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator className='mx-2 bg-muted' />
-          <DropdownMenuItem
-            disabled={!direction}
-            className={cn(tableFilterStyles.option, 'text-muted-foreground')}
-            onSelect={() => column.clearSorting()}
-          >
-            <RotateCcw className='size-3.5' />
-            {t('Table-Clear-Sort')}
-          </DropdownMenuItem>
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

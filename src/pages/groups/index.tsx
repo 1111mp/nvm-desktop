@@ -88,7 +88,11 @@ export const Component: React.FC = () => {
         setProjects(projects);
         if (groups) setGroups(groups);
         if (payload)
-          toast.success(t('Restart-Terminal', { version: `v${payload}` }));
+          toast.success(
+            t('Restart-Terminal', {
+              version: `v${payload}`,
+            }),
+          );
       },
     );
 
@@ -149,14 +153,16 @@ export const Component: React.FC = () => {
         const desc = getValue() as string;
         return (
           <Tooltip>
-            <TooltipTrigger asChild>
-              <span
-                className='min-w-0 truncate text-xs leading-relaxed'
-                title={desc}
-              >
-                {desc || '—'}
-              </span>
-            </TooltipTrigger>
+            <TooltipTrigger
+              render={
+                <span
+                  className='min-w-0 truncate text-xs leading-relaxed'
+                  title={desc}
+                >
+                  {desc || '—'}
+                </span>
+              }
+            />
             <TooltipContent className='max-w-2xl'>{desc}</TooltipContent>
           </Tooltip>
         );
@@ -172,8 +178,13 @@ export const Component: React.FC = () => {
         const { projects, name, version } = row.original;
         return (
           <Select
+            items={installedVersions.map((value) => ({
+              value,
+              label: `v${value}`,
+            }))}
             value={version}
             onValueChange={async (newVersion) => {
+              if (newVersion === null) return;
               try {
                 const newGroups = [...groups];
                 newGroups[row.index].version = newVersion;
@@ -184,7 +195,9 @@ export const Component: React.FC = () => {
 
                 setGroups(newGroups);
                 toast.success(
-                  t('Restart-Terminal', { version: `v${newVersion}` }),
+                  t('Restart-Terminal', {
+                    version: `v${newVersion}`,
+                  }),
                 );
               } catch (err) {
                 toast.error(err);
@@ -198,9 +211,9 @@ export const Component: React.FC = () => {
               <SelectValue />
             </SelectTrigger>
             <SelectContent
-              position='popper'
+              alignItemWithTrigger={false}
               align='start'
-              className={`${workspaceStyles.popover} max-h-[min(22rem,var(--radix-select-content-available-height))] max-w-[calc(100dvw-2rem)]`}
+              className={`${workspaceStyles.popover} max-h-[min(22rem,var(--available-height))] max-w-[calc(100dvw-2rem)]`}
             >
               {installedVersions.map((version) => (
                 <SelectItem
@@ -253,10 +266,15 @@ export const Component: React.FC = () => {
             kind='group'
             name={name}
             details={[
-              { label: t('Version'), value: `v${version}` },
+              {
+                label: t('Version'),
+                value: `v${version}`,
+              },
               {
                 label: t('Projects'),
-                value: t('Project-Count', { count: groupProjects.length }),
+                value: t('Project-Count', {
+                  count: groupProjects.length,
+                }),
               },
             ]}
             onConfirm={async () => {
@@ -551,7 +569,7 @@ function MultiSelectProject({
     >
       <ComboboxChips
         ref={anchor}
-        className='w-full max-h-20 overflow-y-auto rounded-lg border-0 bg-muted/50 text-xs shadow-none'
+        className='w-full max-h-20 overflow-y-auto rounded-lg border-0 bg-surface-50 text-xs shadow-none'
       >
         <ComboboxValue>
           {(values: string[]) => (

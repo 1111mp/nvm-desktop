@@ -39,29 +39,35 @@ export function DataTableColumnFilterHeader<TData extends RowData, TValue>({
   return (
     <div className={cn('flex min-w-0 items-center', className)}>
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant='ghost'
-            className={cn(
-              tableFilterStyles.headerTrigger,
-              '-ml-2',
-              value && tableFilterStyles.activeTrigger,
-            )}
-            aria-label={t('Table-Filter-Column', { field: title })}
-          >
-            <span>{title}</span>
-            <Search className='size-3 opacity-60' />
-            {value && (
-              <span
-                aria-hidden='true'
-                className='size-1 rounded-full bg-primary'
-              />
-            )}
-          </Button>
-        </PopoverTrigger>
+        <PopoverTrigger
+          render={
+            <Button
+              variant='ghost'
+              className={cn(
+                tableFilterStyles.headerTrigger,
+                '-ml-2',
+                value && tableFilterStyles.activeTrigger,
+              )}
+              aria-label={t('Table-Filter-Column', {
+                field: title,
+              })}
+            >
+              <span>{title}</span>
+              <Search className='size-3 opacity-60' />
+              {value && (
+                <span
+                  aria-hidden='true'
+                  className='size-1 rounded-full bg-primary'
+                />
+              )}
+            </Button>
+          }
+        />
         <PopoverContent
           align='start'
-          aria-label={t('Table-Filter-Column', { field: title })}
+          aria-label={t('Table-Filter-Column', {
+            field: title,
+          })}
           className={cn(
             tableFilterStyles.popover,
             'w-64 max-w-[calc(100dvw-2rem)]',
@@ -73,7 +79,9 @@ export function DataTableColumnFilterHeader<TData extends RowData, TValue>({
               autoFocus
               className='w-full'
               value={value}
-              placeholder={t('Table-Search', { field: title })}
+              placeholder={t('Table-Search', {
+                field: title,
+              })}
               onChange={(value) => column.setFilterValue(value || undefined)}
             />
           </div>

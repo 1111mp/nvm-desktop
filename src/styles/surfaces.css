@@ -1,0 +1,48 @@
+/* The numeric suffix preserves each original muted opacity outside light accents. */
+@utility bg-surface-* {
+  background-color: var(
+    --surface-background,
+    color-mix(in oklab, var(--muted) calc(--value(integer) * 1%), transparent)
+  );
+}
+
+@utility bg-surface-hover-* {
+  background-color: var(
+    --surface-hover-background,
+    color-mix(in oklab, var(--muted) calc(--value(integer) * 1%), transparent)
+  );
+}
+
+@utility bg-surface-primary-hover-* {
+  background-color: var(
+    --surface-hover-background,
+    color-mix(in oklab, var(--primary) calc(--value(integer) * 1%), transparent)
+  );
+}
+
+@utility bg-surface-row-* {
+  background-color: var(
+    --surface-row-background,
+    color-mix(in oklab, var(--muted) calc(--value(integer) * 1%), transparent)
+  );
+}
+
+@utility bg-surface-selected-* {
+  background-color: var(
+    --surface-selected-background,
+    color-mix(in oklab, var(--muted) calc(--value(integer) * 1%), transparent)
+  );
+}
+
+/* Nested fields rise slightly in dark mode instead of cutting black holes in cards. */
+@utility bg-inset-* {
+  background-color: color-mix(
+    in oklab,
+    var(--background) calc(--value(integer) * 1%),
+    transparent
+  );
+
+  @variant dark {
+    background-color: color-mix(in oklab, var(--muted) 96%, var(--foreground));
+  }
+}

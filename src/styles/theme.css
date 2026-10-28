@@ -26,6 +26,25 @@
   --sidebar-primary-foreground: oklch(0.279 0.077 45.635);
 }
 
+:root:not(.dark) .theme-amber {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
+}
+
 .theme-blue {
   --primary: oklch(0.488 0.243 264.376);
   --primary-foreground: oklch(0.97 0.014 254.604);
@@ -52,6 +71,25 @@
   --chart-5: oklch(0.424 0.199 265.638);
   --sidebar-primary: oklch(0.623 0.214 259.815);
   --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
+}
+
+:root:not(.dark) .theme-blue {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
 }
 
 .theme-cyan {
@@ -82,6 +120,25 @@
   --sidebar-primary-foreground: oklch(0.302 0.056 229.695);
 }
 
+:root:not(.dark) .theme-cyan {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
+}
+
 .theme-emerald {
   --primary: oklch(0.508 0.118 165.612);
   --primary-foreground: oklch(0.979 0.021 166.113);
@@ -108,6 +165,25 @@
   --chart-5: oklch(0.432 0.095 166.913);
   --sidebar-primary: oklch(0.696 0.17 162.48);
   --sidebar-primary-foreground: oklch(0.262 0.051 172.552);
+}
+
+:root:not(.dark) .theme-emerald {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
 }
 
 .theme-fuchsia {
@@ -138,6 +214,25 @@
   --sidebar-primary-foreground: oklch(0.977 0.017 320.058);
 }
 
+:root:not(.dark) .theme-fuchsia {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
+}
+
 .theme-green {
   --primary: oklch(0.532 0.157 131.589);
   --primary-foreground: oklch(0.986 0.031 120.757);
@@ -164,6 +259,25 @@
   --chart-5: oklch(0.448 0.119 151.328);
   --sidebar-primary: oklch(0.768 0.233 130.85);
   --sidebar-primary-foreground: oklch(0.986 0.031 120.757);
+}
+
+:root:not(.dark) .theme-green {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
 }
 
 .theme-indigo {
@@ -194,6 +308,25 @@
   --sidebar-primary-foreground: oklch(0.962 0.018 272.314);
 }
 
+:root:not(.dark) .theme-indigo {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
+}
+
 .theme-lime {
   --primary: oklch(0.532 0.157 131.589);
   --primary-foreground: oklch(0.986 0.031 120.757);
@@ -220,6 +353,25 @@
   --chart-5: oklch(0.453 0.124 130.933);
   --sidebar-primary: oklch(0.768 0.233 130.85);
   --sidebar-primary-foreground: oklch(0.274 0.072 132.109);
+}
+
+:root:not(.dark) .theme-lime {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
 }
 
 .theme-orange {
@@ -250,6 +402,25 @@
   --sidebar-primary-foreground: oklch(0.98 0.016 73.684);
 }
 
+:root:not(.dark) .theme-orange {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
+}
+
 .theme-pink {
   --primary: oklch(0.525 0.223 3.958);
   --primary-foreground: oklch(0.971 0.014 343.198);
@@ -276,6 +447,25 @@
   --chart-5: oklch(0.459 0.187 3.815);
   --sidebar-primary: oklch(0.656 0.241 354.308);
   --sidebar-primary-foreground: oklch(0.971 0.014 343.198);
+}
+
+:root:not(.dark) .theme-pink {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
 }
 
 .theme-purple {
@@ -306,6 +496,25 @@
   --sidebar-primary-foreground: oklch(0.977 0.014 308.299);
 }
 
+:root:not(.dark) .theme-purple {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
+}
+
 .theme-red {
   --primary: oklch(0.505 0.213 27.518);
   --primary-foreground: oklch(0.971 0.013 17.38);
@@ -332,6 +541,25 @@
   --chart-5: oklch(0.444 0.177 26.899);
   --sidebar-primary: oklch(0.637 0.237 25.331);
   --sidebar-primary-foreground: oklch(0.971 0.013 17.38);
+}
+
+:root:not(.dark) .theme-red {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
 }
 
 .theme-rose {
@@ -363,6 +591,25 @@
   --sidebar-primary-foreground: oklch(0.969 0.015 12.422);
 }
 
+:root:not(.dark) .theme-rose {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
+}
+
 .theme-sky {
   --primary: oklch(0.5 0.134 242.749);
   --primary-foreground: oklch(0.977 0.013 236.62);
@@ -389,6 +636,25 @@
   --chart-5: oklch(0.443 0.11 240.79);
   --sidebar-primary: oklch(0.685 0.169 237.323);
   --sidebar-primary-foreground: oklch(0.293 0.066 243.157);
+}
+
+:root:not(.dark) .theme-sky {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
 }
 
 .theme-teal {
@@ -419,6 +685,25 @@
   --sidebar-primary-foreground: oklch(0.277 0.046 192.524);
 }
 
+:root:not(.dark) .theme-teal {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
+}
+
 .theme-violet {
   --primary: oklch(0.491 0.27 292.581);
   --primary-foreground: oklch(0.969 0.016 293.756);
@@ -447,6 +732,25 @@
   --sidebar-primary-foreground: oklch(0.969 0.016 293.756);
 }
 
+:root:not(.dark) .theme-violet {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
+}
+
 .theme-yellow {
   --primary: oklch(0.852 0.199 91.936);
   --primary-foreground: oklch(0.421 0.095 57.708);
@@ -473,4 +777,23 @@
   --chart-5: oklch(0.476 0.114 61.907);
   --sidebar-primary: oklch(0.795 0.184 86.047);
   --sidebar-primary-foreground: oklch(0.987 0.026 102.212);
+}
+
+:root:not(.dark) .theme-yellow {
+  --surface-background: color-mix(in oklab, var(--muted) 97%, var(--primary));
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--surface-background) 96%,
+    var(--foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--surface-background) 65%,
+    transparent
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--primary) 10%,
+    var(--popover)
+  );
 }

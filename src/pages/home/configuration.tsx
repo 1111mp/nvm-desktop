@@ -72,7 +72,7 @@ const headerClassName =
   'flex! shrink-0 flex-col! items-start! gap-2! text-left!';
 const bodyClassName = 'min-h-0 overflow-y-auto overscroll-contain -m-1 p-1';
 const footerClassName =
-  'm-0 shrink-0 flex-row justify-end gap-2 rounded-xl border-0 bg-muted/50 p-3';
+  'm-0 shrink-0 flex-row justify-end gap-2 rounded-xl border-0 bg-surface-50 p-3';
 
 const FormSchema = z.object({
   items: z.array(z.string()).refine((value) => value.some((item) => item), {
@@ -108,11 +108,13 @@ const Configuration: React.FC = () => {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size='sm' title={title} variant='ghost'>
-            <Share2Icon />
-          </Button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={
+            <Button size='sm' title={title} variant='ghost'>
+              <Share2Icon />
+            </Button>
+          }
+        />
         <DropdownMenuContent className='w-64 rounded-xl p-2 ring-0'>
           <DropdownMenuGroup>
             <DropdownMenuLabel className='px-2 pb-2 text-xs text-muted-foreground'>
@@ -192,9 +194,7 @@ const ConfigurationExport: React.FC<ConfigurationExportProps> = ({ ref }) => {
     try {
       // oxlint-disable-next-line react/purity
       const now = Date.now();
-      const filename = `${path}${
-        OS_PLATFORM === 'win32' ? '\\' : '/'
-      }configuration_${now}.json`;
+      const filename = `${path}${OS_PLATFORM === 'win32' ? '\\' : '/'}configuration_${now}.json`;
       const exportSetting = items.includes('setting');
 
       await configurationExport(filename, {
@@ -207,9 +207,14 @@ const ConfigurationExport: React.FC<ConfigurationExportProps> = ({ ref }) => {
           ? localStorage.getItem('nvmd-mirror') || void 0
           : void 0,
       });
-      toast.success(t('Configuration-export-success', { filename }), {
-        duration: 5000,
-      });
+      toast.success(
+        t('Configuration-export-success', {
+          filename,
+        }),
+        {
+          duration: 5000,
+        },
+      );
       setOpen(false);
     } catch (err) {
       toast.error(err?.message || err.toString());
@@ -222,7 +227,10 @@ const ConfigurationExport: React.FC<ConfigurationExportProps> = ({ ref }) => {
     <AlertDialog
       open={open}
       onOpenChange={(open) => {
-        if (!open) form.reset({ items: ['color', 'setting', 'projects'] });
+        if (!open)
+          form.reset({
+            items: ['color', 'setting', 'projects'],
+          });
         setOpen(open);
       }}
     >
@@ -256,7 +264,7 @@ const ConfigurationExport: React.FC<ConfigurationExportProps> = ({ ref }) => {
                           key={item.id}
                           orientation='horizontal'
                           className={cn(
-                            'relative gap-3 rounded-xl bg-muted/40 p-3.5 transition-colors hover:bg-muted/70',
+                            'relative gap-3 rounded-xl bg-surface-40 p-3.5 transition-colors hover:bg-surface-hover-70',
                             field.value.includes(item.id) &&
                               'bg-primary/7 hover:bg-primary/10',
                           )}
@@ -369,7 +377,9 @@ const ConfigurationImport: React.FC<ConfigurationImportProps> = ({ ref }) => {
       }
 
       setOpen(false);
-      toast.success(t('Configuration-import-success'), { duration: 5000 });
+      toast.success(t('Configuration-import-success'), {
+        duration: 5000,
+      });
     } catch (err) {
       toast.error(err?.message || err.toString());
     } finally {
@@ -416,7 +426,7 @@ const ConfigurationImport: React.FC<ConfigurationImportProps> = ({ ref }) => {
               type='button'
               disabled={loading}
               onClick={() => onConfigurationImport(sync)}
-              className='group flex w-full cursor-pointer items-center gap-3 rounded-xl bg-muted/50 p-4 text-left transition-colors hover:bg-primary/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50'
+              className='group flex w-full cursor-pointer items-center gap-3 rounded-xl bg-surface-50 p-4 text-left transition-colors hover:bg-surface-primary-hover-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50'
             >
               <span className='grid size-10 shrink-0 place-items-center rounded-lg bg-background text-primary shadow-xs'>
                 <Icon className='size-4' />

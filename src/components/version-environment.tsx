@@ -16,7 +16,7 @@ export function VersionEnvironment({
   const { t } = useTranslation();
   return (
     <section
-      className='flex shrink-0 flex-wrap items-center gap-3 rounded-xl bg-muted/40 bg-linear-to-br from-primary/10 via-primary/3 to-transparent p-4 dark:from-primary/15 dark:via-primary/5 lg:gap-4.5'
+      className='flex shrink-0 flex-wrap items-center gap-3 rounded-xl bg-surface-40 bg-linear-to-br from-primary/10 via-primary/3 to-transparent p-4 dark:from-primary/15 dark:via-primary/5 lg:gap-4.5'
       aria-label={t('Current-Environment')}
     >
       <div className='grid size-11.5 shrink-0 place-items-center rounded-xl bg-background text-foreground shadow-xs'>

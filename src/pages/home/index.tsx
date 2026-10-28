@@ -51,7 +51,9 @@ const Home: React.FC = () => {
     const unlisted = getCurrent().listen<string>(
       'nvm-desktop://app-migration-error',
       async () => {
-        toast.error(t('Migration-error'), { duration: 8000 });
+        toast.error(t('Migration-error'), {
+          duration: 8000,
+        });
       },
     );
 
@@ -61,10 +63,26 @@ const Home: React.FC = () => {
   }, [t]);
 
   const navigation = [
-    { path: '/versions', label: 'Versions', icon: Layers },
-    { path: '/installed', label: 'Installed', icon: HardDrive },
-    { path: '/projects', label: 'Projects', icon: Folder },
-    { path: '/groups', label: 'Groups', icon: Boxes },
+    {
+      path: '/versions',
+      label: 'Versions',
+      icon: Layers,
+    },
+    {
+      path: '/installed',
+      label: 'Installed',
+      icon: HardDrive,
+    },
+    {
+      path: '/projects',
+      label: 'Projects',
+      icon: Folder,
+    },
+    {
+      path: '/groups',
+      label: 'Groups',
+      icon: Boxes,
+    },
   ];
 
   return (
@@ -98,8 +116,14 @@ const Home: React.FC = () => {
         <SidebarContent>
           <nav aria-label={t('Workspace')}>
             {[
-              { label: 'Version-Manager', items: navigation.slice(0, 2) },
-              { label: 'Workspace', items: navigation.slice(2) },
+              {
+                label: 'Version-Manager',
+                items: navigation.slice(0, 2),
+              },
+              {
+                label: 'Workspace',
+                items: navigation.slice(2),
+              },
             ].map((group) => (
               <SidebarGroup key={group.label}>
                 <SidebarGroupLabel>{t(group.label)}</SidebarGroupLabel>
@@ -108,25 +132,25 @@ const Home: React.FC = () => {
                     {group.items.map(({ path, label, icon: Icon }) => (
                       <SidebarMenuItem key={path}>
                         <SidebarMenuButton
-                          asChild
                           isActive={pathname === path}
                           tooltip={t(label)}
                           className={cn(
                             'min-h-9 text-sm xl:min-h-10 xl:text-sm group-data-[collapsible=icon]:min-h-9 data-active:bg-primary/10 data-active:text-primary data-active:shadow-none dark:data-active:text-sidebar-foreground',
                             label === 'Projects' && 'nvmd-project',
                           )}
-                        >
-                          <SidebarLink
-                            to={path}
-                            aria-label={t(label)}
-                            aria-current={
-                              pathname === path ? 'page' : undefined
-                            }
-                          >
-                            <Icon className='size-4' strokeWidth={1.7} />
-                            <span>{t(label)}</span>
-                          </SidebarLink>
-                        </SidebarMenuButton>
+                          render={
+                            <SidebarLink
+                              to={path}
+                              aria-label={t(label)}
+                              aria-current={
+                                pathname === path ? 'page' : undefined
+                              }
+                            >
+                              <Icon className='size-4' strokeWidth={1.7} />
+                              <span>{t(label)}</span>
+                            </SidebarLink>
+                          }
+                        />
                       </SidebarMenuItem>
                     ))}
                   </SidebarMenu>

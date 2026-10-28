@@ -22,7 +22,10 @@ export function WorkspaceRemoveDialog({
 }: {
   kind: 'project' | 'group';
   name: string;
-  details: { label: string; value: ReactNode }[];
+  details: {
+    label: string;
+    value: ReactNode;
+  }[];
   onConfirm: () => Promise<void>;
 }) {
   const { t } = useTranslation();
@@ -51,19 +54,21 @@ export function WorkspaceRemoveDialog({
         if (!pending) setOpen(next);
       }}
     >
-      <AlertDialogTrigger asChild>
-        <Button
-          size='xs'
-          variant='ghost'
-          className={workspaceStyles.removeAction}
-          aria-label={`${t('Remove')} ${name}`}
-        >
-          <Trash2 />
-          {t('Remove')}
-        </Button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger
+        render={
+          <Button
+            size='xs'
+            variant='ghost'
+            className={workspaceStyles.removeAction}
+            aria-label={`${t('Remove')} ${name}`}
+          >
+            <Trash2 />
+            {t('Remove')}
+          </Button>
+        }
+      />
       <AlertDialogContent className={`${workspaceStyles.dialog} gap-0 p-0`}>
-        <div className='flex shrink-0 items-start gap-3 rounded-t-2xl bg-muted/40 bg-linear-to-br from-destructive/5 to-transparent p-5 sm:p-6'>
+        <div className='flex shrink-0 items-start gap-3 rounded-t-2xl bg-surface-40 bg-linear-to-br from-destructive/5 to-transparent p-5 sm:p-6'>
           <span className='grid size-10 shrink-0 place-items-center rounded-xl bg-destructive/10 text-destructive'>
             <Trash2 className='size-4.5' />
           </span>
@@ -77,7 +82,7 @@ export function WorkspaceRemoveDialog({
           </div>
         </div>
         <div className='min-h-0 space-y-4 overflow-y-auto overscroll-contain p-5 sm:p-6'>
-          <div className='rounded-xl bg-muted/40 p-4'>
+          <div className='rounded-xl bg-surface-40 p-4'>
             <p className='mb-4 flex items-center gap-2.5 text-sm font-semibold'>
               <Icon className='size-4 shrink-0 text-muted-foreground' />
               <span className='min-w-0 break-all'>{name}</span>

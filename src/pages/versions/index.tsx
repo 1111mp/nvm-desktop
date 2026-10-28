@@ -100,7 +100,11 @@ export const Versions: React.FC = () => {
       async ({ payload }) => {
         if (payload) {
           setCurrent(payload);
-          toast.success(t('Restart-Terminal', { version: `v${payload}` }));
+          toast.success(
+            t('Restart-Terminal', {
+              version: `v${payload}`,
+            }),
+          );
         } else {
           const installed = await installedList();
           setInstalledVersions(installed);
@@ -124,7 +128,9 @@ export const Versions: React.FC = () => {
   const columns = columnHelper.columns([
     columnHelper.accessor('version', {
       header: t('Version'),
-      meta: { layoutClassName: 'min-w-52 xl:flex-[1.1_1_0%]' },
+      meta: {
+        layoutClassName: 'min-w-52 xl:flex-[1.1_1_0%]',
+      },
       enableHiding: false,
       enableColumnFilter: false,
       enableSorting: true,
@@ -147,20 +153,22 @@ export const Versions: React.FC = () => {
         const { version, lts, date } = row.original;
         return (
           <div className='relative flex items-center gap-2 whitespace-nowrap'>
-            <Tooltip disableHoverableContent={true}>
-              <TooltipTrigger asChild>
-                <button
-                  type='button'
-                  className='cursor-pointer rounded-md p-0 font-mono text-sm font-semibold leading-6 text-foreground underline-offset-4 outline-none transition-colors hover:text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring'
-                  onClick={async () => {
-                    await open(
-                      `https://github.com/nodejs/node/releases/tag/${version}`,
-                    );
-                  }}
-                >
-                  {version}
-                </button>
-              </TooltipTrigger>
+            <Tooltip disableHoverablePopup={true}>
+              <TooltipTrigger
+                render={
+                  <button
+                    type='button'
+                    className='cursor-pointer rounded-md p-0 font-mono text-sm font-semibold leading-6 text-foreground underline-offset-4 outline-none transition-colors hover:text-primary hover:underline focus-visible:ring-2 focus-visible:ring-ring'
+                    onClick={async () => {
+                      await open(
+                        `https://github.com/nodejs/node/releases/tag/${version}`,
+                      );
+                    }}
+                  >
+                    {version}
+                  </button>
+                }
+              />
               <TooltipContent
                 className='bg-primary text-primary-foreground'
                 arrowClassName='bg-primary fill-primary'
@@ -330,39 +338,46 @@ export const Versions: React.FC = () => {
         if (installedVersions.find((install) => version === `v${install}`))
           return (
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size='xs'
-                  variant='ghost'
-                  aria-label={`${t('More')} ${version}`}
-                  className={`${rowActionClassName} bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground data-[state=open]:bg-muted data-[state=open]:text-foreground`}
-                >
-                  <Ellipsis className='size-3.5' />
-                  {t('More')}
-                </Button>
-              </DropdownMenuTrigger>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    size='xs'
+                    variant='ghost'
+                    aria-label={`${t('More')} ${version}`}
+                    className={`${rowActionClassName} bg-surface-60 text-muted-foreground hover:bg-muted hover:text-foreground data-popup-open:bg-surface-hover-100 data-popup-open:text-foreground`}
+                  >
+                    <Ellipsis className='size-3.5' />
+                    {t('More')}
+                  </Button>
+                }
+              />
               <DropdownMenuContent
                 align='end'
                 className='w-52 rounded-xl p-1.5'
               >
-                <DropdownMenuLabel className='flex items-center justify-between gap-2 px-2 py-2.5'>
-                  <span className='font-mono text-xs font-semibold'>
-                    {version}
-                  </span>
-                  <span className='text-[0.625rem] font-normal text-muted-foreground'>
-                    {t(version === `v${current}` ? 'Current' : 'Installed')}
-                  </span>
-                </DropdownMenuLabel>
                 <DropdownMenuGroup>
+                  <DropdownMenuLabel className='flex items-center justify-between gap-2 px-2 py-2.5'>
+                    <span className='font-mono text-xs font-semibold'>
+                      {version}
+                    </span>
+                    <span className='text-[0.625rem] font-normal text-muted-foreground'>
+                      {t(version === `v${current}` ? 'Current' : 'Installed')}
+                    </span>
+                  </DropdownMenuLabel>
+
                   <DropdownMenuItem
                     disabled={version === `v${current}`}
                     className='gap-2.5 rounded-lg px-2 py-2.5'
-                    onSelect={async () => {
+                    onClick={async () => {
                       try {
                         const curVersion = version.slice(1);
                         await vSetCurrent(curVersion);
                         setCurrent(curVersion);
-                        toast.success(t('Restart-Terminal', { version }));
+                        toast.success(
+                          t('Restart-Terminal', {
+                            version,
+                          }),
+                        );
                       } catch (err) {
                         toast.error(err);
                       }
@@ -375,7 +390,7 @@ export const Versions: React.FC = () => {
                   <DropdownMenuItem
                     className='gap-2.5 rounded-lg px-2 py-2.5'
                     variant='destructive'
-                    onSelect={async () => {
+                    onClick={async () => {
                       try {
                         await uninstallNode(version.slice(1));
                         const [currentVersion, versions] = await Promise.all([
@@ -384,7 +399,11 @@ export const Versions: React.FC = () => {
                         ]);
                         setCurrent(currentVersion);
                         setInstalledVersions(versions);
-                        toast.success(t('Tip-Uninstall', { version }));
+                        toast.success(
+                          t('Tip-Uninstall', {
+                            version,
+                          }),
+                        );
                       } catch (err) {
                         toast.error(err);
                       }
@@ -502,7 +521,9 @@ export const Versions: React.FC = () => {
           <div className='flex items-baseline justify-between gap-3 pb-4'>
             <h2 className='text-sm font-semibold'>{t('Release-Catalog')}</h2>
             <span className='text-xs text-muted-foreground tabular-nums'>
-              {t('Available-Releases', { count: versions.length })}
+              {t('Available-Releases', {
+                count: versions.length,
+              })}
             </span>
           </div>
           <DataTable
@@ -537,7 +558,7 @@ export const Versions: React.FC = () => {
                   <Button
                     size='sm'
                     variant='ghost'
-                    className='group h-8 gap-2 rounded-lg border-0 bg-muted/40 px-3 text-xs font-medium text-muted-foreground hover:bg-muted/80 hover:text-foreground'
+                    className='group h-8 gap-2 rounded-lg border-0 bg-surface-40 px-3 text-xs font-medium text-muted-foreground hover:bg-surface-hover-80 hover:text-foreground'
                     title={t('Page-Reload-Description')}
                     aria-busy={localLoading}
                     disabled={localLoading || loading}

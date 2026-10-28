@@ -1,181 +1,222 @@
 <div align="center">
-  <img src="https://github.com/1111mp/nvm-desktop/assets/31227919/67132758-8aa9-4b05-b987-18fdd5980936" alt="nvm-desktop" />
+  <img src="https://github.com/1111mp/nvm-desktop/assets/31227919/67132758-8aa9-4b05-b987-18fdd5980936" alt="NVM Desktop" />
+
+  <h1>NVM Desktop</h1>
+  <p><strong>The right Node.js version for every project.</strong></p>
+  <p>A desktop app and command-line companion for managing Node.js on macOS, Windows, and Linux.</p>
+
+  <p>
+    <a href="https://github.com/1111mp/nvm-desktop/releases">Download</a> ·
+    <a href="#quick-start">Quick start</a> ·
+    <a href="#command-line">CLI</a> ·
+    <a href="https://github.com/1111mp/nvm-desktop/issues">Report an issue</a>
+  </p>
+  <p>English · <a href="./README-zh_CN.md">简体中文</a></p>
 </div>
 
-# nvm-desktop
+## One workspace, multiple Node.js versions
 
-A cross-platform Node.js version manager with both:
+Work on a legacy service, a new application, and a collection of related repositories without making them share the same runtime. NVM Desktop lets you install versions, choose a global default, pin a version to a project, or manage several projects as a group.
 
-- **GUI app** (`nvm-desktop`) for visual management
-- **CLI tool** (`nvmd`) for terminal workflows
+Use **NVM Desktop** to browse and organize your environments. Use **`nvmd`** in your terminal for commands and scripts.
 
-Supports `macOS`, `Windows`, and `Linux`.
+| Capability         | What it gives you                                                                               |
+| ------------------ | ----------------------------------------------------------------------------------------------- |
+| Version management | Browse releases, choose an architecture, install, and uninstall Node.js.                        |
+| Project runtimes   | Assign a version to a project folder instead of changing the global default.                    |
+| Project groups     | Keep related projects on a shared version and change it from one place.                         |
+| GUI and CLI        | Manage versions visually or from the terminal.                                                  |
+| Appearance         | Light, dark, and system modes with base palettes, accents, full themes, and adjustable corners. |
+| Configuration      | Customize mirrors, proxies, project defaults, and import/export options.                        |
 
-English | [简体中文](./README-zh_CN.md)
+## Screenshots
 
-## Screenshot
+**Node.js version management**
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/a66ba500-10ba-4711-a625-c8707765621d" width="32%" />
-  <img src="https://github.com/user-attachments/assets/ed43197f-bcc1-40ef-80e2-1dd7c02afc81" width="32%" />
-  <img src="https://github.com/user-attachments/assets/a454f0a3-08fa-4f49-96a7-ef5f736e29c4" width="32%" />
+  <img src="./docs/images/versions-light.png" alt="Node.js version management — Light mode" width="49%" />
+  <img src="./docs/images/versions-dark.png" alt="Node.js version management — Dark mode" width="49%" />
 </p>
+
+**Theme customization**
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/433c4b85-f2d5-4f12-9d7d-db97324dc550" width="32%" />
-  <img src="https://github.com/user-attachments/assets/55d3a674-24bf-4757-9fc4-772d069ad294" width="32%" />
-  <img src="https://github.com/user-attachments/assets/7bd7f510-da10-492b-961d-f447903bf942" width="32%" />
+  <img src="./docs/images/theme-customizer-light.png" alt="Theme customization — Light mode" width="49%" />
+  <img src="./docs/images/theme-customizer-dark.png" alt="Theme customization — Dark mode" width="49%" />
 </p>
 
-## Why use it
+**Settings**
 
-- Install and uninstall Node.js versions quickly
-- Switch global Node.js version with one command/click
-- Pin Node.js versions per project
-- Keep environments isolated across Node.js versions
-- Use GUI or CLI based on your workflow
+<p align="center">
+  <img src="./docs/images/settings-light.png" alt="Settings — Light mode" width="49%" />
+  <img src="./docs/images/settings-dark.png" alt="Settings — Dark mode" width="49%" />
+</p>
 
-## Install
+## Quick start
 
-Download from releases:
+### 1. Install the desktop app
 
-- [GitHub Releases](https://github.com/1111mp/nvm-desktop/releases)
+Download the package for your operating system and architecture from [GitHub Releases](https://github.com/1111mp/nvm-desktop/releases), install it, and launch NVM Desktop. The first-launch guide walks you through shell setup and your first runtime.
 
-After installation, ensure these are available in terminal:
+### 2. Connect your terminal
+
+**macOS and Linux** — add the following to your shell startup file, such as `~/.zshrc` for Zsh or `~/.bashrc` for Bash:
 
 ```shell
-nvmd -V
-node -v
-npm -v
+export NVMD_DIR="$HOME/.nvmd"
+export PATH="$NVMD_DIR/bin:$PATH"
 ```
 
-## Core usage (CLI-first)
+Open a new terminal after saving the file.
 
-### 1) Install a Node.js version
+**Windows** — check that the following directory is in your user `PATH`, then open a new terminal:
+
+```text
+%USERPROFILE%\.nvmd\bin
+```
+
+Confirm that the command-line tool is available:
+
+```shell
+nvmd --version
+```
+
+### 3. Install and select Node.js
+
+Open **Versions**, choose a release and architecture, and install it. In **Installed**, apply an installed version as the global default.
+
+You can also use the terminal. These commands use an example version; replace it with the version you need:
 
 ```shell
 nvmd install 20.18.0
-```
-
-### 2) List installed versions
-
-```shell
-nvmd ls
-```
-
-### 3) Switch global version
-
-```shell
 nvmd use 20.18.0
-node -v
+node --version
+npm --version
 ```
 
-### 4) Set version for current project
+## Your everyday workflow
+
+### Find and manage runtimes
+
+Use **Versions** to browse and filter available releases. Use **Installed** to see local runtimes, switch your global default, and remove versions you no longer need. Installation reports download and extraction status in the app.
+
+### Give each project its own version
+
+1. Open **Projects** and add a project folder.
+2. Choose an installed Node.js version for that project.
+3. Open a terminal in the project directory and run `node --version`.
+
+The app stores the project's version in a version file. The default filename is `.nvmdrc`; you can change it in **Settings**, for example to `.nvmrc` or `.node-version`. The configured version file in the current directory takes priority over the global default.
+
+To set a project version from its directory:
 
 ```shell
-nvmd use 18.20.4 --project
-node -v
+nvmd use 20.18.0 --project
 ```
 
-### 5) Check current version
+### Keep related projects together
+
+Create a group in **Groups**, choose its Node.js version, and select the projects it should manage. Changing the group's version updates its associated projects. Each project belongs to at most one group.
+
+Project folders must exist and be writable so the app can update their version files.
+
+## Command line
+
+The bundled **`nvmd`** tool supports terminal workflows alongside the desktop app.
+
+| Task                              | Command                               |
+| --------------------------------- | ------------------------------------- |
+| Install a version                 | `nvmd install 20.18.0`                |
+| List installed versions           | `nvmd list`                           |
+| Set the global default            | `nvmd use 20.18.0`                    |
+| Set the current project's version | `nvmd use 20.18.0 --project`          |
+| Show the current version          | `nvmd current`                        |
+| Uninstall a version               | `nvmd uninstall 20.18.0`              |
+| Locate an executable              | `nvmd which node` or `nvmd which npm` |
+| Show command help                 | `nvmd --help`                         |
+
+After changing versions in the terminal, refresh the relevant page in the app to update its displayed information. The CLI is maintained in [nvmd-command](https://github.com/1111mp/nvmd-command).
+
+## Make it yours
+
+The controls at the bottom of the sidebar open appearance, Tip, configuration, settings, and app updates.
+
+**Appearance.** Use a Base Color on its own, add an Accent Color, or choose a Full Theme. Accent colors and full themes are alternative choices. Adjust the corner radius in the theme customizer and choose light, dark, or system mode in Settings.
+
+**Settings.** Configure language, window-close behavior, the editor command, project version filename, installation directory, download mirrors, and proxy access.
+
+**Configuration.** Export your settings, appearance, and project/group configuration, or import a saved configuration. Project import can optionally synchronize version files. Configuration export is not a backup of installed Node.js runtimes or project source files.
+
+**Help and updates.** Open Tip for usage notes and copyable commands. The updater provides release notes, download progress, and installation/restart actions.
+
+## Common questions
+
+<details>
+<summary>Why is nvmd missing, or why does node still use another installation?</summary>
+
+Open a new terminal after changing `PATH`. Check that the NVM Desktop `bin` directory is on `PATH` and comes before other Node.js installations. After selecting a runtime, compare `nvmd which node` with `which node` on macOS/Linux or `where.exe node` on Windows.
+
+</details>
+
+<details>
+<summary>Why does a project use a different version from the global default?</summary>
+
+The configured version file in the current project directory takes priority over the global default. Check the project's assigned version, group membership, and version filename in Settings.
+
+</details>
+
+<details>
+<summary>Are globally installed npm packages shared between versions?</summary>
+
+By default, global npm packages are isolated per Node.js version. Install the tools you need for each runtime. If you deliberately want a shared location, configure npm with `npm config set prefix "/path/to/shared-global"` and make sure that location is on your `PATH`.
+
+</details>
+
+<details>
+<summary>What should I check when downloads or project updates fail?</summary>
+
+For downloads, check your network, mirror, and proxy settings. For project updates, check that the folder still exists and that you can write its configured version file. If the issue persists, [open an issue](https://github.com/1111mp/nvm-desktop/issues) with your app version, operating system, steps to reproduce, and error message.
+
+</details>
+
+## Data and configuration
+
+The default data directory is `~/.nvmd` on macOS/Linux and `%USERPROFILE%\.nvmd` on Windows. The desktop app also supports overriding its data directory with `NVMD_HOME`; the runtime installation directory can be changed in Settings.
+
+| Location        | Contents                                                       |
+| --------------- | -------------------------------------------------------------- |
+| `bin/`          | Command-line tool and executable shims.                        |
+| `versions/`     | Installed Node.js runtimes in the default installation layout. |
+| `default`       | Global default version.                                        |
+| `projects.json` | Project version assignments.                                   |
+| `groups.json`   | Project groups.                                                |
+| `setting.json`  | App settings.                                                  |
+
+## Development and contributions
+
+The desktop app uses **Tauri, Rust, React, TypeScript, Tailwind CSS, and Base UI**. To work locally, install Rust and your platform's Tauri build dependencies, use the Node.js version in [`.node-version`](./.node-version), and use the pnpm version declared in [`package.json`](./package.json).
 
 ```shell
-nvmd current
-```
-
-### 6) Uninstall a version
-
-```shell
-nvmd uninstall 16.20.2
-```
-
-### 7) Find executable path
-
-```shell
-nvmd which node
-nvmd which npm
-```
-
-## Recommended project workflow
-
-For each project:
-
-1. Open project root
-2. Choose Node.js version with `nvmd use <version> --project`
-3. Run `node -v` to confirm
-4. Install dependencies and develop as usual
-
-This helps keep dependency/toolchain behavior consistent per repo.
-
-## GUI usage
-
-In `nvm-desktop`, you can:
-
-- browse available Node.js versions
-- install/uninstall versions
-- switch global default version
-- bind Node.js versions to projects
-- manage settings such as mirror and language
-
-If you prefer clicking over commands, most common operations are available in GUI.
-
-## Data location
-
-`nvm-desktop` stores data in:
-
-- macOS / Linux: `~/.nvmd`
-- Windows: `%HOMEPATH%\.nvmd`
-
-Typical contents:
-
-- `bin/` shims (`node`, `npm`, `npx`, `nvmd`, `corepack`)
-- `versions/` installed Node.js runtimes
-- `default` global default version
-- `projects.json` per-project version bindings
-- `setting.json` app settings
-
-## FAQ
-
-### Are global npm packages shared between Node.js versions?
-
-By default, **no** (environments are isolated).
-
-To share global packages, set a common prefix:
-
-```shell
-npm config set prefix "/path/to/shared-global"
-```
-
-### GUI or CLI: which one should I use?
-
-- Use **GUI** for discovery and visual management
-- Use **CLI (`nvmd`)** for automation, scripts, and terminal-first work
-
-## Develop locally
-
-Prerequisites:
-
-- Rust
-- Node.js
-- pnpm
-
-Run:
-
-```shell
-pnpm check
 pnpm install
+pnpm check
 pnpm dev
 ```
 
-Build package:
+`pnpm check` prepares the bundled command-line resources. `pnpm dev` launches the desktop development app. For frontend-only work, use `pnpm ui:dev`; native Tauri operations require the desktop app.
+
+Before submitting a pull request:
 
 ```shell
-pnpm build
+pnpm type-check
+pnpm oxlint
+pnpm format:check
+node --test tests/*.test.mjs
+pnpm ui:build
 ```
 
-Artifacts:
+Build a desktop package with `pnpm build`. Bundles are written to `src-tauri/target/release/bundle`.
 
-- `./src-tauri/target/release/bundle`
+Bug reports and focused pull requests are welcome. For interface changes, include screenshots and describe the operating systems and theme modes you verified.
 
 ## License
 

@@ -1,4 +1,5 @@
 {
+  "Group-Projects-Save-Failed": "Nie udało się zaktualizować projektów grupy. Sprawdź, czy foldery projektów istnieją i można w nich zapisywać.",
   "About": "O programie",
   "Services": "Usługi",
   "Hide": "Ukryj",
@@ -14,6 +15,8 @@
   "Select-All": "Zaznacz wszystko",
   "Window": "Okno",
   "Minimize": "Minimalizuj",
+  "Maximize": "Maksymalizuj",
+  "Restore": "Przywróć",
   "Close": "Zamknij",
   "Help": "Pomoc",
   "Learn-More": "Dowiedz się więcej",

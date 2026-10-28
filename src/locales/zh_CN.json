@@ -1,4 +1,5 @@
 {
+  "Group-Projects-Save-Failed": "更新分组项目失败，请检查项目文件夹是否存在且可写。",
   "About": "关于",
   "Services": "服务",
   "Hide": "隐藏",
@@ -14,6 +15,8 @@
   "Select-All": "选中所有",
   "Window": "窗口",
   "Minimize": "最小化",
+  "Maximize": "最大化",
+  "Restore": "还原",
   "Close": "关闭",
   "Help": "帮助",
   "Learn-More": "了解更多",

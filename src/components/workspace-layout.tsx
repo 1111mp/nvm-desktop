@@ -17,7 +17,7 @@ export const workspaceStyles = {
   select:
     'h-8 w-full min-w-0 rounded-lg border-0 bg-surface-50 text-xs shadow-none hover:bg-surface-hover-80',
   dialog:
-    'flex w-[clamp(28rem,calc(26rem+8vw),36rem)] max-w-[calc(100dvw-2rem)]! max-h-[calc(100dvh-3rem)] flex-col gap-5 overflow-hidden rounded-2xl p-[clamp(1rem,3dvh,1.75rem)] ring-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]',
+    'flex w-[clamp(28rem,calc(26rem+8vw),36rem)] max-w-[calc(100dvw-2rem)]! max-h-[calc(100dvh-3rem)] flex-col gap-5 overflow-hidden rounded-2xl p-[clamp(1rem,3dvh,1.75rem)] shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]',
   footer:
     'm-0 flex! shrink-0 flex-row justify-end gap-2 rounded-xl border-0 bg-surface-40 p-3',
 };

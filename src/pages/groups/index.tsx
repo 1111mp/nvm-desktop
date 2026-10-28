@@ -28,19 +28,20 @@ import {
   type DataTableFeatures,
 } from '@/components/ui';
 import { LoaderCircle, RefreshCw, Boxes } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLoaderData } from 'react-router';
 import { toast } from 'sonner';
 import { GroupCreator } from './group-creator';
 
 import { useAppContext } from '@/app-context';
-import { compareArray } from '@/lib/utils';
+import { saveGroupProjects } from '@/lib/group-projects';
 import { getCurrent } from '@/services/api';
 import {
   batchUpdateProjectVersion,
   groupList,
   installedList,
   projectList,
+  syncProjectVersion,
   updateGroups,
   updateGroupVersion,
   updateProjectsWithoutTray,
@@ -499,6 +500,8 @@ function MultiSelectProject({
   groups?: Nvmd.Group[];
   onSubmit?: (projects: Nvmd.Project[], groups: Nvmd.Group[]) => void;
 }) {
+  const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
   const anchor = useComboboxAnchor();
   const { t } = useTranslation();
 
@@ -508,63 +511,33 @@ function MultiSelectProject({
       autoHighlight
       value={value}
       items={projects.map((p) => p.path)}
+      disabled={saving}
       onValueChange={async (projectsPaths) => {
-        const { added, removed } = compareArray(value, projectsPaths);
-        const [newProjects, newGroups] = await Promise.all([
-          (async () => {
-            const newProjects: Nvmd.Project[] = [...projects],
-              addedPaths: string[] = [],
-              removedPaths: string[] = [];
-
-            newProjects.forEach((project) => {
-              // Need addition
-              if (added.length && added.includes(project.path)) {
-                project.version = name;
-                addedPaths.push(project.path);
-              }
-
-              // Need remove
-              if (removed.length && removed.includes(project.path)) {
-                project.version = '';
-                removedPaths.push(project.path);
-              }
-            });
-
-            await Promise.all([
-              addedPaths.length
-                ? batchUpdateProjectVersion(addedPaths, version)
-                : Promise.resolve(undefined),
-              removedPaths.length
-                ? batchUpdateProjectVersion(removedPaths, '')
-                : Promise.resolve(undefined),
-              updateProjectsWithoutTray(newProjects),
-            ]);
-
-            return newProjects;
-          })(),
-          (async () => {
-            const newGroups = [...groups];
-            newGroups.forEach((group) => {
-              // If the project is already in other groups, you need to remove it from the original group.
-              const repeatProjects = group.projects.filter((path) =>
-                projectsPaths.includes(path),
-              );
-              if (added.length && repeatProjects.length) {
-                const groupProjects = [...group.projects];
-                group.projects = groupProjects.filter(
-                  (path) => !repeatProjects.includes(path),
-                );
-              }
-
-              if (group.name === name) {
-                group.projects = projectsPaths;
-              }
-            });
-            await updateGroups(newGroups);
-            return newGroups;
-          })(),
-        ]);
-        onSubmit?.(newProjects, newGroups);
+        if (savingRef.current) return;
+        savingRef.current = true;
+        setSaving(true);
+        try {
+          const result = await saveGroupProjects(
+            { name, version, selected: projectsPaths, projects, groups },
+            {
+              writeVersions: batchUpdateProjectVersion,
+              // A deleted folder has no version file to clear, but its stale
+              // membership must still be removable (sync returns 404).
+              clearVersions: (paths) =>
+                Promise.all(paths.map((path) => syncProjectVersion(path, ''))),
+              saveProjects: updateProjectsWithoutTray,
+              saveGroups: updateGroups,
+            },
+          );
+          onSubmit?.(result.projects, result.groups);
+        } catch (error) {
+          toast.error(t('Group-Projects-Save-Failed'), {
+            description: String(error),
+          });
+        } finally {
+          savingRef.current = false;
+          setSaving(false);
+        }
       }}
     >
       <ComboboxChips

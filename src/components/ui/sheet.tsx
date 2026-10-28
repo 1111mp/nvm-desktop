@@ -35,7 +35,7 @@ function SheetOverlay({
     <SheetPrimitive.Backdrop
       data-slot='sheet-overlay'
       className={cn(
-        'fixed inset-0 z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs transition-opacity data-starting-style:opacity-0 data-ending-style:opacity-0',
+        'fixed inset-0 z-50 bg-black/20 duration-100 supports-backdrop-filter:backdrop-blur-xs transition-opacity data-starting-style:opacity-0 data-ending-style:opacity-0',
         className,
       )}
       {...props}
@@ -60,7 +60,7 @@ function SheetContent({
         data-slot='sheet-content'
         data-side={side}
         className={cn(
-          'fixed z-50 flex flex-col gap-4 bg-background bg-clip-padding text-sm transition duration-200 ease-in-out data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm transition-[opacity,transform,translate,scale] data-starting-style:opacity-0 data-ending-style:opacity-0 data-[side=left]:data-starting-style:-translate-x-10 data-[side=left]:data-ending-style:-translate-x-10 data-[side=right]:data-starting-style:translate-x-10 data-[side=right]:data-ending-style:translate-x-10 data-[side=top]:data-starting-style:-translate-y-10 data-[side=top]:data-ending-style:-translate-y-10 data-[side=bottom]:data-starting-style:translate-y-10 data-[side=bottom]:data-ending-style:translate-y-10',
+          'fixed z-50 flex flex-col gap-4 bg-popover text-popover-foreground bg-clip-padding text-sm transition duration-200 ease-in-out data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm transition-[opacity,transform,translate,scale] data-starting-style:opacity-0 data-ending-style:opacity-0 data-[side=left]:data-starting-style:-translate-x-10 data-[side=left]:data-ending-style:-translate-x-10 data-[side=right]:data-starting-style:translate-x-10 data-[side=right]:data-ending-style:translate-x-10 data-[side=top]:data-starting-style:-translate-y-10 data-[side=top]:data-ending-style:-translate-y-10 data-[side=bottom]:data-starting-style:translate-y-10 data-[side=bottom]:data-ending-style:translate-y-10',
           modalShadowClassName,
           className,
         )}

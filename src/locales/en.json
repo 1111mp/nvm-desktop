@@ -1,4 +1,5 @@
 {
+  "Group-Projects-Save-Failed": "Could not update group projects. Check that the project folders exist and are writable.",
   "About": "About",
   "Services": "Services",
   "Hide": "Hide",
@@ -14,6 +15,8 @@
   "Select-All": "Select All",
   "Window": "Window",
   "Minimize": "Minimize",
+  "Maximize": "Maximize",
+  "Restore": "Restore",
   "Close": "Close",
   "Help": "Help",
   "Learn-More": "Learn More",

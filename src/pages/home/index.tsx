@@ -1,4 +1,3 @@
-import Onboarding from './onboarding';
 import { ThemeCustomizer } from '@/components/theme-customizer';
 import { Button } from '@/components/ui';
 import {
@@ -18,16 +17,19 @@ import {
 } from '@/components/ui/sidebar';
 import {
   Boxes,
+  CopyIcon,
   Folder,
   HardDrive,
   Layers,
   MinusIcon,
+  SquareIcon,
   Terminal,
   XIcon,
 } from 'lucide-react';
-import { lazy, useEffect } from 'react';
+import { lazy, useEffect, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router';
 import { toast } from 'sonner';
+import Onboarding from './onboarding';
 import { Updater } from './updater';
 
 import { cn, getSystem } from '@/lib/utils';
@@ -46,6 +48,36 @@ const Home: React.FC = () => {
   const { pathname } = useLocation();
 
   const platform = getSystem();
+  const [isMaximized, setIsMaximized] = useState(false);
+
+  useEffect(() => {
+    const appWindow = getCurrent();
+    let disposed = false;
+    const updateMaximized = async () => {
+      const maximized = await appWindow.isMaximized();
+      if (!disposed) setIsMaximized(maximized);
+    };
+    // Native title-bar gestures and OS shortcuts can also change the window state.
+    const unlisten = appWindow.onResized(() => {
+      void updateMaximized().catch(console.error);
+    });
+    void updateMaximized().catch(console.error);
+
+    return () => {
+      disposed = true;
+      void unlisten.then((stop) => stop()).catch(console.error);
+    };
+  }, []);
+
+  const toggleMaximized = async () => {
+    try {
+      const appWindow = getCurrent();
+      await appWindow.toggleMaximize();
+      setIsMaximized(await appWindow.isMaximized());
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     const unlisted = getCurrent().listen<string>(
@@ -214,6 +246,7 @@ const Home: React.FC = () => {
           className={cn(
             surfaceClassName,
             'flex h-14 shrink-0 select-none items-center justify-between rounded-xl px-4 text-xs text-muted-foreground sm:px-6',
+            platform === 'macos' && 'pr-2 sm:pr-2',
           )}
         >
           <div className='flex min-w-0 items-center gap-3'>
@@ -230,22 +263,48 @@ const Home: React.FC = () => {
             </span>
           </div>
           {platform !== 'macos' && (
-            <div className='flex items-center gap-1'>
+            <div className='ml-4 flex shrink-0 items-center gap-1'>
               <Button
-                size='icon-sm'
+                size='icon'
                 variant='ghost'
+                className='w-9 motion-reduce:transition-none'
                 aria-label={t('Minimize')}
+                title={t('Minimize')}
                 onClick={windowMinimize}
               >
-                <MinusIcon />
+                <MinusIcon aria-hidden='true' strokeWidth={1.5} />
               </Button>
               <Button
-                size='icon-sm'
+                size='icon'
                 variant='ghost'
+                className='w-9 motion-reduce:transition-none'
+                aria-label={t(isMaximized ? 'Restore' : 'Maximize')}
+                title={t(isMaximized ? 'Restore' : 'Maximize')}
+                onClick={toggleMaximized}
+              >
+                {isMaximized ? (
+                  <CopyIcon
+                    className='size-3.5'
+                    aria-hidden='true'
+                    strokeWidth={1.5}
+                  />
+                ) : (
+                  <SquareIcon
+                    className='size-3.5'
+                    aria-hidden='true'
+                    strokeWidth={1.5}
+                  />
+                )}
+              </Button>
+              <Button
+                size='icon'
+                variant='ghost'
+                className='w-9 motion-reduce:transition-none'
                 aria-label={t('Close')}
+                title={t('Close')}
                 onClick={windowClose}
               >
-                <XIcon />
+                <XIcon aria-hidden='true' strokeWidth={1.5} />
               </Button>
             </div>
           )}

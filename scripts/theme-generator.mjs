@@ -94,22 +94,8 @@ async function generateThemeCSS() {
       theme.cssVars.dark ?? theme.cssVars.light,
     );
 
-    // Scope shared surface layers to light accents; full presets retain their own palette.
-    const lightSurfaceCssVars = buildCssRule(
-      `:root:not(.dark) .theme-${theme.name}`,
-      {
-        'surface-background':
-          'color-mix(in oklab, var(--muted) 97%, var(--primary))',
-        'surface-hover-background':
-          'color-mix(in oklab, var(--surface-background) 96%, var(--foreground))',
-        'surface-row-background':
-          'color-mix(in oklab, var(--surface-background) 65%, transparent)',
-        'surface-selected-background':
-          'color-mix(in oklab, var(--primary) 10%, var(--popover))',
-      },
-    );
-
-    content += `${lightCssVars}\n${darkCssVars}\n${lightSurfaceCssVars}\n`;
+    // Surface tokens are derived centrally in surfaces.css for every palette.
+    content += `${lightCssVars}\n${darkCssVars}\n`;
   });
 
   await writeFile(THEMES_FILE, content, 'utf-8');

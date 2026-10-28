@@ -164,7 +164,7 @@ export default function Onboarding() {
     >
       <DialogContent
         showCloseButton={false}
-        className='flex w-[clamp(28rem,calc(24rem+20vw),52rem)] max-w-[calc(100dvw-2rem)]! max-h-[calc(100dvh-3rem)] flex-col gap-0 overflow-hidden rounded-2xl p-0 ring-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]'
+        className='flex w-[clamp(28rem,calc(24rem+20vw),52rem)] max-w-[calc(100dvw-2rem)]! max-h-[calc(100dvh-3rem)] flex-col gap-0 overflow-hidden rounded-2xl p-0 ring-1 ring-surface-edge shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]'
       >
         <header className='flex shrink-0 items-center justify-between gap-4 bg-surface-30 px-5 py-4 sm:px-6'>
           <span className='flex items-center gap-2.5 text-xs font-medium'>

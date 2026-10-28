@@ -1,3 +1,4 @@
+import { modalShadowClassName } from './surface-styles';
 import { cn } from '@/lib/utils';
 import * as React from 'react';
 import { Drawer as DrawerPrimitive } from 'vaul';
@@ -34,7 +35,7 @@ function DrawerOverlay({
     <DrawerPrimitive.Overlay
       data-slot='drawer-overlay'
       className={cn(
-        'fixed inset-0 z-50 bg-black/10 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0',
+        'fixed inset-0 z-50 bg-black/20 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0',
         className,
       )}
       {...props}
@@ -53,7 +54,8 @@ function DrawerContent({
       <DrawerPrimitive.Content
         data-slot='drawer-content'
         className={cn(
-          'group/drawer-content fixed z-50 after:hidden! motion-reduce:animate-none! motion-reduce:transition-none! flex h-auto flex-col bg-popover text-sm text-popover-foreground outline-none shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)] data-[vaul-drawer-direction=bottom]:inset-x-3 data-[vaul-drawer-direction=bottom]:bottom-3 data-[vaul-drawer-direction=bottom]:max-h-[90dvh] data-[vaul-drawer-direction=bottom]:rounded-2xl data-[vaul-drawer-direction=left]:inset-y-3 data-[vaul-drawer-direction=left]:left-3 data-[vaul-drawer-direction=left]:w-[clamp(28rem,42vw,42rem)] data-[vaul-drawer-direction=left]:max-w-[calc(100dvw-1.5rem)] data-[vaul-drawer-direction=left]:rounded-2xl data-[vaul-drawer-direction=right]:inset-y-3 data-[vaul-drawer-direction=right]:right-3 data-[vaul-drawer-direction=right]:w-[clamp(28rem,42vw,42rem)] data-[vaul-drawer-direction=right]:max-w-[calc(100dvw-1.5rem)] data-[vaul-drawer-direction=right]:rounded-2xl data-[vaul-drawer-direction=top]:inset-x-3 data-[vaul-drawer-direction=top]:top-3 data-[vaul-drawer-direction=top]:max-h-[90dvh] data-[vaul-drawer-direction=top]:rounded-2xl',
+          'group/drawer-content fixed z-50 after:hidden! motion-reduce:animate-none! motion-reduce:transition-none! flex h-auto flex-col bg-popover text-sm text-popover-foreground outline-none data-[vaul-drawer-direction=bottom]:inset-x-3 data-[vaul-drawer-direction=bottom]:bottom-3 data-[vaul-drawer-direction=bottom]:max-h-[90dvh] data-[vaul-drawer-direction=bottom]:rounded-2xl data-[vaul-drawer-direction=left]:inset-y-3 data-[vaul-drawer-direction=left]:left-3 data-[vaul-drawer-direction=left]:w-[clamp(28rem,42vw,42rem)] data-[vaul-drawer-direction=left]:max-w-[calc(100dvw-1.5rem)] data-[vaul-drawer-direction=left]:rounded-2xl data-[vaul-drawer-direction=right]:inset-y-3 data-[vaul-drawer-direction=right]:right-3 data-[vaul-drawer-direction=right]:w-[clamp(28rem,42vw,42rem)] data-[vaul-drawer-direction=right]:max-w-[calc(100dvw-1.5rem)] data-[vaul-drawer-direction=right]:rounded-2xl data-[vaul-drawer-direction=top]:inset-x-3 data-[vaul-drawer-direction=top]:top-3 data-[vaul-drawer-direction=top]:max-h-[90dvh] data-[vaul-drawer-direction=top]:rounded-2xl',
+          modalShadowClassName,
           className,
         )}
         {...props}
@@ -99,7 +101,10 @@ function DrawerFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot='drawer-footer'
-      className={cn('mt-auto flex flex-col gap-2 p-4', className)}
+      className={cn(
+        'mt-auto flex flex-col gap-2 bg-linear-to-tr from-primary/8 to-transparent p-4',
+        className,
+      )}
       {...props}
     />
   );

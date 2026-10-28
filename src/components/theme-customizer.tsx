@@ -369,7 +369,7 @@ export function ThemeCustomizer() {
           left: remSize,
         }}
         aria-label={t('Theme')}
-        className='z-40 w-[clamp(25rem,32vw,32rem)] max-w-[calc(100dvw-2rem)] max-h-[min(85dvh,var(--available-height))] gap-0 overflow-hidden rounded-2xl p-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] ring-0 dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]'
+        className='z-40 w-[clamp(25rem,32vw,32rem)] max-w-[calc(100dvw-2rem)] max-h-[min(85dvh,var(--available-height))] gap-0 overflow-hidden rounded-2xl p-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] ring-1 ring-surface-edge dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]'
       >
         <div className='flex shrink-0 items-center justify-between gap-3 bg-surface-50 bg-linear-to-br from-primary/8 to-transparent px-[clamp(1.25rem,1.5vw,1.5rem)] py-4 xl:py-5'>
           <div className='flex items-center gap-3'>

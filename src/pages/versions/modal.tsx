@@ -184,10 +184,16 @@ export const Modal: React.FC<ModalProps> = ({ ref, onRefrresh }) => {
   const failed = path === 'error';
   const extracting = loading && progress?.source === 'unzip';
   const total = progress?.total || 0;
+  // This bar represents the archive download; extraction starts after it completes.
   const percentage =
-    total > 0
-      ? Math.min(100, Math.max(0, ((progress?.transferred || 0) / total) * 100))
-      : undefined;
+    extracting || complete
+      ? 100
+      : total > 0
+        ? Math.min(
+            100,
+            Math.max(0, ((progress?.transferred || 0) / total) * 100),
+          )
+        : 0;
   const status = complete
     ? 'Install-Complete'
     : failed
@@ -202,7 +208,7 @@ export const Modal: React.FC<ModalProps> = ({ ref, onRefrresh }) => {
 
   return (
     <AlertDialog open={open}>
-      <AlertDialogContent className='flex w-[clamp(26rem,calc(22rem+16vw),38rem)] max-w-[calc(100dvw-2rem)]! max-h-[min(90dvh,calc(100dvh-2rem))] [--dialog-padding:clamp(1rem,min(2vw,3dvh),1.75rem)] [--dialog-gap:clamp(1rem,2.5dvh,1.5rem)] flex-col gap-0 overflow-hidden rounded-2xl p-0 ring-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]'>
+      <AlertDialogContent className='flex w-[clamp(26rem,calc(22rem+16vw),38rem)] max-w-[calc(100dvw-2rem)]! max-h-[min(90dvh,calc(100dvh-2rem))] [--dialog-padding:clamp(1rem,min(2vw,3dvh),1.75rem)] [--dialog-gap:clamp(1rem,2.5dvh,1.5rem)] flex-col gap-0 overflow-hidden rounded-2xl p-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]'>
         <div className='flex shrink-0 items-start gap-3 bg-surface-40 bg-linear-to-br from-primary/8 to-transparent p-(--dialog-padding)'>
           <span className='grid size-10 shrink-0 place-items-center rounded-xl bg-background text-primary shadow-xs'>
             {complete ? (
@@ -335,35 +341,22 @@ export const Modal: React.FC<ModalProps> = ({ ref, onRefrresh }) => {
                   )}
                   {t(status)}
                 </p>
-                {loading && !extracting && percentage !== undefined && (
+                {(loading || complete) && (
                   <span className='font-mono text-xs tabular-nums text-muted-foreground'>
                     {Math.floor(percentage)}%
                   </span>
                 )}
               </div>
-              {loading && !extracting && percentage !== undefined ? (
+              {(loading || complete) && (
                 <Progress
                   value={percentage}
-                  aria-label={t('Download-Progress')}
+                  aria-label={t(
+                    complete ? 'Install-Complete' : 'Download-Progress',
+                  )}
                   aria-valuenow={Math.floor(percentage)}
                   className='h-2 bg-primary/10'
                 />
-              ) : loading ? (
-                <div
-                  role='progressbar'
-                  aria-label={t(status)}
-                  className='h-2 overflow-hidden rounded-full bg-primary/10'
-                >
-                  <span className='block h-full w-1/3 animate-pulse rounded-full bg-primary/50 motion-reduce:animate-none' />
-                </div>
-              ) : complete ? (
-                <Progress
-                  value={100}
-                  aria-label={t('Install-Complete')}
-                  aria-valuenow={100}
-                  className='h-2 bg-primary/10'
-                />
-              ) : null}
+              )}
               {loading && total > 0 && (
                 <p className='text-xs tabular-nums text-muted-foreground'>
                   {formatBytes(progress?.transferred || 0, i18n.language)} /{' '}

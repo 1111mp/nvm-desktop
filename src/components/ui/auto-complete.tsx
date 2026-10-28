@@ -135,7 +135,7 @@ function AutoComplete({
                         className={cn(
                           floatingOptionClassName,
                           'flex cursor-default items-start px-2.5 text-popover-foreground outline-none',
-                          item === value && 'bg-primary/5',
+                          item === value && 'bg-surface-selected-100',
                         )}
                       >
                         <span className='min-w-0 flex-1 break-all font-mono text-xs leading-relaxed'>

@@ -238,7 +238,7 @@ export const Updater: React.FC = () => {
         )}
       </div>
 
-      <AlertDialogContent className='flex w-[clamp(36rem,calc(28rem+24vw),56rem)] max-w-[calc(100dvw-2rem)]! max-h-[min(88dvh,calc(100dvh-2rem))] [--updater-padding:clamp(1rem,min(2vw,3dvh),1.75rem)] [--updater-gap:clamp(1rem,2.5dvh,1.5rem)] [--updater-card-padding:clamp(0.875rem,2dvh,1.25rem)] flex-col gap-0 overflow-hidden rounded-2xl p-0 ring-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]'>
+      <AlertDialogContent className='flex w-[clamp(36rem,calc(28rem+24vw),56rem)] max-w-[calc(100dvw-2rem)]! max-h-[min(88dvh,calc(100dvh-2rem))] [--updater-padding:clamp(1rem,min(2vw,3dvh),1.75rem)] [--updater-gap:clamp(1rem,2.5dvh,1.5rem)] [--updater-card-padding:clamp(0.875rem,2dvh,1.25rem)] flex-col gap-0 overflow-hidden rounded-2xl p-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]'>
         {PREVIEW_UPDATER && (
           <div className='flex shrink-0 flex-wrap items-center justify-between gap-2 bg-primary/10 px-(--updater-padding) py-3 text-xs'>
             <span>{t('Updater-Preview')}</span>

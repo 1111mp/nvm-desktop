@@ -58,7 +58,7 @@ function TooltipContent({
         <TooltipPrimitive.Popup
           data-slot='tooltip-content'
           className={cn(
-            'z-50 inline-flex w-fit max-w-xs origin-(--transform-origin) items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-xs text-accent-foreground shadow-lg shadow-black/15 dark:shadow-black/40 has-data-[slot=kbd]:pr-1.5 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm transition-[opacity,transform,translate,scale] data-starting-style:opacity-0 data-ending-style:opacity-0 data-starting-style:scale-95 data-ending-style:scale-95',
+            'z-50 inline-flex w-fit max-w-xs origin-(--transform-origin) items-center gap-1.5 rounded-md bg-popover px-3 py-1.5 text-xs text-popover-foreground ring-1 ring-surface-edge shadow-lg shadow-black/15 dark:shadow-black/40 has-data-[slot=kbd]:pr-1.5 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm transition-[opacity,transform,translate,scale] data-starting-style:opacity-0 data-ending-style:opacity-0 data-starting-style:scale-95 data-ending-style:scale-95',
             className,
           )}
           {...props}
@@ -67,7 +67,7 @@ function TooltipContent({
           {showArrow && (
             <TooltipPrimitive.Arrow
               className={cn(
-                'z-50 size-2.5 rotate-45 rounded-xs bg-accent data-[side=top]:-bottom-1 data-[side=bottom]:-top-1 data-[side=left]:-right-1 data-[side=right]:-left-1',
+                'z-50 size-2.5 rotate-45 rounded-xs bg-popover data-[side=top]:-bottom-1 data-[side=bottom]:-top-1 data-[side=left]:-right-1 data-[side=right]:-left-1',
                 arrowClassName,
               )}
             />

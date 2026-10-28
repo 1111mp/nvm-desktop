@@ -67,7 +67,7 @@ const items = [
 
 // Grow gently with the app window without changing card proportions; only the body scrolls.
 const dialogClassName =
-  'flex w-[clamp(30rem,calc(28rem+8vw),36rem)] max-w-[calc(100dvw-2rem)]! max-h-[calc(100dvh-2rem)] flex-col overflow-hidden gap-[clamp(0.75rem,2.5dvh,1.5rem)] rounded-2xl p-[clamp(1rem,3dvh,1.75rem)] ring-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]';
+  'flex w-[clamp(30rem,calc(28rem+8vw),36rem)] max-w-[calc(100dvw-2rem)]! max-h-[calc(100dvh-2rem)] flex-col overflow-hidden gap-[clamp(0.75rem,2.5dvh,1.5rem)] rounded-2xl p-[clamp(1rem,3dvh,1.75rem)] shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]';
 const headerClassName =
   'flex! shrink-0 flex-col! items-start! gap-2! text-left!';
 const bodyClassName = 'min-h-0 overflow-y-auto overscroll-contain -m-1 p-1';
@@ -115,7 +115,7 @@ const Configuration: React.FC = () => {
             </Button>
           }
         />
-        <DropdownMenuContent className='w-64 rounded-xl p-2 ring-0'>
+        <DropdownMenuContent className='w-64 rounded-xl p-2'>
           <DropdownMenuGroup>
             <DropdownMenuLabel className='px-2 pb-2 text-xs text-muted-foreground'>
               {title}

@@ -36,3 +36,8 @@ AGENTS.md
 skills-lock.json
 
 .migration
+
+# Automated test diagnostics
+.vitest/
+test-results/
+coverage/

@@ -1,0 +1,45 @@
+name: Desktop E2E
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  HUSKY: 0
+
+jobs:
+  desktop:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24.22.1'
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+      - run: pnpm install --frozen-lockfile
+      - name: Prepare bundled CLI resource
+        run: pnpm check
+      - name: Run browser tests
+        run: |
+          pnpm exec playwright install webkit
+          pnpm test:browser
+      - name: Build desktop test app
+        run: pnpm test:e2e:build
+      - name: Run desktop smoke tests
+        run: pnpm test:e2e
+      - name: Upload diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: desktop-e2e-results
+          path: |
+            test-results/
+            .vitest/attachments/
+          if-no-files-found: ignore

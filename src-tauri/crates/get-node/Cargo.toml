@@ -4,23 +4,23 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0"
-async-compression = { version = "0.4", default-features = false, features = [
-  "tokio",
+anyhow = "1.0.104"
+astral-tokio-tar = "0.7.0"
+async-compression = { version = "0.4.51", default-features = false, features = [
   "gzip",
+  "tokio",
 ] }
 async_zip = { version = "0.0.19", default-features = false, features = [
   "deflate",
 ] }
-cfg-if = "1"
-futures-lite = "2"
-futures-util = "0.3"
-hex = { version = "0.4", features = ["std"] }
-node-semver = "2"
-reqwest = { version = "0.13", features = ["json", "rustls", "stream"] }
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-sha2 = "0.11"
-tokio = { version = "1", features = ["full"] }
-astral-tokio-tar = "0.7"
-tokio-util = { version = "0.7", features = ["compat"] }
+cfg-if = "1.0.5"
+futures-lite = "2.6.1"
+futures-util = "0.3.34"
+hex = { version = "0.4.3", features = ["std"] }
+node-semver = "2.2.0"
+reqwest = { version = "0.13.5", features = ["json", "rustls", "stream"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+sha2 = "0.11.1"
+tokio = { version = "1.54.1", features = ["full"] }
+tokio-util = { version = "0.7.20", features = ["compat"] }

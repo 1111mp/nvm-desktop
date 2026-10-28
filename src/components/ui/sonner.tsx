@@ -1,12 +1,12 @@
-import { Toaster as Sonner, type ToasterProps } from 'sonner';
+import { useAppContext } from '@/app-context';
 import {
   CircleCheckIcon,
   InfoIcon,
-  TriangleAlertIcon,
-  OctagonXIcon,
   Loader2Icon,
+  OctagonXIcon,
+  TriangleAlertIcon,
 } from 'lucide-react';
-import { useAppContext } from '@/app-context';
+import { Toaster as Sonner, type ToasterProps } from 'sonner';
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { settings } = useAppContext();
@@ -16,10 +16,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={settings.theme as ToasterProps['theme']}
       className='toaster group'
       icons={{
-        success: <CircleCheckIcon className='size-4 text-green-400' />,
+        success: <CircleCheckIcon className='size-4' />,
         info: <InfoIcon className='size-4' />,
-        warning: <TriangleAlertIcon className='size-4 text-yellow-400' />,
-        error: <OctagonXIcon className='size-4 text-red-400' />,
+        warning: <TriangleAlertIcon className='size-4' />,
+        error: <OctagonXIcon className='size-4' />,
         loading: <Loader2Icon className='size-4 animate-spin' />,
       }}
       style={

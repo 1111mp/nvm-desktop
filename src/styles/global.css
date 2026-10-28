@@ -6,6 +6,7 @@
 @import './theme.css';
 @import './full-theme.css';
 @import './radius.css';
+@import './surfaces.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -29,6 +30,7 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
+  --color-surface-edge: var(--surface-edge);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);

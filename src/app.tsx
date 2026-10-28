@@ -28,10 +28,10 @@ export default function App({
 
   return (
     <AppProvider settings={settings} sysTheme={sysTheme}>
-      <TooltipProvider delayDuration={200}>
+      <TooltipProvider delay={200}>
         <RouterProvider router={router} />
       </TooltipProvider>
-      <Toaster position='top-center' />
+      <Toaster position='top-center' richColors />
     </AppProvider>
   );
 }

@@ -1,408 +1,91 @@
-import './intro.css';
-
-import { lazy, useEffect } from 'react';
-import { Outlet, Link, useLocation } from 'react-router';
+import { ThemeCustomizer } from '@/components/theme-customizer';
+import { Button } from '@/components/ui';
 import {
-  Button,
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from '@/components/ui';
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from '@/components/ui/sidebar';
 import {
-  HeartIcon,
+  Boxes,
+  CopyIcon,
+  Folder,
+  HardDrive,
+  Layers,
   MinusIcon,
-  RocketIcon,
-  SmileIcon,
+  SquareIcon,
+  Terminal,
   XIcon,
 } from 'lucide-react';
-import { ThemeCustomizer } from '@/components/theme-customizer';
-import { Updater } from './updater';
+import { lazy, useEffect, useState } from 'react';
+import { Link, Outlet, useLocation } from 'react-router';
 import { toast } from 'sonner';
+import Onboarding from './onboarding';
+import { Updater } from './updater';
 
-import { getSystem } from '@/lib/utils';
-import { useAppContext } from '@/app-context';
-import { useTranslation } from 'react-i18next';
+import { cn, getSystem } from '@/lib/utils';
 import { getCurrent, windowClose, windowMinimize } from '@/services/api';
-import { useTour } from '@/hooks';
+import { useTranslation } from 'react-i18next';
 
 const Tip = lazy(() => import('./tip'));
 const Configuration = lazy(() => import('./configuration'));
 const Setting = lazy(() => import('./setting'));
 
+const surfaceClassName =
+  'bg-card bg-linear-to-br from-primary/3 via-transparent to-muted/35 shadow-lg shadow-foreground/5 dark:from-primary/5 dark:to-muted/15 dark:shadow-black/15';
+
 const Home: React.FC = () => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
-  const { settings } = useAppContext();
 
   const platform = getSystem();
+  const [isMaximized, setIsMaximized] = useState(false);
 
-  useTour({
-    hidePrev: true,
-    disableInteraction: true,
-    overlayOpacity: 0.6,
-    buttonClass:
-      'inline-flex items-center bg-primary text-primary-foreground outline-hidden h-6 rounded-md px-2 text-xs shadow-sm cursor-pointer hover:bg-primary/90',
-    exitOnOverlayClick: false,
-    exitOnEsc: false,
-    steps: [
-      {
-        element: document.body,
-        title: t('Welcome'),
-        intro: (
-          <div>
-            <p className='flex items-center gap-2 font-normal'>
-              {t('Welcome-to')} nvm-desktop.
-              <RocketIcon className='size-4 text-primary' />
-            </p>
-            <p className='text-muted-foreground font-light'>{t('App-Desc')}</p>
-          </div>
-        ),
-      },
-      {
-        element: '#theme-customizer',
-        title: t('Theme'),
-        intro: (
-          <p className='flex items-center gap-2'>
-            {t('Color-Tip')}
-            <HeartIcon className='size-4 text-primary' />
-          </p>
-        ),
-      },
-      {
-        element: '.nvmd-tip',
-        title: t('Tip'),
-        intro: (
-          <>
-            <div className='font-normal text-sm space-y-4'>
-              {platform === 'windows' ? (
-                settings.locale === 'zh-CN' ? (
-                  <>
-                    <p>
-                      <span>
-                        现在，您系统的环境变量
-                        <span className='text-muted-foreground'> PATH </span>
-                        中添加了如下路径：
-                        <span className='text-muted-foreground'>
-                          {' '}
-                          %HOMEDIR%\.nvmd\bin{' '}
-                        </span>
-                        。
-                      </span>
-                    </p>
-                    <p>
-                      <span>
-                        此目录下保存着用于管理 Node 版本的可执行文件，由 Rust
-                        编写，如果有需要请查看项目源码：
-                        <a
-                          className='text-primary hover:opacity-80'
-                          href='https://github.com/1111mp/nvmd-command'
-                          rel='noreferrer'
-                          target='_blank'
-                        >
-                          nvmd-command
-                        </a>
-                        。
-                      </span>
-                    </p>
-                    <p>
-                      <span>
-                        然后你可以开始下载安装 Node 了。下载安装完成之后点击
-                        <span className='text-muted-foreground'> 应用 </span>
-                        按钮将其设置为全局默认版本。
-                      </span>
-                    </p>
-                    <p>
-                      <span>
-                        你也可以通过命令行工具直接管理所有的 Nodejs 版本：
-                      </span>
-                      <a
-                        className='text-primary hover:opacity-80'
-                        href='https://github.com/1111mp/nvmd-command#command-tools-intro'
-                        rel='noreferrer'
-                        target='_blank'
-                      >
-                        nvmd
-                      </a>
-                      . 在你的终端输入{' '}
-                      <span className='text-muted-foreground'>nvmd --help</span>{' '}
-                      以查看更多信息。
-                    </p>
-                    <p>
-                      <span>
-                        切换 Node
-                        版本之后，默认不需要重新打开你的终端就能够生效。
-                      </span>
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p>
-                      <span>
-                        The following path is now added to your system&apos;s
-                        <span className='text-muted-foreground'> PATH </span>
-                        environment variable:
-                        <span className='text-muted-foreground'>
-                          {' '}
-                          %HOMEDIR%\.nvmd\bin{' '}
-                        </span>
-                        .
-                      </span>
-                    </p>
-                    <p>
-                      <span>
-                        This directory holds the executable for managing the
-                        Node version, written in Rust. Check the project source
-                        code if you needed:{' '}
-                        <a
-                          className='text-primary hover:opacity-80'
-                          href='https://github.com/1111mp/nvmd-command'
-                          rel='noreferrer'
-                          target='_blank'
-                        >
-                          nvmd-command
-                        </a>
-                        .
-                      </span>
-                    </p>
-                    <p>
-                      <span>
-                        You should then be able to start downloading and
-                        installing Node. After the download and installation is
-                        complete, click the{' '}
-                        <span className='text-muted-foreground'> Apply </span>{' '}
-                        button to set it as the global default version.
-                      </span>
-                    </p>
-                    <p>
-                      <span>
-                        You can also manage all versions of node directly from
-                        the command line:{' '}
-                      </span>
-                      <a
-                        className='text-primary hover:opacity-80'
-                        href='https://github.com/1111mp/nvmd-command#command-tools-intro'
-                        rel='noreferrer'
-                        target='_blank'
-                      >
-                        nvmd
-                      </a>
-                      . Please type{' '}
-                      <span className='text-muted-foreground'>nvmd --help</span>{' '}
-                      in your terminal to see more information.
-                    </p>
-                    <p>
-                      <span>
-                        After switching the Node version, you don&apos;t need to
-                        reopen your terminal to take effect by default.
-                      </span>
-                    </p>
-                  </>
-                )
-              ) : (
-                <>
-                  <p className='text-sm font-normal'>
-                    <span>{t('Tip-Content')}</span>
-                  </p>
-                  <p>
-                    <span className='text-muted-foreground break-all'>
-                      {
-                        'export NVMD_DIR="$HOME/.nvmd" \nexport PATH="$NVMD_DIR/bin:$PATH"'
-                      }
-                    </span>
-                  </p>
-                  {settings.locale === 'zh-CN' ? (
-                    <>
-                      <p>
-                        <span>
-                          然后你可以开始下载安装 Node 了。下载安装完成之后点击
-                          <span className='text-muted-foreground'> 应用 </span>
-                          按钮将其设置为全局默认版本。
-                        </span>
-                      </p>
-                      <p>
-                        <span>
-                          你也可以通过命令行工具直接管理所有的 Nodejs 版本：
-                        </span>
-                        <a
-                          className='text-primary hover:opacity-80'
-                          href='https://github.com/1111mp/nvmd-command#command-tools-intro'
-                          rel='noreferrer'
-                          target='_blank'
-                        >
-                          nvmd
-                        </a>
-                        . 在你的终端输入{' '}
-                        <span className='text-muted-foreground'>
-                          nvmd --help
-                        </span>{' '}
-                        以查看更多信息。
-                      </p>
-                      <p>
-                        <span>
-                          切换 Node
-                          版本之后，默认不需要重新打开你的终端就能够生效。
-                        </span>
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p>
-                        <span>
-                          You should then be able to start downloading and
-                          installing Node. After the download and installation
-                          is complete, click the{' '}
-                          <span className='text-muted-foreground'> Apply </span>{' '}
-                          button to set it as the global default version.
-                        </span>
-                      </p>
-                      <p>
-                        <span>
-                          You can also manage all versions of node directly from
-                          the command line:{' '}
-                        </span>
-                        <a
-                          className='text-primary hover:opacity-80'
-                          href='https://github.com/1111mp/nvmd-command#command-tools-intro'
-                          rel='noreferrer'
-                          target='_blank'
-                        >
-                          nvmd
-                        </a>
-                        . Please type{' '}
-                        <span className='text-muted-foreground'>
-                          nvmd --help
-                        </span>{' '}
-                        in your terminal to see more information.
-                      </p>
-                      <p>
-                        <span>
-                          After switching the Node version, you don&apos;t need
-                          to reopen your terminal to take effect by default.
-                        </span>
-                      </p>
-                    </>
-                  )}
-                </>
-              )}
-            </div>
-          </>
-        ),
-      },
-      {
-        element: '.nvmd-setting',
-        title: t('Setting'),
-        intro:
-          settings.locale === 'zh-CN' ? (
-            <div className='font-normal text-sm space-y-4'>
-              <p>
-                <span>在这里，你可以更改 Nodejs 的默认安装目录。</span>
-              </p>
-              <p>
-                <span>
-                  请注意，nvm-desktop
-                  不会跟踪您所使用过的所有的目录，这意味着您每次更改安装目录之后都需要重新下载
-                  Nodejs。
-                  <span className='text-muted-foreground'>
-                    {' '}
-                    但是你可以手动将之前目录下下载的所有 Nodejs
-                    文件移动到新的目录下。
-                  </span>
-                </span>
-              </p>
-              <p>
-                <span>
-                  之所以这么设计是为了避免过多的文件检索从而影响 nvm-command
-                  在性能上的表现。
-                </span>
-              </p>
-            </div>
-          ) : (
-            <div className='font-normal text-sm space-y-4'>
-              <p>
-                <span>
-                  Here you can change the Nodejs installation directory.
-                </span>
-              </p>
-              <p>
-                <span>
-                  Please note that nvm-desktop does not keep track of all your
-                  used directories. This means that every time you change the
-                  installation directory, you need to re-download Nodejs.
-                  <span className='text-muted-foreground'>
-                    {' '}
-                    But maybe you can also manually move all Nodejs version
-                    files downloaded from the previous directory to the new
-                    directory.
-                  </span>
-                </span>
-              </p>
-              <p>
-                <span>
-                  The reason for this design is to avoid excessive file
-                  retrieval, which will affect the performance of nvm-command.
-                </span>
-              </p>
-            </div>
-          ),
-      },
-      {
-        element: '.nvmd-project',
-        title: t('Projects'),
-        intro: (
-          <div className='font-normal text-sm space-y-4'>
-            <p>
-              <span>{t('Can-Select')}</span>
-            </p>
-            <p>
-              <span>{t('Command-Tip-Project')}</span>
-              <span className='text-muted-foreground'>
-                {' '}
-                nvmd use node_version --project
-              </span>
-            </p>
-            <p>
-              <span>
-                {t('Had-File')}{' '}
-                <span className='text-muted-foreground'>.nvmdrc</span>{' '}
-                {t('Load-Node')}
-              </span>
-            </p>
-          </div>
-        ),
-      },
-      {
-        element: document.body,
-        title: t('Finally'),
-        intro: (
-          <div className='font-normal text-sm space-y-4'>
-            <p>
-              <span className='text-muted-foreground'>{t('Tip-Finally')}</span>
-              <a
-                className='text-primary hover:opacity-80'
-                href='https://github.com/1111mp/nvm-desktop/issues'
-                rel='noreferrer'
-                target='_blank'
-              >
-                &nbsp; {t('Refer')}
-              </a>
-            </p>
-            <p className='flex items-center gap-1'>
-              <span>{t('Bles')}</span>
-              <SmileIcon className='size-4 text-primary' />
-            </p>
-          </div>
-        ),
-      },
-    ],
-  });
+  useEffect(() => {
+    const appWindow = getCurrent();
+    let disposed = false;
+    const updateMaximized = async () => {
+      const maximized = await appWindow.isMaximized();
+      if (!disposed) setIsMaximized(maximized);
+    };
+    // Native title-bar gestures and OS shortcuts can also change the window state.
+    const unlisten = appWindow.onResized(() => {
+      void updateMaximized().catch(console.error);
+    });
+    void updateMaximized().catch(console.error);
+
+    return () => {
+      disposed = true;
+      void unlisten.then((stop) => stop()).catch(console.error);
+    };
+  }, []);
+
+  const toggleMaximized = async () => {
+    try {
+      const appWindow = getCurrent();
+      await appWindow.toggleMaximize();
+      setIsMaximized(await appWindow.isMaximized());
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     const unlisted = getCurrent().listen<string>(
       'nvm-desktop://app-migration-error',
       async () => {
-        toast.error(t('Migration-error'), { duration: 8000 });
+        toast.error(t('Migration-error'), {
+          duration: 8000,
+        });
       },
     );
 
@@ -411,162 +94,248 @@ const Home: React.FC = () => {
     };
   }, [t]);
 
-  const linkStyle = navigationMenuTriggerStyle();
+  const navigation = [
+    {
+      path: '/versions',
+      label: 'Versions',
+      icon: Layers,
+    },
+    {
+      path: '/installed',
+      label: 'Installed',
+      icon: HardDrive,
+    },
+    {
+      path: '/projects',
+      label: 'Projects',
+      icon: Folder,
+    },
+    {
+      path: '/groups',
+      label: 'Groups',
+      icon: Boxes,
+    },
+  ];
 
   return (
-    <>
-      {platform === 'macos' ? (
+    <SidebarProvider className='h-svh min-h-0 [--sidebar-width:clamp(13.5rem,15vw,16.5rem)]! [--sidebar-width-icon:3rem]! overflow-hidden bg-muted bg-linear-to-br from-primary/10 via-transparent to-primary/5 dark:bg-background dark:from-primary/8 dark:to-muted/30'>
+      <Onboarding />
+      <Sidebar
+        variant='floating'
+        collapsible='icon'
+        className='**:data-[slot=sidebar-inner]:rounded-xl **:data-[slot=sidebar-inner]:bg-sidebar **:data-[slot=sidebar-inner]:bg-linear-to-b **:data-[slot=sidebar-inner]:from-primary/5 **:data-[slot=sidebar-inner]:to-transparent **:data-[slot=sidebar-inner]:shadow-lg **:data-[slot=sidebar-inner]:shadow-foreground/5 dark:**:data-[slot=sidebar-inner]:shadow-black/15'
+      >
+        <SidebarHeader className='overflow-hidden'>
+          <div
+            data-tauri-drag-region
+            className={cn(
+              'flex h-16 min-w-0 shrink-0 select-none items-center gap-2 overflow-hidden',
+              platform === 'macos' && 'h-22 pt-6',
+            )}
+          >
+            <div className='grid size-8 shrink-0 place-items-center rounded-lg bg-foreground text-background shadow-sm'>
+              <Terminal className='size-4.5' />
+            </div>
+            {/* Keep the text in layout while fading, so sidebar resizing cannot reflow the brand. */}
+            <span className='flex shrink-0 flex-col gap-1 whitespace-nowrap opacity-100 transition-opacity delay-150 duration-100 group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:delay-0 motion-reduce:transition-none motion-reduce:delay-0'>
+              <strong className='text-sm font-semibold'>NVM Desktop</strong>
+              <span className='text-xs text-muted-foreground'>
+                Node.js version manager
+              </span>
+            </span>
+          </div>
+        </SidebarHeader>
+        <SidebarContent>
+          <nav aria-label={t('Workspace')}>
+            {[
+              {
+                label: 'Version-Manager',
+                items: navigation.slice(0, 2),
+              },
+              {
+                label: 'Workspace',
+                items: navigation.slice(2),
+              },
+            ].map((group) => (
+              <SidebarGroup key={group.label}>
+                <SidebarGroupLabel>{t(group.label)}</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu className='gap-1 xl:gap-1.5'>
+                    {group.items.map(({ path, label, icon: Icon }) => (
+                      <SidebarMenuItem key={path}>
+                        <SidebarMenuButton
+                          isActive={pathname === path}
+                          tooltip={t(label)}
+                          className={cn(
+                            'min-h-9 text-sm xl:min-h-10 xl:text-sm group-data-[collapsible=icon]:min-h-9 data-active:bg-primary/10 data-active:text-primary data-active:shadow-none dark:data-active:text-sidebar-foreground',
+                            label === 'Projects' && 'nvmd-project',
+                          )}
+                          render={
+                            <SidebarLink
+                              to={path}
+                              aria-label={t(label)}
+                              aria-current={
+                                pathname === path ? 'page' : undefined
+                              }
+                            >
+                              <Icon className='size-4' strokeWidth={1.7} />
+                              <span>{t(label)}</span>
+                            </SidebarLink>
+                          }
+                        />
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            ))}
+          </nav>
+        </SidebarContent>
+        <SidebarFooter>
+          <div className='px-2 py-3.5 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden'>
+            Node.js version manager
+          </div>
+          <div className='relative h-8 shrink-0 transition-[height] duration-200 ease-linear group-data-[collapsible=icon]:h-44 motion-reduce:transition-none'>
+            {[
+              {
+                key: 'updater',
+                component: <Updater />,
+                position:
+                  'translate-x-0 group-data-[collapsible=icon]:-translate-y-36',
+              },
+              {
+                key: 'theme',
+                component: <ThemeCustomizer />,
+                position:
+                  'translate-x-9 group-data-[collapsible=icon]:-translate-y-27',
+              },
+              {
+                key: 'tip',
+                component: <Tip />,
+                position:
+                  'translate-x-18 group-data-[collapsible=icon]:-translate-y-18',
+              },
+              {
+                key: 'configuration',
+                component: <Configuration />,
+                position:
+                  'translate-x-27 group-data-[collapsible=icon]:-translate-y-9',
+              },
+              {
+                key: 'setting',
+                component: <Setting />,
+                position: 'translate-x-36',
+              },
+            ].map(({ key, component, position }) => (
+              <div
+                key={key}
+                className={cn(
+                  'absolute bottom-0 left-0 flex size-8 items-center justify-center transition-transform duration-200 ease-linear group-data-[collapsible=icon]:translate-x-0 motion-reduce:transition-none [&_button]:size-8 [&_button]:p-0',
+                  position,
+                )}
+              >
+                {component}
+              </div>
+            ))}
+          </div>
+        </SidebarFooter>
+      </Sidebar>
+      <div className='flex min-h-0 min-w-0 flex-1 flex-col gap-2 p-2 md:pl-0'>
         <header
           data-tauri-drag-region
-          className='flex items-center pt-2 pr-3 justify-between pl-24 select-none'
+          className={cn(
+            surfaceClassName,
+            'flex h-14 shrink-0 select-none items-center justify-between rounded-xl px-4 text-xs text-muted-foreground sm:px-6',
+            platform === 'macos' && 'pr-2 sm:pr-2',
+          )}
         >
-          <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    to='/versions'
-                    className={linkStyle}
-                    data-active={pathname === '/versions'}
-                  >
-                    {t('Versions')}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    to='/installed'
-                    className={linkStyle}
-                    data-active={pathname === '/installed'}
-                  >
-                    {t('Installed')}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem className='nvmd-project'>
-                <NavigationMenuLink asChild>
-                  <Link
-                    to='/projects'
-                    className={linkStyle}
-                    data-active={pathname === '/projects'}
-                  >
-                    {t('Projects')}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    to='/groups'
-                    className={linkStyle}
-                    data-active={pathname === '/groups'}
-                  >
-                    {t('Groups')}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
-          <div className='flex items-center'>
-            <Updater />
-            <ThemeCustomizer />
-            <Tip />
-            <Configuration />
-            <Setting />
+          <div className='flex min-w-0 items-center gap-3'>
+            <SidebarTrigger aria-label={t('Toggle-Sidebar')} />
+            <span className='h-4 w-px bg-border' aria-hidden='true' />
+            <span className='truncate'>
+              {t('Workspace')} <span className='px-2 opacity-40'>/</span>{' '}
+              <span className='text-foreground'>
+                {t(
+                  navigation.find((item) => item.path === pathname)?.label ??
+                    'Versions',
+                )}
+              </span>
+            </span>
           </div>
-        </header>
-      ) : (
-        <header
-          className='flex items-center pt-2 px-3 justify-between select-none'
-          data-tauri-drag-region
-        >
-          <div className='flex items-center gap-3'>
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      to='/versions'
-                      className={linkStyle}
-                      data-active={pathname === '/versions'}
-                    >
-                      {t('Versions')}
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      to='/installed'
-                      className={linkStyle}
-                      data-active={pathname === '/installed'}
-                    >
-                      {t('Installed')}
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem className='nvmd-project'>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      to='/projects'
-                      className={linkStyle}
-                      data-active={pathname === '/projects'}
-                    >
-                      {t('Projects')}
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link
-                      to='/groups'
-                      className={linkStyle}
-                      data-active={pathname === '/groups'}
-                    >
-                      {t('Groups')}
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
-          </div>
-          <div className='flex items-center gap-4'>
-            <div className='flex items-center'>
-              <Updater />
-              <ThemeCustomizer />
-              <Tip />
-              <Configuration />
-              <Setting />
-            </div>
-            <div className='flex items-center gap-1'>
+          {platform !== 'macos' && (
+            <div className='ml-4 flex shrink-0 items-center gap-1'>
               <Button
-                size='sm'
-                variant='secondary'
-                onClick={() => {
-                  windowMinimize();
-                }}
+                size='icon'
+                variant='ghost'
+                className='w-9 motion-reduce:transition-none'
+                aria-label={t('Minimize')}
+                title={t('Minimize')}
+                onClick={windowMinimize}
               >
-                <MinusIcon />
+                <MinusIcon aria-hidden='true' strokeWidth={1.5} />
               </Button>
               <Button
-                size='sm'
-                variant='secondary'
-                onClick={() => {
-                  windowClose();
-                }}
+                size='icon'
+                variant='ghost'
+                className='w-9 motion-reduce:transition-none'
+                aria-label={t(isMaximized ? 'Restore' : 'Maximize')}
+                title={t(isMaximized ? 'Restore' : 'Maximize')}
+                onClick={toggleMaximized}
               >
-                <XIcon />
+                {isMaximized ? (
+                  <CopyIcon
+                    className='size-3.5'
+                    aria-hidden='true'
+                    strokeWidth={1.5}
+                  />
+                ) : (
+                  <SquareIcon
+                    className='size-3.5'
+                    aria-hidden='true'
+                    strokeWidth={1.5}
+                  />
+                )}
+              </Button>
+              <Button
+                size='icon'
+                variant='ghost'
+                className='w-9 motion-reduce:transition-none'
+                aria-label={t('Close')}
+                title={t('Close')}
+                onClick={windowClose}
+              >
+                <XIcon aria-hidden='true' strokeWidth={1.5} />
               </Button>
             </div>
-          </div>
+          )}
         </header>
-      )}
-      <main className='px-6 py-4 flex-1 overflow-hidden'>
-        <Outlet />
-      </main>
-    </>
+        <main
+          className={cn(
+            surfaceClassName,
+            'min-h-0 flex-1 overflow-hidden rounded-xl p-4 sm:p-6 lg:p-7',
+          )}
+        >
+          {/* Cap reading width on wide windows while preserving the full table height. */}
+          <div className='mx-auto h-full min-h-0 w-full max-w-6xl'>
+            <Outlet />
+          </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
+
+function SidebarLink({ onClick, ...props }: React.ComponentProps<typeof Link>) {
+  const { isMobile, setOpenMobile } = useSidebar();
+  return (
+    <Link
+      {...props}
+      onClick={(event) => {
+        onClick?.(event);
+        if (!event.defaultPrevented && isMobile) setOpenMobile(false);
+      }}
+    />
+  );
+}
 
 export default Home;

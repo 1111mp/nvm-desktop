@@ -1,20 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { Label as LabelPrimitive } from 'radix-ui';
-import { CopyIcon } from 'lucide-react';
+import { CheckIcon, CopyIcon } from 'lucide-react';
+import { Button } from './button';
+import { useTranslation } from 'react-i18next';
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
 
 import { useCopyToClipboard } from '@/hooks';
 import { cn } from '@/lib/utils';
-
-function Label({
-  className,
-  ...props
-}: React.ComponentProps<typeof LabelPrimitive.Root>) {
+function Label({ className, ...props }: React.ComponentProps<'label'>) {
   return (
-    <LabelPrimitive.Root
+    <label
       data-slot='label'
       className={cn(
-        'flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
+        'flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 peer-data-disabled:cursor-not-allowed peer-data-disabled:opacity-50',
         className,
       )}
       {...props}
@@ -29,11 +26,11 @@ function LabelCopyable({
   rootClassName,
   title,
   ...props
-}: React.ComponentProps<typeof LabelPrimitive.Root> & {
+}: React.ComponentProps<'label'> & {
   rootClassName?: string;
   title?: string;
 }) {
-  const [open, setOpen] = useState<boolean>(false);
+  const { t } = useTranslation();
   const [did, setDid] = useState<boolean>(false);
 
   const [, copy] = useCopyToClipboard();
@@ -47,42 +44,47 @@ function LabelCopyable({
   }, []);
 
   return (
-    <span className={cn('inline-block items-center space-x-1', rootClassName)}>
+    <span
+      className={cn('inline-flex min-w-0 items-center gap-1.5', rootClassName)}
+    >
       <>
-        <LabelPrimitive.Root
+        <label
           ref={ref}
           className={cn(
-            'text-sm leading-none font-normal select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
+            'text-sm leading-none font-normal select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 peer-data-disabled:cursor-not-allowed peer-data-disabled:opacity-50',
             className,
           )}
           title={title}
           {...props}
         >
           {children}
-        </LabelPrimitive.Root>
-        <Tooltip open={open}>
-          <TooltipTrigger asChild>
-            <CopyIcon
-              className='inline-block size-4 text-primary cursor-pointer hover:opacity-70 active:opacity-80'
-              onClick={(evt) => {
-                evt.stopPropagation();
-                copy((children as unknown as string) || title || '');
-                setDid(true);
-
-                if (timer.current) clearTimeout(timer.current);
-                timer.current = setTimeout(() => {
-                  setDid(false);
-                }, 3000);
-              }}
-              onMouseOver={() => {
-                setOpen(true);
-              }}
-              onMouseLeave={() => {
-                setOpen(false);
-              }}
-            />
-          </TooltipTrigger>
-          <TooltipContent>{did ? 'Copied' : 'Copy'}</TooltipContent>
+        </label>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                type='button'
+                variant='ghost'
+                size='icon-xs'
+                className='shrink-0 text-muted-foreground'
+                aria-label={t(did ? 'Clipboard-Copied' : 'Clipboard-Copy')}
+                onClick={async (event) => {
+                  event.stopPropagation();
+                  const text =
+                    typeof children === 'string' ? children : title || '';
+                  if (!(await copy(text))) return;
+                  setDid(true);
+                  if (timer.current) clearTimeout(timer.current);
+                  timer.current = setTimeout(() => setDid(false), 3000);
+                }}
+              >
+                {did ? <CheckIcon /> : <CopyIcon />}
+              </Button>
+            }
+          />
+          <TooltipContent>
+            {t(did ? 'Clipboard-Copied' : 'Clipboard-Copy')}
+          </TooltipContent>
         </Tooltip>
       </>
     </span>

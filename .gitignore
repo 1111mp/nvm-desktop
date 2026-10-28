@@ -31,3 +31,8 @@ dist-ssr
 AGENTS.md
 
 .pnpm-store
+
+.agents
+skills-lock.json
+
+.migration

@@ -7,6 +7,7 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { AnimatePresence, motion } from 'motion/react';
 import { useRef } from 'react';
+import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { Bars } from './bars-icon';
 import { DataTableColumnFilterHeader } from './data-table-column-filter-header';
@@ -86,7 +87,7 @@ export function DataTable<TData extends RowData>({
   };
 
   return (
-    <div className='relative flex flex-col flex-1 space-y-2 rounded-md overflow-hidden'>
+    <div className='relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden'>
       {toolbar?.(table)}
       <AnimatePresence>
         {loading && (
@@ -103,7 +104,7 @@ export function DataTable<TData extends RowData>({
       </AnimatePresence>
       <motion.div
         ref={tableContainerRef}
-        className='w-full flex-1 rounded-md [overflow-y:overlay]'
+        className='min-h-0 w-full flex-1 overflow-auto rounded-lg bg-muted/20'
         animate={loading ? 'hidden' : 'visible'}
         variants={{
           visible: { opacity: 1 },
@@ -111,19 +112,23 @@ export function DataTable<TData extends RowData>({
         }}
         transition={{ duration: 0.3 }}
       >
-        <Table>
-          <TableHeader className='sticky top-0 z-10 bg-muted'>
+        {/* Reserve enough width for version tags and actions; narrow windows scroll horizontally. */}
+        <Table className='min-w-224'>
+          <TableHeader className='sticky top-0 z-10 bg-muted xl:bg-card xl:bg-linear-to-b xl:from-muted/80 xl:to-muted/60'>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
                 key={headerGroup.id}
-                className='w-full flex items-center [&>*:not(:last-child)]:relative [&>*:not(:last-child)]:after:absolute [&>*:not(:last-child)]:after:right-0 [&>*:not(:last-child)]:after:w-px [&>*:not(:last-child)]:after:h-5 [&>*:not(:last-child)]:after:bg-zinc-300 dark:[&>*:not(:last-child)]:after:bg-zinc-700'
+                className='w-full flex items-center'
               >
                 {headerGroup.headers.map((header) => {
-                  const { maxSize } = header.column.columnDef;
+                  const { maxSize, meta } = header.column.columnDef;
                   return (
                     <TableHead
                       key={header.id}
-                      className='flex flex-1 items-center'
+                      className={cn(
+                        'flex flex-1 items-center',
+                        meta?.layoutClassName,
+                      )}
                       style={{
                         maxWidth:
                           maxSize !== Number.MAX_SAFE_INTEGER
@@ -159,7 +164,11 @@ export function DataTable<TData extends RowData>({
                       return (
                         <TableCell
                           key={cell.id}
-                          className={`flex-1 ${meta?.className ?? ''}`}
+                          className={cn(
+                            'flex-1',
+                            meta?.layoutClassName,
+                            meta?.className,
+                          )}
                           style={{
                             maxWidth:
                               maxSize !== Number.MAX_SAFE_INTEGER

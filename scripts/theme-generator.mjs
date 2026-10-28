@@ -94,6 +94,7 @@ async function generateThemeCSS() {
       theme.cssVars.dark ?? theme.cssVars.light,
     );
 
+    // Surface tokens are derived centrally in surfaces.css for every palette.
     content += `${lightCssVars}\n${darkCssVars}\n`;
   });
 

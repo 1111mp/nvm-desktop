@@ -1,17 +1,15 @@
-import { CircleX } from 'lucide-react';
-import { Button } from './button';
-import { DataTableViewOptions } from './data-table-view-options';
-import { Input } from './input';
-
-import { type RowData } from '@tanstack/react-table';
-import { type DataTableInstance } from './data-table-features';
-
 import { useSelector } from '@tanstack/react-store';
+import type { RowData } from '@tanstack/react-table';
+import { RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Button } from './button';
 import {
   DataTableFacetedFilter,
   type Options,
 } from './data-table-faceted-filter';
+import type { DataTableInstance } from './data-table-features';
+import { DataTableSearch } from './data-table-search';
+import { DataTableViewOptions } from './data-table-view-options';
 
 interface DataTableToolbarProps<TData extends RowData> {
   table: DataTableInstance<TData>;
@@ -19,7 +17,6 @@ interface DataTableToolbarProps<TData extends RowData> {
   status?: boolean;
   options?: Options;
 }
-
 const FILTER_NAME_FIELD: Record<string, string> = {
   Version: 'version',
   'Project-Name': 'name',
@@ -33,44 +30,35 @@ export function DataTableToolbar<TData extends RowData>({
   options = [],
 }: DataTableToolbarProps<TData>) {
   const { t } = useTranslation();
-
-  const isFiltered = useSelector(
-    table.atoms.columnFilters,
-    (filters) => filters.length > 0,
-  );
-
+  const filters = useSelector(table.atoms.columnFilters);
+  const column = table.getColumn(FILTER_NAME_FIELD[filterName]);
+  const value = filters.find((filter) => filter.id === column?.id)?.value;
+  const statusColumn = status ? table.getColumn('status') : undefined;
   return (
-    <div className='flex flex-1 items-center justify-between p-px'>
-      <div className='flex flex-1 items-center space-x-2'>
-        <Input
-          placeholder={`${t('Filter')} ${t(filterName)}`}
-          value={
-            (table
-              .getColumn(FILTER_NAME_FIELD[filterName])
-              ?.getFilterValue() as string) ?? ''
-          }
-          onChange={(event) =>
-            table
-              .getColumn(FILTER_NAME_FIELD[filterName])
-              ?.setFilterValue(event.target.value)
-          }
-          className='h-7 w-45'
+    <div className='flex min-w-0 flex-[1_1_18rem] flex-wrap items-center justify-between gap-2 p-0.5'>
+      <div className='flex min-w-0 flex-1 flex-wrap items-center gap-2'>
+        <DataTableSearch
+          placeholder={t('Table-Search', { field: t(filterName) })}
+          value={typeof value === 'string' ? value : ''}
+          onChange={(value) => column?.setFilterValue(value || undefined)}
         />
-        {status ? (
+        {status && statusColumn && (
           <DataTableFacetedFilter
-            column={table.getColumn('status')}
+            column={statusColumn}
             title={t('Status')}
             options={options}
           />
-        ) : null}
-        {isFiltered && (
+        )}
+        {filters.length > 0 && (
           <Button
-            variant='outline'
+            variant='ghost'
+            className='h-8 gap-1.5 rounded-lg border-0 px-2 text-xs font-normal text-muted-foreground hover:bg-surface-hover-60 hover:text-foreground'
+            aria-label={t('Clear-Filters')}
+            title={t('Clear-Filters')}
             onClick={() => table.resetColumnFilters()}
-            className='h-7 px-2 lg:px-3 border-dashed'
           >
+            <RotateCcw className='size-3' />
             {t('Reset')}
-            <CircleX className='ml-1 size-4' />
           </Button>
         )}
       </div>

@@ -1,0 +1,92 @@
+/* Recompute on palette scopes (including previews), so switching a body theme
+   cannot inherit colors already resolved against the root's default palette. */
+:where(
+  :root,
+  body,
+  [class^='color-'],
+  [class*=' color-'],
+  [class^='theme-'],
+  [class*=' theme-']
+) {
+  --surface-background: color-mix(
+    in oklab,
+    var(--popover) 94%,
+    var(--popover-foreground)
+  );
+  --surface-hover-background: color-mix(
+    in oklab,
+    var(--popover) 90%,
+    var(--popover-foreground)
+  );
+  --surface-row-background: color-mix(
+    in oklab,
+    var(--popover) 97%,
+    var(--popover-foreground)
+  );
+  --surface-selected-background: color-mix(
+    in oklab,
+    var(--surface-hover-background) 90%,
+    var(--primary)
+  );
+  --surface-inset-background: color-mix(
+    in oklab,
+    var(--popover) 99%,
+    var(--popover-foreground)
+  );
+  --surface-edge: color-mix(
+    in oklab,
+    var(--popover) 85%,
+    var(--popover-foreground)
+  );
+}
+
+/* Opaque fills keep nested panels legible without depending on an accent hue.
+   Existing suffixes retain a subtle progression rather than fading into white. */
+@utility bg-surface-* {
+  background-color: color-mix(
+    in oklab,
+    var(--surface-background) calc(65% + --value(integer) * 0.35%),
+    var(--popover)
+  );
+}
+
+@utility bg-surface-hover-* {
+  background-color: color-mix(
+    in oklab,
+    var(--surface-hover-background) calc(80% + --value(integer) * 0.2%),
+    var(--popover)
+  );
+}
+
+@utility bg-surface-primary-hover-* {
+  background-color: color-mix(
+    in oklab,
+    var(--surface-hover-background) calc(80% + --value(integer) * 0.2%),
+    var(--popover)
+  );
+}
+
+@utility bg-surface-row-* {
+  background-color: color-mix(
+    in oklab,
+    var(--surface-row-background) calc(65% + --value(integer) * 0.35%),
+    var(--popover)
+  );
+}
+
+@utility bg-surface-selected-* {
+  background-color: color-mix(
+    in oklab,
+    var(--surface-selected-background) calc(80% + --value(integer) * 0.2%),
+    var(--popover)
+  );
+}
+
+/* Fields sit closer to the popup surface than their containing section. */
+@utility bg-inset-* {
+  background-color: color-mix(
+    in oklab,
+    var(--surface-inset-background) calc(50% + --value(integer) * 0.5%),
+    var(--popover)
+  );
+}

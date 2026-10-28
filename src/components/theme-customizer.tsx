@@ -1,9 +1,10 @@
-import { Button, Label, Popover, PopoverContent, PopoverTrigger } from './ui';
-import { Check, Palette } from 'lucide-react';
+import { Check, Palette, RotateCcw } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Button, Popover, PopoverContent, PopoverTrigger } from './ui';
 
-import { cn } from '@/lib/utils';
 import { useAppContext } from '@/app-context';
+import { cn } from '@/lib/utils';
 
 const BASE_COLOR_DATA = [
   {
@@ -11,7 +12,7 @@ const BASE_COLOR_DATA = [
     label: 'Neutral',
     activeColor: {
       light: 'oklch(1 0 0)',
-      dark: 'okloklch(0.145 0 0)',
+      dark: 'oklch(0.145 0 0)',
     },
   },
   {
@@ -276,166 +277,314 @@ const THEME_DATA = [
   },
 ];
 export const RADII = [
-  { name: 'default', label: 'Default', value: '' },
-  { name: 'none', label: 'None', value: '0' },
-  { name: 'small', label: 'Small', value: '0.45rem' },
-  { name: 'medium', label: 'Medium', value: '0.625rem' },
-  { name: 'large', label: 'Large', value: '0.875rem' },
+  {
+    name: 'default',
+    label: 'Default',
+    value: '',
+  },
+  {
+    name: 'none',
+    label: 'None',
+    value: '0',
+  },
+  {
+    name: 'small',
+    label: 'Small',
+    value: '0.45rem',
+  },
+  {
+    name: 'medium',
+    label: 'Medium',
+    value: '0.625rem',
+  },
+  {
+    name: 'large',
+    label: 'Large',
+    value: '0.875rem',
+  },
 ];
 
-export function ThemeCustomizer() {
-  const { settings, color, updateColor } = useAppContext();
-  const { t } = useTranslation();
+// Local theme classes let each preset preview its own semantic tokens in either mode.
+function ThemePreview() {
+  return (
+    <span
+      aria-hidden='true'
+      className='flex h-12 w-full gap-1 rounded-md xl:h-16 bg-background p-1.5'
+    >
+      <span className='flex w-5 shrink-0 flex-col gap-1 rounded-sm bg-muted p-1'>
+        <span className='h-1 rounded-full bg-primary' />
+        <span className='h-1 rounded-full bg-foreground/15' />
+        <span className='h-1 rounded-full bg-foreground/15' />
+      </span>
+      <span className='flex flex-1 flex-col gap-1.5 p-0.5'>
+        <span className='h-1 w-1/2 rounded-full bg-foreground/60' />
+        <span className='flex flex-1 gap-1'>
+          <span className='flex-1 rounded-sm bg-primary/20' />
+          <span className='flex-1 rounded-sm bg-muted' />
+        </span>
+        <span className='h-1 w-2/3 rounded-full bg-foreground/15' />
+      </span>
+    </span>
+  );
+}
 
-  const { theme: mode } = settings;
+export function ThemeCustomizer() {
+  const { color, updateColor } = useAppContext();
+  const { t } = useTranslation();
+  const [remSize, setRemSize] = useState(0);
+  const selectionClassName =
+    'outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-popover';
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          id='theme-customizer'
-          size='sm'
-          title={t('Theme')}
-          variant='ghost'
-        >
-          <Palette />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align='end' className='z-40 w-lg rounded-xl'>
-        <div className='space-y-1.5'>
-          <Label className='text-xs text-muted-foreground'>
-            {t('Base Color')}
-          </Label>
-          <div className='grid grid-cols-4 gap-2'>
-            {BASE_COLOR_DATA.map(({ name, label }) => {
-              const isActive = color.baseColor === name;
-
-              return (
-                <Button
-                  key={name}
-                  size='sm'
-                  variant='outline'
-                  className={cn(
-                    'flex items-center justify-between font-normal',
-                    isActive && 'border-primary!',
-                  )}
-                  onClick={() => {
-                    updateColor({ baseColor: name });
-                  }}
-                >
-                  {label}
-                  {isActive && <Check className='size-3 text-primary' />}
-                </Button>
-              );
-            })}
+    <Popover
+      onOpenChange={(open) => {
+        // Radix positioning expects measured units; derive them from rem on each opening.
+        if (open)
+          setRemSize(
+            parseFloat(getComputedStyle(document.documentElement).fontSize),
+          );
+      }}
+    >
+      <PopoverTrigger
+        render={
+          <Button
+            id='theme-customizer'
+            size='sm'
+            title={t('Theme')}
+            aria-label={t('Theme')}
+            variant='ghost'
+          >
+            <Palette />
+          </Button>
+        }
+      />
+      <PopoverContent
+        side='right'
+        align='end'
+        sideOffset={remSize * 0.75}
+        collisionPadding={{
+          top: remSize * 3,
+          right: remSize,
+          bottom: remSize,
+          left: remSize,
+        }}
+        aria-label={t('Theme')}
+        className='z-40 w-[clamp(25rem,32vw,32rem)] max-w-[calc(100dvw-2rem)] max-h-[min(85dvh,var(--available-height))] gap-0 overflow-hidden rounded-2xl p-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] ring-1 ring-surface-edge dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]'
+      >
+        <div className='flex shrink-0 items-center justify-between gap-3 bg-surface-50 bg-linear-to-br from-primary/8 to-transparent px-[clamp(1.25rem,1.5vw,1.5rem)] py-4 xl:py-5'>
+          <div className='flex items-center gap-3'>
+            <span className='grid size-9 place-items-center rounded-xl bg-background text-primary shadow-xs'>
+              <Palette className='size-4' />
+            </span>
+            <div>
+              <h2 className='text-sm font-semibold'>{t('Theme')}</h2>
+              <p className='mt-0.5 text-xs text-muted-foreground'>
+                {t('Theme-Tip')}
+              </p>
+            </div>
           </div>
+          <Button
+            variant='ghost'
+            size='icon-sm'
+            title={t('Reset')}
+            aria-label={t('Reset')}
+            onClick={() =>
+              updateColor({
+                baseColor: 'neutral',
+                theme: '',
+                radius: '',
+              })
+            }
+          >
+            <RotateCcw className='size-3.5' />
+          </Button>
         </div>
-        <div className='space-y-1.5'>
-          <Label className='text-xs text-muted-foreground'>
-            {t('Full Theme')}
-          </Label>
-          <div className='grid grid-cols-4 gap-2'>
-            {FULL_THEME_DATA.map(({ name, label, activeColor }) => {
-              const isActive = color.theme === name;
-
-              return (
-                <Button
-                  key={name}
-                  size='sm'
-                  variant='outline'
-                  className={cn(
-                    'justify-start font-normal',
-                    isActive && 'border-primary!',
-                  )}
-                  style={
-                    {
-                      '--theme-primary':
-                        activeColor[mode === 'dark' ? 'dark' : 'light'],
-                    } as React.CSSProperties
-                  }
-                  onClick={() => {
-                    updateColor({ theme: isActive ? '' : name });
-                  }}
-                >
-                  <span
+        <div className='min-h-0 space-y-5 overflow-y-auto overscroll-contain p-[clamp(1.25rem,1.5vw,1.5rem)] xl:space-y-6'>
+          <fieldset className='space-y-3'>
+            <legend className='text-xs font-medium'>{t('Base Color')}</legend>
+            <div className='grid grid-cols-7 gap-1.5'>
+              {BASE_COLOR_DATA.map(({ name, label }) => {
+                const isActive = color.baseColor === name;
+                return (
+                  <button
+                    key={name}
+                    type='button'
+                    aria-label={label}
+                    aria-pressed={isActive}
+                    title={label}
+                    onClick={() => {
+                      // Full presets override base tokens; leave the preset so the chosen base is visible.
+                      const isFullTheme = FULL_THEME_DATA.some(
+                        ({ name }) => name === color.theme,
+                      );
+                      updateColor({
+                        baseColor: name,
+                        ...(isFullTheme
+                          ? {
+                              theme: '',
+                            }
+                          : {}),
+                      });
+                    }}
                     className={cn(
-                      'flex h-4 w-4 shrink-0 -translate-x-1 items-center justify-center rounded-full bg-(--theme-primary) overflow-hidden',
+                      selectionClassName,
+                      'flex min-w-0 cursor-pointer flex-col items-center gap-2 rounded-lg py-2 hover:bg-muted',
+                      isActive && 'bg-primary/8',
                     )}
                   >
-                    {isActive && <Check className='size-3 text-white' />}
-                  </span>
-                  {label}
-                </Button>
-              );
-            })}
-          </div>
-        </div>
-        <div className='space-y-1.5'>
-          <Label className='gap-1 text-sm text-muted-foreground'>
-            {t('Theme')}
-            <span className='text-[10px]'>({t('Theme-Tip')})</span>
-          </Label>
-          <div className='grid grid-cols-4 gap-2'>
-            {THEME_DATA.map(({ name, label, activeColor }) => {
-              const isActive = color.theme === name;
-
-              return (
-                <Button
-                  key={name}
-                  size='sm'
-                  variant='outline'
-                  className={cn(
-                    'justify-start font-normal',
-                    isActive && 'border-primary!',
-                  )}
-                  style={
-                    {
-                      '--theme-primary':
-                        activeColor[mode === 'dark' ? 'dark' : 'light'],
-                    } as React.CSSProperties
-                  }
-                  onClick={() => {
-                    updateColor({ theme: isActive ? '' : name });
-                  }}
-                >
-                  <span
+                    <span
+                      className={`color-${name} relative flex h-9 w-full overflow-hidden rounded-md shadow-xs`}
+                    >
+                      <span aria-hidden='true' className='flex-1 bg-muted' />
+                      <span aria-hidden='true' className='flex-1 bg-border' />
+                      <span
+                        aria-hidden='true'
+                        className='flex-1 bg-muted-foreground'
+                      />
+                      {isActive && (
+                        <span className='absolute inset-0 grid place-items-center'>
+                          <span className='grid size-4 place-items-center rounded-full bg-background text-foreground shadow-xs'>
+                            <Check className='size-3' />
+                          </span>
+                        </span>
+                      )}
+                    </span>
+                    <span
+                      className={cn(
+                        'text-[0.625rem] text-muted-foreground',
+                        isActive && 'font-medium text-foreground',
+                      )}
+                    >
+                      {label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+          <fieldset className='space-y-3'>
+            <legend className='text-xs font-medium'>{t('Full Theme')}</legend>
+            <div className='grid grid-cols-3 gap-2'>
+              {FULL_THEME_DATA.map(({ name, label }) => {
+                const isActive = color.theme === name;
+                return (
+                  <button
+                    key={name}
+                    type='button'
+                    aria-pressed={isActive}
+                    onClick={() =>
+                      updateColor({
+                        theme: isActive ? '' : name,
+                      })
+                    }
                     className={cn(
-                      'flex h-4 w-4 shrink-0 -translate-x-1 items-center justify-center rounded-full bg-(--theme-primary) overflow-hidden',
+                      selectionClassName,
+                      'group cursor-pointer rounded-lg bg-surface-40 p-1.5 text-left hover:bg-muted',
+                      isActive && 'bg-primary/10',
                     )}
                   >
-                    {isActive && <Check className='size-3 text-white' />}
-                  </span>
-                  {label}
-                </Button>
-              );
-            })}
-          </div>
-        </div>
-        <div className='space-y-1.5'>
-          <Label className='text-xs text-muted-foreground'>{t('Radius')}</Label>
-          <div className='grid grid-cols-4 gap-2'>
-            {RADII.map(({ name, label }) => {
-              const isActive = color.radius === name;
-
-              return (
-                <Button
-                  key={name}
-                  size='sm'
-                  variant='outline'
-                  className={cn(
-                    'flex items-center justify-between font-normal',
-                    isActive && 'border-primary!',
-                  )}
-                  onClick={() => {
-                    updateColor({ radius: name });
-                  }}
-                >
-                  {label}
-                  {isActive && <Check className='size-3 text-primary' />}
-                </Button>
-              );
-            })}
-          </div>
+                    <span className={`theme-${name} block rounded-md`}>
+                      <ThemePreview />
+                    </span>
+                    <span className='flex items-center justify-between gap-1 px-0.5 pt-2 pb-0.5 text-[0.625rem]'>
+                      <span
+                        className={cn(
+                          'truncate text-muted-foreground group-hover:text-foreground',
+                          isActive && 'font-medium text-foreground',
+                        )}
+                      >
+                        {label}
+                      </span>
+                      <span className='size-3 shrink-0'>
+                        {isActive && <Check className='size-3 text-primary' />}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+          <fieldset className='space-y-3'>
+            <legend className='text-xs font-medium'>{t('Accent-Color')}</legend>
+            <div className='grid grid-cols-8 justify-items-center gap-x-3 gap-y-3'>
+              {THEME_DATA.map(({ name, label, activeColor }) => {
+                const isActive = color.theme === name;
+                return (
+                  <button
+                    key={name}
+                    type='button'
+                    title={label}
+                    aria-label={label}
+                    aria-pressed={isActive}
+                    onClick={() =>
+                      updateColor({
+                        theme: isActive ? '' : name,
+                      })
+                    }
+                    // CSS variables resolve the swatch mode with the same dark variant as the app, including system mode.
+                    style={
+                      {
+                        '--swatch-light': activeColor.light,
+                        '--swatch-dark': activeColor.dark,
+                      } as React.CSSProperties
+                    }
+                    className={cn(
+                      selectionClassName,
+                      'group grid size-8 cursor-pointer place-items-center rounded-full hover:bg-muted',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'grid size-6 place-items-center rounded-full bg-(--swatch-light) text-background shadow-xs transition-[transform,box-shadow] group-hover:scale-110 motion-reduce:transition-none dark:bg-(--swatch-dark)',
+                        isActive &&
+                          'shadow-[0_0_0_0.1875rem_var(--popover),0_0_0_0.3125rem_color-mix(in_oklab,var(--swatch-light),transparent_60%)] dark:shadow-[0_0_0_0.1875rem_var(--popover),0_0_0_0.3125rem_color-mix(in_oklab,var(--swatch-dark),transparent_45%)]',
+                      )}
+                    >
+                      {isActive && (
+                        <span className='grid size-3.5 place-items-center rounded-full bg-background text-foreground'>
+                          <Check className='size-2.5' strokeWidth={3} />
+                        </span>
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+          <fieldset className='space-y-3'>
+            <legend className='text-xs font-medium'>{t('Radius')}</legend>
+            <div className='grid grid-cols-5 gap-1 rounded-xl bg-surface-60 p-1'>
+              {RADII.map(({ name, label, value }) => {
+                const isActive = (color.radius || 'default') === name;
+                return (
+                  <button
+                    key={name}
+                    type='button'
+                    aria-pressed={isActive}
+                    onClick={() =>
+                      updateColor({
+                        radius: name,
+                      })
+                    }
+                    className={cn(
+                      selectionClassName,
+                      'flex cursor-pointer flex-col items-center gap-2 rounded-lg px-1 py-2.5 text-muted-foreground hover:text-foreground',
+                      isActive && 'bg-background text-foreground shadow-xs',
+                    )}
+                  >
+                    <span
+                      aria-hidden='true'
+                      className='size-5 bg-current/15'
+                      style={{
+                        borderRadius: value || '0.625rem',
+                      }}
+                    />
+                    <span className='text-[0.625rem]'>{t(label)}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
         </div>
       </PopoverContent>
     </Popover>

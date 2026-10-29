@@ -1,3 +1,31 @@
+## v4.5.0-rc.1
+
+This release candidate introduces a redesigned desktop interface and parallel Node.js installation. Feedback is welcome before the stable 4.5.0 release.
+
+### Features
+
+- Redesign the desktop interface with unified layouts, refreshed dialogs, and refined theme surfaces
+- Migrate UI components to Base UI
+- Support batch Node.js installation with two concurrent downloads, per-task progress, cancellation, and retry
+- Add synchronized version list density modes
+- Separate stable and RC update channels for both standard and bundled WebView2 installers
+
+### Bug Fixes
+
+- Synchronize bundled nvmd executables and wrappers when runtime resources change, including upgrades and downgrades
+- Repair missing runtime files and retry interrupted runtime updates without marking incomplete installations as successful
+- Isolate installation batches and correct initial progress reporting
+- Stabilize installation and group selection behavior
+
+### Maintenance
+
+- Automate releases from version tags on main, with draft releases and artifact validation before publication
+- Expand automated coverage for the interface, installation queue, runtime migration, and release channels
+- Refresh product guides and application screenshots
+- Update application dependencies
+
+---
+
 ## v4.4.0
 
 ### Features

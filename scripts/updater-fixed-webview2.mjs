@@ -1,7 +1,9 @@
 import { getOctokit, context } from '@actions/github';
 import { resolveUpdateLog } from './updatelog.mjs';
 
-const UPDATE_TAG_NAME = 'updater';
+import { publishUpdate, validateRelease } from './publish-update.mjs';
+
+const RELEASE_TAG = process.env.RELEASE_TAG || process.env.GITHUB_REF_NAME;
 const UPDATE_JSON_FILE = 'update-fixed-webview2.json';
 
 /// generate update.json
@@ -14,23 +16,13 @@ async function resolveUpdater() {
   const options = { owner: context.repo.owner, repo: context.repo.repo };
   const github = getOctokit(process.env.GITHUB_TOKEN);
 
-  const { data: tags } = await github.rest.repos.listTags({
-    ...options,
-    per_page: 10,
-    page: 1,
-  });
-
-  // get the latest publish tag
-  const tag = tags.find((t) => t.name.startsWith('v'));
-
-  console.log(tag);
-  console.log();
+  const tag = { name: RELEASE_TAG };
 
   const { data: latestRelease } = await github.rest.repos.getReleaseByTag({
     ...options,
     tag: tag.name,
   });
-  console.log('latestRelease:', latestRelease);
+  validateRelease(tag.name, latestRelease);
 
   let notes = '';
   try {
@@ -42,6 +34,7 @@ async function resolveUpdater() {
 
   const updateData = {
     name: tag.name,
+    version: tag.name.slice(1),
     notes,
     pub_date: new Date().toISOString(),
     platforms: {
@@ -74,41 +67,16 @@ async function resolveUpdater() {
     }
   });
 
-  await Promise.allSettled(promises);
+  await Promise.all(promises);
   console.log('updateData', updateData);
 
-  // maybe should test the signature as well
-  // delete the null field
-  Object.entries(updateData.platforms).forEach(([key, value]) => {
-    if (!value.url) {
-      console.log(`[Error]: failed to parse release for "${key}"`);
-      delete updateData.platforms[key];
-    }
-  });
-
-  // update the update.json
-  const { data: updateRelease } = await github.rest.repos.getReleaseByTag({
-    ...options,
-    tag: UPDATE_TAG_NAME,
-  });
-
-  // delete the old assets
-  for (let asset of updateRelease.assets) {
-    if (asset.name === UPDATE_JSON_FILE) {
-      await github.rest.repos.deleteReleaseAsset({
-        ...options,
-        asset_id: asset.id,
-      });
+  for (const [platform, entry] of Object.entries(updateData.platforms)) {
+    if (!entry.url || !entry.signature) {
+      throw new Error(`Missing update artifact or signature for ${platform}`);
     }
   }
 
-  // upload new assets
-  await github.rest.repos.uploadReleaseAsset({
-    ...options,
-    release_id: updateRelease.id,
-    name: UPDATE_JSON_FILE,
-    data: JSON.stringify(updateData, null, 2),
-  });
+  await publishUpdate(github, options, tag.name, UPDATE_JSON_FILE, updateData);
 }
 
 // get the signature file content
@@ -118,7 +86,14 @@ async function getSignature(url) {
     headers: { 'Content-Type': 'application/octet-stream' },
   });
 
-  return response.text();
+  if (!response.ok)
+    throw new Error(`Signature request failed: ${response.status} ${url}`);
+  const signature = (await response.text()).trim();
+  if (!signature) throw new Error(`Empty signature: ${url}`);
+  return signature;
 }
 
-resolveUpdater().catch(console.error);
+resolveUpdater().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});

@@ -82,6 +82,10 @@ jobs:
           pnpm type-check:e2e
           pnpm exec tsc --noEmit -p tsconfig.node.json
 
+      - name: Run release script tests
+        if: steps.check_frontend.outputs.frontend == 'true'
+        run: node --test scripts/*.test.mjs
+
       - name: Run frontend tests
         if: steps.check_frontend.outputs.frontend == 'true'
         run: |

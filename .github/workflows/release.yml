@@ -1,14 +1,228 @@
 name: Release Build
 
-on: workflow_dispatch
-permissions: write-all
+on:
+  push:
+    tags:
+      - 'v*.*.*'
 
+permissions: write-all
 env:
   CARGO_INCREMENTAL: 0
   RUST_BACKTRACE: short
+  HUSKY: 0
+concurrency:
+  # Share the lock with manual updater repair so channel writes cannot overlap.
+  group: nvm-desktop-publish
+  cancel-in-progress: false
 
 jobs:
+  check_tag_version:
+    name: Check Release Tag and package.json Version Consistency
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Test release channels
+        run: node --test scripts/release-channel.test.mjs scripts/updater.test.mjs scripts/publish-update.test.mjs scripts/release-assets.test.mjs
+
+      - name: Check if tag is from main branch
+        run: |
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || {
+            echo "::error::Release tags must point to commits on main."
+            exit 1
+          }
+
+      - name: Check application versions
+        run: |
+          python3 - <<'PYTHON'
+          import json, tomllib
+          from pathlib import Path
+          version = json.loads(Path('package.json').read_text())['version']
+          assert json.loads(Path('src-tauri/tauri.conf.json').read_text())['version'] == version, 'tauri.conf.json version mismatch'
+          cargo = tomllib.loads(Path('src-tauri/Cargo.toml').read_text())['package']
+          assert cargo['version'] == version, 'Cargo.toml version mismatch'
+          lock = tomllib.loads(Path('src-tauri/Cargo.lock').read_text())
+          app = next(package for package in lock['package'] if package['name'] == cargo['name'])
+          assert app['version'] == version, 'Cargo.lock application version mismatch'
+          PYTHON
+
+      - name: Check tag and package.json version
+        run: |
+          TAG_REF="${GITHUB_REF_NAME:-${GITHUB_REF##*/}}"
+          echo "Current tag: $TAG_REF"
+
+          node --input-type=module -e "import { releaseChannel } from './scripts/release-channel.mjs'; releaseChannel(process.env.GITHUB_REF_NAME)"
+          PKG_VERSION=$(jq -r .version package.json)
+          echo "package.json version: $PKG_VERSION"
+
+          EXPECTED_TAG="v$PKG_VERSION"
+
+          if [[ "$TAG_REF" != "$EXPECTED_TAG" ]]; then
+            echo "❌ Version mismatch:"
+            echo "   Git tag       : $TAG_REF"
+            echo "   package.json  : $EXPECTED_TAG"
+            exit 1
+          fi
+
+          echo "✅ Tag and package.json version are consistent."
+
+  prepare_release:
+    name: Prepare Draft Release
+    runs-on: ubuntu-latest
+    needs: [check_tag_version]
+    outputs:
+      release_id: ${{ steps.prepare_release.outputs.id }}
+    steps:
+      - name: Reject rebuilding published releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if draft=$(gh release view "$GITHUB_REF_NAME" --json isDraft --jq .isDraft); then
+            if [ "$draft" != "true" ]; then
+              echo "::error::Release is already public. Retry updater jobs or publish a new version."
+              exit 1
+            fi
+          fi
+
+      - name: Create or update draft release
+        id: prepare_release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: 'NVM Desktop ${{ github.ref_name }}'
+          body: 'Draft release, will be updated later.'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: true
+          prerelease: ${{ contains(github.ref_name, '-rc') }}
+
+  update_tag:
+    name: Publish Release
+    runs-on: ubuntu-latest
+    needs:
+      [
+        prepare_release,
+        release,
+        release-for-linux-arm,
+        release-for-fixed-webview2,
+      ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Fetch UPDATE logs
+        id: fetch_update_logs
+        run: bash scripts/extract_update_logs.sh
+        shell: bash
+
+      - name: Set Env
+        run: |
+          echo "BUILDTIME=$(TZ=Asia/Shanghai date)" >> $GITHUB_ENV
+          TAG_REF="${GITHUB_REF##*/}"
+          echo "TAG_NAME=$TAG_REF" >> $GITHUB_ENV
+          VERSION=$(echo "$TAG_REF" | sed 's/^v//')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "DOWNLOAD_URL=https://github.com/1111mp/nvm-desktop/releases/download/$TAG_REF" >> $GITHUB_ENV
+        shell: bash
+
+      - run: |
+          if [ -z "$UPDATE_LOGS" ]; then
+            echo "No update logs found, using default message"
+            UPDATE_LOGS="More new features are now supported. Check for detailed changelog soon."
+          else
+            echo "Using found update logs"
+          fi
+
+          cat > release.txt << EOF
+          $UPDATE_LOGS
+
+          ## Downloads
+
+          ### Windows (Windows 7 is no longer supported)
+          #### Standard version (Recommended)
+          - [64-bit](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_x64-setup.exe) | [ARM64](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_arm64-setup.exe)
+
+          #### Bundled WebView2 version (Only recommended for enterprise editions or systems without WebView2)
+          - [64-bit](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_x64_fixed_webview2-setup.exe) | [ARM64](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_arm64_fixed_webview2-setup.exe)
+
+          ### macOS
+          - [Apple Silicon (M-series)](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_aarch64.dmg) | [Intel](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_x64.dmg)
+
+          ### Linux
+          #### DEB packages (Debian-based)
+          - [64-bit](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_amd64.deb) | [ARM64](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_arm64.deb) | [ARMv7](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_armhf.deb)
+
+          #### RPM packages (RedHat-based)
+          - [64-bit](${{ env.DOWNLOAD_URL }}/NVM.Desktop-${{ env.VERSION }}-1.x86_64.rpm) | [ARM64](${{ env.DOWNLOAD_URL }}/NVM.Desktop-${{ env.VERSION }}-1.aarch64.rpm) | [ARMv7](${{ env.DOWNLOAD_URL }}/NVM.Desktop-${{ env.VERSION }}-1.armhfp.rpm)
+
+          ### FAQ
+          - [FAQ](https://github.com/1111mp/nvm-desktop/issues/126)
+
+          ---
+
+          ## 下载地址
+
+          ### Windows (不再支持Win7)
+          #### 正常版本(推荐)
+          - [64位(常用)](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_x64-setup.exe) | [ARM64(不常用)](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_arm64-setup.exe)
+
+          #### 内置Webview2版(体积较大，仅在企业版系统或无法安装webview2时使用)
+          - [64位](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_x64_fixed_webview2-setup.exe) | [ARM64](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_arm64_fixed_webview2-setup.exe)
+
+          ### macOS
+          - [Apple M芯片](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_aarch64.dmg) | [Intel芯片](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_x64.dmg)
+
+          ### Linux
+          #### DEB包(Debian系) 使用 apt ./路径 安装
+          - [64位](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_amd64.deb) | [ARM64](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_arm64.deb) | [ARMv7](${{ env.DOWNLOAD_URL }}/NVM.Desktop_${{ env.VERSION }}_armhf.deb)
+
+          #### RPM包(Redhat系) 使用 dnf ./路径 安装
+          - [64位](${{ env.DOWNLOAD_URL }}/NVM.Desktop-${{ env.VERSION }}-1.x86_64.rpm) | [ARM64](${{ env.DOWNLOAD_URL }}/NVM.Desktop-${{ env.VERSION }}-1.aarch64.rpm) | [ARMv7](${{ env.DOWNLOAD_URL }}/NVM.Desktop-${{ env.VERSION }}-1.armhfp.rpm)
+
+          ### FAQ
+          - [常见问题](https://github.com/1111mp/nvm-desktop/issues/126)
+
+          Created at ${{ env.BUILDTIME }}.
+          EOF
+
+      - name: Publish Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRERELEASE: ${{ contains(github.ref_name, '-rc') }}
+        run: |
+          release_id="${{ needs.prepare_release.outputs.release_id }}"
+
+          if [ -z "$release_id" ]; then
+            echo "::error::No prepared release ID found for $TAG_NAME."
+            exit 1
+          fi
+
+          gh api repos/{owner}/{repo}/releases/"$release_id" > release-assets.json
+          node --input-type=module -e "import { readFileSync } from 'node:fs'; import { validateReleaseAssets } from './scripts/release-assets.mjs'; validateReleaseAssets(JSON.parse(readFileSync('release-assets.json')), process.env.GITHUB_REF_NAME)"
+
+          release_info=$(gh api repos/{owner}/{repo}/releases/"$release_id" --jq '[.tag_name, .draft, (.assets | length), .html_url] | @tsv')
+          IFS=$'\t' read -r release_tag _ asset_count release_url <<< "$release_info"
+
+          if [ "$release_tag" != "$TAG_NAME" ]; then
+            echo "::error::Prepared release $release_id belongs to $release_tag, expected $TAG_NAME."
+            exit 1
+          fi
+
+          echo "Publishing release $release_id ($release_url) with $asset_count assets."
+
+          gh api --method PATCH repos/{owner}/{repo}/releases/"$release_id" \
+            -f name="NVM Desktop $TAG_NAME" \
+            -F body=@release.txt \
+            -F draft=false \
+            -F prerelease="$PRERELEASE" \
+            --silent
+
   release:
+    name: Release Build
+    needs: [prepare_release]
     strategy:
       fail-fast: false
       matrix:
@@ -31,15 +245,26 @@ jobs:
 
       - name: Install Rust Stable
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
 
       - name: Add Rust Target
-        run: rustup target add ${{ matrix.target }}
+        working-directory: src-tauri
+        run: |
+          rustup target add ${{ matrix.target }}
+          rustup show active-toolchain
+          rustup target list --installed
 
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: src-tauri
+          save-if: true
+          prefix-key: 'v1-rust'
+          key: 'rust-shared-stable-${{ matrix.os }}-${{ matrix.target }}'
+          workspaces: |
+            src-tauri -> target
           cache-all-crates: true
+          cache-workspace-crates: true
 
       - name: Install dependencies (ubuntu only)
         if: matrix.os == 'ubuntu-22.04'
@@ -52,29 +277,36 @@ jobs:
         with:
           node-version: '24.22.1'
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v6
+        name: Install pnpm
         with:
           run_install: false
 
       - name: Pnpm install and check
         run: |
-          pnpm i
+          pnpm install --frozen-lockfile
           pnpm check ${{ matrix.target }}
 
+      - name: Configure updater channel
+        run: |
+          pnpm set-updater-channel
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+
       - name: Tauri Build
-        uses: tauri-apps/tauri-action@v1
+        uses: tauri-apps/tauri-action@v1.0.0
         env:
           NODE_OPTIONS: '--max_old_space_size=4096'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: v__VERSION__
-          releaseName: 'NVM Desktop v__VERSION__'
-          releaseBody: 'More new features are now supported.'
-          tauriScript: pnpm
-          args: --target ${{ matrix.target }}
+          releaseId: ${{ needs.prepare_release.outputs.release_id }}
+          tagName: ${{ github.ref_name }}
+          releaseBody: 'Draft release, will be updated later.'
+          tauriScript: pnpm tauri
+          args: --target ${{ matrix.target }} --verbose
+          uploadUpdaterJson: true
 
       - name: Attest Windows bundles
         if: matrix.os == 'windows-latest'
@@ -96,7 +328,9 @@ jobs:
             src-tauri/target/${{ matrix.target }}/release/bundle/deb/*.deb
             src-tauri/target/${{ matrix.target }}/release/bundle/rpm/*.rpm
 
-  release-for-linux-arm64:
+  release-for-linux-arm:
+    name: Release Build for Linux ARM
+    needs: [prepare_release]
     strategy:
       fail-fast: false
       matrix:
@@ -114,15 +348,26 @@ jobs:
 
       - name: Install Rust Stable
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
 
       - name: Add Rust Target
-        run: rustup target add ${{ matrix.target }}
+        working-directory: src-tauri
+        run: |
+          rustup target add ${{ matrix.target }}
+          rustup show active-toolchain
+          rustup target list --installed
 
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: src-tauri
+          save-if: true
+          prefix-key: 'v1-rust'
+          key: 'rust-shared-stable-${{ matrix.os }}-${{ matrix.target }}'
+          workspaces: |
+            src-tauri -> target
           cache-all-crates: true
+          cache-workspace-crates: true
 
       - name: Install Node
         uses: actions/setup-node@v7
@@ -136,8 +381,14 @@ jobs:
 
       - name: Pnpm install and check
         run: |
-          pnpm i
+          pnpm install --frozen-lockfile
           pnpm check ${{ matrix.target }}
+
+      - name: Configure updater channel
+        run: |
+          pnpm set-updater-channel
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
 
       - name: 'Setup for linux'
         run: |-
@@ -159,14 +410,9 @@ jobs:
           sudo mv /tmp/sources.list /etc/apt/sources.list
 
           sudo dpkg --add-architecture ${{ matrix.arch }}
-          sudo apt-get update -y
-          sudo apt-get -f install -y
+          sudo apt update
 
-          sudo apt-get install -y \
-            linux-libc-dev:${{ matrix.arch }} \
-            libc6-dev:${{ matrix.arch }}
-
-          sudo apt-get install -y \
+          sudo apt install -y \
             libxslt1.1:${{ matrix.arch }} \
             libwebkit2gtk-4.1-dev:${{ matrix.arch }} \
             libayatana-appindicator3-dev:${{ matrix.arch }} \
@@ -174,14 +420,14 @@ jobs:
             patchelf:${{ matrix.arch }} \
             librsvg2-dev:${{ matrix.arch }}
 
-      - name: Install aarch64 tools
+      - name: 'Install aarch64 tools'
         if: matrix.target == 'aarch64-unknown-linux-gnu'
         run: |
           sudo apt install -y \
             gcc-aarch64-linux-gnu \
             g++-aarch64-linux-gnu
 
-      - name: Install armv7 tools
+      - name: 'Install armv7 tools'
         if: matrix.target == 'armv7-unknown-linux-gnueabihf'
         run: |
           sudo apt install -y \
@@ -211,25 +457,20 @@ jobs:
             src-tauri/target/${{ matrix.target }}/release/bundle/deb/*.deb
             src-tauri/target/${{ matrix.target }}/release/bundle/rpm/*.rpm
 
-      - name: Get Version
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          sudo apt-get update
-          sudo apt-get install jq
-          echo "VERSION=$(cat package.json | jq '.version' | tr -d '"')" >> $GITHUB_ENV
-          echo "BUILDTIME=$(TZ=Asia/Shanghai date)" >> $GITHUB_ENV
-
-      - name: Upload Release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: v${{env.VERSION}}
-          name: 'NVM Desktop v${{env.VERSION}}'
-          body: 'More new features are now supported.'
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: |
-            src-tauri/target/${{ matrix.target }}/release/bundle/deb/*.deb
-            src-tauri/target/${{ matrix.target }}/release/bundle/rpm/*.rpm
+          gh release upload "${{ github.ref_name }}" \
+            src-tauri/target/${{ matrix.target }}/release/bundle/deb/*.deb \
+            src-tauri/target/${{ matrix.target }}/release/bundle/deb/*.deb.sig \
+            src-tauri/target/${{ matrix.target }}/release/bundle/rpm/*.rpm \
+            src-tauri/target/${{ matrix.target }}/release/bundle/rpm/*.rpm.sig \
+            --clobber
 
   release-for-fixed-webview2:
+    name: Release Build for Fixed WebView2
+    needs: [prepare_release]
     strategy:
       fail-fast: false
       matrix:
@@ -245,13 +486,28 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v7
 
+      - name: Install Rust Stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
       - name: Add Rust Target
-        run: rustup target add ${{ matrix.target }}
+        working-directory: src-tauri
+        run: |
+          rustup target add ${{ matrix.target }}
+          rustup show active-toolchain
+          rustup target list --installed
 
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: src-tauri
+          save-if: true
+          prefix-key: 'v1-rust'
+          key: 'rust-shared-stable-${{ matrix.os }}-${{ matrix.target }}'
+          workspaces: |
+            src-tauri -> target
+          cache-all-crates: true
+          cache-workspace-crates: true
 
       - name: Install Node
         uses: actions/setup-node@v7
@@ -265,8 +521,13 @@ jobs:
 
       - name: Pnpm install and check
         run: |
-          pnpm i
+          pnpm install --frozen-lockfile
           pnpm check ${{ matrix.target }}
+
+      - name: Configure updater channel
+        run: pnpm set-updater-channel
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
 
       - name: Download WebView2 Runtime
         run: |
@@ -276,15 +537,14 @@ jobs:
           Rename-Item .\src-tauri\webview2.${{ matrix.arch }}.json tauri.windows.conf.json
 
       - name: Tauri build
-        id: build
-        uses: tauri-apps/tauri-action@v1
+        uses: tauri-apps/tauri-action@v1.0.0
         env:
           NODE_OPTIONS: '--max_old_space_size=4096'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tauriScript: pnpm
+          tauriScript: pnpm tauri
           args: --target ${{ matrix.target }}
 
       - name: Rename
@@ -312,18 +572,19 @@ jobs:
         with:
           subject-path: src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*setup*
 
-      - name: Upload Release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: v${{steps.build.outputs.appVersion}}
-          name: 'NVM Desktop v${{steps.build.outputs.appVersion}}'
-          body: 'More new features are now supported.'
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*setup*
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $files = Get-ChildItem "src-tauri\target\${{ matrix.target }}\release\bundle\nsis\*setup*" | Select-Object -ExpandProperty FullName
+          gh release upload "${{ github.ref_name }}" $files --clobber
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-  release-update:
-    runs-on: ubuntu-26.04
-    needs: [release, release-for-linux-arm64]
+  release-alpha-update:
+    if: ${{ contains(github.ref_name, '-rc') }}
+    name: Release RC Update
+    runs-on: ubuntu-latest
+    needs: [update_tag]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -339,7 +600,34 @@ jobs:
           run_install: false
 
       - name: Pnpm install
-        run: pnpm i
+        run: pnpm install --frozen-lockfile
+
+      - name: Release updater file
+        run: pnpm updater
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release-update:
+    if: ${{ !contains(github.ref_name, '-rc') }}
+    name: Release Update
+    runs-on: ubuntu-latest
+    needs: [update_tag]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.22.1'
+
+      - uses: pnpm/action-setup@v6
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Release updater file
         run: pnpm updater
@@ -347,8 +635,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release-update-for-fixed-webview2:
-    runs-on: ubuntu-26.04
-    needs: [release-for-fixed-webview2]
+    # One channel job is skipped; wait for the other to create the updater release.
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+    needs: [update_tag, release-alpha-update, release-update]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -364,102 +654,9 @@ jobs:
           run_install: false
 
       - name: Pnpm install
-        run: pnpm i
+        run: pnpm install --frozen-lockfile
 
       - name: Release updater file
         run: pnpm updater-fixed-webview2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  update_release_notes:
-    name: Update release notes
-    runs-on: ubuntu-26.04
-    needs: [release, release-for-linux-arm64, release-for-fixed-webview2]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Set Env
-        run: |
-          echo "BUILDTIME=$(TZ=Asia/Shanghai date)" >> $GITHUB_ENV
-        shell: bash
-
-      - name: Get Version
-        run: |
-          sudo apt-get update
-          sudo apt-get install jq
-          echo "VERSION=$(cat package.json | jq '.version' | tr -d '"')" >> $GITHUB_ENV
-
-      - run: |
-          cat > release.txt << 'EOF'
-          ## Which version should I download?
-
-          Choose the version that matches your **operating system** and **CPU architecture**.
-
-          ### macOS
-          > If macOS shows **"The file is damaged"** or **"Cannot verify the developer"**, please check the [FAQ](https://github.com/1111mp/nvm-desktop/issues/126).
-
-          - **Intel Mac (x86_64)** → `x64.dmg`
-          - **Apple Silicon (M1/M2/M3)** → `aarch64.dmg`
-
-          ### Linux
-          - **x86_64 (64-bit)** → `amd64.deb` / `x86_64.rpm`
-          - **ARM64** → `arm64.deb` / `aarch64.rpm`
-          - **ARMv7** → `armhf.deb` / `armhfp.rpm`
-
-          ### Windows
-          > Windows 7 users must install and enable **WebView2** first.
-
-          #### Recommended Version
-          - **64-bit** → `x64-setup.exe`
-          - **ARM64** → `arm64-setup.exe`
-
-          #### Built-in WebView2 Version
-          *(Larger file size. Use this only if your system cannot install WebView2, such as some enterprise editions or Windows 7.)*
-
-          - **64-bit** → `x64_fixed_webview2-setup.exe`
-          - **ARM64** → `arm64_fixed_webview2-setup.exe`
-
-          ---
-
-          ## 我应该下载哪个版本？
-
-          请选择与你的 **操作系统** 和 **CPU 架构** 相匹配的版本。
-
-          ### macOS
-          > 如果 macOS 提示 **“文件已损坏”** 或 **“无法验证开发者”**，请查看 [FAQ](https://github.com/1111mp/nvm-desktop/issues/126)。
-
-          - **Intel Mac (x86_64)** → `x64.dmg`
-          - **Apple Silicon (M1/M2/M3)** → `aarch64.dmg`
-
-          ### Linux
-          - **x86_64 (64位)** → `amd64.deb` / `x86_64.rpm`
-          - **ARM64 架构** → `arm64.deb` / `aarch64.rpm`
-          - **ARMv7 架构** → `armhf.deb` / `armhfp.rpm`
-
-          ### Windows
-          > Windows 7 用户请确保已安装并启用 **WebView2**。
-
-          #### 推荐版本
-          - **64 位** → `x64-setup.exe`
-          - **ARM64 架构** → `arm64-setup.exe`
-
-          #### 内置 WebView2 版本
-          （体积较大，仅在系统无法安装 WebView2 时使用，例如某些企业版系统或 Windows 7）
-
-          - **64 位** → `x64_fixed_webview2-setup.exe`
-          - **ARM64 架构** → `arm64_fixed_webview2-setup.exe`
-
-          ---
-
-          Created at ${{ env.BUILDTIME }}.
-          EOF
-
-      - name: Upload Release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: v${{ env.VERSION }}
-          name: 'NVM Desktop v${{env.VERSION}}'
-          body_path: release.txt
-          token: ${{ secrets.GITHUB_TOKEN }}
-          generate_release_notes: true

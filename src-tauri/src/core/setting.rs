@@ -14,6 +14,21 @@ pub async fn fetch_settings() -> Result<SharedDraft<ISettings>> {
 }
 
 pub async fn patch_settings(patch: &ISettings, need_save_file: bool) -> Result<()> {
+    // Serialize settings changes with queue admission so a batch captures one
+    // consistent directory/network configuration.
+    let _admission = super::install_queue::ADMISSION.lock().await;
+    if super::install_queue::busy() {
+        let current = Config::settings().await.data_arc();
+        let before = serde_json::to_value(&*current)?;
+        let after = serde_json::to_value(patch)?;
+        for key in ["directory", "mirror", "proxy", "no_proxy"] {
+            if !after[key].is_null() && before[key] != after[key] {
+                anyhow::bail!(
+                    "Installation tasks are running; network and installation directory settings are locked"
+                );
+            }
+        }
+    }
     Config::settings().await.edit_draft(|d| {
         d.patch_settings(patch);
     });

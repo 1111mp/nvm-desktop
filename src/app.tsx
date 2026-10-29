@@ -1,4 +1,5 @@
 import './styles/global.css';
+import { InstallTasksProvider } from '@/components/install-tasks';
 
 import { Toaster, TooltipProvider } from '@/components/ui';
 import { useEffect } from 'react';
@@ -29,7 +30,9 @@ export default function App({
   return (
     <AppProvider settings={settings} sysTheme={sysTheme}>
       <TooltipProvider delay={200}>
-        <RouterProvider router={router} />
+        <InstallTasksProvider>
+          <RouterProvider router={router} />
+        </InstallTasksProvider>
       </TooltipProvider>
       <Toaster position='top-center' richColors />
     </AppProvider>

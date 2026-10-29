@@ -6,3 +6,5 @@ pub mod node;
 pub mod project;
 pub mod setting;
 pub mod tray;
+
+pub mod install_queue;

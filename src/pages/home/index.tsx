@@ -1,3 +1,4 @@
+import { InstallTasksButton } from '@/components/install-tasks';
 import { ThemeCustomizer } from '@/components/theme-customizer';
 import { Button } from '@/components/ui';
 import {
@@ -262,52 +263,55 @@ const Home: React.FC = () => {
               </span>
             </span>
           </div>
-          {platform !== 'macos' && (
-            <div className='ml-4 flex shrink-0 items-center gap-1'>
-              <Button
-                size='icon'
-                variant='ghost'
-                className='w-9 motion-reduce:transition-none'
-                aria-label={t('Minimize')}
-                title={t('Minimize')}
-                onClick={windowMinimize}
-              >
-                <MinusIcon aria-hidden='true' strokeWidth={1.5} />
-              </Button>
-              <Button
-                size='icon'
-                variant='ghost'
-                className='w-9 motion-reduce:transition-none'
-                aria-label={t(isMaximized ? 'Restore' : 'Maximize')}
-                title={t(isMaximized ? 'Restore' : 'Maximize')}
-                onClick={toggleMaximized}
-              >
-                {isMaximized ? (
-                  <CopyIcon
-                    className='size-3.5'
-                    aria-hidden='true'
-                    strokeWidth={1.5}
-                  />
-                ) : (
-                  <SquareIcon
-                    className='size-3.5'
-                    aria-hidden='true'
-                    strokeWidth={1.5}
-                  />
-                )}
-              </Button>
-              <Button
-                size='icon'
-                variant='ghost'
-                className='w-9 motion-reduce:transition-none'
-                aria-label={t('Close')}
-                title={t('Close')}
-                onClick={windowClose}
-              >
-                <XIcon aria-hidden='true' strokeWidth={1.5} />
-              </Button>
-            </div>
-          )}
+          <div className='ml-auto flex shrink-0 items-center gap-2'>
+            <InstallTasksButton />
+            {platform !== 'macos' && (
+              <div className='ml-4 flex shrink-0 items-center gap-1'>
+                <Button
+                  size='icon'
+                  variant='ghost'
+                  className='w-9 motion-reduce:transition-none'
+                  aria-label={t('Minimize')}
+                  title={t('Minimize')}
+                  onClick={windowMinimize}
+                >
+                  <MinusIcon aria-hidden='true' strokeWidth={1.5} />
+                </Button>
+                <Button
+                  size='icon'
+                  variant='ghost'
+                  className='w-9 motion-reduce:transition-none'
+                  aria-label={t(isMaximized ? 'Restore' : 'Maximize')}
+                  title={t(isMaximized ? 'Restore' : 'Maximize')}
+                  onClick={toggleMaximized}
+                >
+                  {isMaximized ? (
+                    <CopyIcon
+                      className='size-3.5'
+                      aria-hidden='true'
+                      strokeWidth={1.5}
+                    />
+                  ) : (
+                    <SquareIcon
+                      className='size-3.5'
+                      aria-hidden='true'
+                      strokeWidth={1.5}
+                    />
+                  )}
+                </Button>
+                <Button
+                  size='icon'
+                  variant='ghost'
+                  className='w-9 motion-reduce:transition-none'
+                  aria-label={t('Close')}
+                  title={t('Close')}
+                  onClick={windowClose}
+                >
+                  <XIcon aria-hidden='true' strokeWidth={1.5} />
+                </Button>
+              </div>
+            )}
+          </div>
         </header>
         <main
           className={cn(

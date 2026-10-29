@@ -34,11 +34,11 @@ export function useSettings(defaultSettings: Nvmd.Setting) {
 
   // update setting
   const updateSetting = async (setting: Nvmd.Setting) => {
+    await updateSettings(setting);
     dispatch({
       type: Actions.UpdateSetting,
       payload: { ...setting },
     });
-    await updateSettings(setting);
   };
 
   return {

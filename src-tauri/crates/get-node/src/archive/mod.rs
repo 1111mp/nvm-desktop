@@ -7,7 +7,9 @@ use futures_util::StreamExt;
 use reqwest::{header, StatusCode};
 use sha2::{Digest, Sha256};
 use std::{
+    collections::HashSet,
     path::{Path, PathBuf},
+    sync::{LazyLock, Mutex},
     time::{Duration, SystemTime},
 };
 use tokio::{
@@ -20,6 +22,24 @@ use tokio::{
 /// completed size
 /// total size
 pub type OnProgress = dyn Fn(&str, usize, usize) + Send + Sync;
+
+static ACTIVE_ARCHIVES: LazyLock<Mutex<HashSet<PathBuf>>> =
+    LazyLock::new(|| Mutex::new(HashSet::new()));
+
+struct ActiveArchive(PathBuf);
+impl ActiveArchive {
+    fn register(path: &Path) -> Result<Self> {
+        if !ACTIVE_ARCHIVES.lock().unwrap().insert(path.to_owned()) {
+            anyhow::bail!("This archive is already being installed");
+        }
+        Ok(Self(path.to_owned()))
+    }
+}
+impl Drop for ActiveArchive {
+    fn drop(&mut self) {
+        ACTIVE_ARCHIVES.lock().unwrap().remove(&self.0);
+    }
+}
 
 const DOWNLOAD_MAX_RETRIES: usize = 3;
 const DOWNLOAD_RETRY_DELAY_MS: u64 = 800;
@@ -65,6 +85,29 @@ pub(super) async fn finalize_extraction(
         extracted_dir.display(),
         version_dir.display()
     );
+}
+
+// Shared across single and bulk installs. Three in-flight archives bound the
+// backlog while downloads can overlap the single extraction worker.
+#[cfg(test)]
+static TEST_PIPELINE: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
+
+static PIPELINE: tokio::sync::Semaphore = tokio::sync::Semaphore::const_new(3);
+static DOWNLOADS: tokio::sync::Semaphore = tokio::sync::Semaphore::const_new(2);
+static EXTRACTIONS: tokio::sync::Semaphore = tokio::sync::Semaphore::const_new(1);
+
+async fn acquire_stage<'a>(
+    semaphore: &'a tokio::sync::Semaphore,
+    cancel: &mut Option<tokio::sync::watch::Receiver<bool>>,
+) -> Result<tokio::sync::SemaphorePermit<'a>> {
+    ensure_not_cancelled(cancel.as_ref())?;
+    match cancel.as_mut() {
+        Some(receiver) => tokio::select! {
+            permit = semaphore.acquire() => Ok(permit?),
+            _ = receiver.changed() => anyhow::bail!("Installation was cancelled"),
+        },
+        None => Ok(semaphore.acquire().await?),
+    }
 }
 
 pub struct FetchConfig {
@@ -235,7 +278,12 @@ pub(super) async fn cleanup_stale_partial_archives(dest: &Path, active_file: &Pa
         };
 
         if age > STALE_PARTIAL_MAX_AGE {
-            let _ = tokio::fs::remove_file(&path).await;
+            // A resumed archive may still have an old mtime. Keep registration
+            // and removal under the same lock so another task cannot lose it.
+            let active = ACTIVE_ARCHIVES.lock().unwrap();
+            if !active.contains(&path) {
+                let _ = std::fs::remove_file(&path);
+            }
         }
     }
 
@@ -428,11 +476,7 @@ pub(super) async fn download_archive(
                 Ok(chunk) => {
                     downloaded_size += chunk.len() as u64;
                     temp_file.write_all(&chunk).await?;
-                    on_progress(
-                        "download",
-                        downloaded_size as usize,
-                        std::cmp::max(total_size, downloaded_size) as usize,
-                    );
+                    on_progress("download", downloaded_size as usize, total_size as usize);
                 }
                 Err(err) => {
                     stream_failed = Some(err);
@@ -487,6 +531,62 @@ cfg_if::cfg_if! {
 mod tests {
     use super::*;
 
+    #[tokio::test]
+    async fn parallel_downloads_overlap_extraction_and_cancel_independently() {
+        let _serial = TEST_PIPELINE.lock().await;
+        let (cancel_a, receiver_a) = tokio::sync::watch::channel(false);
+        let (_cancel_b, receiver_b) = tokio::sync::watch::channel(false);
+        let mut a = Some(receiver_a);
+        let mut b = Some(receiver_b);
+        let first = acquire_stage(&DOWNLOADS, &mut a).await.unwrap();
+        let second = acquire_stage(&DOWNLOADS, &mut b).await.unwrap();
+        let extraction = acquire_stage(&EXTRACTIONS, &mut b).await.unwrap();
+        assert_eq!(DOWNLOADS.available_permits(), 0);
+        assert_eq!(EXTRACTIONS.available_permits(), 0);
+        assert!(
+            tokio::time::timeout(Duration::from_millis(20), acquire_stage(&DOWNLOADS, &mut b))
+                .await
+                .is_err()
+        );
+        assert!(tokio::time::timeout(
+            Duration::from_millis(20),
+            acquire_stage(&EXTRACTIONS, &mut b)
+        )
+        .await
+        .is_err());
+        cancel_a.send(true).unwrap();
+        assert!(acquire_stage(&DOWNLOADS, &mut a).await.is_err());
+        drop(first);
+        let next = acquire_stage(&DOWNLOADS, &mut b).await.unwrap();
+        drop((next, second, extraction));
+        assert_eq!(DOWNLOADS.available_permits(), 2);
+        assert_eq!(EXTRACTIONS.available_permits(), 1);
+    }
+
+    #[tokio::test]
+    async fn queued_stage_can_be_cancelled_without_releasing_another_task() {
+        let semaphore = tokio::sync::Semaphore::new(0);
+        let (sender, receiver) = tokio::sync::watch::channel(false);
+        let mut signal = Some(receiver);
+        let waiting = acquire_stage(&semaphore, &mut signal);
+        let cancellation = async {
+            tokio::task::yield_now().await;
+            sender.send(true).unwrap();
+        };
+        let (result, _) = tokio::join!(waiting, cancellation);
+        assert!(result.is_err());
+        assert_eq!(semaphore.available_permits(), 0);
+    }
+
+    #[test]
+    fn archive_ownership_prevents_duplicate_writers_and_releases_on_failure() {
+        let path = Path::new("test-exclusive-node-archive.tar.gz");
+        let first = ActiveArchive::register(path).unwrap();
+        assert!(ActiveArchive::register(path).is_err());
+        drop(first);
+        assert!(ActiveArchive::register(path).is_ok());
+    }
+
     #[test]
     fn parse_expected_sha256_finds_target_file() {
         let content = "aaaa  node-v20.0.0-linux-x64.tar.gz
@@ -511,3 +611,6 @@ bbbb  node-v20.0.0-win-x64.zip
         assert!(parse_expected_sha256(content, "missing.tar.gz").is_err());
     }
 }
+
+#[cfg(all(test, unix))]
+mod network_tests;

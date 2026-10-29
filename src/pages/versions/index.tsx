@@ -1,3 +1,7 @@
+import { workspaceStyles } from '@/components/workspace-layout';
+import { useInstallTasks } from '@/components/install-tasks';
+import { availableArchitectures, isInstallActive } from '@/lib/install-tasks';
+import { Checkbox } from '@/components/ui';
 import { VersionEnvironment } from '@/components/version-environment';
 import {
   Badge,
@@ -16,7 +20,11 @@ import {
   TooltipTrigger,
   type DataTableFeatures,
 } from '@/components/ui';
-import { createColumnHelper } from '@tanstack/react-table';
+import {
+  createColumnHelper,
+  type RowSelectionState,
+} from '@tanstack/react-table';
+import { useCreateAtom, useSelector } from '@tanstack/react-store';
 import {
   CircleCheckBig,
   Ellipsis,
@@ -88,11 +96,29 @@ export const Versions: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [localLoading, seLocaltLoading] = useState<boolean>(false);
 
-  const modal = useRef<ModalRef>(null);
-
   const { settings } = useAppContext();
   const { directory } = settings;
   const { t } = useTranslation();
+
+  const [selecting, setSelecting] = useState(false);
+  const rowSelectionAtom = useCreateAtom<RowSelectionState>({});
+  const rowSelection = useSelector(rowSelectionAtom);
+  const { tasks, show: showTasks, confirm } = useInstallTasks();
+  const queued = (version: string) =>
+    tasks.some(
+      (task) =>
+        task.version === version.slice(1) &&
+        task.directory === directory &&
+        isInstallActive(task),
+    );
+  const selectable = (version: Nvmd.Version) =>
+    !installedVersions.includes(version.version.slice(1)) &&
+    !queued(version.version) &&
+    availableArchitectures(version).length > 0;
+  const selectedVersions = versions.filter(
+    (version) => !!rowSelection[version.version] && selectable(version),
+  );
+  const modal = useRef<ModalRef>(null);
 
   useEffect(() => {
     const unlisted = getCurrent().listen<string>(
@@ -126,6 +152,53 @@ export const Versions: React.FC = () => {
   }, [directory]);
 
   const columns = columnHelper.columns([
+    ...(selecting
+      ? [
+          columnHelper.display({
+            id: 'batch-selection',
+            header: ({ table }) => {
+              const eligible = table
+                .getFilteredRowModel()
+                .rows.filter((row) => row.getCanSelect());
+              return (
+                <Checkbox
+                  className='bg-background'
+                  aria-label={t('Batch-Select-Filtered', {
+                    count: eligible.length,
+                  })}
+                  title={t('Batch-Select-Filtered', { count: eligible.length })}
+                  disabled={!eligible.length}
+                  checked={!!eligible.length && table.getIsAllRowsSelected()}
+                  indeterminate={
+                    !table.getIsAllRowsSelected() &&
+                    table.getIsSomeRowsSelected()
+                  }
+                  onCheckedChange={(checked) =>
+                    table.toggleAllRowsSelected(checked)
+                  }
+                />
+              );
+            },
+            enableHiding: false,
+            enableSorting: false,
+            enableColumnFilter: false,
+            meta: {
+              layoutClassName: 'basis-10! grow-0! shrink-0!',
+              className: 'flex items-center',
+            },
+            cell: ({ row }) => (
+              <Checkbox
+                className='bg-background'
+                aria-label={`${t('Batch-Select')} ${row.original.version}`}
+                disabled={!row.getCanSelect()}
+                checked={row.getCanSelect() && row.getIsSelected()}
+                indeterminate={row.getIsSomeSelected()}
+                onCheckedChange={(checked) => row.toggleSelected(checked)}
+              />
+            ),
+          }),
+        ]
+      : []),
     columnHelper.accessor('version', {
       header: t('Version'),
       meta: {
@@ -269,6 +342,19 @@ export const Versions: React.FC = () => {
         },
         cell: ({ row }) => {
           const { version, files } = row.original;
+          const task = tasks.find(
+            (task) =>
+              task.version === version.slice(1) &&
+              task.directory === directory &&
+              isInstallActive(task),
+          );
+          if (task)
+            return (
+              <Badge variant='secondary' className={statusBadgeClassName}>
+                <LoaderCircle />
+                {t(`Batch-Phase-${task.phase}`)}
+              </Badge>
+            );
           const installed = installedVersions.find(
             (installed) => `v${installed}` === version,
           );
@@ -335,6 +421,13 @@ export const Versions: React.FC = () => {
       cell: ({ row }) => {
         const { version } = row.original;
 
+        if (queued(version))
+          return (
+            <Button size='xs' variant='ghost' onClick={showTasks}>
+              <LoaderCircle data-icon='inline-start' />
+              {t('Batch-View-Task')}
+            </Button>
+          );
         if (installedVersions.find((install) => version === `v${install}`))
           return (
             <DropdownMenu>
@@ -530,50 +623,110 @@ export const Versions: React.FC = () => {
             key='page-versions-table'
             columns={columns}
             data={versions}
+            // Selection must follow release identity when rows are sorted or refreshed.
+            getRowId={(version) => version.version}
+            rowSelectionAtom={rowSelectionAtom}
+            enableRowSelection={(row) => selecting && selectable(row.original)}
             loading={loading || localLoading}
-            toolbar={(table) => (
-              <div className='flex shrink-0 flex-wrap items-center gap-2 pb-3'>
-                <DataTableToolbar
-                  key='page-versions-table-tool'
-                  table={table}
-                  options={[
-                    {
-                      label: t('Installed'),
-                      value: 'Installed',
-                      icon: HardDrive,
-                    },
-                    {
-                      label: t('Supported'),
-                      value: 'Supported',
-                      icon: ThumbsUp,
-                    },
-                    {
-                      label: t('Not-Supported'),
-                      value: 'UnSupported',
-                      icon: Frown,
-                    },
-                  ]}
-                />
-                <div className='flex items-center gap-2'>
-                  <Button
-                    size='sm'
-                    variant='ghost'
-                    className='group h-8 gap-2 rounded-lg border-0 bg-surface-40 px-3 text-xs font-medium text-muted-foreground hover:bg-surface-hover-80 hover:text-foreground'
-                    title={t('Page-Reload-Description')}
-                    aria-busy={localLoading}
-                    disabled={localLoading || loading}
-                    onClick={onPageReload}
-                  >
-                    {localLoading ? (
-                      <LoaderCircle className='size-3.5 animate-spin motion-reduce:animate-none' />
-                    ) : (
-                      <RefreshCw className='size-3.5 transition-transform group-hover:rotate-45 motion-reduce:transition-none' />
-                    )}
-                    {t('Page-Reload')}
-                  </Button>
+            toolbar={(table) => {
+              const selectedRows = table
+                .getSelectedRowModel()
+                .rows.filter((row) => row.getCanSelect());
+              const filteredSelectedRows = table
+                .getFilteredSelectedRowModel()
+                .rows.filter((row) => row.getCanSelect());
+              const hiddenSelectedCount =
+                selectedRows.length - filteredSelectedRows.length;
+              return (
+                <div className='flex shrink-0 flex-wrap items-center gap-2 pb-3'>
+                  <DataTableToolbar
+                    key='page-versions-table-tool'
+                    table={table}
+                    options={[
+                      {
+                        label: t('Installed'),
+                        value: 'Installed',
+                        icon: HardDrive,
+                      },
+                      {
+                        label: t('Supported'),
+                        value: 'Supported',
+                        icon: ThumbsUp,
+                      },
+                      {
+                        label: t('Not-Supported'),
+                        value: 'UnSupported',
+                        icon: Frown,
+                      },
+                    ]}
+                  />
+                  <div className='flex items-center gap-2'>
+                    <Button
+                      size='sm'
+                      variant='ghost'
+                      className={workspaceStyles.refreshAction}
+                      onClick={() => {
+                        setSelecting(!selecting);
+                        table.resetRowSelection();
+                      }}
+                    >
+                      {t(selecting ? 'Batch-Exit' : 'Batch-Install')}
+                    </Button>
+                    <Button
+                      size='sm'
+                      variant='ghost'
+                      className={workspaceStyles.refreshAction}
+                      title={t('Page-Reload-Description')}
+                      aria-busy={localLoading}
+                      disabled={localLoading || loading}
+                      onClick={onPageReload}
+                    >
+                      {localLoading ? (
+                        <LoaderCircle className='size-3.5 animate-spin motion-reduce:animate-none' />
+                      ) : (
+                        <RefreshCw className='size-3.5 transition-transform group-hover:rotate-45 motion-reduce:transition-none' />
+                      )}
+                      {t('Page-Reload')}
+                    </Button>
+                  </div>
+                  {selecting && (
+                    <div className='flex w-full flex-wrap items-center gap-2 rounded-xl bg-surface-40 p-3'>
+                      <span
+                        role='status'
+                        className='mr-auto text-xs text-muted-foreground'
+                      >
+                        {t('Batch-Selected', {
+                          count: selectedVersions.length,
+                        })}
+                        {hiddenSelectedCount > 0 &&
+                          ` · ${t('Batch-Hidden', { count: hiddenSelectedCount })}`}
+                      </span>
+                      <Button
+                        size='sm'
+                        variant='ghost'
+                        disabled={!Object.keys(rowSelection).length}
+                        onClick={() => table.resetRowSelection()}
+                      >
+                        {t('Batch-Clear')}
+                      </Button>
+                      <Button
+                        size='sm'
+                        disabled={!selectedVersions.length}
+                        onClick={() =>
+                          confirm(selectedVersions, () => {
+                            setSelecting(false);
+                            rowSelectionAtom.set({});
+                          })
+                        }
+                      >
+                        <CloudDownload data-icon='inline-start' />
+                        {t('Batch-Start', { count: selectedVersions.length })}
+                      </Button>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
+              );
+            }}
           />
         </div>
       </div>

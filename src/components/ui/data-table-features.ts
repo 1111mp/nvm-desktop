@@ -12,6 +12,7 @@ import {
   filterFn_includesString,
   metaHelper,
   rowSortingFeature,
+  rowSelectionFeature,
   sortFn_alphanumeric,
   sortFn_datetime,
   sortFn_text,
@@ -33,6 +34,7 @@ export const dataTableFeatures = tableFeatures({
   columnSizingFeature,
   columnVisibilityFeature,
   rowSortingFeature,
+  rowSelectionFeature,
   facetedRowModel: createFacetedRowModel(),
   facetedUniqueValues: createFacetedUniqueValues(),
   filterFns: {

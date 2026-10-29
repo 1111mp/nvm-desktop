@@ -74,6 +74,9 @@ pub fn run() {
             cmd::node::version_list,
             cmd::node::installed_list,
             cmd::node::install_node,
+            cmd::node::enqueue_installs,
+            cmd::node::install_tasks,
+            cmd::node::cancel_install_task,
             cmd::node::uninstall_node,
             cmd::node::install_node_cancel,
             // project

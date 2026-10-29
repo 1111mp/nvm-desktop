@@ -17,7 +17,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import {
-  Boxes,
+  FolderTree,
   CopyIcon,
   Folder,
   HardDrive,
@@ -114,7 +114,7 @@ const Home: React.FC = () => {
     {
       path: '/groups',
       label: 'Groups',
-      icon: Boxes,
+      icon: FolderTree,
     },
   ];
 

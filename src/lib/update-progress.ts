@@ -36,6 +36,8 @@ export function reduceUpdateProgress(
 
 export function updatePercentage(progress: UpdateProgress) {
   if (progress.finished) return 100;
+  // Start empty while waiting for metadata; only use indeterminate progress once bytes arrive.
+  if (progress.transferred === 0) return 0;
   // Content-Length is optional; an unknown-size download must stay indeterminate.
   if (!progress.total) return undefined;
   return Math.min(

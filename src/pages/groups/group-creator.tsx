@@ -32,7 +32,7 @@ import {
   SelectValue,
   useComboboxAnchor,
 } from '@/components/ui';
-import { LayersPlus, LoaderCircle } from 'lucide-react';
+import { ListPlus, LoaderCircle } from 'lucide-react';
 
 import { z } from 'zod';
 import { toast } from 'sonner';
@@ -124,7 +124,7 @@ export const GroupCreator: React.FC<Props> = ({
             className={workspaceStyles.primaryAction}
             disabled={disabled}
           >
-            <LayersPlus />
+            <ListPlus />
             {t('Create-Group')}
           </Button>
         }
@@ -137,7 +137,7 @@ export const GroupCreator: React.FC<Props> = ({
       >
         <DialogHeader className='shrink-0 gap-2 rounded-t-2xl bg-surface-40 bg-linear-to-br from-primary/8 to-transparent p-5 sm:p-6'>
           <span className='mb-1 grid size-10 place-items-center rounded-xl bg-primary/10 text-primary'>
-            <LayersPlus className='size-5' />
+            <ListPlus className='size-5' />
           </span>
           <DialogTitle className='text-lg font-semibold tracking-tight'>
             {t('Create-Group')}

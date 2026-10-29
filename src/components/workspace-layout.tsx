@@ -2,7 +2,7 @@ import {
   floatingSurfaceClassName,
   floatingOptionClassName,
 } from './ui/surface-styles';
-import { Boxes, Folder, HardDrive } from 'lucide-react';
+import { FolderTree, Folder, HardDrive } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export const workspaceStyles = {
@@ -34,7 +34,7 @@ export function WorkspaceOverview({
   mode: 'projects' | 'groups';
 }) {
   const { t } = useTranslation();
-  const Icon = mode === 'projects' ? Folder : Boxes;
+  const Icon = mode === 'projects' ? Folder : FolderTree;
   return (
     <section
       aria-label={t('Workspace')}
@@ -55,7 +55,7 @@ export function WorkspaceOverview({
         {
           label: mode === 'projects' ? 'Groups' : 'Projects',
           count: mode === 'projects' ? groupCount : projectCount,
-          icon: mode === 'projects' ? Boxes : Folder,
+          icon: mode === 'projects' ? FolderTree : Folder,
         },
         { label: 'Installed', count: installedCount, icon: HardDrive },
       ].map(({ label, count, icon: StatIcon }) => (

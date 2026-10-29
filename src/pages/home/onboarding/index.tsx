@@ -13,7 +13,7 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
-  Boxes,
+  FolderTree,
   Check,
   CloudDownload,
   Folder,
@@ -106,7 +106,7 @@ function StepDetails({ step }: { step: OnboardingStepId }) {
           </p>
           <CodeSnippet>nvmd use node_version --project</CodeSnippet>
           <p className='flex items-start gap-2 rounded-lg bg-surface-40 p-3 text-xs leading-relaxed text-muted-foreground'>
-            <Boxes className='mt-0.5 size-3.5 shrink-0' />
+            <FolderTree className='mt-0.5 size-3.5 shrink-0' />
             {t('Groups-Empty-Description')}
           </p>
         </div>

@@ -1,19 +1,3 @@
-import { useState } from 'react';
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Check,
-  CheckCheck,
-  CloudDownload,
-  Globe,
-  LoaderCircle,
-  RefreshCw,
-  Rocket,
-  TriangleAlert,
-  X,
-} from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import Markdown from 'react-markdown';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -32,6 +16,22 @@ import {
 import { useAppUpdater, type UpdatePhase } from '@/hooks/use-app-updater';
 import { formatDownloadSize, updatePercentage } from '@/lib/update-progress';
 import { cn } from '@/lib/utils';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Check,
+  CheckCheck,
+  CloudDownload,
+  Globe,
+  LoaderCircle,
+  RefreshCw,
+  Rocket,
+  TriangleAlert,
+  X,
+} from 'lucide-react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import Markdown from 'react-markdown';
 
 // Preview is opt-in for development and is always removed from production builds.
 const PREVIEW_UPDATER =
@@ -70,9 +70,9 @@ const previewPhases = [
 function ReleaseNotes({ body }: { body?: string }) {
   const { t } = useTranslation();
   return (
-    <section className='flex min-w-0 flex-col gap-3'>
+    <section className='flex min-h-0 min-w-0 flex-col gap-3'>
       <h3 className='text-xs font-semibold'>{t('Release-Notes')}</h3>
-      <div className='min-h-[min(30dvh,18rem)] max-h-[min(48dvh,32rem)] flex-1 space-y-3 overflow-y-auto overscroll-contain rounded-xl bg-surface-35 p-(--updater-card-padding) text-xs leading-relaxed text-muted-foreground select-text [&_h1]:text-sm [&_h1]:font-semibold [&_h1]:text-foreground [&_h2]:text-sm [&_h2]:font-semibold [&_h2]:text-foreground [&_h3]:text-sm [&_h3]:font-medium [&_h3]:text-foreground [&_p]:my-2 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:space-y-1 [&_ol]:pl-4 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-inset-70 [&_pre]:p-3 [&_code]:break-words [&_code]:rounded-sm [&_code]:bg-inset-70 [&_code]:px-1 [&_code]:font-mono [&_code]:text-[0.625rem] [&_blockquote]:rounded-lg [&_blockquote]:bg-inset-60 [&_blockquote]:p-3 [&_hr]:my-4 [&_hr]:border-0 [&_hr]:bg-muted [&_hr]:h-px [&_img]:max-w-full'>
+      <div className='min-h-0 max-h-[min(48dvh,32rem)] flex-1 space-y-3 overflow-y-auto overscroll-contain rounded-xl bg-surface-35 p-(--updater-card-padding) text-xs leading-relaxed text-muted-foreground select-text [&_h1]:text-sm [&_h1]:font-semibold [&_h1]:text-foreground [&_h2]:text-sm [&_h2]:font-semibold [&_h2]:text-foreground [&_h3]:text-sm [&_h3]:font-medium [&_h3]:text-foreground [&_p]:my-2 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:space-y-1 [&_ol]:pl-4 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-inset-70 [&_pre]:p-3 [&_code]:wrap-break-word [&_code]:rounded-sm [&_code]:bg-inset-70 [&_code]:px-1 [&_code]:font-mono [&_code]:text-[0.625rem] [&_blockquote]:rounded-lg [&_blockquote]:bg-inset-60 [&_blockquote]:p-3 [&_hr]:my-4 [&_hr]:border-0 [&_hr]:bg-muted [&_hr]:h-px [&_img]:max-w-full'>
         {body?.trim() ? (
           <Markdown
             components={{
@@ -238,7 +238,13 @@ export const Updater: React.FC = () => {
         )}
       </div>
 
-      <AlertDialogContent className='flex w-[clamp(36rem,calc(28rem+24vw),56rem)] max-w-[calc(100dvw-2rem)]! max-h-[min(88dvh,calc(100dvh-2rem))] [--updater-padding:clamp(1rem,min(2vw,3dvh),1.75rem)] [--updater-gap:clamp(1rem,2.5dvh,1.5rem)] [--updater-card-padding:clamp(0.875rem,2dvh,1.25rem)] flex-col gap-0 overflow-hidden rounded-2xl p-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]'>
+      {/* Reserve a stable height only for the available update and its download/install flow. */}
+      <AlertDialogContent
+        className={cn(
+          'flex w-[clamp(36rem,calc(28rem+24vw),56rem)] max-w-[calc(100dvw-2rem)]! max-h-[min(88dvh,calc(100dvh-2rem))] [--updater-padding:clamp(1rem,min(2vw,3dvh),1.75rem)] [--updater-gap:clamp(1rem,2.5dvh,1.5rem)] [--updater-card-padding:clamp(0.875rem,2dvh,1.25rem)] flex-col gap-0 overflow-hidden rounded-2xl p-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]',
+          updateInfo && !checking && 'h-[min(44rem,88dvh,calc(100dvh-2rem))]',
+        )}
+      >
         {PREVIEW_UPDATER && (
           <div className='flex shrink-0 flex-wrap items-center justify-between gap-2 bg-primary/10 px-(--updater-padding) py-3 text-xs'>
             <span>{t('Updater-Preview')}</span>
@@ -305,7 +311,7 @@ export const Updater: React.FC = () => {
         </div>
         <div
           className={cn(
-            'min-h-0 space-y-(--updater-gap) overflow-y-auto overscroll-contain p-(--updater-padding)',
+            'min-h-0 flex-1 space-y-(--updater-gap) overflow-y-auto overscroll-contain p-(--updater-padding)',
             updateInfo &&
               !checking &&
               'md:grid md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:items-stretch md:gap-(--updater-gap) md:space-y-0',
@@ -464,7 +470,7 @@ export const Updater: React.FC = () => {
                   )}
                 </p>
                 {error && (
-                  <p className='max-h-24 overflow-auto whitespace-pre-wrap break-words font-mono text-[0.625rem] leading-relaxed text-muted-foreground select-text'>
+                  <p className='max-h-24 overflow-auto whitespace-pre-wrap wrap-break-word font-mono text-[0.625rem] leading-relaxed text-muted-foreground select-text'>
                     {error}
                   </p>
                 )}

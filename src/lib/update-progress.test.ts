@@ -23,12 +23,13 @@ test('known-size downloads accumulate chunks and clamp progress to 100 percent',
   assert.equal(updatePercentage(state), 100);
 });
 
-test('unknown and zero content lengths stay indeterminate until completion', () => {
+test('unknown and zero content lengths start at zero, then stay indeterminate until completion', () => {
   for (const contentLength of [undefined, 0]) {
     let state = reduceUpdateProgress(emptyUpdateProgress, {
       event: 'Started',
       data: { contentLength },
     });
+    assert.equal(updatePercentage(state), 0);
     state = reduceUpdateProgress(state, {
       event: 'Progress',
       data: { chunkLength: 4096 },
@@ -38,6 +39,10 @@ test('unknown and zero content lengths stay indeterminate until completion', () 
     state = reduceUpdateProgress(state, { event: 'Finished' });
     assert.equal(updatePercentage(state), 100);
   }
+});
+
+test('a pending download starts at zero before metadata arrives', () => {
+  assert.equal(updatePercentage(emptyUpdateProgress), 0);
 });
 
 test('a new download resets old completion and byte counts', () => {

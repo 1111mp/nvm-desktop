@@ -27,7 +27,7 @@ import {
   useComboboxAnchor,
   type DataTableFeatures,
 } from '@/components/ui';
-import { LoaderCircle, RefreshCw, Boxes } from 'lucide-react';
+import { LoaderCircle, RefreshCw, FolderTree } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useLoaderData } from 'react-router';
 import { toast } from 'sonner';
@@ -132,7 +132,7 @@ export const Component: React.FC = () => {
       cell: ({ row }) => (
         <span className='flex min-w-0 items-center gap-2.5'>
           <span className='grid size-8 shrink-0 place-items-center rounded-lg bg-primary/8 text-muted-foreground'>
-            <Boxes className='size-3.5' />
+            <FolderTree className='size-3.5' />
           </span>
           <span
             className='truncate text-sm font-medium'
@@ -440,7 +440,7 @@ export const Component: React.FC = () => {
           emptyState={
             <div className='flex min-h-48 flex-col items-center justify-center gap-2 px-4 py-6 text-center'>
               <span className='mb-1 grid size-11 place-items-center rounded-xl bg-primary/8 text-muted-foreground'>
-                <Boxes className='size-5' strokeWidth={1.5} />
+                <FolderTree className='size-5' strokeWidth={1.5} />
               </span>
               <p className='text-sm font-medium'>{t('Groups-Empty')}</p>
               <p className='max-w-72 whitespace-normal text-xs leading-relaxed text-muted-foreground'>

@@ -25,7 +25,7 @@ import { open as openDialog } from '@tauri-apps/plugin-dialog';
 import {
   LoaderCircle,
   RefreshCw,
-  PackagePlus,
+  FolderPlus,
   Folder,
   Copy,
   Check,
@@ -526,7 +526,7 @@ export const Component: React.FC = () => {
           disabled={loading}
           onClick={onAddProject}
         >
-          <PackagePlus className='size-4' />
+          <FolderPlus className='size-4' />
           {t('Add-Project')}
         </Button>
       </div>

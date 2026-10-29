@@ -1,4 +1,4 @@
-import { Boxes, Folder, LoaderCircle, Trash2 } from 'lucide-react';
+import { FolderTree, Folder, LoaderCircle, Trash2 } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -31,7 +31,7 @@ export function WorkspaceRemoveDialog({
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
-  const Icon = kind === 'project' ? Folder : Boxes;
+  const Icon = kind === 'project' ? Folder : FolderTree;
 
   const confirm = async () => {
     if (pending) return;

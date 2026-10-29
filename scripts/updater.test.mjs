@@ -108,6 +108,8 @@ async function runUpdater(tag, fixed, failSignature = false) {
       fixed ? 'update-fixed-webview2.json' : 'update.json',
     );
     assert.equal(uploaded.data.name, tag);
+    // Serde rejects the alias even when its value matches the version.
+    assert.equal(Object.hasOwn(uploaded.data, 'version'), false);
     assert.ok(Object.keys(uploaded.data.platforms).length >= 2);
     for (const entry of Object.values(uploaded.data.platforms))
       assert.equal(entry.signature, 'valid-signature');

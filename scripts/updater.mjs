@@ -33,8 +33,8 @@ async function resolveUpdater() {
   }
 
   const updateData = {
+    // Tauri accepts `name` as the version alias; do not also emit `version`.
     name: tag.name,
-    version: tag.name.slice(1),
     notes,
     pub_date: new Date().toISOString(),
     platforms: {

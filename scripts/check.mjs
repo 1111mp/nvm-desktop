@@ -6,7 +6,7 @@
 
 import fs from 'fs-extra';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
+import { writeRuntimeManifest } from './runtime-manifest.mjs';
 import { ProxyAgent, setGlobalDispatcher } from 'undici';
 
 const cwd = process.cwd();
@@ -118,7 +118,7 @@ async function downlloadCmd(targetPath) {
     await downloadFile(downloadURL, tempfile);
   }
 
-  await fs.move(tempfile, targetPath);
+  await fs.move(tempfile, targetPath, { overwrite: true });
 
   console.log(`[INFO]: "temp.cmd" move finished`);
 }
@@ -146,13 +146,35 @@ async function run() {
   const targetPath = path.join(resDir, file);
   /// make sure the 'src-tauri/resources` directory exists
   await fs.mkdirp(resDir);
-  if (!FORCE && (await fs.pathExists(targetPath))) return;
+  const manifestPath = path.join(resDir, 'runtime-manifest.json');
+  const previousManifest = await fs.readJson(manifestPath).catch(() => null);
+  const nativeCache = !target && !process.env.NVMD_RELEASE_URL;
+  const sameTarget = previousManifest
+    ? previousManifest.target === `${platform}-${arch}`
+    : nativeCache;
+  const sameSource = previousManifest?.source
+    ? previousManifest.source === NVMD_RELEASE_URL
+    : nativeCache;
+  const requiredFiles =
+    platform === 'win32' ? [file, 'temp.cmd', 'envpath.exe'] : [file];
+  const resourcesExist = (
+    await Promise.all(
+      requiredFiles.map((name) => fs.pathExists(path.join(resDir, name))),
+    )
+  ).every(Boolean);
+  if (!FORCE && sameTarget && sameSource && resourcesExist) {
+    // Cached resources still need a manifest, including on existing developer checkouts.
+    await writeRuntimeManifest(resDir, platform, arch, NVMD_RELEASE_URL);
+    return;
+  }
+  await fs.remove(manifestPath);
 
   const tempDir = TEMP_DIR;
   const name = NVMD_LATEST_MAP[`${platform}-${arch}`];
   const downloadURL = `${NVMD_RELEASE_URL}/${name}`;
   const tempfile = path.join(tempDir, `${name}`);
 
+  await fs.remove(tempDir);
   await fs.mkdirp(tempDir);
 
   try {
@@ -165,18 +187,21 @@ async function run() {
 
     /// unix
     if (platform !== 'win32') {
-      execSync(`chmod 755 ${targetPath}`);
+      await fs.chmod(targetPath, 0o755);
       console.log(`[INFO]: chmod binary finished: ${file}`);
     }
 
     if (platform === 'win32') {
-      await Promise.all([
+      const downloads = await Promise.allSettled([
         // download `temp.cmd` file
         downlloadCmd(path.join(resDir, 'temp.cmd')),
         // download `envpath.exe` file
         downlloadEnvPath(path.join(resDir, 'envpath.exe')),
       ]);
+      const failed = downloads.find((result) => result.status === 'rejected');
+      if (failed) throw failed.reason;
     }
+    await writeRuntimeManifest(resDir, platform, arch, NVMD_RELEASE_URL);
   } catch (err) {
     // need delete file
     await fs.remove(targetPath);

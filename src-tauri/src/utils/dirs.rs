@@ -43,12 +43,12 @@ pub fn groups_path() -> Result<PathBuf> {
     Ok(nvmd_home_dir()?.join("groups.json"))
 }
 
-/// get the migration file path
-pub fn migration_path() -> Result<PathBuf> {
-    Ok(nvmd_home_dir()?.join("migration"))
+/// get the installed runtime state path
+pub fn runtime_state_path() -> Result<PathBuf> {
+    Ok(nvmd_home_dir()?.join("runtime-state.json"))
 }
 
-/// get the migration file path
+/// get the runtime binary directory
 pub fn bin_path() -> Result<PathBuf> {
     Ok(nvmd_home_dir()?.join("bin"))
 }

@@ -1,4 +1,8 @@
 {
+  "Version-Density": "列表密度",
+  "Density-Comfortable": "宽松模式",
+  "Density-Compact": "紧凑模式",
+
   "Group-Projects-Save-Failed": "更新分组项目失败，请检查项目文件夹是否存在且可写。",
   "About": "关于",
   "Services": "服务",

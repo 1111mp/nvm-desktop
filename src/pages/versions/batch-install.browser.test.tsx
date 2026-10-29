@@ -261,3 +261,71 @@ test.skipIf(preferredArchitecture !== 'arm64')(
     await takeScreenshot('nvmd-batch-small');
   },
 );
+
+test('density expands the table and stays synchronized across version pages', async () => {
+  localStorage.removeItem('nvmd-version-density');
+  await page.viewport(1100, 800);
+  const { Component: Installed } = await import('../installed');
+  const catalog = Array.from({ length: 60 }, (_, index) =>
+    release(`v${60 - index}.0.0`),
+  );
+  const data = () => ['24.0.0', catalog, ['24.0.0']];
+  const router = createMemoryRouter(
+    [
+      {
+        path: '/versions',
+        loader: data,
+        Component: Versions,
+        HydrateFallback: () => null,
+      },
+      {
+        path: '/installed',
+        loader: data,
+        Component: Installed,
+        HydrateFallback: () => null,
+      },
+    ],
+    { initialEntries: ['/versions'] },
+  );
+  const screen = await render(
+    <TooltipProvider>
+      <InstallTasksProvider>
+        <div className='h-screen bg-background p-6 text-foreground'>
+          <RouterProvider router={router} />
+        </div>
+      </InstallTasksProvider>
+    </TooltipProvider>,
+  );
+  const tableHeight = () =>
+    document
+      .querySelector('table')!
+      .parentElement!.parentElement!.getBoundingClientRect().height;
+  const rowHeight = () =>
+    document.querySelector('tbody tr')!.getBoundingClientRect().height;
+  await expect.poll(() => document.querySelector('tbody tr')).toBeTruthy();
+  const comfortableHeight = tableHeight();
+  const comfortableRow = rowHeight();
+  await screen.getByRole('button', { name: 'List density' }).click();
+  await screen
+    .getByRole('menuitemradio', { name: 'Compact', exact: true })
+    .click();
+  await expect.poll(tableHeight).toBeGreaterThan(comfortableHeight + 50);
+  await expect.poll(rowHeight).toBeLessThan(comfortableRow);
+  expect(localStorage.getItem('nvmd-version-density')).toBe('compact');
+  await takeScreenshot('versions-compact');
+  // Visit both routes rather than testing two independent controls in isolation.
+  await screen.getByRole('link', { name: 'Installed', exact: true }).click();
+  await expect
+    .element(screen.getByRole('button', { name: 'List density' }))
+    .toHaveTextContent('Compact');
+  await screen.getByRole('button', { name: 'List density' }).click();
+  await screen
+    .getByRole('menuitemradio', { name: 'Comfortable', exact: true })
+    .click();
+  await screen.getByRole('link', { name: 'Versions', exact: true }).click();
+  await expect
+    .element(screen.getByRole('button', { name: 'List density' }))
+    .toHaveTextContent('Comfortable');
+  await expect.poll(tableHeight).toBe(comfortableHeight);
+  expect(localStorage.getItem('nvmd-version-density')).toBe('comfortable');
+});

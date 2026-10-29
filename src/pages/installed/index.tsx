@@ -1,3 +1,6 @@
+import { VersionDensityControl } from '@/components/version-density';
+import { useVersionDensity } from '@/hooks/use-version-density';
+import { cn } from '@/lib/utils';
 import { VersionEnvironment } from '@/components/version-environment';
 import { open } from '@tauri-apps/plugin-shell';
 import {
@@ -87,6 +90,8 @@ export const Component: React.FC = () => {
   const { settings } = useAppContext();
   const { directory } = settings;
   const { t } = useTranslation();
+  const { density } = useVersionDensity();
+  const compact = density === 'compact';
 
   useEffect(() => {
     const unlisted = getCurrent().listen<string>(
@@ -425,25 +430,47 @@ export const Component: React.FC = () => {
   };
 
   return (
-    <div className='flex h-full min-h-0 min-w-0 flex-col gap-5'>
+    <div
+      data-density={density}
+      className={cn(
+        'flex h-full min-h-0 min-w-0 flex-col',
+        compact ? 'gap-2.5' : 'gap-5',
+      )}
+    >
       <div className='flex shrink-0 flex-wrap items-start justify-between gap-3'>
         <div>
-          <h1 className='mb-1.5 text-2xl leading-tight font-semibold tracking-tight'>
+          <h1
+            className={cn(
+              'leading-tight font-semibold tracking-tight',
+              compact ? 'text-xl' : 'mb-1.5 text-2xl',
+            )}
+          >
             {t('Installed')}
           </h1>
-          <p className='text-sm leading-relaxed text-muted-foreground'>
+          <p
+            className={cn(
+              'text-muted-foreground',
+              compact ? 'text-xs leading-normal' : 'text-sm leading-relaxed',
+            )}
+          >
             {t('Installed-Description')}
           </p>
         </div>
       </div>
       <VersionEnvironment
         current={current}
+        compact={compact}
         installedCount={installedVersions.length}
         releaseCount={allVersions.length}
         destination='/versions'
       />
       <div className='flex min-h-0 flex-1 flex-col overflow-hidden'>
-        <div className='flex items-baseline justify-between gap-3 pb-4'>
+        <div
+          className={cn(
+            'flex items-baseline justify-between gap-3',
+            compact ? 'pb-2' : 'pb-4',
+          )}
+        >
           <h2 className='text-sm font-semibold'>{t('Installed-Catalog')}</h2>
           <span className='text-xs text-muted-foreground tabular-nums'>
             {t('Installed-Count', {
@@ -452,6 +479,7 @@ export const Component: React.FC = () => {
           </span>
         </div>
         <DataTable
+          density={density}
           columns={columns}
           data={versions}
           loading={loading}
@@ -472,6 +500,7 @@ export const Component: React.FC = () => {
                   },
                 ]}
               />
+              <VersionDensityControl />
               <Button
                 size='sm'
                 variant='ghost'

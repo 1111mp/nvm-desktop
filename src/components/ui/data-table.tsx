@@ -9,7 +9,7 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { AnimatePresence, motion } from 'motion/react';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { Bars } from './bars-icon';
@@ -34,6 +34,7 @@ interface DataTableProps<TData extends RowData> {
   data: TData[];
   toolbar?: (table: DataTableInstance<TData>) => React.ReactNode;
   loading?: boolean;
+  density?: 'comfortable' | 'compact';
   rowSelectionAtom?: Atom<RowSelectionState>;
   enableRowSelection?:
     | boolean
@@ -46,6 +47,7 @@ export function DataTable<TData extends RowData>({
   data,
   toolbar,
   loading = false,
+  density = 'comfortable',
   rowSelectionAtom,
   enableRowSelection = false,
   getRowId,
@@ -74,7 +76,7 @@ export function DataTable<TData extends RowData>({
   // oxlint-disable-next-line react/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
-    estimateSize: () => 40, // estimate row height for accurate scrollbar dragging
+    estimateSize: () => (density === 'compact' ? 40 : 56), // estimate row height for accurate scrollbar dragging
     getScrollElement: () => tableContainerRef.current,
     // measure dynamic row height, except in firefox because it measures table border height incorrectly
     measureElement:
@@ -85,6 +87,11 @@ export function DataTable<TData extends RowData>({
     directDomUpdates: true,
     overscan: 5,
   });
+
+  useEffect(() => {
+    // Density changes invalidate cached heights, including rows outside the viewport.
+    rowVirtualizer.measure();
+  }, [density, rowVirtualizer]);
 
   const renderHeader = (header: Header<DataTableFeatures, TData, any>) => {
     if (header.isPlaceholder) {
@@ -184,6 +191,7 @@ export function DataTable<TData extends RowData>({
                           key={cell.id}
                           className={cn(
                             'flex-1',
+                            density === 'compact' && 'py-1.5',
                             meta?.layoutClassName,
                             meta?.className,
                           )}

@@ -1,7 +1,7 @@
 {
   "name": "nvm-desktop",
   "private": true,
-  "version": "4.5.0-rc.1",
+  "version": "4.5.0-rc.2",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -78,7 +78,7 @@
     "@commitlint/types": "^21.2.3",
     "@rolldown/plugin-babel": "^0.2.4",
     "@tailwindcss/vite": "^4.3.3",
-    "@tauri-apps/cli": "2.12.4",
+    "@tauri-apps/cli": "2.12.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.8",

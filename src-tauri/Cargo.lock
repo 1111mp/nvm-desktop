@@ -3106,7 +3106,7 @@ dependencies = [
 
 [[package]]
 name = "nvm-desktop"
-version = "4.5.0-rc.1"
+version = "4.5.0-rc.2"
 dependencies = [
  "anyhow",
  "bitflags 2.13.2",

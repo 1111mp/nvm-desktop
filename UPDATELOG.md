@@ -1,3 +1,15 @@
+## v4.5.0-rc.2
+
+This release candidate fixes update manifest compatibility, Linux RPM packaging, and sidebar theme colors ahead of the stable 4.5.0 release.
+
+### Bug Fixes
+
+- Preserve theme colors when hovering over or pressing sidebar navigation items, including the active item
+- Remove the duplicate version field from update manifests for both standard and bundled WebView2 installers
+- Fix Linux RPM packaging compatibility for release candidates by pinning the Tauri CLI to a compatible version
+
+---
+
 ## v4.5.0-rc.1
 
 This release candidate introduces a redesigned desktop interface and parallel Node.js installation. Feedback is welcome before the stable 4.5.0 release.

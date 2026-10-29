@@ -165,10 +165,11 @@ const Home: React.FC = () => {
                     {group.items.map(({ path, label, icon: Icon }) => (
                       <SidebarMenuItem key={path}>
                         <SidebarMenuButton
+                          variant='navigation'
                           isActive={pathname === path}
                           tooltip={t(label)}
                           className={cn(
-                            'min-h-9 text-sm xl:min-h-10 xl:text-sm group-data-[collapsible=icon]:min-h-9 data-active:bg-primary/10 data-active:text-primary data-active:shadow-none dark:data-active:text-sidebar-foreground',
+                            'min-h-9 text-sm xl:min-h-10 xl:text-sm group-data-[collapsible=icon]:min-h-9',
                             label === 'Projects' && 'nvmd-project',
                           )}
                           render={

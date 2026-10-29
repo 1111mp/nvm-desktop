@@ -492,6 +492,9 @@ const sidebarMenuButtonVariants = cva(
     variants: {
       variant: {
         default: 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+        // Keep navigation feedback in the theme palette, including overlapping states.
+        navigation:
+          'transition-[width,height,padding,background-color,color] duration-150 motion-reduce:transition-none hover:bg-primary/5 hover:text-sidebar-foreground active:bg-primary/15 active:text-sidebar-foreground data-open:hover:bg-primary/5 data-open:hover:text-sidebar-foreground data-active:bg-primary/10 data-active:text-primary data-active:shadow-none data-active:hover:bg-primary/15 data-active:hover:text-primary data-active:active:bg-primary/15 data-active:active:text-primary dark:data-active:text-sidebar-foreground dark:data-active:hover:text-sidebar-foreground dark:data-active:active:text-sidebar-foreground',
         outline:
           'bg-background shadow-[0_0_0_0.0625rem_var(--sidebar-border)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_0.0625rem_var(--sidebar-accent)]',
       },

@@ -21,7 +21,9 @@ function Progress({
       <ProgressPrimitive.Track className='h-full w-full'>
         <ProgressPrimitive.Indicator
           data-slot='progress-indicator'
-          className='h-full bg-primary transition-all'
+          // Without an explicit width, an indeterminate block fills its track
+          // and looks complete before the server reports the package size.
+          className='h-full bg-primary transition-[width] data-indeterminate:w-1/3 data-indeterminate:animate-pulse motion-reduce:animate-none'
         />
       </ProgressPrimitive.Track>
     </ProgressPrimitive.Root>

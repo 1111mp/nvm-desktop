@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import {
   isInstallActive,
+  currentInstallTasks,
   mergeInstallTasks,
   type InstallTask,
 } from './install-tasks';
@@ -12,6 +13,7 @@ const task = (
 ): InstallTask => ({
   id,
   revision,
+  batchId: 1,
   phase,
   version: '22.0.0',
   arch: 'arm64',
@@ -53,5 +55,37 @@ test('retry history keeps the latest attempt per version and installation direct
   expect(latestInstallTasks([oldFailure, retry, otherDirectory])).toEqual([
     retry,
     otherDirectory,
+  ]);
+});
+
+test('a new batch excludes earlier failures, completions and cancellations', () => {
+  const oldFailed = task(1, 2, 'failed');
+  const oldComplete = { ...task(2, 2, 'complete'), version: '20.0.0' };
+  const oldCancelled = { ...task(3, 2, 'cancelled'), version: '18.0.0' };
+  const nextBatch = { ...task(4, 0, 'queued'), version: '24.0.0', batchId: 4 };
+  expect(
+    currentInstallTasks([oldFailed, oldComplete, oldCancelled, nextBatch]),
+  ).toEqual([nextBatch]);
+});
+
+test('older active tasks remain reachable, then disappear when they finish', () => {
+  const running = task(1, 1, 'download');
+  const nextBatch = { ...task(2, 0, 'queued'), version: '24.0.0', batchId: 2 };
+  expect(currentInstallTasks([running, nextBatch])).toEqual([
+    running,
+    nextBatch,
+  ]);
+  expect(
+    currentInstallTasks([{ ...running, phase: 'failed' }, nextBatch]),
+  ).toEqual([nextBatch]);
+});
+
+test('retrying one version keeps the failed siblings in the same batch', () => {
+  const first = task(1, 2, 'failed');
+  const sibling = { ...task(2, 2, 'failed'), version: '20.0.0' };
+  const retry = task(3, 0, 'queued');
+  expect(currentInstallTasks([first, sibling, retry])).toEqual([
+    retry,
+    sibling,
   ]);
 });

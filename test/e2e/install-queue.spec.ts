@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import { browser, expect } from '@wdio/globals';
 
-type Task = { id: number; version: string; phase: string };
+type Task = { id: number; batchId: number; version: string; phase: string };
 const terminal = (task: Task) =>
   ['complete', 'failed', 'cancelled'].includes(task.phase);
 const invoke = <T>(command: string, args: Record<string, unknown> = {}) =>
@@ -58,6 +58,7 @@ describe('Native installation queue', () => {
     );
     const tasks = await invoke<Task[]>('enqueue_installs', { requests });
     expect(tasks).toHaveLength(4);
+    expect(new Set(tasks.map((task) => task.batchId)).size).toBe(1);
     await browser.waitUntil(
       async () =>
         (await invoke<Task[]>('install_tasks')).filter(
@@ -154,9 +155,11 @@ describe('Native installation queue', () => {
       )?.phase,
     ).toBe('download');
     const retry = await invoke<Task[]>('enqueue_installs', {
-      requests: [requests[0]],
+      requests: [{ ...requests[0], batchId: added[0].batchId }],
     });
     expect(retry[0].id).not.toBe(added[0].id);
+    expect(retry[0].batchId).toBe(added[0].batchId);
+    expect(added[0].batchId).toBeGreaterThan(1);
     await browser.waitUntil(
       async () =>
         (await invoke<Task[]>('install_tasks')).find(

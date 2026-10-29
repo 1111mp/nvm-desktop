@@ -30,6 +30,7 @@ const fixture = (id: number, phase: InstallTask['phase']): InstallTask => ({
   id,
   phase,
   revision: 1,
+  batchId: 1,
   version: `22.0.${id}`,
   arch: 'arm64',
   directory: '/tmp/node',
@@ -164,4 +165,43 @@ test('task transitions keep the dialog, footer and task rows stationary', async 
     .toBeVisible();
   expect(measure()).toEqual(initial);
   await takeScreenshot('nvmd-install-tasks-stable');
+});
+
+test('download progress starts empty and never looks complete while total size is unknown', async () => {
+  const starting = { ...fixture(1, 'download'), transferred: 0, total: 0 };
+  mocks.invoke.mockImplementation(async (command: string) =>
+    command === 'install_tasks' ? [starting] : undefined,
+  );
+  const screen = await render(
+    <InstallTasksProvider>
+      <InstallTasksButton />
+    </InstallTasksProvider>,
+  );
+  await screen.getByRole('button', { name: /Install tasks/ }).click();
+  const bar = screen.getByRole('progressbar', {
+    name: 'Download Progress v22.0.1',
+  });
+  const fillRatio = () => {
+    const root = bar.element();
+    const indicator = root.querySelector('[data-slot="progress-indicator"]')!;
+    return (
+      indicator.getBoundingClientRect().width /
+      root.getBoundingClientRect().width
+    );
+  };
+  await expect.element(bar).toHaveAttribute('aria-valuenow', '0');
+  await expect.poll(fillRatio).toBe(0);
+  mocks.listener?.({ payload: { ...starting, transferred: 25, revision: 2 } });
+  await expect.element(bar).not.toHaveAttribute('aria-valuenow');
+  await expect.poll(fillRatio).toBeCloseTo(1 / 3, 2);
+  mocks.listener?.({
+    payload: { ...starting, transferred: 25, total: 100, revision: 3 },
+  });
+  await expect.element(bar).toHaveAttribute('aria-valuenow', '25');
+  await expect.poll(fillRatio).toBeCloseTo(0.25, 2);
+  mocks.listener?.({
+    payload: { ...starting, transferred: 100, total: 100, revision: 4 },
+  });
+  await expect.element(bar).toHaveAttribute('aria-valuenow', '100');
+  await expect.poll(fillRatio).toBeCloseTo(1, 2);
 });

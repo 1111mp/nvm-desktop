@@ -2,9 +2,11 @@ export type InstallRequest = {
   version: string;
   arch: string;
   directory?: string;
+  batchId?: number;
 };
 export type InstallTask = InstallRequest & {
   id: number;
+  batchId: number;
   directory: string;
   phase:
     | 'queued'
@@ -43,6 +45,18 @@ export function latestInstallTasks(tasks: InstallTask[]) {
   for (const task of tasks)
     latest.set(`${task.directory}\0${task.version}`, task);
   return [...latest.values()];
+}
+
+export function currentInstallTasks(tasks: InstallTask[]) {
+  const batchId = tasks.reduce(
+    (latest, task) => Math.max(latest, task.batchId),
+    0,
+  );
+  // Keep older running tasks reachable, but never carry their finished results
+  // into a new batch. Snapshots and late events can still retain full history.
+  return latestInstallTasks(tasks).filter(
+    (task) => task.batchId === batchId || isInstallActive(task),
+  );
 }
 
 export function availableArchitectures(version: Nvmd.Version) {

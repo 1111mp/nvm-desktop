@@ -37,13 +37,12 @@ const task: InstallTask = {
   total: 100,
   transferred: 20,
   revision: 1,
+  batchId: 1,
 };
-function Probe() {
+function Probe({ version = '22.0.0' }: { version?: string }) {
   const { enqueue } = useInstallTasks();
   return (
-    <button
-      onClick={() => void enqueue([{ version: '22.0.0', arch: 'arm64' }])}
-    >
+    <button onClick={() => void enqueue([{ version, arch: 'arm64' }])}>
       Add install
     </button>
   );
@@ -131,7 +130,12 @@ test('retry binds the original directory and an admission failure leaves the tas
   await waitFor(() =>
     expect(mocks.invoke).toHaveBeenCalledWith('enqueue_installs', {
       requests: [
-        { version: task.version, arch: task.arch, directory: task.directory },
+        {
+          version: task.version,
+          arch: task.arch,
+          directory: task.directory,
+          batchId: task.batchId,
+        },
       ],
     }),
   );
@@ -139,4 +143,59 @@ test('retry binds the original directory and an admission failure leaves the tas
     expect(screen.getByRole('button', { name: /^Retry$/ })).toBeEnabled(),
   );
   expect(screen.getByText('Connection timed out')).toBeVisible();
+});
+
+test('starting a new batch excludes an earlier failure from its list and retry actions', async () => {
+  const oldFailure = { ...task, phase: 'failed', error: 'Old batch failure' };
+  const next = {
+    ...task,
+    id: 8,
+    batchId: 8,
+    version: '24.0.0',
+    phase: 'queued',
+    revision: 0,
+  };
+  mocks.invoke.mockImplementation(async (command: string) =>
+    command === 'install_tasks'
+      ? [oldFailure]
+      : command === 'enqueue_installs'
+        ? [next]
+        : undefined,
+  );
+  const user = userEvent.setup();
+  render(
+    <InstallTasksProvider>
+      <Probe version='24.0.0' />
+      <InstallTasksButton />
+    </InstallTasksProvider>,
+  );
+  await user.click(
+    await screen.findByRole('button', { name: /Install tasks/ }),
+  );
+  expect(screen.getByText('Old batch failure')).toBeVisible();
+  await user.click(screen.getByRole('button', { name: /^OK$/ }));
+  await waitFor(() =>
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
+  );
+  await user.click(screen.getByRole('button', { name: 'Add install' }));
+  expect(await screen.findByText('v24.0.0')).toBeVisible();
+  expect(screen.queryByText('Old batch failure')).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: 'Retry failed' }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByText('Installed 0 / 1 · Failed 0 · Cancelled 0'),
+  ).toBeVisible();
+  // A late update for the historical task must not reintroduce it.
+  await act(async () => {
+    mocks.listener?.({
+      payload: {
+        ...task,
+        phase: 'failed',
+        revision: 9,
+        error: 'Old batch failure',
+      },
+    });
+  });
+  expect(screen.queryByText('Old batch failure')).not.toBeInTheDocument();
 });

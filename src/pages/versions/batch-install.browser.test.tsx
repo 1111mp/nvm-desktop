@@ -36,6 +36,7 @@ vi.mock('@tauri-apps/api/core', async (original) => ({
         transferred: 0,
         total: 0,
         revision: 0,
+        batchId: 1,
       }));
     }
     throw new Error(command);

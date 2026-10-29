@@ -1,4 +1,3 @@
-import { BatchInstallForm } from './batch-install-form';
 import {
   Badge,
   Button,
@@ -10,15 +9,15 @@ import {
   DialogTitle,
   Progress,
 } from '@/components/ui';
-import { cn } from '@/lib/utils';
 import { workspaceStyles } from '@/components/workspace-layout';
 import {
   isInstallActive,
+  currentInstallTasks,
   mergeInstallTasks,
-  latestInstallTasks,
   type InstallRequest,
   type InstallTask,
 } from '@/lib/install-tasks';
+import { cn } from '@/lib/utils';
 import { getCurrent } from '@/services/api';
 import { invoke } from '@tauri-apps/api/core';
 import {
@@ -32,6 +31,7 @@ import {
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { BatchInstallForm } from './batch-install-form';
 
 const InstallContext = createContext<{
   tasks: InstallTask[];
@@ -91,7 +91,13 @@ export function InstallTasksProvider({
       });
       setTasks((current) => mergeInstallTasks(current, added));
       if (!open)
-        setPanelHeight(Math.min(480, 280 + (tasks.length + added.length) * 64));
+        setPanelHeight(
+          Math.min(
+            480,
+            280 +
+              currentInstallTasks(mergeInstallTasks(tasks, added)).length * 64,
+          ),
+        );
       // Change only the contents: keep the popup, backdrop and focus scope mounted.
       setConfirmation(null);
       setOpen(true);
@@ -111,12 +117,12 @@ export function InstallTasksProvider({
     }
   };
 
-  const visibleTasks = latestInstallTasks(tasks);
+  const visibleTasks = currentInstallTasks(tasks);
 
   useEffect(() => {
     const activeNow = tasks.some(isInstallActive);
     if (hadActive.current && !activeNow)
-      toast(
+      toast.info(
         t('Batch-Finished', {
           complete: visibleTasks.filter((task) => task.phase === 'complete')
             .length,
@@ -272,6 +278,7 @@ export function InstallTasksProvider({
                                     version: task.version,
                                     arch: task.arch,
                                     directory: task.directory,
+                                    batchId: task.batchId,
                                   },
                                 ]),
                               )
@@ -293,7 +300,9 @@ export function InstallTasksProvider({
                                     100,
                                     (task.transferred / task.total) * 100,
                                   )
-                                : null
+                                : task.transferred === 0
+                                  ? 0
+                                  : null
                             }
                             aria-label={`${t('Download-Progress')} v${task.version}`}
                           />
@@ -355,6 +364,7 @@ export function InstallTasksProvider({
                                 version: task.version,
                                 arch: task.arch,
                                 directory: task.directory,
+                                batchId: task.batchId,
                               },
                             ]),
                           ).values(),

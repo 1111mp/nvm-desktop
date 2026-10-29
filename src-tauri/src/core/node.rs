@@ -222,6 +222,7 @@ pub async fn install_node(
             version,
             arch,
             directory: None,
+            batch_id: None,
         }],
         true,
     )

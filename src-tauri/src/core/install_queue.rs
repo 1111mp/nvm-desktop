@@ -8,17 +8,21 @@ use tauri::Emitter;
 use tokio::sync::watch;
 
 #[derive(Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct InstallRequest {
     pub version: String,
     pub arch: String,
     #[serde(default)]
     pub directory: Option<String>,
+    #[serde(default)]
+    pub batch_id: Option<u64>,
 }
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InstallTask {
     pub id: u64,
+    pub batch_id: u64,
     pub version: String,
     pub arch: String,
     pub directory: String,
@@ -81,6 +85,20 @@ fn validate_requests(
                 "The installation directory has changed. Restore the task's original directory or start a new installation."
             );
         }
+        if request.batch_id != requests[0].batch_id {
+            bail!("All retry requests must belong to the same batch");
+        }
+        if let Some(batch_id) = request.batch_id {
+            if !tasks.iter().any(|task| {
+                task.batch_id == batch_id
+                    && task.version == request.version
+                    && task.arch == request.arch
+                    && task.directory == directory
+                    && matches!(task.phase.as_str(), "failed" | "cancelled")
+            }) {
+                bail!("The retry does not match a failed task in this batch");
+            }
+        }
         if request.version.split('.').count() != 3
             || !request
                 .version
@@ -129,11 +147,17 @@ pub async fn enqueue(
     // Validate the entire batch before registering or starting any task.
     let mut tasks = TASKS.lock().unwrap();
     validate_requests(&requests, &directory, &tasks, legacy)?;
+    // Use the first task ID as a stable batch ID. Retried attempts keep it so
+    // their siblings remain visible; a new selection always starts a new batch.
+    let batch_id = requests[0]
+        .batch_id
+        .unwrap_or_else(|| tasks.last().map_or(1, |task| task.id + 1));
     let mut added = Vec::new();
     for request in requests {
         let (cancel, receiver) = watch::channel(false);
         let task = InstallTask {
             id: tasks.last().map_or(1, |task| task.id + 1),
+            batch_id,
             version: request.version.clone(),
             arch: request.arch.clone(),
             directory: directory.clone(),
@@ -240,5 +264,24 @@ pub fn cancel(window: &tauri::Window, id: Option<u64>, legacy_only: bool) {
                 task.phase = "cancelling".into();
             }
         });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn retry_batch_id_is_deserialized_from_frontend_camel_case() {
+        let request: InstallRequest = serde_json::from_value(serde_json::json!({
+            "version": "22.0.0", "arch": "x64", "batchId": 7
+        }))
+        .unwrap();
+        assert_eq!(request.batch_id, Some(7));
+        let fresh: InstallRequest = serde_json::from_value(serde_json::json!({
+            "version": "22.0.0", "arch": "x64"
+        }))
+        .unwrap();
+        assert_eq!(fresh.batch_id, None);
     }
 }

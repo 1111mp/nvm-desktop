@@ -202,7 +202,7 @@ pnpm check
 pnpm dev
 ```
 
-`pnpm check` prepares the bundled command-line resources. `pnpm dev` launches the desktop development app. For frontend-only work, use `pnpm ui:dev`; native Tauri operations require the desktop app.
+`pnpm check` prepares the bundled command-line resources. It also generates `runtime-manifest.json`; startup compares its bundle ID with the local `runtime-state.json` and synchronizes missing or outdated runtime files without hashing binaries. Use `pnpm check --force` to refresh cached resources. `pnpm dev` launches the desktop development app. For frontend-only work, use `pnpm ui:dev`; native Tauri operations require the desktop app.
 
 Before submitting a pull request:
 

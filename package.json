@@ -30,7 +30,8 @@
     "test:watch": "vitest --project unit --project component --project tauri",
     "test:e2e:build": "node scripts/e2e.mjs build",
     "test:e2e": "node scripts/e2e.mjs",
-    "type-check:e2e": "tsc --noEmit -p tsconfig.e2e.json"
+    "type-check:e2e": "tsc --noEmit -p tsconfig.e2e.json",
+    "set-updater-channel": "node scripts/set-updater-channel.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

@@ -106,8 +106,7 @@ if (process.argv[2] === 'build') {
     for (const file of ['projects.json', 'groups.json', 'versions.json']) {
       await writeFile(join(dataDir, file), '[]');
     }
-    // Skip migration's executable setup; smoke tests do not install a CLI or edit PATH.
-    await writeFile(join(dataDir, 'migration'), '33');
+    // Runtime synchronization runs against this isolated directory, including on first launch.
     await writeFile(join(dataDir, 'default'), '');
     console.log(`E2E workspace (${spec}): ${dataDir}`);
     await run(

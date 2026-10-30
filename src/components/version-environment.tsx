@@ -9,14 +9,18 @@ export function VersionEnvironment({
   releaseCount,
   destination = '/installed',
   compact = false,
+  dense = false,
 }: {
   compact?: boolean;
+  dense?: boolean;
   current: string;
   installedCount: number;
   releaseCount: number;
   destination?: '/installed' | '/versions';
 }) {
   const { t } = useTranslation();
+  if (dense) return null;
+
   return (
     <section
       className={cn(

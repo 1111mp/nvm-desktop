@@ -22,7 +22,8 @@ function log(...args) {
 
 function buildCssRule(selector, cssVars) {
   const declarations = Object.entries(cssVars ?? {})
-    .filter(([, value]) => Boolean(value))
+    // Fonts belong to the app typography, not to individual color themes.
+    .filter(([key, value]) => Boolean(value) && !key.startsWith('font-'))
     .map(([key, value]) => `  --${key}: ${value};`)
     .join('\n');
 

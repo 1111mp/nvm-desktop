@@ -71,7 +71,12 @@ export default defineConfig({
         // before the browser starts so Vite cannot reload a running test.
         optimizeDeps: {
           entries: ['src/**/*.browser.test.{ts,tsx}'],
-          include: ['react-router', 'i18next', 'dayjs/plugin/localizedFormat'],
+          include: [
+            'react-router',
+            'i18next',
+            'dayjs/plugin/localizedFormat',
+            '@tauri-apps/plugin-dialog',
+          ],
         },
         test: {
           name: 'browser',

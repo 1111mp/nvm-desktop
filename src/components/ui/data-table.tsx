@@ -1,3 +1,4 @@
+import type { VersionDensity } from '@/hooks/use-version-density';
 import type { Atom } from '@tanstack/react-store';
 import {
   useTable,
@@ -34,7 +35,7 @@ interface DataTableProps<TData extends RowData> {
   data: TData[];
   toolbar?: (table: DataTableInstance<TData>) => React.ReactNode;
   loading?: boolean;
-  density?: 'comfortable' | 'compact';
+  density?: VersionDensity;
   rowSelectionAtom?: Atom<RowSelectionState>;
   enableRowSelection?:
     | boolean
@@ -76,7 +77,8 @@ export function DataTable<TData extends RowData>({
   // oxlint-disable-next-line react/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
-    estimateSize: () => (density === 'compact' ? 40 : 56), // estimate row height for accurate scrollbar dragging
+    estimateSize: () =>
+      density === 'dense' ? 36 : density === 'compact' ? 40 : 56, // estimate row height for accurate scrollbar dragging
     getScrollElement: () => tableContainerRef.current,
     // measure dynamic row height, except in firefox because it measures table border height incorrectly
     measureElement:
@@ -135,8 +137,14 @@ export function DataTable<TData extends RowData>({
         }}
         transition={{ duration: 0.3 }}
       >
-        {/* Reserve enough width for version tags and actions; narrow windows scroll horizontally. */}
-        <Table className='min-w-224'>
+        {/* Dense can use wider columns while the sidebar is expanded. */}
+        <Table
+          className={
+            density === 'dense'
+              ? 'grid min-w-0 grid-cols-1 group-has-[[data-slot=sidebar][data-state=expanded]]/sidebar-wrapper:min-w-224'
+              : 'min-w-224'
+          }
+        >
           <TableHeader className='sticky top-0 z-10 bg-muted xl:bg-card xl:bg-linear-to-b xl:from-muted/80 xl:to-muted/60'>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
@@ -151,6 +159,8 @@ export function DataTable<TData extends RowData>({
                       className={cn(
                         'flex flex-1 items-center',
                         meta?.layoutClassName,
+                        density === 'dense' &&
+                          'h-8 px-1.5 text-[0.625rem] first:pl-2 last:pr-2 [&_button]:gap-1 [&_button]:text-[0.625rem] [&_svg]:size-3',
                       )}
                       style={{
                         maxWidth:
@@ -192,6 +202,8 @@ export function DataTable<TData extends RowData>({
                           className={cn(
                             'flex-1',
                             density === 'compact' && 'py-1.5',
+                            density === 'dense' &&
+                              'px-1.5 py-1 first:pl-2 last:pr-2 whitespace-normal break-words',
                             meta?.layoutClassName,
                             meta?.className,
                           )}

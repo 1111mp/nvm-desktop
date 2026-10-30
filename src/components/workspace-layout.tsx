@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import {
   floatingSurfaceClassName,
   floatingOptionClassName,
@@ -27,7 +28,9 @@ export function WorkspaceOverview({
   groupCount,
   installedCount,
   mode,
+  compact = false,
 }: {
+  compact?: boolean;
   projectCount: number;
   groupCount: number;
   installedCount: number;
@@ -38,12 +41,25 @@ export function WorkspaceOverview({
   return (
     <section
       aria-label={t('Workspace')}
-      className='flex shrink-0 flex-wrap items-center gap-4 rounded-xl bg-surface-40 bg-linear-to-br from-primary/10 via-primary/3 to-transparent p-4 dark:from-primary/15 dark:via-primary/5'
+      className={cn(
+        'flex shrink-0 flex-wrap items-center rounded-xl bg-surface-40 bg-linear-to-br from-primary/10 via-primary/3 to-transparent dark:from-primary/15 dark:via-primary/5',
+        compact ? 'gap-3 px-3 py-2' : 'gap-4 p-4',
+      )}
     >
-      <span className='grid size-11 shrink-0 place-items-center rounded-xl bg-background text-foreground shadow-xs'>
+      <span
+        className={cn(
+          'grid shrink-0 place-items-center rounded-xl bg-background text-foreground shadow-xs',
+          compact ? 'size-8' : 'size-11',
+        )}
+      >
         <Icon className='size-5' strokeWidth={1.5} />
       </span>
-      <div className='min-w-32 flex-1 space-y-1'>
+      <div
+        className={cn(
+          'min-w-32 flex-1',
+          compact ? 'flex flex-wrap items-center gap-x-3 gap-y-1' : 'space-y-1',
+        )}
+      >
         <p className='text-xs text-muted-foreground'>{t('Workspace')}</p>
         <p className='text-sm font-medium'>
           {t(mode === 'projects' ? 'Project-Count' : 'Group-Count', {
@@ -59,9 +75,29 @@ export function WorkspaceOverview({
         },
         { label: 'Installed', count: installedCount, icon: HardDrive },
       ].map(({ label, count, icon: StatIcon }) => (
-        <div key={label} className='min-w-24 rounded-lg bg-card/80 px-3 py-2'>
-          <p className='text-xl font-medium tabular-nums'>{count}</p>
-          <p className='mt-1 flex items-center gap-1.5 text-xs text-muted-foreground'>
+        <div
+          key={label}
+          className={cn(
+            'rounded-lg bg-card/80',
+            compact
+              ? 'flex items-baseline gap-2 px-2.5 py-1'
+              : 'min-w-24 px-3 py-2',
+          )}
+        >
+          <p
+            className={cn(
+              'font-medium tabular-nums',
+              compact ? 'text-lg' : 'text-xl',
+            )}
+          >
+            {count}
+          </p>
+          <p
+            className={cn(
+              'flex items-center gap-1.5 text-xs text-muted-foreground',
+              !compact && 'mt-1',
+            )}
+          >
             <StatIcon className='size-3' />
             {t(label)}
           </p>

@@ -1,3 +1,5 @@
+import { useVersionDensity } from '@/hooks/use-version-density';
+import { VersionDensityControl } from '@/components/version-density';
 import { WorkspaceRemoveDialog } from '@/components/workspace-remove-dialog';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import {
@@ -78,6 +80,9 @@ export const Component: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const { t } = useTranslation();
+  const { density } = useVersionDensity();
+  const dense = density === 'dense';
+  const compact = density === 'compact';
   const [copiedPath, copyPath] = useCopyToClipboard();
   const { settings } = useAppContext();
   const { directory } = settings;
@@ -131,7 +136,9 @@ export const Component: React.FC = () => {
       header: t('Project-Name'),
       enableHiding: false,
       meta: {
-        layoutClassName: 'basis-48 grow-0 shrink-0',
+        layoutClassName: dense
+          ? 'min-w-0 flex-[1.1_1_0%]'
+          : 'basis-48 grow-0 shrink-0',
         className: 'flex items-center',
       },
       cell: ({ row }) => {
@@ -165,7 +172,9 @@ export const Component: React.FC = () => {
       header: t('Project-Path'),
       enableHiding: false,
       meta: {
-        layoutClassName: 'min-w-56 flex-[1.4_1_0%]',
+        layoutClassName: dense
+          ? 'min-w-0 flex-[1.4_1_0%]'
+          : 'min-w-56 flex-[1.4_1_0%]',
         className: 'flex items-center text-muted-foreground',
       },
       cell: ({ row }) => {
@@ -237,7 +246,9 @@ export const Component: React.FC = () => {
       header: t('Version'),
       meta: {
         label: t('Version'),
-        layoutClassName: 'basis-44 grow-0 shrink-0',
+        layoutClassName: dense
+          ? 'min-w-32 flex-[1_1_0%]'
+          : 'basis-44 grow-0 shrink-0',
       },
       cell: ({ row }) => {
         const { version, path } = row.original;
@@ -380,7 +391,9 @@ export const Component: React.FC = () => {
       header: t('Operation'),
       enableHiding: false,
       meta: {
-        layoutClassName: 'basis-28 grow-0 shrink-0',
+        layoutClassName: dense
+          ? 'basis-24 grow-0 shrink-0'
+          : 'basis-28 grow-0 shrink-0',
         className: 'flex items-center',
       },
       cell: ({ row }) => {
@@ -510,13 +523,32 @@ export const Component: React.FC = () => {
   };
 
   return (
-    <div className='flex h-full min-h-0 min-w-0 flex-col gap-5'>
+    <div
+      className={cn(
+        'flex h-full min-h-0 min-w-0 flex-col',
+        dense ? 'gap-1.5' : compact ? 'gap-2.5' : 'gap-5',
+      )}
+    >
       <div className='flex shrink-0 flex-wrap items-start justify-between gap-3'>
         <div>
-          <h1 className='mb-1.5 text-2xl leading-tight font-semibold tracking-tight'>
+          <h1
+            className={cn(
+              'leading-tight font-semibold tracking-tight',
+              dense ? 'text-lg' : compact ? 'text-xl' : 'mb-1.5 text-2xl',
+            )}
+          >
             {t('Projects')}
           </h1>
-          <p className='text-sm leading-relaxed text-muted-foreground'>
+          <p
+            className={cn(
+              'text-muted-foreground',
+              dense
+                ? 'hidden'
+                : compact
+                  ? 'text-xs leading-normal'
+                  : 'text-sm leading-relaxed',
+            )}
+          >
             {t('Projects-Description')}
           </p>
         </div>
@@ -530,20 +562,31 @@ export const Component: React.FC = () => {
           {t('Add-Project')}
         </Button>
       </div>
-      <WorkspaceOverview
-        projectCount={projects.length}
-        groupCount={groups.length}
-        installedCount={installedVersions.length}
-        mode='projects'
-      />
+      {!dense && (
+        <WorkspaceOverview
+          compact={compact}
+          projectCount={projects.length}
+          groupCount={groups.length}
+          installedCount={installedVersions.length}
+          mode='projects'
+        />
+      )}
       <div className='flex min-h-0 flex-1 flex-col overflow-hidden'>
-        <div className='flex flex-wrap items-baseline justify-between gap-2 pb-4'>
-          <h2 className='text-sm font-semibold'>{t('Project-Catalog')}</h2>
-          <span className='text-xs text-muted-foreground'>
-            {t('Drag-To-Reorder')}
-          </span>
-        </div>
+        {!dense && (
+          <div
+            className={cn(
+              'flex flex-wrap items-baseline justify-between gap-2',
+              compact ? 'pb-2' : 'pb-4',
+            )}
+          >
+            <h2 className='text-sm font-semibold'>{t('Project-Catalog')}</h2>
+            <span className='text-xs text-muted-foreground'>
+              {t('Drag-To-Reorder')}
+            </span>
+          </div>
+        )}
         <DataDndTable
+          density={density}
           columns={columns}
           data={projects}
           items={dataIds}
@@ -560,13 +603,19 @@ export const Component: React.FC = () => {
             </div>
           }
           toolbar={(table) => (
-            <div className='flex shrink-0 flex-wrap items-center gap-2 pb-3'>
+            <div
+              className={cn(
+                'flex shrink-0 flex-wrap items-center gap-2',
+                dense ? 'pb-1.5' : compact ? 'pb-2' : 'pb-3',
+              )}
+            >
               <DataTableToolbar
                 table={table}
                 filterName='Project-Name'
                 status={false}
               />
               <div className='flex items-center gap-2'>
+                <VersionDensityControl />
                 <Button
                   size='sm'
                   variant='ghost'

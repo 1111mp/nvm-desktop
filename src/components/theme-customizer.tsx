@@ -309,7 +309,7 @@ function ThemePreview() {
   return (
     <span
       aria-hidden='true'
-      className='flex h-12 w-full gap-1 rounded-md xl:h-16 bg-background p-1.5'
+      className='flex h-12 w-full gap-1 rounded-md bg-background p-1.5'
     >
       <span className='flex w-5 shrink-0 flex-col gap-1 rounded-sm bg-muted p-1'>
         <span className='h-1 rounded-full bg-primary' />
@@ -369,9 +369,9 @@ export function ThemeCustomizer() {
           left: remSize,
         }}
         aria-label={t('Theme')}
-        className='z-40 w-[clamp(25rem,32vw,32rem)] max-w-[calc(100dvw-2rem)] max-h-[min(85dvh,var(--available-height))] gap-0 overflow-hidden rounded-2xl p-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] ring-1 ring-surface-edge dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]'
+        className='z-40 w-[clamp(32rem,40vw,38rem)] max-w-[calc(100dvw-2rem)] max-h-(--available-height) gap-0 overflow-hidden rounded-2xl p-0 shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.28),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.16)] ring-1 ring-surface-edge dark:shadow-[0_1.5rem_4rem_-0.75rem_rgb(0_0_0/0.65),0_0.5rem_1.25rem_-0.5rem_rgb(0_0_0/0.4)]'
       >
-        <div className='flex shrink-0 items-center justify-between gap-3 bg-surface-50 bg-linear-to-br from-primary/8 to-transparent px-[clamp(1.25rem,1.5vw,1.5rem)] py-4 xl:py-5'>
+        <div className='flex shrink-0 items-center justify-between gap-3 bg-surface-50 bg-linear-to-br from-primary/8 to-transparent px-[clamp(1.25rem,1.5vw,1.5rem)] py-4'>
           <div className='flex items-center gap-3'>
             <span className='grid size-9 place-items-center rounded-xl bg-background text-primary shadow-xs'>
               <Palette className='size-4' />
@@ -399,8 +399,8 @@ export function ThemeCustomizer() {
             <RotateCcw className='size-3.5' />
           </Button>
         </div>
-        <div className='min-h-0 space-y-5 overflow-y-auto overscroll-contain p-[clamp(1.25rem,1.5vw,1.5rem)] xl:space-y-6'>
-          <fieldset className='space-y-3'>
+        <div className='@container min-h-0 space-y-4 overflow-y-auto overscroll-contain p-[clamp(1.25rem,1.5vw,1.5rem)]'>
+          <fieldset className='min-w-0 space-y-2'>
             <legend className='text-xs font-medium'>{t('Base Color')}</legend>
             <div className='grid grid-cols-7 gap-1.5'>
               {BASE_COLOR_DATA.map(({ name, label }) => {
@@ -462,9 +462,9 @@ export function ThemeCustomizer() {
               })}
             </div>
           </fieldset>
-          <fieldset className='space-y-3'>
+          <fieldset className='min-w-0 space-y-2'>
             <legend className='text-xs font-medium'>{t('Full Theme')}</legend>
-            <div className='grid grid-cols-3 gap-2'>
+            <div className='grid grid-cols-3 gap-2 @min-[28rem]:grid-cols-5'>
               {FULL_THEME_DATA.map(({ name, label }) => {
                 const isActive = color.theme === name;
                 return (
@@ -504,9 +504,9 @@ export function ThemeCustomizer() {
               })}
             </div>
           </fieldset>
-          <fieldset className='space-y-3'>
+          <fieldset className='min-w-0 space-y-2'>
             <legend className='text-xs font-medium'>{t('Accent-Color')}</legend>
-            <div className='grid grid-cols-8 justify-items-center gap-x-3 gap-y-3'>
+            <div className='grid grid-cols-8 justify-items-center gap-3 @min-[28rem]:grid-cols-9'>
               {THEME_DATA.map(({ name, label, activeColor }) => {
                 const isActive = color.theme === name;
                 return (
@@ -551,7 +551,7 @@ export function ThemeCustomizer() {
               })}
             </div>
           </fieldset>
-          <fieldset className='space-y-3'>
+          <fieldset className='min-w-0 space-y-2'>
             <legend className='text-xs font-medium'>{t('Radius')}</legend>
             <div className='grid grid-cols-5 gap-1 rounded-xl bg-surface-60 p-1'>
               {RADII.map(({ name, label, value }) => {

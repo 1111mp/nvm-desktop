@@ -1,3 +1,4 @@
+import type { VersionDensity } from '@/hooks/use-version-density';
 /// https://tanstack.com/table/latest/docs/framework/react/examples/row-dnd
 
 import {
@@ -55,6 +56,7 @@ interface DataTableProps<TData extends RowData> {
   items: UniqueIdentifier[];
   toolbar?: (table: DataTableInstance<TData>) => React.ReactNode;
   loading?: boolean;
+  density?: VersionDensity;
   emptyState?: React.ReactNode;
   getRowId?: (
     originalRow: TData,
@@ -66,12 +68,14 @@ interface DataTableProps<TData extends RowData> {
 
 type DraggableRowProps<TData extends RowData> = {
   row: Row<DataTableFeatures, TData>;
+  density: VersionDensity;
   cells: Cell<DataTableFeatures, TData, any>[];
 };
 
 function DraggableRow<TData extends RowData>({
   row,
   cells,
+  density,
 }: DraggableRowProps<TData>) {
   const { t } = useTranslation();
   const {
@@ -102,7 +106,11 @@ function DraggableRow<TData extends RowData>({
     >
       <TableCell
         key={row.id}
-        className='flex w-10 shrink-0 items-center justify-center px-1!'
+        className={cn(
+          'flex w-10 shrink-0 items-center justify-center px-1!',
+          density === 'compact' && 'py-1.5',
+          density === 'dense' && 'py-1',
+        )}
       >
         <Button
           {...attributes}
@@ -125,6 +133,8 @@ function DraggableRow<TData extends RowData>({
               'min-w-0 flex-1',
               meta?.layoutClassName,
               meta?.className,
+              density === 'compact' && 'py-1.5',
+              density === 'dense' && 'py-1',
             )}
             style={{
               maxWidth: maxSize !== Number.MAX_SAFE_INTEGER ? maxSize : void 0,
@@ -144,6 +154,7 @@ export function DataDndTable<TData extends RowData>({
   data,
   items,
   loading = false,
+  density = 'comfortable',
   emptyState,
   toolbar,
   reorderRow,
@@ -208,7 +219,14 @@ export function DataDndTable<TData extends RowData>({
           }}
           transition={{ duration: 0.3 }}
         >
-          <Table className='min-w-240'>
+          {/* Dense fits a collapsed sidebar; expanded navigation can retain a wider table. */}
+          <Table
+            className={
+              density === 'dense'
+                ? 'grid min-w-160 grid-cols-1 group-has-[[data-slot=sidebar][data-state=expanded]]/sidebar-wrapper:min-w-240'
+                : 'min-w-240'
+            }
+          >
             <table.Subscribe source={table.atoms.columnVisibility}>
               {() => (
                 <>
@@ -218,7 +236,13 @@ export function DataDndTable<TData extends RowData>({
                         key={headerGroup.id}
                         className='w-full flex items-center'
                       >
-                        <TableHead className='flex w-10 shrink-0 items-center justify-center px-1!' />
+                        <TableHead
+                          className={cn(
+                            'flex w-10 shrink-0 items-center justify-center px-1!',
+                            density === 'compact' && 'h-9',
+                            density === 'dense' && 'h-8',
+                          )}
+                        />
                         {headerGroup.headers.map((header) => {
                           const { maxSize, meta } = header.column.columnDef;
                           return (
@@ -227,6 +251,8 @@ export function DataDndTable<TData extends RowData>({
                               className={cn(
                                 'flex min-w-0 flex-1 items-center',
                                 meta?.layoutClassName,
+                                density === 'compact' && 'h-9',
+                                density === 'dense' && 'h-8',
                               )}
                               colSpan={header.colSpan}
                               style={{
@@ -260,6 +286,7 @@ export function DataDndTable<TData extends RowData>({
                           .rows.map((row) => (
                             <DraggableRow
                               key={row.id}
+                              density={density}
                               row={row}
                               cells={row.getVisibleCells()}
                             />

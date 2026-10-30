@@ -328,4 +328,121 @@ test('density expands the table and stays synchronized across version pages', as
     .toHaveTextContent('Comfortable');
   await expect.poll(tableHeight).toBe(comfortableHeight);
   expect(localStorage.getItem('nvmd-version-density')).toBe('comfortable');
+  await screen.getByRole('button', { name: 'List density' }).click();
+  await screen
+    .getByRole('menuitemradio', { name: 'Dense', exact: true })
+    .click();
+  await router.navigate('/installed');
+  await expect
+    .element(screen.getByRole('button', { name: 'List density' }))
+    .toHaveTextContent('Dense');
+  expect(
+    document.querySelector('section[aria-label="Global environment"]'),
+  ).toBeNull();
+  expect(localStorage.getItem('nvmd-version-density')).toBe('dense');
+  await screen.unmount();
+  localStorage.removeItem('nvmd-version-density');
+  window.dispatchEvent(new Event('nvmd-version-density-change'));
+});
+
+test('dense catalog is smaller than the original compact layout and fits narrow widths', async () => {
+  const manyReleases = Array.from({ length: 80 }, (_, index) => ({
+    ...release(index === 0 ? 'v27.0.0-alpha.0.0.0' : `v22.${index}.0`),
+    lts: 'Jod',
+    v8: '12.4.254.21-node.22',
+  }));
+  localStorage.removeItem('nvmd-version-density');
+  const router = createMemoryRouter([
+    {
+      path: '/',
+      loader: () => ['24.0.0', manyReleases, ['24.0.0']],
+      Component: Versions,
+      HydrateFallback: () => null,
+    },
+  ]);
+  await page.viewport(1000, 720);
+  const screen = await render(
+    <TooltipProvider>
+      <InstallTasksProvider>
+        <div className='group/sidebar-wrapper h-screen bg-background p-6 text-foreground'>
+          <aside data-slot='sidebar' data-state='collapsed' hidden />
+          <RouterProvider router={router} />
+        </div>
+      </InstallTasksProvider>
+    </TooltipProvider>,
+  );
+  await expect.element(screen.getByRole('table')).toBeVisible();
+  const scrollArea = () =>
+    document.querySelector('[data-slot="table-container"]')!.parentElement!;
+  const comfortableTop = scrollArea().getBoundingClientRect().top;
+  localStorage.setItem('nvmd-version-density', 'compact');
+  window.dispatchEvent(new Event('nvmd-version-density-change'));
+  await vi.waitFor(() => {
+    expect(scrollArea().getBoundingClientRect().top).toBeLessThan(
+      comfortableTop - 50,
+    );
+  });
+  const compactTop = scrollArea().getBoundingClientRect().top;
+  expect(
+    document.querySelector('section[aria-label="Global environment"]'),
+  ).not.toBeNull();
+  expect(
+    document.querySelector('[data-density="compact"] p')!.className,
+  ).not.toContain('hidden');
+  await screen.getByRole('button', { name: 'List density' }).click();
+  await screen
+    .getByRole('menuitemradio', { name: 'Dense', exact: true })
+    .click();
+  expect(localStorage.getItem('nvmd-version-density')).toBe('dense');
+  await expect
+    .element(
+      screen.getByRole('heading', { name: 'Release catalog', exact: true }),
+    )
+    .not.toBeInTheDocument();
+  expect(
+    document.querySelector('section[aria-label="Global environment"]'),
+  ).toBeNull();
+  await vi.waitFor(() => {
+    expect(scrollArea().getBoundingClientRect().top).toBeLessThan(
+      compactTop - 30,
+    );
+  });
+  await screen
+    .getByRole('button', { name: 'Batch install', exact: true })
+    .click();
+  await expect
+    .element(screen.getByRole('button', { name: 'List density' }))
+    .toHaveTextContent('Dense');
+  for (const width of [800, 720]) {
+    await page.viewport(width, 720);
+    await vi.waitFor(() => {
+      expect(scrollArea().scrollWidth).toBeLessThanOrEqual(
+        scrollArea().clientWidth + 1,
+      );
+      const rows = document.querySelectorAll('tbody tr');
+      expect(rows[0].getBoundingClientRect().height).toBe(
+        rows[1].getBoundingClientRect().height,
+      );
+      for (const cell of document.querySelectorAll(
+        '[data-slot="table-cell"]',
+      )) {
+        expect(cell.scrollWidth).toBeLessThanOrEqual(cell.clientWidth + 1);
+      }
+    });
+  }
+  const sidebar = document.querySelector('[data-slot="sidebar"]')!;
+  sidebar.setAttribute('data-state', 'expanded');
+  await vi.waitFor(() => {
+    expect(scrollArea().scrollWidth).toBeGreaterThan(scrollArea().clientWidth);
+  });
+  sidebar.setAttribute('data-state', 'collapsed');
+  await vi.waitFor(() => {
+    expect(scrollArea().scrollWidth).toBeLessThanOrEqual(
+      scrollArea().clientWidth + 1,
+    );
+  });
+  await takeScreenshot('nvmd-dense-catalog');
+  await screen.unmount();
+  localStorage.removeItem('nvmd-version-density');
+  window.dispatchEvent(new Event('nvmd-version-density-change'));
 });

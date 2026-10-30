@@ -1,3 +1,36 @@
+## v4.5.0
+
+This release brings a redesigned desktop interface, parallel Node.js installation, and more reliable runtime synchronization and application updates.
+
+### Features
+
+- Redesign the desktop interface with unified layouts, refreshed dialogs, and refined theme surfaces
+- Migrate UI components to Base UI
+- Support batch Node.js installation with two concurrent downloads, per-task progress, cancellation, and retry
+- Add synchronized version list density modes
+- Separate stable and RC update channels for both standard and bundled WebView2 installers
+
+### Bug Fixes
+
+- Synchronize bundled nvmd executables and wrappers when runtime resources change, including upgrades and downgrades
+- Repair missing runtime files and retry interrupted runtime updates without marking incomplete installations as successful
+- Isolate installation batches and correct initial progress reporting
+- Stabilize installation and group selection behavior
+- Preserve theme colors when hovering over or pressing sidebar navigation items, including the active item
+- Fix navigation items being blocked by invisible group labels when the sidebar is collapsed
+- Stabilize the application updater layout and correct its initial download progress display
+- Remove the duplicate version field from update manifests for both standard and bundled WebView2 installers
+- Fix Linux RPM packaging compatibility for release candidates
+
+### Maintenance
+
+- Automate releases from version tags on main, with draft releases and artifact validation before publication
+- Expand automated coverage for the interface, installation queue, runtime migration, and release channels
+- Refresh product guides and application screenshots
+- Update application dependencies
+
+---
+
 ## v4.5.0-rc.2
 
 This release candidate fixes update manifest compatibility, Linux RPM packaging, and sidebar theme colors ahead of the stable 4.5.0 release.

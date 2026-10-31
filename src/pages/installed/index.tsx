@@ -91,7 +91,8 @@ export const Component: React.FC = () => {
   const { directory } = settings;
   const { t } = useTranslation();
   const { density } = useVersionDensity();
-  const compact = density === 'compact';
+  const compact = density !== 'comfortable';
+  const dense = density === 'dense';
 
   useEffect(() => {
     const unlisted = getCurrent().listen<string>(
@@ -138,7 +139,7 @@ export const Component: React.FC = () => {
     columnHelper.accessor('version', {
       header: t('Version'),
       meta: {
-        layoutClassName: 'min-w-52 xl:flex-[1.1_1_0%]',
+        layoutClassName: 'min-w-0 flex-[1.6_1_0%]',
       },
       enableHiding: false,
       enableColumnFilter: false,
@@ -161,7 +162,7 @@ export const Component: React.FC = () => {
       cell: ({ row }) => {
         const { version, lts } = row.original;
         return (
-          <div className='relative flex items-center gap-2 whitespace-nowrap'>
+          <div className='relative flex min-w-0 flex-nowrap items-center gap-1.5 whitespace-nowrap [&_button]:min-w-0 [&_button]:truncate [&_[data-slot=badge]]:shrink-0'>
             <Tooltip disableHoverablePopup={true}>
               <TooltipTrigger
                 render={
@@ -182,7 +183,7 @@ export const Component: React.FC = () => {
                 className='bg-primary text-primary-foreground'
                 arrowClassName='bg-primary fill-primary'
               >
-                {t('Whats-new')}
+                {`${version} · ${t('Whats-new')}`}
               </TooltipContent>
             </Tooltip>
             {lts ? (
@@ -211,7 +212,7 @@ export const Component: React.FC = () => {
       enableSorting: false,
       meta: {
         label: `V8 ${t('Version')}`,
-        layoutClassName: 'min-w-32 xl:flex-[1_1_0%]',
+        layoutClassName: 'min-w-0 flex-[1.2_1_0%]',
         className: 'flex items-center font-mono text-xs text-muted-foreground',
       },
     }),
@@ -220,7 +221,7 @@ export const Component: React.FC = () => {
       enableSorting: false,
       meta: {
         label: `NPM ${t('Version')}`,
-        layoutClassName: 'min-w-28 xl:flex-[0.8_1_0%]',
+        layoutClassName: 'min-w-0 flex-[0.8_1_0%]',
         className: 'flex items-center font-mono text-xs text-muted-foreground',
       },
     }),
@@ -230,10 +231,11 @@ export const Component: React.FC = () => {
       enableSorting: true,
       meta: {
         label: t('Release-Date'),
-        layoutClassName: 'xl:basis-36 xl:grow-0 xl:shrink-0',
+        layoutClassName: 'min-w-0 flex-[1.1_1_0%]',
         className: 'flex items-center text-muted-foreground',
       },
-      cell: ({ row }) => dayjs(row.original.date).format('ll'),
+      cell: ({ row }) =>
+        dayjs(row.original.date).format(dense ? 'YYYY-MM-DD' : 'll'),
     }),
     columnHelper.accessor(
       ({ version }) =>
@@ -243,7 +245,7 @@ export const Component: React.FC = () => {
         header: t('Status'),
         meta: {
           label: t('Status'),
-          layoutClassName: 'xl:basis-40 xl:grow-0 xl:shrink-0',
+          layoutClassName: 'min-w-0 flex-[1.2_1_0%]',
           className: 'flex items-center',
         },
         enableSorting: false,
@@ -317,7 +319,7 @@ export const Component: React.FC = () => {
       enableSorting: false,
       enableColumnFilter: false,
       meta: {
-        layoutClassName: 'xl:basis-32 xl:grow-0 xl:shrink-0',
+        layoutClassName: 'min-w-0 flex-[1.1_1_0%]',
         className: 'flex items-center',
       },
       cell: ({ row }) => {
@@ -434,7 +436,7 @@ export const Component: React.FC = () => {
       data-density={density}
       className={cn(
         'flex h-full min-h-0 min-w-0 flex-col',
-        compact ? 'gap-2.5' : 'gap-5',
+        dense ? 'gap-1.5' : compact ? 'gap-2.5' : 'gap-5',
       )}
     >
       <div className='flex shrink-0 flex-wrap items-start justify-between gap-3'>
@@ -442,7 +444,7 @@ export const Component: React.FC = () => {
           <h1
             className={cn(
               'leading-tight font-semibold tracking-tight',
-              compact ? 'text-xl' : 'mb-1.5 text-2xl',
+              dense ? 'text-lg' : compact ? 'text-xl' : 'mb-1.5 text-2xl',
             )}
           >
             {t('Installed')}
@@ -450,7 +452,11 @@ export const Component: React.FC = () => {
           <p
             className={cn(
               'text-muted-foreground',
-              compact ? 'text-xs leading-normal' : 'text-sm leading-relaxed',
+              dense
+                ? 'hidden'
+                : compact
+                  ? 'text-xs leading-normal'
+                  : 'text-sm leading-relaxed',
             )}
           >
             {t('Installed-Description')}
@@ -460,31 +466,39 @@ export const Component: React.FC = () => {
       <VersionEnvironment
         current={current}
         compact={compact}
+        dense={dense}
         installedCount={installedVersions.length}
         releaseCount={allVersions.length}
         destination='/versions'
       />
       <div className='flex min-h-0 flex-1 flex-col overflow-hidden'>
-        <div
-          className={cn(
-            'flex items-baseline justify-between gap-3',
-            compact ? 'pb-2' : 'pb-4',
-          )}
-        >
-          <h2 className='text-sm font-semibold'>{t('Installed-Catalog')}</h2>
-          <span className='text-xs text-muted-foreground tabular-nums'>
-            {t('Installed-Count', {
-              count: versions.length,
-            })}
-          </span>
-        </div>
+        {!dense && (
+          <div
+            className={cn(
+              'flex items-baseline justify-between gap-3',
+              compact ? 'pb-2' : 'pb-4',
+            )}
+          >
+            <h2 className='text-sm font-semibold'>{t('Installed-Catalog')}</h2>
+            <span className='text-xs text-muted-foreground tabular-nums'>
+              {t('Installed-Count', {
+                count: versions.length,
+              })}
+            </span>
+          </div>
+        )}
         <DataTable
           density={density}
           columns={columns}
           data={versions}
           loading={loading}
           toolbar={(table) => (
-            <div className='flex shrink-0 flex-wrap items-center gap-2 pb-3'>
+            <div
+              className={cn(
+                'flex shrink-0 flex-wrap items-center gap-2',
+                dense ? 'pb-1.5' : 'pb-3',
+              )}
+            >
               <DataTableToolbar
                 table={table}
                 options={[

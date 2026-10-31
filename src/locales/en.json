@@ -1,6 +1,7 @@
 {
   "Version-Density": "List density",
   "Density-Comfortable": "Comfortable",
+  "Density-Dense": "Dense",
   "Density-Compact": "Compact",
 
   "Group-Projects-Save-Failed": "Could not update group projects. Check that the project folders exist and are writable.",

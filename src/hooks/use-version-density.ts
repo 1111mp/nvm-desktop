@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-export type VersionDensity = 'comfortable' | 'compact';
+export type VersionDensity = 'comfortable' | 'compact' | 'dense';
 const storageKey = 'nvmd-version-density';
 const changeEvent = 'nvmd-version-density-change';
 let fallback: VersionDensity = 'comfortable';
@@ -9,9 +9,8 @@ let memoryOnly = false;
 function getSnapshot(): VersionDensity {
   if (memoryOnly) return fallback;
   try {
-    return localStorage.getItem(storageKey) === 'compact'
-      ? 'compact'
-      : 'comfortable';
+    const stored = localStorage.getItem(storageKey);
+    return stored === 'compact' || stored === 'dense' ? stored : 'comfortable';
   } catch {
     return fallback;
   }

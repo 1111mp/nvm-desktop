@@ -1,4 +1,4 @@
-import { AlignJustify, List } from 'lucide-react';
+import { AlignJustify, List, Rows3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { useVersionDensity } from '@/hooks/use-version-density';
@@ -17,7 +17,12 @@ import { workspaceStyles } from './workspace-layout';
 export function VersionDensityControl() {
   const { density, setDensity } = useVersionDensity();
   const { t } = useTranslation();
-  const Icon = density === 'compact' ? AlignJustify : List;
+  const options = {
+    comfortable: { icon: List, label: 'Density-Comfortable' },
+    compact: { icon: AlignJustify, label: 'Density-Compact' },
+    dense: { icon: Rows3, label: 'Density-Dense' },
+  } as const;
+  const Icon = options[density].icon;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -30,9 +35,7 @@ export function VersionDensityControl() {
             title={t('Version-Density')}
           >
             <Icon data-icon='inline-start' />
-            {t(
-              density === 'compact' ? 'Density-Compact' : 'Density-Comfortable',
-            )}
+            {t(options[density].label)}
           </Button>
         }
       />
@@ -48,26 +51,27 @@ export function VersionDensityControl() {
           <DropdownMenuRadioGroup
             value={density}
             onValueChange={(value) => {
-              if (value === 'compact' || value === 'comfortable')
+              if (
+                value === 'compact' ||
+                value === 'comfortable' ||
+                value === 'dense'
+              )
                 setDensity(value);
             }}
           >
-            <DropdownMenuRadioItem
-              value='comfortable'
-              className='gap-2.5 pr-10 whitespace-nowrap'
-              closeOnClick
-            >
-              <List data-icon='inline-start' />
-              {t('Density-Comfortable')}
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem
-              value='compact'
-              className='gap-2.5 pr-10 whitespace-nowrap'
-              closeOnClick
-            >
-              <AlignJustify data-icon='inline-start' />
-              {t('Density-Compact')}
-            </DropdownMenuRadioItem>
+            {Object.entries(options).map(
+              ([value, { icon: OptionIcon, label }]) => (
+                <DropdownMenuRadioItem
+                  key={value}
+                  value={value}
+                  className='gap-2.5 pr-10 whitespace-nowrap'
+                  closeOnClick
+                >
+                  <OptionIcon data-icon='inline-start' />
+                  {t(label)}
+                </DropdownMenuRadioItem>
+              ),
+            )}
           </DropdownMenuRadioGroup>
         </DropdownMenuGroup>
       </DropdownMenuContent>

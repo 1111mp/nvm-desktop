@@ -219,14 +219,8 @@ export function DataDndTable<TData extends RowData>({
           }}
           transition={{ duration: 0.3 }}
         >
-          {/* Dense fits a collapsed sidebar; expanded navigation can retain a wider table. */}
-          <Table
-            className={
-              density === 'dense'
-                ? 'grid min-w-160 grid-cols-1 group-has-[[data-slot=sidebar][data-state=expanded]]/sidebar-wrapper:min-w-240'
-                : 'min-w-240'
-            }
-          >
+          {/* Fit a collapsed sidebar in every density; expanded navigation can retain a wider table. */}
+          <Table className='grid min-w-160 grid-cols-1 group-has-[[data-slot=sidebar][data-state=expanded]]/sidebar-wrapper:min-w-240'>
             <table.Subscribe source={table.atoms.columnVisibility}>
               {() => (
                 <>

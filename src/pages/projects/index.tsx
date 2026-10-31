@@ -136,9 +136,7 @@ export const Component: React.FC = () => {
       header: t('Project-Name'),
       enableHiding: false,
       meta: {
-        layoutClassName: dense
-          ? 'min-w-0 flex-[1.1_1_0%]'
-          : 'basis-48 grow-0 shrink-0',
+        layoutClassName: 'min-w-0 flex-[1.1_1_0%]',
         className: 'flex items-center',
       },
       cell: ({ row }) => {
@@ -172,9 +170,7 @@ export const Component: React.FC = () => {
       header: t('Project-Path'),
       enableHiding: false,
       meta: {
-        layoutClassName: dense
-          ? 'min-w-0 flex-[1.4_1_0%]'
-          : 'min-w-56 flex-[1.4_1_0%]',
+        layoutClassName: 'min-w-0 flex-[1.4_1_0%]',
         className: 'flex items-center text-muted-foreground',
       },
       cell: ({ row }) => {
@@ -246,9 +242,7 @@ export const Component: React.FC = () => {
       header: t('Version'),
       meta: {
         label: t('Version'),
-        layoutClassName: dense
-          ? 'min-w-32 flex-[1_1_0%]'
-          : 'basis-44 grow-0 shrink-0',
+        layoutClassName: 'min-w-32 flex-[1_1_0%]',
       },
       cell: ({ row }) => {
         const { version, path } = row.original;
@@ -391,9 +385,7 @@ export const Component: React.FC = () => {
       header: t('Operation'),
       enableHiding: false,
       meta: {
-        layoutClassName: dense
-          ? 'basis-24 grow-0 shrink-0'
-          : 'basis-28 grow-0 shrink-0',
+        layoutClassName: 'basis-24 grow-0 shrink-0',
         className: 'flex items-center',
       },
       cell: ({ row }) => {

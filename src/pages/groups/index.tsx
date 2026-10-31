@@ -132,9 +132,7 @@ export const Component: React.FC = () => {
       header: t('Group-Name'),
       enableHiding: false,
       meta: {
-        layoutClassName: dense
-          ? 'min-w-0 flex-[1_1_0%]'
-          : 'basis-40 grow-0 shrink-0',
+        layoutClassName: 'min-w-0 flex-[1_1_0%]',
         className: 'flex items-center',
       },
       cell: ({ row }) => (
@@ -154,7 +152,7 @@ export const Component: React.FC = () => {
     columnHelper.accessor('desc', {
       header: t('Group-Desc'),
       meta: {
-        layoutClassName: dense ? 'min-w-0 flex-1' : 'min-w-40 flex-1',
+        layoutClassName: 'min-w-0 flex-1',
         className: 'flex items-center text-muted-foreground',
       },
       enableHiding: false,
@@ -181,9 +179,7 @@ export const Component: React.FC = () => {
       header: t('Version'),
       meta: {
         label: t('Version'),
-        layoutClassName: dense
-          ? 'min-w-32 flex-[1_1_0%]'
-          : 'basis-36 grow-0 shrink-0',
+        layoutClassName: 'min-w-32 flex-[1_1_0%]',
       },
       cell: ({ row }) => {
         const { projects, name, version } = row.original;
@@ -244,9 +240,7 @@ export const Component: React.FC = () => {
       header: t('Projects'),
       meta: {
         label: t('Projects'),
-        layoutClassName: dense
-          ? 'min-w-0 flex-[1.4_1_0%]'
-          : 'min-w-56 flex-[1.4_1_0%]',
+        layoutClassName: 'min-w-0 flex-[1.4_1_0%]',
       },
       cell: ({ row }) => {
         const { name, projects: defaultProjects, version } = row.original;
@@ -269,9 +263,7 @@ export const Component: React.FC = () => {
       header: t('Operation'),
       enableHiding: false,
       meta: {
-        layoutClassName: dense
-          ? 'basis-24 grow-0 shrink-0'
-          : 'basis-28 grow-0 shrink-0',
+        layoutClassName: 'basis-24 grow-0 shrink-0',
         className: 'flex items-center',
       },
       cell: ({ row }) => {

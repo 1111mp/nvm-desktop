@@ -208,9 +208,7 @@ export const Versions: React.FC = () => {
     columnHelper.accessor('version', {
       header: t('Version'),
       meta: {
-        layoutClassName: dense
-          ? 'min-w-0 flex-[1.6_1_0%]'
-          : 'min-w-52 xl:flex-[1.1_1_0%]',
+        layoutClassName: 'min-w-0 flex-[1.6_1_0%]',
       },
       enableHiding: false,
       enableColumnFilter: false,
@@ -233,14 +231,7 @@ export const Versions: React.FC = () => {
       cell: ({ row }) => {
         const { version, lts, date } = row.original;
         return (
-          <div
-            className={cn(
-              'relative flex items-center gap-2 whitespace-nowrap',
-              dense && 'gap-1.5',
-              dense &&
-                'min-w-0 flex-nowrap [&_button]:min-w-0 [&_button]:truncate [&_[data-slot=badge]]:shrink-0',
-            )}
-          >
+          <div className='relative flex min-w-0 flex-nowrap items-center gap-1.5 whitespace-nowrap [&_button]:min-w-0 [&_button]:truncate [&_[data-slot=badge]]:shrink-0'>
             <Tooltip disableHoverablePopup={true}>
               <TooltipTrigger
                 render={
@@ -261,7 +252,7 @@ export const Versions: React.FC = () => {
                 className='bg-primary text-primary-foreground'
                 arrowClassName='bg-primary fill-primary'
               >
-                {dense ? `${version} · ${t('Whats-new')}` : t('Whats-new')}
+                {`${version} · ${t('Whats-new')}`}
               </TooltipContent>
             </Tooltip>
             {lts ? (
@@ -293,9 +284,7 @@ export const Versions: React.FC = () => {
       enableSorting: false,
       meta: {
         label: `V8 ${t('Version')}`,
-        layoutClassName: dense
-          ? 'min-w-0 flex-[1.2_1_0%]'
-          : 'min-w-32 xl:flex-[1_1_0%]',
+        layoutClassName: 'min-w-0 flex-[1.2_1_0%]',
         className: 'flex items-center font-mono text-xs text-muted-foreground',
       },
     }),
@@ -304,9 +293,7 @@ export const Versions: React.FC = () => {
       enableSorting: false,
       meta: {
         label: `NPM ${t('Version')}`,
-        layoutClassName: dense
-          ? 'min-w-0 flex-[0.8_1_0%]'
-          : 'min-w-28 xl:flex-[0.8_1_0%]',
+        layoutClassName: 'min-w-0 flex-[0.8_1_0%]',
         className: 'flex items-center font-mono text-xs text-muted-foreground',
       },
     }),
@@ -316,9 +303,7 @@ export const Versions: React.FC = () => {
       enableSorting: true,
       meta: {
         label: t('Release-Date'),
-        layoutClassName: dense
-          ? 'min-w-0 flex-[1.1_1_0%]'
-          : 'xl:basis-36 xl:grow-0 xl:shrink-0',
+        layoutClassName: 'min-w-0 flex-[1.1_1_0%]',
         className: 'flex items-center text-muted-foreground',
       },
       cell: ({ row }) =>
@@ -338,9 +323,7 @@ export const Versions: React.FC = () => {
         enableColumnFilter: false,
         meta: {
           label: t('Status'),
-          layoutClassName: dense
-            ? 'min-w-0 flex-[1.2_1_0%]'
-            : 'xl:basis-40 xl:grow-0 xl:shrink-0',
+          layoutClassName: 'min-w-0 flex-[1.2_1_0%]',
           className: 'flex items-center',
         },
         filterFn: (row, _columnId, filterValue: string[]) => {
@@ -439,9 +422,7 @@ export const Versions: React.FC = () => {
       enableSorting: false,
       enableColumnFilter: false,
       meta: {
-        layoutClassName: dense
-          ? 'min-w-0 flex-[1.1_1_0%]'
-          : 'xl:basis-32 xl:grow-0 xl:shrink-0',
+        layoutClassName: 'min-w-0 flex-[1.1_1_0%]',
         className: 'flex items-center',
       },
       cell: ({ row }) => {

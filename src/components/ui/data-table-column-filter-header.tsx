@@ -37,7 +37,7 @@ export function DataTableColumnFilterHeader<TData extends RowData, TValue>({
       : column.id);
   if (!column.getCanFilter()) return <span className={className}>{title}</span>;
   return (
-    <div className={cn('flex min-w-0 items-center', className)}>
+    <div className={cn('flex w-full min-w-0 items-center', className)}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           render={
@@ -45,14 +45,16 @@ export function DataTableColumnFilterHeader<TData extends RowData, TValue>({
               variant='ghost'
               className={cn(
                 tableFilterStyles.headerTrigger,
-                '-ml-2',
+                '-ml-2 min-w-0 max-w-full',
                 value && tableFilterStyles.activeTrigger,
               )}
               aria-label={t('Table-Filter-Column', {
                 field: title,
               })}
             >
-              <span>{title}</span>
+              <span className='truncate' title={title}>
+                {title}
+              </span>
               <Search className='size-3 opacity-60' />
               {value && (
                 <span

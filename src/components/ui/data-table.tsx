@@ -137,14 +137,8 @@ export function DataTable<TData extends RowData>({
         }}
         transition={{ duration: 0.3 }}
       >
-        {/* Dense can use wider columns while the sidebar is expanded. */}
-        <Table
-          className={
-            density === 'dense'
-              ? 'grid min-w-0 grid-cols-1 group-has-[[data-slot=sidebar][data-state=expanded]]/sidebar-wrapper:min-w-224'
-              : 'min-w-224'
-          }
-        >
+        {/* Fit the available width with collapsed navigation, regardless of density. */}
+        <Table className='grid min-w-0 grid-cols-1 group-has-[[data-slot=sidebar][data-state=expanded]]/sidebar-wrapper:min-w-224'>
           <TableHeader className='sticky top-0 z-10 bg-muted xl:bg-card xl:bg-linear-to-b xl:from-muted/80 xl:to-muted/60'>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
@@ -200,10 +194,10 @@ export function DataTable<TData extends RowData>({
                         <TableCell
                           key={cell.id}
                           className={cn(
-                            'flex-1',
+                            'flex-1 whitespace-normal break-words',
                             density === 'compact' && 'py-1.5',
                             density === 'dense' &&
-                              'px-1.5 py-1 first:pl-2 last:pr-2 whitespace-normal break-words',
+                              'px-1.5 py-1 first:pl-2 last:pr-2',
                             meta?.layoutClassName,
                             meta?.className,
                           )}

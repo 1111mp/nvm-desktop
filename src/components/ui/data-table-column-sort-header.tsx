@@ -45,7 +45,7 @@ export function DataTableColumnSortHeader<TData extends RowData, TValue>({
       : column.id);
   if (!column.getCanSort()) return <span className={className}>{title}</span>;
   return (
-    <div className={cn('flex min-w-0 items-center', className)}>
+    <div className={cn('flex w-full min-w-0 items-center', className)}>
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
@@ -53,14 +53,16 @@ export function DataTableColumnSortHeader<TData extends RowData, TValue>({
               variant='ghost'
               className={cn(
                 tableFilterStyles.headerTrigger,
-                '-ml-2',
+                '-ml-2 min-w-0 max-w-full',
                 direction && tableFilterStyles.activeTrigger,
               )}
               aria-label={t('Table-Sort-Column', {
                 field: title,
               })}
             >
-              <span>{title}</span>
+              <span className='truncate' title={title}>
+                {title}
+              </span>
               {direction === 'desc' ? (
                 <ArrowDown className='size-3' />
               ) : direction === 'asc' ? (

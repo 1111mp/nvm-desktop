@@ -446,3 +446,84 @@ test('dense catalog is smaller than the original compact layout and fits narrow 
   localStorage.removeItem('nvmd-version-density');
   window.dispatchEvent(new Event('nvmd-version-density-change'));
 });
+
+for (const density of ['comfortable', 'compact', 'dense'] as const) {
+  for (const route of ['versions', 'installed'] as const) {
+    test(`${route} ${density} fits collapsed navigation and allows expanded scrolling`, async () => {
+      const { Component: Installed } = await import('../installed');
+      localStorage.setItem('nvmd-version-density', density);
+      const router = createMemoryRouter([
+        {
+          path: '/',
+          Component: route === 'versions' ? Versions : Installed,
+          loader: () => [
+            '24.0.0',
+            [
+              release('v27.0.0-alpha.0.0.0'),
+              {
+                ...release('v24.0.0'),
+                lts: 'Krypton',
+                v8: '12.4.254.21-node.22',
+              },
+            ],
+            ['24.0.0'],
+          ],
+          HydrateFallback: () => null,
+        },
+      ]);
+      const screen = await render(
+        <TooltipProvider>
+          <InstallTasksProvider>
+            <div className='group/sidebar-wrapper h-screen p-6'>
+              <aside data-slot='sidebar' data-state='collapsed' hidden />
+              <RouterProvider router={router} />
+            </div>
+          </InstallTasksProvider>
+        </TooltipProvider>,
+      );
+      try {
+        await expect.element(screen.getByRole('table')).toBeVisible();
+        const scrollArea = () =>
+          document.querySelector('[data-slot="table-container"]')!
+            .parentElement!;
+        for (const width of [1000, 800, 720]) {
+          await page.viewport(width, 720);
+          await vi.waitFor(() => {
+            expect(scrollArea().scrollWidth).toBeLessThanOrEqual(
+              scrollArea().clientWidth + 1,
+            );
+            for (const cell of document.querySelectorAll(
+              'tbody td, thead th',
+            )) {
+              expect(cell.scrollWidth).toBeLessThanOrEqual(
+                cell.clientWidth + 1,
+              );
+            }
+          });
+        }
+        await page.viewport(1600, 900);
+        await vi.waitFor(() => {
+          const labels = document.querySelectorAll('thead span[title]');
+          expect(labels.length).toBeGreaterThan(0);
+          for (const label of labels) {
+            expect(label.scrollWidth).toBeLessThanOrEqual(
+              label.clientWidth + 1,
+            );
+          }
+        });
+        await page.viewport(720, 720);
+        document
+          .querySelector('[data-slot="sidebar"]')!
+          .setAttribute('data-state', 'expanded');
+        await vi.waitFor(() =>
+          expect(scrollArea().scrollWidth).toBeGreaterThan(
+            scrollArea().clientWidth,
+          ),
+        );
+      } finally {
+        await screen.unmount();
+        localStorage.removeItem('nvmd-version-density');
+      }
+    });
+  }
+}

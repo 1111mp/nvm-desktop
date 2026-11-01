@@ -1,3 +1,24 @@
+## v4.5.1
+
+This release adds denser workspace layouts and improves theme picker sizing, table responsiveness, and typography consistency.
+
+### Features
+
+- Add a Dense display mode alongside Comfortable and Compact across version, installed, project, and group views
+- Reduce workspace overview spacing in Compact and Dense modes to show more content
+
+### Bug Fixes
+
+- Improve theme picker layout to fit smaller windows and larger text sizes, with scrolling when needed
+- Adapt table columns to window width and sidebar state across all density modes, preserving full headers in wide windows and horizontal scrolling when needed
+- Keep system fonts and text dimensions consistent when switching themes
+
+### Maintenance
+
+- Add browser regression coverage for theme picker sizing, typography, workspace density, responsive tables, and batch installation
+
+---
+
 ## v4.5.0
 
 This release brings a redesigned desktop interface, parallel Node.js installation, and more reliable runtime synchronization and application updates.

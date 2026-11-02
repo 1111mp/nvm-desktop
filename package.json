@@ -39,7 +39,7 @@
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
-    "@hookform/resolvers": "^6.0.2",
+    "@hookform/resolvers": "^7.0.0",
     "@tanstack/react-store": "^0.11.2",
     "@tanstack/react-table": "^9.3.1",
     "@tanstack/react-virtual": "^3.14.23",

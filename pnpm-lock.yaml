@@ -221,8 +221,8 @@ importers:
         specifier: ^1.11.23
         version: 1.11.23
       i18next:
-        specifier: 27.0.1
-        version: 27.0.1(typescript@7.0.2)
+        specifier: 27.1.0
+        version: 27.1.0(typescript@7.0.2)
       lodash:
         specifier: ^4.18.1
         version: 4.18.1
@@ -243,7 +243,7 @@ importers:
         version: 7.91.0(@types/react@19.3.0)(react@19.3.1)
       react-i18next:
         specifier: ^18.0.0
-        version: 18.0.0(i18next@27.0.1(typescript@7.0.2))(react@19.3.1)(typescript@7.0.2)
+        version: 18.0.0(i18next@27.1.0(typescript@7.0.2))(react@19.3.1)(typescript@7.0.2)
       react-markdown:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
@@ -3459,8 +3459,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  i18next@27.0.1:
-    resolution: {integrity: sha512-KaE5ozP8UUeVpOJIwMVbbnpRKpyYQuxd9ZbseJoDzezE3nvLnZZQn20pkzyIJwPI2Uet/Qs3WzPTG812f6F/Eg==}
+  i18next@27.1.0:
+    resolution: {integrity: sha512-xdjb2OXFRm33rClqknpJmmYBvrPcaoEQ7/4kur5uTrbqckqzkbRO0ns6gFFki5TDmHzbIrFYpNBXhaRafmhJ/Q==}
     engines: {node: '>=22'}
     peerDependencies:
       typescript: ^5 || ^6 || ^7
@@ -8079,7 +8079,7 @@ snapshots:
 
   husky@9.1.7: {}
 
-  i18next@27.0.1(typescript@7.0.2):
+  i18next@27.1.0(typescript@7.0.2):
     optionalDependencies:
       typescript: 7.0.2
 
@@ -9055,10 +9055,10 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.3.0
 
-  react-i18next@18.0.0(i18next@27.0.1(typescript@7.0.2))(react@19.3.1)(typescript@7.0.2):
+  react-i18next@18.0.0(i18next@27.1.0(typescript@7.0.2))(react@19.3.1)(typescript@7.0.2):
     dependencies:
       html-parse-stringify: 4.0.1
-      i18next: 27.0.1(typescript@7.0.2)
+      i18next: 27.1.0(typescript@7.0.2)
       react: 19.3.1
     optionalDependencies:
       typescript: 7.0.2

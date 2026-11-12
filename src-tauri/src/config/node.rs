@@ -26,6 +26,8 @@ pub struct NVersion {
     pub npm: Option<String>,
 
     /// v8 engine version
+    // Some official release entries omit V8 metadata; keep the version list usable.
+    #[serde(default)]
     pub v8: String,
 
     /// node version
@@ -160,5 +162,26 @@ impl INode {
     /// update installed
     pub fn update_installed(&mut self, installed: Vec<String>) {
         self.installed = Some(installed);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::NVersion;
+
+    #[test]
+    fn version_list_accepts_missing_v8_metadata() {
+        let versions: Vec<NVersion> = serde_json::from_str(
+            r#"[
+                {"version":"v26.13.1","date":"2026-11-10","files":["linux-x64"],"lts":"Lithium"},
+                {"version":"v26.13.0","date":"2026-10-28","files":["linux-x64"],"v8":"14.6.202.34"}
+            ]"#,
+        )
+        .unwrap();
+
+        assert_eq!(versions.len(), 2);
+        assert_eq!(versions[0].version, "v26.13.1");
+        assert!(versions[0].v8.is_empty());
+        assert_eq!(versions[1].v8, "14.6.202.34");
     }
 }

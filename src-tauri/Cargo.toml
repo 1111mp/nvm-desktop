@@ -1,6 +1,6 @@
 [package]
 name = "nvm-desktop"
-version = "4.5.1"
+version = "4.5.2"
 description = "Node Version Manager Desktop - A desktop application to manage multiple active node.js versions."
 authors = ["The1111mp@outlook.com"]
 license = "MIT"
@@ -10,6 +10,9 @@ edition = "2024"
 rust-version = "1.95"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+e2e = ["dep:tauri-plugin-wdio", "dep:tauri-plugin-wdio-webdriver"]
 
 [lib]
 crate-type = ["cdylib", "rlib", "staticlib"]
@@ -58,9 +61,6 @@ tauri-build = { version = "2.7.4", features = [] }
 
 [target."cfg(windows)".dependencies]
 windows = { version = "0.62.2", features = ["Win32_System_Threading"] }
-
-[features]
-e2e = ["dep:tauri-plugin-wdio", "dep:tauri-plugin-wdio-webdriver"]
 
 [profile.release]
 opt-level = "s"  # Prioritizes small binary size. Use `3` if you prefer speed.

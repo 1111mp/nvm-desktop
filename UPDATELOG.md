@@ -1,3 +1,17 @@
+## v4.5.2
+
+This patch release fixes remote Node.js version list refresh failures caused by missing metadata in release entries.
+
+### Bug Fixes
+
+- Fix `error decoding response body` when refreshing the remote version list from the official Node.js source or mirrors containing release entries without V8 metadata [#545](https://github.com/1111mp/nvm-desktop/issues/545)
+
+### Maintenance
+
+- Add regression coverage for version lists containing entries with and without V8 metadata
+
+---
+
 ## v4.5.1
 
 This release adds denser workspace layouts and improves theme picker sizing, table responsiveness, and typography consistency.
